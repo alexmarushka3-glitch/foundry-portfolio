@@ -5,15 +5,16 @@ export const profile = {
   name: "Alex Marushka",
   title: "Student at the University of Chicago",
   pitch:
-    "I build AI systems that do real work: agents that research, spec, build, verify and audit software, and the tooling around them.",
+    "I build teams of AI agents. Hand them a rough idea and they hand back a reviewed pull request.",
   email: "alex.marushka3@gmail.com",
   links: [
     { label: "GitHub", href: "https://github.com/alexmarushka3-glitch" },
     { label: "LinkedIn", href: "https://www.linkedin.com/in/alex-marushka-4bb1113b9/" },
   ],
   about: [
-    "I'm a student at the University of Chicago interested in where AI, software and business meet. I use Claude Code daily and build my own tools instead of waiting for them to exist.",
-    "I'm recruiting for consulting and tech roles, so I care about projects that are measurable: what it does, how well, and at what cost.",
+    "I'm a student at the University of Chicago, and one question has kept me busy: how much of building software can you hand to a team of AI agents, and how do you know the work is any good? Foundry is my answer so far.",
+    "I built it with Claude Code. One agent reads the code, two more write the story and the blueprint, two build in parallel, and two check the result before a pull request gets written. It's rough in places. The sample app is small, and the end-to-end check is an agent walking through the flows, not a real browser. Fixing that is next.",
+    "I'm recruiting for consulting and tech roles. I like projects where I can say what it does, how well it works, and what it costs.",
   ],
   projects: [
     {
