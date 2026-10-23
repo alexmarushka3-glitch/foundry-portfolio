@@ -1,0 +1,35 @@
+```tsx
+// src/ui/TaskList.tsx (due date parts)
+type Task = { id: number; title: string; done: number; due_date: string | null };
+
+function DueInput({ task, onSaved }: { task: Task; onSaved: (t: Task) => void }) {
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  async function save(v: string) {
+    setSaving(true); setError(null);
+    try {
+      const r = await fetch(`/tasks/${task.id}`, { method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ due_date: v || null }) });
+      const body = await r.json();
+      if (!r.ok) setError(body.error ?? "Could not save");
+      else onSaved(body);
+    } catch { setError("Network error"); }
+    finally { setSaving(false); }
+  }
+  return (<>
+    <input type="date" aria-label="Due date" value={task.due_date ?? ""}
+      disabled={saving} onChange={e => save(e.target.value)} />
+    {error && <span role="alert" className="error">{error}</span>}
+  </>);
+}
+
+// In list: empty state, then per task:
+// {tasks.length === 0 ? <p>No tasks yet. Add one above.</p> : tasks.map(t => (
+//   <li key={t.id}><input type="checkbox" .../> {t.title}
+//     {t.due_date && <span className="due">{t.due_date}</span>}
+//     <DueInput task={t} onSaved={replaceTask} /></li>))}
+// Create form: add <input type="date" name="due_date" /> and POST { title, due_date: value || null }.
+```
+
+Notes: Covers idle, saving (input disabled), inline API error text, and the empty list state; clearing the input sends null. The create-form date input is described in the trailing comment, not written out in full code.

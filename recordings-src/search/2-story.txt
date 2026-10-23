@@ -1,0 +1,9 @@
+As a person managing a long task list, I want a search box that filters my tasks by title so that I can find a specific task quickly without scrolling through the whole list.
+
+Acceptance criteria:
+1. A text search box appears above the task list in the React UI. As I type, only tasks whose title contains the typed text are shown. Matching is case-insensitive, and the checkbox and title display is unchanged.
+2. Clearing the search box shows the full list again, still ordered by created_at descending.
+3. When no task title matches, the list shows a "No tasks match" message instead of a blank area.
+4. Filtering matches on the title column only. Filtering does not change or lose any task's done state.
+
+Open items to settle before building (not in the research): where the filter runs, either in the UI over the already-fetched tasks array or server-side by having GET /tasks read a query parameter and bind it into the SQL (this depends on whether db.all accepts bound parameters); and which parent component holds the search state.

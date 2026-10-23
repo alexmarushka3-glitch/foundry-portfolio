@@ -1,0 +1,5 @@
+Data: No migration. `db/schema.sql` tasks table already has `title TEXT NOT NULL`, `done INTEGER DEFAULT 0`, `created_at TEXT`; filter reads existing `title` column only.
+
+API: No new endpoint. `GET /tasks` in `src/api/tasks.ts` stays `SELECT * FROM tasks ORDER BY created_at DESC`, returning `{ id, title, done, created_at }[]`; filter runs in the UI over the fetched array, so the unknown `db.all` bound-parameter signature is not a dependency. Add server-side `?q=` later only if the list outgrows client filtering.
+
+UI: Add `search: string` state (`useState("")`) in the parent that fetches tasks (name unknown; likely `src/ui/App.tsx`, confirm before building) and pass `tasks.filter(t => t.title.toLowerCase().includes(search.toLowerCase()))` to `TaskList`. New `src/ui/SearchBox.tsx`: controlled `<input type="text">` rendered above `TaskList`, with placeholder "Search tasks". `src/ui/TaskList.tsx`: when `tasks.length === 0` render "No tasks match"; checkbox and title rendering unchanged; done toggling unchanged because filtering only derives a view and never mutates the source array.

@@ -1,0 +1,18 @@
+E2E: PASS
+
+Flow 1: Type in the search box and filter by title (AC1, AC4). The review is on the supplied code only.
+- PASS: App fetches tasks through the unchanged `GET /tasks`, which returns `{id, title, done, created_at}[]` ordered by `created_at` DESC. When loading and error are both false, App renders `SearchBox` above `TaskList`.
+- PASS: Typing "rep" calls `onChange`, which sets `search`. `q` is the trimmed, lowercased text, and `visible` keeps tasks whose lowercased title includes `q`. This is case-insensitive and matches on the title only. `TaskList` renders the existing checkbox and title for each visible task.
+- PASS: `filter` keeps each task object as is, so `done` is untouched. Toggling a checkbox on a filtered row uses the existing handler, so done state is not lost when the search changes.
+
+Flow 2: Clear the search (AC2).
+- PASS: With `search` set to "", `q` is "" and `includes("")` is true for every title. The full list returns, and `filter` keeps the fetched order, so it is still `created_at` descending.
+- PASS: A whitespace-only query trims to "" and shows the full list, which is reasonable behavior.
+
+Flow 3: A search that matches nothing (AC3).
+- PASS: Typing "zzz" gives an empty `visible` and `isFiltered=true`, so `TaskList` returns "No tasks match" instead of a blank area.
+- PASS: With no tasks and no search, the list shows "No tasks yet". This is a separate state and does not conflict with the acceptance criteria.
+
+Non-blocking notes:
+- The `SearchBox` is only rendered in the non-loading, non-error branch. It unmounts while loading or on error, but it holds no state itself, because `search` lives in App. This does not break any flow.
+- The filename `src/ui/App.tsx` is marked "confirm filename", and the assumption that the parent already has `loading` and `error` state is unverified. These are implementation checks and do not break any flow in the story.

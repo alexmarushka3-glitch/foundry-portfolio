@@ -1,0 +1,6 @@
+VERDICT: APPROVE
+
+- AC1 met: `priority TEXT NOT NULL DEFAULT 'medium'` with CHECK in schema.sql and an idempotent PRAGMA-guarded ALTER for existing DBs; values low/medium/high, default medium are decided and documented.
+- AC2 met: POST stores `priority ?? 'medium'` and PATCH returns 400 via `isPriority` for any non-allowed value; POST validation closes the no-CHECK gap on migrated databases. No injection risk (parameterized helpers, no string-built SQL from input).
+- AC3 met: `SELECT *` returns the new column, `Task` type includes `priority: Priority`, and `TaskList` renders `LABELS[p]` next to the title with a safe fallback; E2E flows 1-3 pass.
+- AC4 partially unconfirmed as the story itself allows: no unit test code is shown for validation/default, and the `Task` type path is a guess. Not blocking, but add the two tests (400 on bad priority, 'medium' when omitted) and fix the import path on merge. PATCH still forwards whole `req.body` to `db.update` (pre-existing mass-assignment surface, out of scope).

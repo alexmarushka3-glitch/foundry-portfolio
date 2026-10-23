@@ -1,0 +1,27 @@
+```tsx
+// src/ui/SearchBox.tsx
+export function SearchBox({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <input type="text" placeholder="Search tasks" aria-label="Search tasks"
+      value={value} onChange={e => onChange(e.target.value)} />
+  );
+}
+
+// src/ui/App.tsx (parent that fetches tasks; confirm filename)
+const [search, setSearch] = useState("");
+const q = search.trim().toLowerCase();
+const visible = tasks.filter(t => t.title.toLowerCase().includes(q));
+// loading/error come from the existing fetch state
+{error ? <p role="alert">Could not load tasks. Try again.</p> : loading ? <p>Loading...</p> : (
+  <>
+    <SearchBox value={search} onChange={setSearch} />
+    <TaskList tasks={visible} isFiltered={q !== ""} />
+  </>
+)}
+
+// src/ui/TaskList.tsx (top of component)
+if (tasks.length === 0) return <p>{isFiltered ? "No tasks match" : "No tasks yet"}</p>;
+// existing checkbox + title rendering unchanged
+```
+
+Notes: The empty state shows "No tasks match" only while a search is active and "No tasks yet" otherwise. The error state replaces the list when the fetch fails. I assumed the parent already has `loading` and `error` state, and the filter only derives a view, so done toggling is unchanged.

@@ -1,0 +1,23 @@
+E2E: PASS
+
+Flow 1: Create a task with a priority and see it in the list. PASS
+- POST /tasks with {title, priority:'high'}: isPriority accepts it, and db.insert stores priority 'high'.
+- POST with no priority: the check is skipped, 'medium' is stored.
+- GET /tasks runs SELECT * and returns the priority column, so the Task type matches the payload.
+- TaskList reads t.priority, looks up LABELS, and renders "High" in span.priority-high next to the title.
+- The loading, error and empty states render in the right order (error, then null, then empty, then list).
+
+Flow 2: An existing database upgrades and old tasks still show a label. PASS
+- On startup, PRAGMA table_info finds no priority column, so the ALTER ... DEFAULT 'medium' runs. This is idempotent: it is skipped once the column exists.
+- Existing rows get 'medium' because the column is NOT NULL with a default.
+- GET returns the old rows with 'medium', and the UI shows "Medium". The fallback also covers any stale response that lacks the field.
+- Fresh installs use schema.sql with the CHECK constraint. Migrated databases have no CHECK, but API validation on POST and PATCH covers that gap.
+
+Flow 3: Update a task's priority, including a bad value. PASS
+- PATCH with priority 'urgent' (or null, or a number) fails the isPriority check and returns 400 {error:'invalid priority'}. The row is unchanged.
+- PATCH with 'low' passes validation and goes to db.update. The next GET returns 'low', and the UI shows "Low".
+- PATCH without priority skips the check, so existing title-only updates still work.
+
+Non-blocking notes:
+- The db.insert and db.update helpers, and the real path of the Task type, are not visible. The flows assume the helpers pass the fields through unchanged.
+- PATCH still passes req.body straight to db.update, so any other fields are still writable. This was already the case before this story and is not part of it.

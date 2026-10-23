@@ -1,0 +1,7 @@
+Add due dates to tasks
+
+- **Data:** Add nullable `due_date TEXT` (YYYY-MM-DD) to `tasks` in `db/schema.sql`, with `db/migrations/001_add_due_date.sql` applied to existing databases by a startup check. `Task` type and db helper now carry `due_date: string | null`.
+- **API:** POST `/tasks` accepts optional `due_date` and returns 201. PATCH `/tasks/:id` whitelists `title`, `done`, `due_date` (null clears) and returns 400 `{ error: "due_date must be YYYY-MM-DD" }` on bad input. Both validate format and real calendar date. GET unchanged.
+- **UI:** `TaskList` shows the due date after the title only when set. Each task gets a `DueInput` (date input, disabled while saving, inline error) that PATCHes the task. Same input on the create form. Empty state kept.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)

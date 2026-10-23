@@ -1,0 +1,35 @@
+```sql
+-- db/migrations/001_add_due_date.sql (also add `due_date TEXT NULL` to tasks in db/schema.sql)
+ALTER TABLE tasks ADD COLUMN due_date TEXT;
+```
+
+```ts
+// src/api/tasks.ts
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const validDate = (v: unknown) => {
+  if (v === null || v === undefined) return true;
+  if (typeof v !== "string" || !DATE_RE.test(v)) return false;
+  const d = new Date(v + "T00:00:00Z");
+  return !isNaN(+d) && d.toISOString().slice(0, 10) === v;
+};
+const BAD = { error: "due_date must be YYYY-MM-DD" };
+
+router.post("/tasks", (req, res) => {
+  const { title, due_date = null } = req.body;
+  if (!title) return res.status(400).json({ error: "title required" });
+  if (!validDate(due_date)) return res.status(400).json(BAD);
+  const created_at = new Date().toISOString();
+  const id = db.insert("tasks", { title, done: 0, due_date, created_at });
+  res.status(201).json({ id, title, done: 0, due_date, created_at });
+});
+
+router.patch("/tasks/:id", (req, res) => {
+  const patch: Partial<Pick<Task, "title" | "done" | "due_date">> = {};
+  for (const k of ["title", "done", "due_date"] as const)
+    if (k in req.body) (patch as any)[k] = req.body[k];
+  if ("due_date" in patch && !validDate(patch.due_date)) return res.status(400).json(BAD);
+  res.status(200).json(db.update(req.params.id, patch));
+});
+```
+
+Notes: Add `due_date: string | null` to the `Task` type and have the db helper run the migration once at startup (e.g. skip if `PRAGMA table_info(tasks)` already lists `due_date`); I wrote this against the blueprint without seeing the repo, so `db.insert`/`db.update` signatures and the 404 on a missing id are assumed or not handled.

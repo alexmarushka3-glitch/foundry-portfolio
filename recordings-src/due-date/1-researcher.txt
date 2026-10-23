@@ -1,0 +1,7 @@
+- db/schema.sql: the tasks table has id, title, done, and created_at (TEXT). There is no due-date column.
+- src/api/tasks.ts (POST /tasks): reads only title from the body and inserts done: 0 and created_at. A due date would be dropped here unless this handler is changed.
+- src/api/tasks.ts (PATCH /tasks/:id): passes req.body straight to db.update, so a due-date field could be stored without validation. GET /tasks uses SELECT *, so a new column would be returned automatically.
+- src/ui/TaskList.tsx: renders only a checkbox and the title for each li. It has no date display or date input.
+- tests/e2e/README.md: no end-to-end tests exist. Unit tests cover only the db helpers, not the API or UI.
+
+Gap: the Task type, the db helper code, any migration mechanism, and the date format or timezone convention are not in the provided text.

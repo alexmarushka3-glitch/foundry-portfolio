@@ -1,0 +1,14 @@
+No migration is needed and no API route changes: filtering runs client-side in the UI, so `GET /tasks` stays as it is.
+
+```sql
+-- db/migrations: none. tasks(title TEXT NOT NULL, done INTEGER DEFAULT 0, created_at TEXT) already covers the filter.
+```
+
+```ts
+// src/api/tasks.ts (unchanged)
+router.get("/tasks", (req, res) =>
+  res.json(db.all("SELECT * FROM tasks ORDER BY created_at DESC")));
+// returns { id, title, done, created_at }[]
+```
+
+Notes: Add a server-side `?q=` later only if the list outgrows client filtering, and then confirm the `db.all` bound-parameter signature first.

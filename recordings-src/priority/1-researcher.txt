@@ -1,0 +1,7 @@
+- `db/schema.sql`: the `tasks` table has `id`, `title`, `done` (INTEGER, default 0), and `created_at`. There is no priority column.
+- `src/api/tasks.ts`: `GET /tasks` runs `SELECT * FROM tasks ORDER BY created_at DESC`. `POST /tasks` reads only `title` and inserts `done: 0` with a timestamp. `PATCH /tasks/:id` passes `req.body` straight to `db.update`, so a priority field would reach the DB without validation.
+- `src/ui/TaskList.tsx`: `TaskList` renders each task as a checkbox plus its title inside an `<li>`. Nothing shows a priority, and the `Task` type it imports is not in the provided text.
+- `tests/e2e/README.md`: there are no end-to-end tests. The README says unit tests cover only the db helpers, and those helpers are not in the provided text.
+- `README.md`: a one-line description (Express API, SQLite, React UI). It does not document fields, allowed values, or a migration process.
+
+Gaps: no migration mechanism or db helper code, no `Task` type definition, no allowed priority values or default, and no visible unit tests for the API or UI.

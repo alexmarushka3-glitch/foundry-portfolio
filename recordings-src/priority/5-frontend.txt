@@ -1,0 +1,30 @@
+```tsx
+// src/ui/Task.ts
+export type Priority = 'low' | 'medium' | 'high';
+export type Task = { id: number; title: string; priority: Priority /* ...existing fields */ };
+
+// src/ui/TaskList.tsx
+const LABELS: Record<Priority, string> = { low: 'Low', medium: 'Medium', high: 'High' };
+
+export function TaskList({ tasks, error }: { tasks: Task[] | null; error?: string }) {
+  if (error) return <p role="alert" className="task-error">Couldn't load tasks: {error}</p>;
+  if (!tasks) return <p aria-busy="true">Loading tasks...</p>;
+  if (tasks.length === 0) return <p className="task-empty">No tasks yet. Add one to get started.</p>;
+  return (
+    <ul>
+      {tasks.map((t) => {
+        // Fallback guards against stale API responses missing the field.
+        const p: Priority = t.priority in LABELS ? t.priority : 'medium';
+        return (
+          <li key={t.id}>
+            {t.title}{' '}
+            <span className={`priority priority-${p}`}>{LABELS[p]}</span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+```
+
+Notes: Added loading, error and empty states beyond the blueprint (which only asked for the label), and the `Task` type path is a guess — move the `Priority` type to wherever `TaskList.tsx` currently imports `Task` from.

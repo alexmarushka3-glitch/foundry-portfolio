@@ -1,0 +1,5 @@
+VERDICT: APPROVE
+- AC1-AC4 all met: client-side filter on `title.toLowerCase().includes(q)` is case-insensitive and title-only; `filter` returns a derived view so `done` and fetch order (`created_at` DESC) are untouched; empty search restores full list; empty filtered result shows "No tasks match".
+- Security/data safety: no new API surface, no SQL change, no user input reaches the server or DOM as raw HTML (React escapes), no persistence of search state. No real risk.
+- Minor: `t.title.toLowerCase()` assumes `title` is never null; schema has `title TEXT NOT NULL`, so this holds.
+- Unverified but non-blocking: `src/ui/App.tsx` filename and existing `loading`/`error` state are assumptions to confirm at implementation time.

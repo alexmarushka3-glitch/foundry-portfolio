@@ -1,0 +1,33 @@
+```sql
+-- db/schema.sql (tasks table)
+priority TEXT NOT NULL DEFAULT 'medium' CHECK (priority IN ('low','medium','high'))
+
+-- one-off startup migration (run if column missing; no CHECK possible via ALTER in SQLite)
+ALTER TABLE tasks ADD COLUMN priority TEXT NOT NULL DEFAULT 'medium';
+```
+
+```ts
+// src/api/tasks.ts
+const PRIORITIES = ['low', 'medium', 'high'] as const;
+type Priority = typeof PRIORITIES[number];
+const isPriority = (v: unknown): v is Priority => PRIORITIES.includes(v as Priority);
+
+// startup: add column only if missing
+const cols = db.prepare("PRAGMA table_info(tasks)").all() as { name: string }[];
+if (!cols.some(c => c.name === 'priority')) {
+  db.exec("ALTER TABLE tasks ADD COLUMN priority TEXT NOT NULL DEFAULT 'medium'");
+}
+
+// POST /tasks
+const { title, priority } = req.body;
+if (priority !== undefined && !isPriority(priority)) return res.status(400).json({ error: 'invalid priority' });
+db.insert({ title, priority: priority ?? 'medium' });
+
+// PATCH /tasks/:id
+if (req.body.priority !== undefined && !isPriority(req.body.priority))
+  return res.status(400).json({ error: 'invalid priority' });
+// ...then db.update(...)
+// GET /tasks: unchanged SELECT *, ORDER BY created_at DESC
+```
+
+Notes: I also validated priority on POST (the blueprint only required PATCH), since the ALTER path has no CHECK constraint to catch bad values.

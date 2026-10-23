@@ -1,0 +1,25 @@
+E2E: PASS
+
+Flow 1: Create a task with a due date (UI form -> POST /tasks -> db -> GET /tasks -> list)
+- User picks a date in the create form and submits. The UI POSTs { title, due_date: value || null }. PASS.
+- The handler destructures due_date and validates it. "2026-03-15" passes the regex and the round-trip check. The row is inserted with due_date and returns 201 with the new field. PASS.
+- The migration adds a nullable due_date column and schema.sql is updated. GET /tasks uses SELECT *, so the column comes back, and the list renders the date in a span next to the title. PASS.
+- Create without a date: the UI sends null (or the field is omitted, so the default is null). validDate(null) is true, and null is stored. The `{t.due_date && ...}` check renders nothing, so the row looks as it does today. PASS.
+- Invalid date such as "2026-02-30": the regex matches, but the round-trip check changes it to 03-02, so it is rejected with 400 and the error body. PASS.
+
+Flow 2: Edit, change and clear a due date (DueInput -> PATCH /tasks/:id)
+- User changes the date input. The UI PATCHes { due_date: "2026-04-01" }. The handler whitelists title, done and due_date, validates, and calls db.update. The response is 200 with the updated task. onSaved replaces the task in the list and the new date shows. PASS.
+- User clears the input. The UI sends due_date: null. "due_date" in patch is true and validDate(null) is true, so the column is set to null. The span disappears. PASS.
+- Server-side bad value (such as "abc" from a manual call): 400 with { error: "due_date must be YYYY-MM-DD" }. The UI reads body.error and shows it in role="alert". The input is re-enabled in finally. PASS.
+- Network failure: the catch shows "Network error". PASS.
+- A PATCH that does not touch due_date, such as toggling done, does not trigger date validation, so existing behaviour is preserved. PASS.
+
+Flow 3: Existing data and empty state
+- Legacy rows get NULL after the ALTER TABLE migration. GET /tasks returns null for them, and the UI shows no date and an empty date input (due_date ?? ""). PASS.
+- An empty list renders "No tasks yet. Add one above." PASS.
+
+Non-blocking notes (assumptions the author flagged, not broken flows):
+- A missing id on PATCH may not return 404, because the author did not handle it and assumed the db.update signature. This is outside the acceptance criteria.
+- The migration's run-once check at startup is described but not shown in code. It should be confirmed when integrating.
+- The create-form code is described, not written out in full.
+- The input is disabled while saving, but the controlled value only updates after the response. This is acceptable, because the value reverts to the stored date on error.

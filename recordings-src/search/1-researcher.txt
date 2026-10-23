@@ -1,0 +1,6 @@
+- src/api/tasks.ts: GET /tasks runs SELECT * FROM tasks ORDER BY created_at DESC with no parameters and ignores req.query. Any title filter would have to go through this route or the SQL it runs.
+- db/schema.sql: the tasks table has id, title (TEXT, NOT NULL), done (INTEGER, default 0), and created_at (TEXT). title is the only text column a search would match on.
+- src/ui/TaskList.tsx: TaskList({ tasks }) renders each task as a checkbox and its title, with no input, state, or filtering. It receives an already-fetched tasks array.
+- README.md: describes the project as an Express API, SQLite, and a React UI. It does not mention search or filtering.
+- tests/e2e/README.md: there are no end-to-end tests. Unit tests cover only the db helpers, so nothing covers the tasks route or TaskList.
+- Gaps: the parent component that fetches tasks and holds state, the db.all helper signature (including whether it accepts bound parameters), and any existing unit tests for the db helpers are not in the provided text.

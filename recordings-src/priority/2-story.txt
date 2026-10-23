@@ -1,0 +1,12 @@
+**User story**
+
+As a user managing my to-do list, I want to assign a priority label to each task so that I can see at a glance which tasks matter most.
+
+**Acceptance criteria**
+
+1. The `tasks` table gets a `priority` column. Existing rows get a default value so current data stays valid. The allowed values and the default are not defined in the research and need to be decided (for example low, medium, high, default medium).
+2. `POST /tasks` accepts an optional `priority` along with `title`. If it is missing, the default is stored. `PATCH /tasks/:id` rejects any priority outside the allowed values with a 400 error, since it currently passes `req.body` straight to `db.update` without validation.
+3. `GET /tasks` returns `priority` for every task, and `TaskList` shows each task's priority label next to its title. The `Task` type, which is not in the provided text, is updated to include it.
+4. Unit tests cover the validation and the default value. Because no end-to-end tests exist and the db helper code is not visible, the test scope for the db helpers and the UI needs to be confirmed.
+
+**Open questions:** the migration approach (the research found no mechanism and no documented process), the allowed values and default, and whether the list should be sorted by priority. The current sort is by `created_at DESC`.

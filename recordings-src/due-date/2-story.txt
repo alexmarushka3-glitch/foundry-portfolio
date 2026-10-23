@@ -1,0 +1,16 @@
+**User story**
+
+As a task-list user, I want to set an optional due date on a task so that I can see when it needs to be done and plan my work around it.
+
+**Acceptance criteria**
+
+1. Creating a task: POST /tasks accepts an optional due date alongside the title and stores it in a new nullable due-date column on the tasks table (added to db/schema.sql). Tasks created without a due date still work and store null.
+2. Editing a task: PATCH /tasks/:id can set, change, or clear the due date. The handler rejects values that are not valid dates in the agreed format (it currently passes req.body straight to db.update with no validation), and the response returns an error the UI can show.
+3. Reading tasks: GET /tasks returns the due date for each task (SELECT * already returns new columns), and existing tasks without a due date come back as null.
+4. UI: In src/ui/TaskList.tsx, each task shows its due date next to the title when one is set, and the user can enter or change it with a date input. Tasks with no due date look as they do today.
+
+**Open questions (not covered by the research)**
+- Date format and timezone convention: date-only (YYYY-MM-DD) or full timestamp? created_at is TEXT, but its format is not in the provided text.
+- Migration: no migration mechanism was found, so existing databases need a way to get the new column.
+- The Task type and db helper code were not provided and will need to be updated to include the due date.
+- Test coverage: no API or UI tests exist, so criteria 1 to 4 would need new tests.

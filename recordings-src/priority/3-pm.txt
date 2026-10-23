@@ -1,0 +1,11 @@
+**Data**
+`db/schema.sql`: add `priority TEXT NOT NULL DEFAULT 'medium' CHECK (priority IN ('low','medium','high'))` to `tasks`. No migration mechanism exists, so ship a one-off `ALTER TABLE tasks ADD COLUMN priority TEXT NOT NULL DEFAULT 'medium'` (run at startup if the column is missing; SQLite can't add a CHECK via ALTER, so enforce allowed values in the API). Existing rows get `'medium'`.
+
+**API**
+`src/api/tasks.ts`: add `PRIORITIES = ['low','medium','high'] as const` and an `isPriority()` guard. `POST /tasks` reads `{ title, priority? }` and inserts `priority ?? 'medium'`; `PATCH /tasks/:id` validates `req.body.priority` with the guard and returns `400 { error: 'invalid priority' }` before calling `db.update`. `GET /tasks` keeps `SELECT *` so `priority` comes through; sort stays `created_at DESC` until the open question is settled.
+
+**UI**
+Add `priority: 'low' | 'medium' | 'high'` to the `Task` type (file not in the research; locate it where `src/ui/TaskList.tsx` imports it). In `TaskList.tsx`, render a `<span className="priority priority-{value}">` label after the title inside each `<li>`; states are the three values, no empty state needed since the default guarantees a value.
+
+**Tests**
+New `tests/api/tasks.test.ts`: `POST` without priority stores `'medium'`; `PATCH` with `'urgent'` returns 400; `PATCH` with `'high'` succeeds. DB-helper and UI test scope stays unconfirmed per the story.

@@ -1,0 +1,14 @@
+**Data**
+- `db/schema.sql`: add `due_date TEXT NULL` to the `tasks` table (date-only `YYYY-MM-DD`; nullable so existing rows read back as null).
+- No migration mechanism exists: add `db/migrations/001_add_due_date.sql` with `ALTER TABLE tasks ADD COLUMN due_date TEXT;` and a small runner (or a one-time startup check in the db helper) that applies it to existing databases.
+- Update the `Task` type and db helper code (not in the research; locate alongside `src/api/tasks.ts`) to include `due_date: string | null`.
+
+**API**
+- `src/api/tasks.ts` POST `/tasks`: accept `{ title: string, due_date?: string | null }`, validate `due_date` against `^\d{4}-\d{2}-\d{2}$` plus a real-date check, insert it (null when absent) along with `done: 0` and `created_at`; respond `201 { id, title, done, due_date, created_at }`.
+- `src/api/tasks.ts` PATCH `/tasks/:id`: stop passing `req.body` straight to `db.update`; whitelist `{ title?, done?, due_date?: string | null }`, run the same date validation (null clears), and respond `400 { error: "due_date must be YYYY-MM-DD" }` on failure, otherwise `200` with the updated task.
+- GET `/tasks` is unchanged (`SELECT *` already returns `due_date`); add `tests/api/tasks.test.ts` covering create-with/without date, patch set/change/clear, invalid date rejection, and null on legacy rows.
+
+**UI**
+- `src/ui/TaskList.tsx`: extend the task shape with `due_date`, and in each `li` render `<span className="due">{task.due_date}</span>` after the title only when set; tasks without a date render as today (checkbox + title).
+- Add `<input type="date" value={task.due_date ?? ""} onChange=...>` per task that PATCHes `/tasks/:id` with `{ due_date }` (empty input sends `null` to clear); states: idle, saving (input disabled), error (show the API `error` text inline beside the input).
+- Add the same date input to the create form so POST `/tasks` sends `due_date`; add `tests/ui/TaskList.test.tsx` for display-when-set, no-display-when-null, and error state.

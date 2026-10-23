@@ -1,0 +1,5 @@
+VERDICT: APPROVE
+
+- All four criteria met: POST stores optional `due_date` (null default) in the new nullable column and schema.sql; PATCH whitelists `title`/`done`/`due_date`, validates the date (regex + round-trip, so "2026-02-30" is rejected) and returns a 400 with `{ error }` the UI shows in `role="alert"`; GET via `SELECT *` returns the column with null for legacy rows; the UI shows the date span only when set and offers a date input.
+- Security: the key whitelist in PATCH fixes the previous "pass req.body straight to db.update" mass-assignment hole; date validation prevents junk strings in the column. `db.update(req.params.id, ...)` is assumed parameterized, as the existing helper already takes an id.
+- Minor, non-blocking: PATCH with an unknown id is not 404-handled and `title`/`done` are still not type-checked (pre-existing behaviour, outside the story). Confirm the run-once migration guard (`PRAGMA table_info`) and the create-form date input when integrating, since both are described rather than fully written.

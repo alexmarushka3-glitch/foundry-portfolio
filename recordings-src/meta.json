@@ -1,0 +1,29 @@
+{
+  "models": {
+    "researcher": "claude-haiku-5-5",
+    "story": "claude-sonnet-5-5",
+    "pm": "claude-fable-5-1",
+    "backend": "claude-sonnet-5-5",
+    "frontend": "claude-sonnet-5-5",
+    "e2e": "claude-sonnet-5-5",
+    "validator": "claude-fable-5-1",
+    "release": "claude-haiku-5-5"
+  },
+  "examples": [
+    {
+      "slug": "due-date",
+      "request": "Let users set a due date on tasks",
+      "ms": { "researcher": 17985, "story": 6735, "pm": 19939, "backend": 6339, "frontend": 9961, "e2e": 14396, "validator": 14965, "release": 10424 }
+    },
+    {
+      "slug": "priority",
+      "request": "Add a priority label to each task",
+      "ms": { "researcher": 15663, "story": 4840, "pm": 15339, "backend": 10572, "frontend": 6075, "e2e": 14934, "validator": 11983, "release": 8595 }
+    },
+    {
+      "slug": "search",
+      "request": "Add a search box to filter tasks",
+      "ms": { "researcher": 13555, "story": 7551, "pm": 12004, "backend": 4619, "frontend": 6746, "e2e": 9417, "validator": 12520, "release": 10051 }
+    }
+  ]
+}

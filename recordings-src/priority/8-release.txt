@@ -1,0 +1,7 @@
+**Add priority label (low/medium/high) to each task**
+
+- **Data:** Add `priority` column to `tasks` (default `'medium'`, CHECK low/medium/high) with an idempotent startup `ALTER TABLE` guarded by `PRAGMA table_info`; existing rows become `'medium'`.
+- **API:** `POST /tasks` accepts optional `priority` (defaults to `'medium'`); `PATCH /tasks/:id` validates via `isPriority()` and returns `400 { error: 'invalid priority' }` on bad values; `GET /tasks` unchanged.
+- **UI:** `priority` added to the `Task` type; `TaskList.tsx` renders `<span className="priority priority-{value}">` after the title, with a fallback to `'medium'` and loading, error and empty states.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)

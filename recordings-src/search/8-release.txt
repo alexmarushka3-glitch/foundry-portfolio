@@ -1,0 +1,7 @@
+Add search box to filter tasks by title
+
+- **Data:** No migration. Filter reads the existing `title` column from the `tasks` table in `db/schema.sql`.
+- **API:** No new endpoint. `GET /tasks` in `src/api/tasks.ts` is unchanged. Filtering runs client-side over the fetched array. Server-side `?q=` deferred until the list outgrows it.
+- **UI:** New `src/ui/SearchBox.tsx` (controlled input above the list). Parent holds `search` state and passes a trimmed, case-insensitive title filter to `TaskList` without mutating the fetched array. Empty state reads "No tasks match" during a search and "No tasks yet" otherwise.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
