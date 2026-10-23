@@ -41,6 +41,10 @@ npm run dev
 
 To try live mode, copy `.env.example` to `.env.local` and add an Anthropic API key. Live runs are limited to 5 per hour per IP.
 
+## Deploys
+
+Pushes to `main` redeploy the live site automatically through Vercel's GitHub integration.
+
 ## Stack
 
 Next.js, React, TypeScript, streaming NDJSON from a route handler, the Anthropic SDK, deployed on Vercel.
