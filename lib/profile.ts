@@ -5,7 +5,7 @@ export const profile = {
   name: "Alex Marushka",
   title: "Student at the University of Chicago",
   pitch:
-    "I build teams of AI agents. Hand them a rough idea and they hand back a reviewed pull request.",
+    "I build teams of AI agents. Hand them a rough idea and they hand back a pull request draft, already checked by other agents.",
   email: "alex.marushka3@gmail.com",
   links: [
     { label: "GitHub", href: "https://github.com/alexmarushka3-glitch" },
@@ -20,7 +20,7 @@ export const profile = {
     {
       name: "Foundry: multi-agent software factory",
       blurb:
-        "Eight agents turn a rough idea into a reviewed pull request: a read-only researcher, story writer, project manager, parallel backend and frontend engineers, an end-to-end verifier, a validator and a release agent. The demo on this page replays real recorded runs, and falls back to a scripted simulation for custom requests.",
+        "Eight agents turn a rough idea into a pull request draft checked by other agents: a read-only researcher, story writer, project manager, parallel backend and frontend engineers, an end-to-end verifier, a validator and a release agent. The demo on this page replays real recorded runs, and falls back to a scripted simulation for custom requests.",
       tags: ["Claude API", "TypeScript", "Next.js", "Streaming", "Multi-agent"],
     },
     {
