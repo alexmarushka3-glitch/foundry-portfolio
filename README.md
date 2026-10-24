@@ -14,7 +14,7 @@ Live site: https://foundry-portfolio.vercel.app
 6. **Validator** audits the result against the story's acceptance criteria.
 7. **Release** writes the pull request.
 
-If the E2E Verifier or the Validator rejects the work, it goes back to Backend and Frontend for a second round.
+If the E2E Verifier or the Validator rejects the work, it goes back to Backend and Frontend for a second round. All three recorded runs passed on the first round, so no recording has used the send-back yet. Only the simulated mode shows it.
 
 ## Three modes
 
