@@ -39,6 +39,6 @@ export const profile = {
   stats: [
     { label: "Agents in the pipeline", value: "8" },
     { label: "Models used", value: "3" },
-    { label: "Real runs recorded, all approved", value: "3 of 3" },
+    { label: "Recorded runs that passed the AI checks", value: "3 of 3" },
   ],
 };
