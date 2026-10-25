@@ -14,7 +14,7 @@ Live site: https://foundry-portfolio.vercel.app
 6. **Validator** audits the result against the story's acceptance criteria.
 7. **Release** writes the pull request description.
 
-If the E2E Verifier or the Validator rejects the work, it goes back to Backend and Frontend for a second round. All three recorded runs passed on the first round, so no recording has used the send-back yet. Only the simulated mode shows it.
+If the E2E Verifier or the Validator rejects the work, it goes back to Backend and Frontend for a second round. All three recorded runs passed on the first round, so no recording has used the send-back. Live runs can: in testing, one live run was sent back by the Validator and passed on the second round. The simulated mode always shows it.
 
 ## The stage
 
@@ -38,7 +38,7 @@ The page labels the mode on every run.
 
 ## Live runs and cost
 
-Live runs use Haiku 5.5 for the researcher and release agent, and Sonnet 5.5 for the rest, with thinking switched off and short outputs. Prices come from the Claude API reference. A run is meant to cost a few cents, and the page shows the estimate for each run. Safeguards:
+Live runs use Haiku 5.5 for the researcher and release agent, and Sonnet 5.5 for the rest, with thinking switched off and short outputs. Prices come from the Claude API reference. In two test runs the cost was about 5.5 cents (one round, 27 seconds) and 10 cents (two rounds, 42 seconds). The page shows the estimate for each run. Safeguards:
 
 - A run stops if it passes a $0.25 spending cap.
 - Best-effort limits per visitor and per day (`FOUNDRY_LIVE_PER_HOUR`, `FOUNDRY_LIVE_PER_DAY`). Serverless hosting keeps these counters per instance, so they are a brake and not a hard cap.

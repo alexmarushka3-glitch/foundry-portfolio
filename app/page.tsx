@@ -23,7 +23,7 @@ const REALITY = [
     items: [
       "The generated code was never run.",
       "The E2E Verifier is an agent reasoning through flows. It does not drive a browser.",
-      "No recording has needed the send-back round. Only the simulation shows it.",
+      "None of the three recordings needed the send-back round. Live runs sometimes do, and the simulation always shows it.",
       "No real pull request is opened, and no human reviews it. Three runs is a demo, not a success rate.",
     ],
   },

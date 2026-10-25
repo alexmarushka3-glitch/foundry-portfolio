@@ -3,11 +3,12 @@ import { findRecording } from "@/lib/run";
 import type { FoundryEvent } from "@/lib/types";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 120; // two-round live runs have taken over 40 seconds
 
 const MAX_INPUT = 200;
-const PER_HOUR = Number(process.env.FOUNDRY_LIVE_PER_HOUR ?? 5);
-const PER_DAY = Number(process.env.FOUNDRY_LIVE_PER_DAY ?? 150);
+// A live run costs roughly 5 to 10 cents, so these keep a bad day to a few dollars.
+const PER_HOUR = Number(process.env.FOUNDRY_LIVE_PER_HOUR ?? 3);
+const PER_DAY = Number(process.env.FOUNDRY_LIVE_PER_DAY ?? 40);
 
 // In-memory counters. On serverless hosting each instance keeps its own, so these are a
 // best-effort brake, not a hard cap. The hard cap is the spend limit set in the Anthropic console.

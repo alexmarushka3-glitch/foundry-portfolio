@@ -38,7 +38,7 @@ On Windows PowerShell, run `npx.cmd` instead of `npx` (the `npx.ps1` script is b
 - The page must always say which mode ran. Never present simulated text as model output.
 - Never hand-edit `recordings-src/` text. Replay is only honest if it is the real output.
 - The agents worked on a small sample app and their code was never run. The E2E Verifier is an agent walking through flows, not a real browser. Keep those caveats wherever the project is described.
-- All three recorded runs passed on the first round, so no recording has exercised the send-back to a second round. Do not say the retry loop was proven; only the simulated mode shows it.
+- All three recorded runs passed on the first round, so no recording has exercised the send-back to a second round. A live test run (Oct 24, 2026) was sent back once by the Validator and passed on round two, so the loop works, but that run was not recorded. Do not claim a success rate.
 - Do not commit `.env*` files (only `.env.example`) or `.vercel/`.
 
 ## Deploying
