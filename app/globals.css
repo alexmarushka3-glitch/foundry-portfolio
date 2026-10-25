@@ -733,3 +733,21 @@ main,
     transition: none;
   }
 }
+
+/* five links no longer fit beside the name on a phone: put them on their own row, evenly spaced */
+@media (max-width: 560px) {
+  .nav {
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    padding-block: 10px;
+  }
+  .brand {
+    white-space: nowrap;
+  }
+  .nav nav {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 0.9rem;
+  }
+}
