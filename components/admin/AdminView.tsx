@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import "./admin.css";
 import { Donut, HBars, Legend, MODE_COLOR, StackedBars } from "./charts";
 import ControlPanel from "./ControlPanel";
 import FilterBar from "./FilterBar";
@@ -39,14 +40,18 @@ type Props = {
   admin: AdminData;
   /** True on the public page, where every number is made up. */
   sample?: boolean;
+  /** A compact version for the public page: shorter banner, no recorded-examples table, runs table behind a button. */
+  embedded?: boolean;
   /** Auto-refresh switch, for the real dashboard only. */
   auto?: boolean;
   onAuto?: (on: boolean) => void;
 };
 
 /** The dashboard itself. It doesn't know where its data comes from: the real server, or the sample generator. */
-export default function AdminView({ admin, sample = false, auto = false, onAuto }: Props) {
+export default function AdminView({ admin, sample = false, embedded = false, auto = false, onAuto }: Props) {
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
+  const [showRuns, setShowRuns] = useState(!embedded);
+  const Title = embedded ? "h3" : "h1";
   const { data, error, loading, pending, refresh, act, signOut } = admin;
 
   const now = data?.generatedAt ?? 0;
@@ -58,17 +63,22 @@ export default function AdminView({ admin, sample = false, auto = false, onAuto 
   const byMode = useMemo(() => countBy(shown, (r) => r.mode), [shown]);
 
   return (
-    <div className="admin">
-      {sample && (
+    <div className={`admin${embedded ? " embedded" : ""}`}>
+      {sample && embedded && (
         <aside className="sample-banner" role="note">
-          <strong>Sample data.</strong> Everything on this page is made up to show how the dashboard works. These are not real
-          visitors, runs or costs, and the buttons only change what you see here. The three recorded examples at the bottom are
-          the real ones. <a href="/">Back to the site</a>
+          <strong>Sample data.</strong> Made up to show the layout. The buttons only change this page.
+        </aside>
+      )}
+      {sample && !embedded && (
+        <aside className="sample-banner" role="note">
+          <strong>Sample data.</strong> Everything on this page is made up to show how the dashboard works. These are not real visitors,
+          runs or costs, and the buttons only change what you see here. The three recorded examples at the bottom are the real ones.{" "}
+          <a href="/">Back to the site</a>
         </aside>
       )}
       <header className="admin-bar">
         <div>
-          <h1>{sample ? "Foundry admin (sample data)" : "Foundry admin"}</h1>
+          <Title>{sample && !embedded ? "Foundry admin (sample data)" : "Foundry admin"}</Title>
           <p className="muted">
             {data
               ? sample
@@ -105,11 +115,13 @@ export default function AdminView({ admin, sample = false, auto = false, onAuto 
         <p className="empty-state">Loading…</p>
       ) : data ? (
         <>
-          <p className="notice">
-            {sample
-              ? "On the real dashboard, runs are kept in the server's memory (the last 500) and reset when the server restarts. Only runs that reach the API are counted."
-              : `Runs are kept in this server's memory (the last ${data.logCapacity}) and reset when the server restarts. Only runs that reach the API are counted. Replays of the three examples play in the visitor's browser.`}
-          </p>
+          {!embedded && (
+            <p className="notice">
+              {sample
+                ? "On the real dashboard, runs are kept in the server's memory (the last 500) and reset when the server restarts. Only runs that reach the API are counted."
+                : `Runs are kept in this server's memory (the last ${data.logCapacity}) and reset when the server restarts. Only runs that reach the API are counted. Replays of the three examples play in the visitor's browser.`}
+            </p>
+          )}
 
           <FilterBar filters={filters} onChange={setFilters} shown={shown.length} total={data.runs.length} />
           <KpiCards kpis={numbers} />
@@ -132,7 +144,12 @@ export default function AdminView({ admin, sample = false, auto = false, onAuto 
                     color: STATUS_COLOR[s],
                   }))}
                 />
-                <Legend items={(Object.keys(STATUS_LABEL) as RunStatus[]).map((s) => ({ label: `${STATUS_LABEL[s]} (${byStatus[s] ?? 0})`, color: STATUS_COLOR[s] }))} />
+                <Legend
+                  items={(Object.keys(STATUS_LABEL) as RunStatus[]).map((s) => ({
+                    label: `${STATUS_LABEL[s]} (${byStatus[s] ?? 0})`,
+                    color: STATUS_COLOR[s],
+                  }))}
+                />
               </div>
             </section>
 
@@ -152,46 +169,63 @@ export default function AdminView({ admin, sample = false, auto = false, onAuto 
           </div>
 
           <section className="card" aria-labelledby="runs-title">
-            <h2 id="runs-title">Runs</h2>
-            <RunsTable runs={shown} now={now} />
+            <div className="card-head">
+              <h2 id="runs-title">Runs</h2>
+              {embedded && (
+                <button type="button" aria-expanded={showRuns} aria-controls="runs-panel" onClick={() => setShowRuns((v) => !v)}>
+                  {showRuns ? "Hide the runs table" : `Show the runs table (${shown.length})`}
+                </button>
+              )}
+            </div>
+            {showRuns && (
+              <div id="runs-panel">
+                <RunsTable runs={shown} now={now} />
+              </div>
+            )}
           </section>
 
-          <section className="card" aria-labelledby="recorded-title">
-            <h2 id="recorded-title">Recorded examples</h2>
-            <p className="muted">The three runs the site replays. They are fixed, so they cost nothing to show.</p>
-            <div className="table-wrap" tabIndex={0} role="region" aria-label="Recorded examples">
-              <table className="runs">
-                <thead>
-                  <tr>
-                    <th scope="col">Idea</th>
-                    <th scope="col">Result</th>
-                    <th scope="col" className="num">
-                      Rounds
-                    </th>
-                    <th scope="col" className="num">
-                      Real time
-                    </th>
-                    <th scope="col">Models</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.recorded.map((r) => (
-                    <tr key={r.request}>
-                      <td className="idea-cell">{r.request}</td>
-                      <td>
-                        <span className={`pill ${r.approved ? "status-approved" : "status-not-approved"}`}>
-                          {r.approved ? "Passed" : "Did not pass"}
-                        </span>
-                      </td>
-                      <td className="num" data-label="Rounds">{r.rounds}</td>
-                      <td className="num" data-label="Real time">{formatDuration(r.totalMs)}</td>
-                      <td data-label="Models">{r.models.join(", ")}</td>
+          {!embedded && (
+            <section className="card" aria-labelledby="recorded-title">
+              <h2 id="recorded-title">Recorded examples</h2>
+              <p className="muted">The three runs the site replays. They are fixed, so they cost nothing to show.</p>
+              <div className="table-wrap" tabIndex={0} role="region" aria-label="Recorded examples">
+                <table className="runs">
+                  <thead>
+                    <tr>
+                      <th scope="col">Idea</th>
+                      <th scope="col">Result</th>
+                      <th scope="col" className="num">
+                        Rounds
+                      </th>
+                      <th scope="col" className="num">
+                        Real time
+                      </th>
+                      <th scope="col">Models</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
+                  </thead>
+                  <tbody>
+                    {data.recorded.map((r) => (
+                      <tr key={r.request}>
+                        <td className="idea-cell">{r.request}</td>
+                        <td>
+                          <span className={`pill ${r.approved ? "status-approved" : "status-not-approved"}`}>
+                            {r.approved ? "Passed" : "Did not pass"}
+                          </span>
+                        </td>
+                        <td className="num" data-label="Rounds">
+                          {r.rounds}
+                        </td>
+                        <td className="num" data-label="Real time">
+                          {formatDuration(r.totalMs)}
+                        </td>
+                        <td data-label="Models">{r.models.join(", ")}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
         </>
       ) : null}
     </div>

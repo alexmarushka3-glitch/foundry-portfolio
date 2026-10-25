@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import DemoDashboard from "@/components/admin/DemoDashboard";
-import "../admin/admin.css";
 
 export const metadata: Metadata = {
   title: "Foundry admin: sample data",

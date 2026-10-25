@@ -46,3 +46,19 @@ describe("DemoDashboard (public sample-data page)", () => {
     await waitFor(() => expect(screen.queryByText(/No runs match/)).toBeNull());
   });
 });
+
+describe("DemoDashboard embedded on the home page", () => {
+  it("keeps the made-up label, hides the heavy parts, and shows the runs table on request", async () => {
+    render(<DemoDashboard embedded />);
+    expect(await screen.findByText(/Made up to show the layout/)).toBeTruthy();
+    expect(screen.getByRole("heading", { level: 3 }).textContent).toBe("Foundry admin");
+    expect(screen.queryByRole("heading", { level: 1 })).toBeNull();
+    expect(screen.queryByText("Recorded examples")).toBeNull();
+    expect(screen.queryByRole("region", { name: "Runs table" })).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: /Show the runs table/ }));
+    expect(await screen.findByRole("region", { name: "Runs table" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Hide the runs table" }));
+    expect(screen.queryByRole("region", { name: "Runs table" })).toBeNull();
+  });
+});

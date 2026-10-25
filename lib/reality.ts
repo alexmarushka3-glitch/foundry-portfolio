@@ -15,7 +15,7 @@ export const REALITY = [
     items: [
       "A typed idea with the live switch off runs scripted text. The badge says Simulated.",
       "The task-tracker app the agents work on. It is a toy of about 36 lines.",
-      "The admin dashboard page you can open from Projects. Its runs, visitors and costs are made up to show the layout.",
+      "The admin dashboard section above. Its runs, visitors and costs are made up to show the layout. The real dashboard needs a login.",
     ],
   },
   {

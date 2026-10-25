@@ -641,10 +641,6 @@ main,
 .projects .tags {
   font-size: 0.875rem;
 }
-.projects .project-link a {
-  color: var(--ink);
-  font-weight: 600;
-}
 
 .about {
   margin-top: 16px;
