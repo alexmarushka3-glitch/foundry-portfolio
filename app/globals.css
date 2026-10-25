@@ -770,6 +770,11 @@ main,
     gap: 8px;
     font-size: 0.9rem;
   }
+  /* taller tap area without moving the text much */
+  .nav nav a {
+    padding-block: 10px;
+    margin-block: -6px;
+  }
 }
 
 /* very small phones (320px): shave the nav text so all five links stay on one row */
