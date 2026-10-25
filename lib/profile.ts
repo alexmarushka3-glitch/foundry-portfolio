@@ -20,7 +20,7 @@ export const profile = {
     {
       name: "Foundry: multi-agent software factory",
       blurb:
-        "Eight agents turn a rough idea into a pull request draft checked by other agents: a read-only researcher, story writer, project manager, parallel backend and frontend engineers, an end-to-end verifier, a validator and a release agent. The demo on this page replays real recorded runs, and falls back to a scripted simulation for custom requests.",
+        "Eight agents turn a rough idea into a pull request draft checked by other agents: a read-only researcher, story writer, project manager, parallel backend and frontend engineers, an end-to-end verifier, a validator and a release agent. On this page you can watch it work: the three examples replay real recorded runs, and your own ideas run live on Claude models when the live switch is on.",
       tags: ["Claude API", "TypeScript", "Next.js", "Streaming", "Multi-agent"],
     },
     {

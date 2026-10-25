@@ -1,35 +1,34 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { renderSampleRepo } from "./sampleRepo";
-import recordings from "./recordings.json";
+import { findRecording, buildReplayRun } from "./run";
+import type { AgentName, Emit } from "./types";
 
-export type AgentName =
-  | "researcher"
-  | "story"
-  | "pm"
-  | "backend"
-  | "frontend"
-  | "e2e"
-  | "validator"
-  | "release";
+export type { AgentName, FoundryEvent, Emit, Gate, Mode } from "./types";
 
-export type Gate = "e2e" | "validator";
-
-export type FoundryEvent =
-  | { type: "mode"; mode: "live" | "simulated" | "replay" }
-  | { type: "start"; agent: AgentName; round: number; model: string }
-  | { type: "token"; agent: AgentName; round: number; text: string }
-  | { type: "done"; agent: AgentName; round: number; ms: number }
-  | { type: "verdict"; gate: Gate; round: number; approved: boolean }
-  | { type: "finish"; ms: number; rounds: number; approved: boolean }
-  | { type: "error"; message: string };
-
-export type Emit = (e: FoundryEvent) => void;
-
+// Live runs default to the cheaper models. Override with env vars to try bigger ones.
+// Recorded runs used Haiku 5.5, Sonnet 5.5 and Fable 5.1; their model names are stored with them.
 const MODELS = {
-  smart: process.env.FOUNDRY_MODEL_SMART ?? "claude-fable-5-1",
+  smart: process.env.FOUNDRY_MODEL_SMART ?? "claude-sonnet-5-5",
   build: process.env.FOUNDRY_MODEL_BUILD ?? "claude-sonnet-5-5",
   fast: process.env.FOUNDRY_MODEL_FAST ?? "claude-haiku-5-5",
 };
+
+// Dollars per million tokens: [input, output]. From the Claude API reference, cached Oct 2026.
+const PRICES: Record<string, [number, number]> = {
+  "claude-fable-5-1": [10, 50],
+  "claude-opus-5-5": [4, 20],
+  "claude-sonnet-5-5": [2, 10],
+  "claude-haiku-5-5": [0.1, 0.5],
+};
+const WORST_CASE_PRICE: [number, number] = [10, 50]; // unknown model: assume the dearest
+
+export const costOf = (model: string, inputTokens: number, outputTokens: number): number => {
+  const [pin, pout] = PRICES[model] ?? WORST_CASE_PRICE;
+  return (inputTokens * pin + outputTokens * pout) / 1_000_000;
+};
+
+// A run that spends more than this stops. A normal run costs a few cents.
+const MAX_RUN_COST_USD = 0.25;
 
 type AgentSpec = { name: AgentName; model: string; system: string; maxTokens: number };
 
@@ -37,56 +36,56 @@ const AGENTS: Record<AgentName, AgentSpec> = {
   researcher: {
     name: "researcher",
     model: MODELS.fast,
-    maxTokens: 300,
+    maxTokens: 400,
     system:
       "You are the Researcher. You are strictly read-only: you can only read the repository text you are given and report on it. Do not propose changes. Output 4 to 6 bullets on what exists that is relevant to the request (files, tables, endpoints, components) and one line listing gaps. No preamble.",
   },
   story: {
     name: "story",
     model: MODELS.build,
-    maxTokens: 300,
+    maxTokens: 450,
     system:
       "You are the Story Writer. Turn the rough idea into a user story: 'As a <user>, I want <goal> so that <value>', then 3 or 4 acceptance criteria as a numbered list. Ground it in the research. No preamble.",
   },
   pm: {
     name: "pm",
     model: MODELS.smart,
-    maxTokens: 400,
+    maxTokens: 550,
     system:
       "You are the Project Manager. Write the technical blueprint from the story and research: sections 'Data' (migration), 'API' (endpoints and shapes), 'UI' (components and states), each 1 to 3 lines. Name real files from the research. No preamble.",
   },
   backend: {
     name: "backend",
     model: MODELS.build,
-    maxTokens: 450,
+    maxTokens: 650,
     system:
       "You are the Backend engineer. From the blueprint, write the SQL migration and the API route changes as short code blocks (under 25 lines total). If reviewer feedback is given, fix what it names. One sentence of notes.",
   },
   frontend: {
     name: "frontend",
     model: MODELS.build,
-    maxTokens: 450,
+    maxTokens: 650,
     system:
       "You are the Frontend engineer. From the blueprint, write the UI change as a short React/TSX code block (under 25 lines), including empty and error states. If feedback is given, fix what it names. One sentence of notes.",
   },
   e2e: {
     name: "e2e",
     model: MODELS.build,
-    maxTokens: 350,
+    maxTokens: 500,
     system:
       "You are the E2E Verifier. Skip unit tests. Walk 2 or 3 full user flows from the story through the backend and frontend changes, step by step, marking each PASS or FAIL with a reason. The first line MUST be exactly 'E2E: PASS' or 'E2E: FAIL'. Fail only for a real broken flow.",
   },
   validator: {
     name: "validator",
     model: MODELS.smart,
-    maxTokens: 300,
+    maxTokens: 450,
     system:
       "You are the Validator doing the final audit. Check every acceptance criterion in the story against the code and the E2E result, and check security and data safety. The first line MUST be exactly 'VERDICT: APPROVE' or 'VERDICT: REVISE'. Then at most 4 bullets. Approve unless a criterion is unmet or there is a real risk.",
   },
   release: {
     name: "release",
     model: MODELS.fast,
-    maxTokens: 220,
+    maxTokens: 350,
     system:
       "You are the Release agent. Write a pull request: a one-line title, then a 3 bullet description covering data, API and UI. No preamble.",
   },
@@ -94,66 +93,43 @@ const AGENTS: Record<AgentName, AgentSpec> = {
 
 const MAX_ROUNDS = 2;
 
-export function hasLiveKey(): boolean {
-  return Boolean(process.env.ANTHROPIC_API_KEY);
+/** Live runs need a key on the server, and can be switched off with FOUNDRY_LIVE=off. */
+export function liveEnabled(): boolean {
+  return Boolean(process.env.ANTHROPIC_API_KEY) && process.env.FOUNDRY_LIVE !== "off";
 }
 
-type Recording = (typeof recordings.examples)[number];
-type RecordedStep = Recording["steps"][number];
-
-const normalize = (s: string) => s.trim().toLowerCase().replace(/[.!?]+$/, "");
-
-// Example requests were run for real once (see recordings-src/) and are replayed for free.
-export function findRecording(request: string): Recording | undefined {
-  return recordings.examples.find((e) => normalize(e.request) === normalize(request));
+/**
+ * Per-model request settings. These models think by default, and thinking tokens count against
+ * max_tokens, so without this a short answer can be cut off or come back empty.
+ */
+function modelParams(model: string, maxTokens: number) {
+  if (model.startsWith("claude-fable")) {
+    // Thinking can't be turned off on Fable. Keep it shallow and leave room for it.
+    return { max_tokens: maxTokens + 1500, output_config: { effort: "low" as const } };
+  }
+  if (model.startsWith("claude-haiku")) {
+    return { max_tokens: maxTokens, thinking: { type: "disabled" as const }, output_config: { effort: "low" as const } };
+  }
+  // Sonnet 5.5 and similar: "between_tools" is the supported way to keep thinking off.
+  return { max_tokens: maxTokens, thinking: { type: "between_tools" as const }, output_config: { effort: "low" as const } };
 }
 
-// Replays compress the real wall-clock time so visitors don't wait 90 seconds.
-const REPLAY_SPEED = 0.12;
+export type RunOptions = { allowLive?: boolean; reason?: string };
 
-async function replay(rec: Recording, emit: Emit): Promise<void> {
-  emit({ type: "mode", mode: "replay" });
-  const play = async (s: RecordedStep) => {
-    emit({ type: "start", agent: s.agent as AgentName, round: s.round, model: s.model });
-    const span = Math.min(2800, Math.max(700, s.ms * REPLAY_SPEED));
-    const chunks = s.text.match(/.{1,8}/gs) ?? [];
-    for (const chunk of chunks) {
-      emit({ type: "token", agent: s.agent as AgentName, round: s.round, text: chunk });
-      await sleep(span / chunks.length);
-    }
-    emit({ type: "done", agent: s.agent as AgentName, round: s.round, ms: s.ms });
-  };
-  const step = (name: string) => rec.steps.find((s) => s.agent === name)!;
-
-  await play(step("researcher"));
-  await play(step("story"));
-  await play(step("pm"));
-  await Promise.all([play(step("backend")), play(step("frontend"))]);
-  await play(step("e2e"));
-  emit({ type: "verdict", gate: "e2e", round: 1, approved: rec.e2eOk });
-  await play(step("validator"));
-  emit({ type: "verdict", gate: "validator", round: 1, approved: rec.approved });
-  await play(step("release"));
-  emit({ type: "finish", ms: rec.totalMs, rounds: rec.rounds, approved: rec.approved });
-}
-
-export async function runPipeline(request: string, emit: Emit): Promise<void> {
+export async function runPipeline(request: string, emit: Emit, opts: RunOptions = {}): Promise<void> {
   const recorded = findRecording(request);
-  if (recorded) return replay(recorded, emit);
+  if (recorded) return replayOnServer(recorded, emit);
 
   const t0 = Date.now();
-  const live = hasLiveKey();
-  emit({ type: "mode", mode: live ? "live" : "simulated" });
+  const live = liveEnabled() && opts.allowLive !== false;
+  emit({ type: "mode", mode: live ? "live" : "simulated", reason: live ? undefined : opts.reason });
 
   const client = live ? new Anthropic() : null;
+  const spend = { usd: 0 };
   const step = (agent: AgentName, round: number, input: string) =>
-    runAgent(client, AGENTS[agent], round, request, input, emit);
+    runAgent(client, AGENTS[agent], round, request, input, emit, spend);
 
-  const research = await step(
-    "researcher",
-    1,
-    `Request: ${request}\n\nRepository (read-only):\n${renderSampleRepo()}`,
-  );
+  const research = await step("researcher", 1, `Request: ${request}\n\nRepository (read-only):\n${renderSampleRepo()}`);
   const story = await step("story", 1, `Rough idea: ${request}\n\nResearch:\n${research}`);
   const blueprint = await step("pm", 1, `Story:\n${story}\n\nResearch:\n${research}`);
 
@@ -195,7 +171,7 @@ export async function runPipeline(request: string, emit: Emit): Promise<void> {
     round,
     `Request: ${request}\n\nBlueprint:\n${blueprint}\n\nBackend:\n${backend}\n\nFrontend:\n${frontend}\n\nApproved: ${approved}`,
   );
-  emit({ type: "finish", ms: Date.now() - t0, rounds: round, approved });
+  emit({ type: "finish", ms: Date.now() - t0, rounds: round, approved, costUsd: live ? spend.usd : undefined });
 }
 
 async function runAgent(
@@ -205,17 +181,19 @@ async function runAgent(
   request: string,
   input: string,
   emit: Emit,
+  spend: { usd: number },
 ): Promise<string> {
   const t0 = Date.now();
   emit({ type: "start", agent: spec.name, round, model: client ? spec.model : `${spec.model} (simulated)` });
 
   let out = "";
   if (client) {
+    if (spend.usd > MAX_RUN_COST_USD) throw new Error("This run hit its spending limit and was stopped.");
     const stream = client.messages.stream({
       model: spec.model,
-      max_tokens: spec.maxTokens,
       system: spec.system,
       messages: [{ role: "user", content: input }],
+      ...modelParams(spec.model, spec.maxTokens),
     });
     for await (const ev of stream) {
       if (ev.type === "content_block_delta" && ev.delta.type === "text_delta") {
@@ -223,6 +201,13 @@ async function runAgent(
         emit({ type: "token", agent: spec.name, round, text: ev.delta.text });
       }
     }
+    const final = await stream.finalMessage();
+    if (final.stop_reason === "refusal") {
+      throw new Error("The model declined this request. Try describing the feature differently.");
+    }
+    const cost = costOf(spec.model, final.usage.input_tokens, final.usage.output_tokens);
+    spend.usd += cost;
+    emit({ type: "usage", agent: spec.name, round, inputTokens: final.usage.input_tokens, outputTokens: final.usage.output_tokens, costUsd: cost });
   } else {
     out = simulate(spec.name, round, request);
     for (const chunk of out.match(/.{1,6}/gs) ?? []) {
@@ -237,6 +222,29 @@ async function runAgent(
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+// Server-side replay, kept for API clients. The page itself replays recordings in the browser.
+async function replayOnServer(rec: NonNullable<ReturnType<typeof findRecording>>, emit: Emit): Promise<void> {
+  const run = buildReplayRun(rec);
+  emit({ type: "mode", mode: "replay" });
+  const t0 = Date.now();
+  const byStart = [...run.steps].sort((a, b) => a.start - b.start);
+  for (const s of byStart) {
+    const wait = s.start - (Date.now() - t0);
+    if (wait > 0) await sleep(wait);
+    emit({ type: "start", agent: s.agent, round: s.round, model: s.model });
+    const chunks = s.text.match(/.{1,8}/gs) ?? [];
+    const span = Math.max(1, s.end - s.start);
+    for (const c of chunks) {
+      emit({ type: "token", agent: s.agent, round: s.round, text: c });
+      await sleep(span / chunks.length);
+    }
+    emit({ type: "done", agent: s.agent, round: s.round, ms: s.ms });
+    if (s.agent === "e2e") emit({ type: "verdict", gate: "e2e", round: s.round, approved: rec.e2eOk });
+    if (s.agent === "validator") emit({ type: "verdict", gate: "validator", round: s.round, approved: rec.approved });
+  }
+  emit({ type: "finish", ms: rec.totalMs, rounds: rec.rounds, approved: rec.approved });
+}
 
 // Scripted output so the demo works with no API key. Round 1 fails an E2E flow so
 // visitors see work get sent back, then round 2 passes and the Validator approves.
@@ -288,12 +296,7 @@ function simulate(agent: AgentName, round: number, request: string): string {
           ].join("\n");
     case "frontend":
       return round === 1
-        ? [
-            "```tsx",
-            "<li key={t.id}>{t.title} <span>{t.extra}</span></li>",
-            "```",
-            "Notes: shows the field; editing comes next.",
-          ].join("\n")
+        ? ["```tsx", "<li key={t.id}>{t.title} <span>{t.extra}</span></li>", "```", "Notes: shows the field; editing comes next."].join("\n")
         : [
             "```tsx",
             "<li key={t.id}>{t.title}",
