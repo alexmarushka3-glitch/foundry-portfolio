@@ -121,10 +121,28 @@ export async function runPipeline(request: string, emit: Emit, opts: RunOptions 
   if (recorded) return replayOnServer(recorded, emit);
 
   const t0 = Date.now();
-  const live = liveEnabled() && opts.allowLive !== false;
-  emit({ type: "mode", mode: live ? "live" : "simulated", reason: live ? undefined : opts.reason });
+  let live = liveEnabled() && opts.allowLive !== false;
+  let reason = live ? undefined : opts.reason;
+  let client = live ? new Anthropic() : null;
 
-  const client = live ? new Anthropic() : null;
+  // A one-token check before the real run. If the key is wrong, the account is out of credit,
+  // or the API is down, the visitor gets the labelled simulation instead of an error.
+  if (client) {
+    try {
+      await client.messages.create({
+        model: MODELS.fast,
+        messages: [{ role: "user", content: "Reply with OK." }],
+        ...modelParams(MODELS.fast, 16),
+      });
+    } catch (err) {
+      const e = err as { name?: string; status?: number; error?: { error?: { type?: string } } };
+      console.error("live check failed, using simulation:", e?.name ?? typeof err, e?.status ?? "", e?.error?.error?.type ?? "");
+      live = false;
+      client = null;
+      reason = "Live mode isn't available right now, so this run is a simulation.";
+    }
+  }
+  emit({ type: "mode", mode: live ? "live" : "simulated", reason: live ? undefined : reason });
   const spend = { usd: 0 };
   const step = (agent: AgentName, round: number, input: string) =>
     runAgent(client, AGENTS[agent], round, request, input, emit, spend);
