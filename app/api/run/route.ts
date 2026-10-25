@@ -66,6 +66,15 @@ export async function POST(req: Request) {
       try {
         await runPipeline(request, emit, { allowLive, reason });
       } catch (err) {
+        // Log the cause for me (type, status, a trimmed message with anything key-shaped removed).
+        const e = err as { name?: string; status?: number; message?: string; error?: { error?: { type?: string } } };
+        console.error(
+          "run failed:",
+          e?.name ?? typeof err,
+          e?.status ?? "",
+          e?.error?.error?.type ?? "",
+          String(e?.message ?? "").replace(/sk-[A-Za-z0-9_-]{8,}/g, "[key]").slice(0, 200),
+        );
         // Show our own messages, never raw API errors, which can include request details.
         const message = err instanceof Error && err.message.length < 140 && !/api|key|auth|token/i.test(err.message)
           ? err.message
