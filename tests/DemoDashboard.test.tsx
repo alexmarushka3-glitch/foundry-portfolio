@@ -39,7 +39,7 @@ describe("DemoDashboard (public sample-data page)", () => {
 
   it("filters the sample table", async () => {
     render(<DemoDashboard />);
-    const search = await screen.findByPlaceholderText("Idea text or visitor id");
+    const search = await screen.findByPlaceholderText("Search ideas");
     fireEvent.change(search, { target: { value: "zzz-no-such-idea" } });
     expect(await screen.findByText(/No runs match/)).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Reset filters" }));
