@@ -771,3 +771,11 @@ main,
     font-size: 0.9rem;
   }
 }
+
+/* very small phones (320px): shave the nav text so all five links stay on one row */
+@media (max-width: 360px) {
+  .nav nav {
+    gap: 4px;
+    font-size: 0.8rem;
+  }
+}
