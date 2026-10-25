@@ -75,6 +75,19 @@ export async function POST(req: Request) {
           e?.error?.error?.type ?? "",
           String(e?.message ?? "").replace(/sk-[A-Za-z0-9_-]{8,}/g, "[key]").slice(0, 200),
         );
+        // Describe the key's shape (never its value) so a bad paste is easy to spot.
+        const k = process.env.ANTHROPIC_API_KEY ?? "";
+        console.error("key shape:", {
+          set: k.length > 0,
+          length: k.length,
+          startsWithSkAnt: k.startsWith("sk-ant-"),
+          hasWhitespace: /\s/.test(k),
+          hasQuotes: /["']/.test(k),
+          hasEqualsSign: k.includes("="),
+          hasAuthTokenVar: Boolean(process.env.ANTHROPIC_AUTH_TOKEN),
+          hasBaseUrlVar: Boolean(process.env.ANTHROPIC_BASE_URL),
+          hasProfileVar: Boolean(process.env.ANTHROPIC_PROFILE),
+        });
         // Show our own messages, never raw API errors, which can include request details.
         const message = err instanceof Error && err.message.length < 140 && !/api|key|auth|token/i.test(err.message)
           ? err.message
