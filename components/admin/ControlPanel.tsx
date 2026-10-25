@@ -10,10 +10,12 @@ type Props = {
   onAct: (a: AdminAction) => void;
   onExport: () => void;
   exportCount: number;
+  /** True on the sample-data page. */
+  sample?: boolean;
 };
 
 /** The dashboard's key actions. Ones that throw data away ask twice. */
-export default function ControlPanel({ server, pending, onAct, onExport, exportCount }: Props) {
+export default function ControlPanel({ server, pending, onAct, onExport, exportCount, sample = false }: Props) {
   const [confirm, setConfirm] = useState<AdminAction | null>(null);
   const { limits } = server;
   const dayShare = limits.perDay ? Math.min(1, limits.usedToday / limits.perDay) : 1;
@@ -79,7 +81,13 @@ export default function ControlPanel({ server, pending, onAct, onExport, exportC
         {destructive("clear-log", "Clear the run log", "Yes, clear it")}
       </div>
       <p className="fine">
-        Pausing is held in memory on this server instance. To turn live runs off for good, set <code>FOUNDRY_LIVE=off</code>.
+        {sample ? (
+          "In this sample, these buttons only change what is on your screen. Nothing is sent anywhere."
+        ) : (
+          <>
+            Pausing is held in memory on this server instance. To turn live runs off for good, set <code>FOUNDRY_LIVE=off</code>.
+          </>
+        )}
       </p>
     </section>
   );

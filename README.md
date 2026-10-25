@@ -95,10 +95,14 @@ Set `ADMIN_TOKEN` and open `/admin`. Without a token the page and its API return
 
 The run log is in memory on one server instance (the last 500 runs) and resets on a restart or cold start. It only sees runs that reach the API; recorded examples replay in the visitor's browser and are not counted. It stores a short hash of each visitor's address, never the address. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how to back it with a database.
 
+### Public sample-data demo
+
+`/admin-demo` is a public, read-only copy of the dashboard for visitors and recruiters. It needs no token, makes no requests to the server, and runs on **made-up** data generated in the browser (`lib/admin/sampleData.ts`). A banner at the top says so, every visitor id starts with `sample-`, and the buttons only change what is on that visitor's screen. The only real data on it is the table of the three recorded examples. It is linked from the Foundry entry under Projects.
+
 ## Project structure
 
 ```
-app/            Routes: the page, /admin, /api/run, /api/admin/*
+app/            Routes: the page, /admin, /admin-demo, /api/run, /api/admin/*
 components/     Stage (and stage/), PipelineSvg, admin/
 lib/            pipeline/ (the agents), server/ (limits, log, auth), admin/ (dashboard maths), run.ts, liveRun.ts, ...
 tests/          Vitest suites

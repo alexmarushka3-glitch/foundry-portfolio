@@ -1,17 +1,9 @@
-import recordings from "../recordings.json";
 import { liveConfigured, liveEnabled, MODELS } from "../pipeline/config";
 import type { RunRecord } from "../server/runLog";
 import { serverState } from "../server/state";
+import { recordedExamples, type RecordedExample } from "./recorded";
 
 // The payload behind GET /api/admin/stats: recent runs plus how the server is configured.
-
-export type RecordedExample = {
-  request: string;
-  rounds: number;
-  approved: boolean;
-  totalMs: number;
-  models: string[];
-};
 
 export type AdminOverview = {
   generatedAt: number;
@@ -27,16 +19,6 @@ export type AdminOverview = {
   };
   recorded: RecordedExample[];
 };
-
-export function recordedExamples(): RecordedExample[] {
-  return recordings.examples.map((e) => ({
-    request: e.request,
-    rounds: e.rounds,
-    approved: e.approved,
-    totalMs: e.totalMs,
-    models: [...new Set(e.steps.map((s) => s.model))],
-  }));
-}
 
 export function buildOverview(now: number = Date.now()): AdminOverview {
   const state = serverState();

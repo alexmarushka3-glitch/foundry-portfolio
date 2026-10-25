@@ -12,7 +12,8 @@ export type AdminData = {
   pending: AdminAction | null;
   refresh: () => Promise<void>;
   act: (action: AdminAction) => Promise<void>;
-  signOut: () => Promise<void>;
+  /** Absent on the sample-data page, which has no session. */
+  signOut?: () => Promise<void>;
 };
 
 /** Loads the overview, refreshes it on a timer, and runs the key actions. A 401 sends the user back to sign in. */

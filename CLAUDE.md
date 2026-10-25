@@ -26,6 +26,7 @@ Full map and recipes: `docs/ARCHITECTURE.md`. Short version:
 - `app/api/run/route.ts`: GET says whether live runs are on. POST streams a run (NDJSON), logs it, and aborts the agents if the visitor leaves. Live runs have per-visitor and per-day brakes; replays and simulations are free.
 - `lib/pipeline/`: `index.ts` (the run), `prompts.ts` (the eight agents), `config.ts` (models, prices, caps), `agentRunner.ts`, `simulate.ts`, `replay.ts`, `verdicts.ts`. Live models need thinking switched off and effort low (see `modelParams` in `config.ts`), or thinking tokens eat the short output limit.
 - `lib/server/`: in-memory server state (`state.ts`), rate limits, run log, admin auth, env parsing.
+- Public sample-data dashboard: `app/admin-demo/`, `lib/admin/sampleData.ts`. All numbers are made up; keep the banner, the `sample-` ids and the "made up" line in `lib/reality.ts`. Never present it as real traffic.
 - Admin dashboard: `app/admin/`, `app/api/admin/*`, `components/admin/`, `lib/admin/`. Off unless `ADMIN_TOKEN` is set. Run log is in memory per server instance.
 - Design: light page, dark stage; Schibsted Grotesk and JetBrains Mono (mono only for agent output). Motion answers a user action, respects reduced motion, and animates only transform and opacity.
 - `lib/sampleRepo.ts`: the small "taskly" app text the Researcher reads. It gets text only and no tools, so it is read-only by construction.
@@ -45,6 +46,7 @@ Full map and recipes: `docs/ARCHITECTURE.md`. Short version:
 - Never hand-edit `recordings-src/` text. Replay is only honest if it is the real output.
 - The agents worked on a small sample app and their code was never run. The E2E Verifier is an agent walking through flows, not a real browser. Keep those caveats wherever the project is described.
 - All three recorded runs passed on the first round, so no recording has exercised the send-back to a second round. A live test run (Oct 24, 2026) was sent back once by the Validator and passed on round two, so the loop works, but that run was not recorded. Do not claim a success rate.
+- `/admin-demo` shows made-up data. It must always say so, and never be described as real usage, visitors or spend.
 - Do not commit `.env*` files (only `.env.example`) or `.vercel/`.
 
 ## Deploying

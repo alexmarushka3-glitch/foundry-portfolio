@@ -57,6 +57,12 @@ export default function Home() {
                 <h3>{p.name}</h3>
                 <p>{p.blurb}</p>
                 <p className="tags">{p.tags.join(", ")}</p>
+                {"links" in p &&
+                  p.links?.map((l) => (
+                    <p key={l.href} className="project-link">
+                      <a href={l.href}>{l.label}</a>
+                    </p>
+                  ))}
               </li>
             ))}
           </ul>

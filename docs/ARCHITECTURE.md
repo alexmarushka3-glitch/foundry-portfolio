@@ -9,6 +9,7 @@ app/                     Next.js routes only: pages and HTTP handlers. Thin; the
   page.tsx               The public page.
   admin/                 The admin dashboard page (server-gated) and its CSS.
   api/run/               GET: is live on? POST: stream a run as NDJSON.
+  admin-demo/            Public sample-data copy of the dashboard. No token, no server data.
   api/admin/{login,logout,stats,actions}/   Admin API. Every route except login needs the session cookie.
 
 components/              React UI.
@@ -69,6 +70,7 @@ The route aborts an `AbortController` when the visitor disconnects. The signal r
 - **Gate:** `ADMIN_TOKEN`. Unset means `/admin` and `/api/admin/*` return 404. Set means a sign-in form; the token is compared in constant time, attempts are limited to five per address per 15 minutes, and the session is an HTTP-only, SameSite=Strict cookie holding an HMAC derived from the token (changing the token signs everyone out).
 - **Data:** `GET /api/admin/stats` returns recent runs, server settings and the recorded examples. The page filters, sorts, paginates and charts in the browser with the pure functions in `lib/admin/aggregate.ts`, so every number is unit tested.
 - **Actions:** `POST /api/admin/actions` with `pause-live`, `resume-live`, `reset-limits` or `clear-log`. Each returns the fresh overview.
+- **Two front doors, one view:** `components/admin/AdminView.tsx` draws the dashboard from an `AdminData` object (`useAdminData.ts`) and does not know where it came from. `AdminDashboard` feeds it from the server (`/admin`, signed in). `DemoDashboard` feeds it from `useDemoData.ts` and `lib/admin/sampleData.ts` (`/admin-demo`, public, made-up data, no network). Anything shown on `/admin-demo` must stay clearly labelled as sample data.
 - **Privacy:** the log stores a short hash of the visitor address, never the address. It stores the idea text visitors typed.
 
 ## Honesty constraints that shape the code
@@ -87,6 +89,7 @@ The route aborts an `AbortController` when the visitor disconnects. The signal r
 | `runRoute.test.ts` | The run API: validation, NDJSON streaming, limits, logging, error hiding, disconnect handling. |
 | `Stage.test.tsx` | The critical page flows in jsdom: replay, typed idea, server error, dropped connection, rejected request. |
 | `admin.test.ts` | Sign-in, lockout, cookie, every admin route and action. |
+| `sampleData.test.ts`, `DemoDashboard.test.tsx` | The sample data is repeatable, labelled and complete; the public demo makes no requests and its controls work on screen only. |
 | `aggregate.test.ts`, `runLog.test.ts` | Dashboard maths and the run log. |
 | `rateLimit.test.ts`, `runApi.test.ts`, `ndjson.test.ts`, `liveRun.test.ts`, `run.test.ts`, `verdicts.test.ts`, `format.test.ts` | The smaller building blocks, including the integrity of the recordings. |
 
