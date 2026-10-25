@@ -19,7 +19,8 @@ On Windows PowerShell, run `npx.cmd` instead of `npx` (the `npx.ps1` script is b
 
 Full map and recipes: `docs/ARCHITECTURE.md`. Short version:
 
-- `lib/profile.ts`, `lib/reality.ts`: all page copy (name, hero line, About, projects, "what's real"). Edit these to change the site text.
+- `lib/profile.ts`, `lib/reality.ts`: all page copy (name, hero title `headline` and description `intro`, About, projects, "what's real"). Edit these to change the site text. `tests/copy.test.ts` enforces the wording rules below on this copy.
+- Logo: `components/Logo.tsx` (the mark, used in the nav and hero), `app/icon.svg` (tab icon, same drawing), `app/apple-icon.tsx` and `app/opengraph-image.tsx` (home-screen icon and the share-preview picture).
 - `app/page.tsx`, `app/layout.tsx`, `app/globals.css`: the page and styles.
 - `components/Stage.tsx` plus `components/stage/`: the live agent view (hooks `usePlayback`, `useLiveRun`; `IdeaForm`, `OutputPanel`, `PlayerControls`). Recorded runs replay in the browser (a pure function of time, so it can be scrubbed); typed ideas stream from the server and become a scrubbable run. `components/PipelineSvg.tsx` draws the pipeline.
 - `lib/run.ts`: recordings, replay timeline, frames at a moment. `lib/liveRun.ts`: reducer for streamed runs. `lib/agents.ts`, `lib/types.ts`: agent list and shared types (`FoundryEvent` is the stream protocol). Browser and server safe.

@@ -1,7 +1,14 @@
 // Single source of truth for the portfolio copy. Edit this file to update the site.
 
 export const profile = {
+  siteUrl: "https://foundry-portfolio.vercel.app",
   name: "Alex Marushka",
+  /** The big title at the top of the page. */
+  headline: "Foundry",
+  /** The paragraph under it. Keep it honest: a pull request draft checked by other agents, on a small sample app. */
+  intro:
+    "Foundry is a team of eight AI agents. Give it a rough idea for a small task-tracker app and it hands back a pull request draft, already checked by other agents. One agent reads the code, two plan the change, two build it side by side, two check the result and can send it back, and one writes up the pull request.",
+  /** The one-line version, used for the page description in search results and link previews. */
   title: "Student at the University of Chicago",
   pitch:
     "I build teams of AI agents. Hand them a rough idea and they hand back a pull request draft, already checked by other agents.",

@@ -7,7 +7,8 @@ const sans = Schibsted_Grotesk({ subsets: ["latin"], variable: "--font-sans", di
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
 
 export const metadata: Metadata = {
-  title: `${profile.name}: AI agent systems`,
+  metadataBase: new URL(profile.siteUrl),
+  title: `${profile.headline} | ${profile.name}`,
   description: profile.pitch,
 };
 

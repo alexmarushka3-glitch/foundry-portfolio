@@ -1,5 +1,6 @@
 import DashboardSection from "@/components/admin/DashboardSection";
 import ContactLinks from "@/components/ContactLinks";
+import Logo from "@/components/Logo";
 import Stage from "@/components/Stage";
 import { profile } from "@/lib/profile";
 import { REALITY } from "@/lib/reality";
@@ -12,7 +13,8 @@ export default function Home() {
       </a>
       <header className="nav">
         <a href="#top" className="brand">
-          {profile.name}
+          <Logo size={26} />
+          <span>{profile.headline}</span>
         </a>
         <nav aria-label="Sections">
           <a href="#demo">Demo</a>
@@ -25,7 +27,11 @@ export default function Home() {
 
       <main id="top">
         <section className="hero">
-          <h1>{profile.pitch}</h1>
+          <div className="lockup">
+            <Logo className="hero-mark" />
+            <h1>{profile.headline}</h1>
+          </div>
+          <p className="hero-lede">{profile.intro}</p>
           <p className="byline">
             {profile.name}, student at the University of Chicago.{" "}
             <ContactLinks label="Email" />

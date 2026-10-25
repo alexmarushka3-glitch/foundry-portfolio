@@ -103,7 +103,7 @@ The run log is in memory on one server instance (the last 500 runs) and resets o
 
 ```
 app/            Routes: the page, /admin, /admin-demo, /api/run, /api/admin/*
-components/     Stage (and stage/), PipelineSvg, admin/
+components/     Stage (and stage/), PipelineSvg, Logo, admin/
 lib/            pipeline/ (the agents), server/ (limits, log, auth), admin/ (dashboard maths), run.ts, liveRun.ts, ...
 tests/          Vitest suites
 recordings-src/ Raw outputs of the three real runs
