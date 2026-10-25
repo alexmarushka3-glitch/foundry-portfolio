@@ -12,6 +12,9 @@ vi.mock("@/lib/pipeline", () => ({
 import { GET, POST } from "@/app/api/run/route";
 import { serverState } from "@/lib/server/state";
 
+const fieldSpec = (name: string) => ({ spec: { kind: "field", name, valueType: "text" } });
+const NICK = fieldSpec("nickname");
+
 const post = (body: unknown, headers: Record<string, string> = {}) =>
   POST(
     new Request("http://test/api/run", {
@@ -48,7 +51,7 @@ describe("GET /api/run", () => {
 
 describe("POST /api/run validation", () => {
   it("rejects bad JSON, empty ideas and long ideas with a 400 and a message", async () => {
-    for (const body of ["{nope", {}, { request: "   " }, { request: "x".repeat(201) }]) {
+    for (const body of ["{nope", {}, { request: "   " }, { request: "x".repeat(201) }, { request: "free text that is not an example" }, { spec: { kind: "nope", name: "x" } }, { spec: { kind: "field", name: "bad;name", valueType: "text" } }]) {
       const res = await post(body);
       expect(res.status).toBe(400);
       expect((await res.json()).error).toBeTruthy();
@@ -59,16 +62,16 @@ describe("POST /api/run validation", () => {
 
 describe("POST /api/run streaming", () => {
   it("streams the pipeline's events as one JSON object per line", async () => {
-    const res = await post({ request: "Add a nickname" });
+    const res = await post(NICK);
     expect(res.headers.get("content-type")).toContain("application/x-ndjson");
     expect((await readLines(res)).map((e) => e.type)).toEqual(["mode", "done", "finish"]);
   });
 
   it("logs the finished run for the admin dashboard, with a hashed visitor", async () => {
-    const res = await post({ request: "Add a nickname" }, { "x-forwarded-for": "203.0.113.9" });
+    const res = await post(NICK, { "x-forwarded-for": "203.0.113.9" });
     await res.text();
     const [logged] = serverState().runLog.list();
-    expect(logged).toMatchObject({ request: "Add a nickname", mode: "simulated", status: "approved", rounds: 1 });
+    expect(logged).toMatchObject({ request: 'Add a "nickname" field to tasks (type: text, optional).', mode: "simulated", status: "approved", rounds: 1 });
     expect(logged.visitor).toHaveLength(8);
     expect(JSON.stringify(logged)).not.toContain("203.0.113.9");
   });
@@ -76,7 +79,7 @@ describe("POST /api/run streaming", () => {
   it("sends an error event and logs an error when the pipeline throws, and hides raw API errors", async () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     pipeline.runPipeline.mockRejectedValue(new Error("401 invalid x-api-key sk-ant-secret"));
-    const res = await post({ request: "Add a nickname" });
+    const res = await post(NICK);
     const events = await readLines(res);
     const err = events.find((e) => e.type === "error");
     expect(err).toMatchObject({ message: "The run stopped before it finished. Try again in a moment." });
@@ -91,12 +94,12 @@ describe("POST /api/run limits", () => {
     pipeline.live = true;
     process.env.FOUNDRY_LIVE_PER_HOUR = "1";
     const headers = { "x-forwarded-for": "198.51.100.7" };
-    await (await post({ request: "Idea one" }, headers)).text();
+    await (await post(fieldSpec("idea one"), headers)).text();
     expect(optionsOf().allowLive).toBe(true);
-    await (await post({ request: "Idea two" }, headers)).text();
+    await (await post(fieldSpec("idea two"), headers)).text();
     expect(optionsOf()).toMatchObject({ allowLive: false, reason: expect.stringMatching(/1 live runs this hour/) });
     // a different visitor still gets a live run
-    await (await post({ request: "Idea three" }, { "x-forwarded-for": "198.51.100.8" })).text();
+    await (await post(fieldSpec("idea three"), { "x-forwarded-for": "198.51.100.8" })).text();
     expect(optionsOf().allowLive).toBe(true);
   });
 
@@ -117,7 +120,7 @@ describe("POST /api/run cancellation", () => {
       await new Promise((resolve) => opts.signal.addEventListener("abort", resolve));
       throw new Error("cancelled");
     });
-    const res = await post({ request: "Add a nickname" });
+    const res = await post(NICK);
     const reader = res.body!.getReader();
     await reader.read(); // first event arrives
     await reader.cancel(); // the visitor leaves

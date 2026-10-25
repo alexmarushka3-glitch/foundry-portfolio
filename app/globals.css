@@ -222,25 +222,53 @@ main,
 .idea {
   margin: 20px 0 8px;
 }
-.idea label {
-  display: block;
-  font-size: 0.9rem;
-  color: var(--on-iron-muted);
-  margin-bottom: 6px;
-}
-.idea-row {
+.idea-fields {
   display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
   gap: 10px;
 }
-.idea input {
-  flex: 1 1 auto;
+.idea-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: var(--on-iron-muted);
+}
+.idea-name {
+  flex: 1 1 180px;
   min-width: 0;
+}
+.idea-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font-size: 0.9rem;
+  color: var(--on-iron);
+}
+.idea select,
+.idea input:not([type="checkbox"]) {
   font: inherit;
   color: var(--on-iron);
   background: var(--iron-2);
   border: 1px solid var(--iron-line);
   border-radius: 10px;
   padding: 11px 14px;
+  min-width: 0;
+}
+.idea select:disabled,
+.idea input:disabled {
+  opacity: 0.55;
+}
+.idea-fields .run {
+  min-height: 44px;
+}
+.idea-preview {
+  margin: 10px 0 0;
+  font-size: 0.875rem;
+  color: var(--on-iron-muted);
+  min-height: 1.4em;
 }
 .idea input::placeholder {
   color: var(--on-iron-muted);
@@ -727,8 +755,9 @@ main,
     padding: 18px;
     border-radius: 14px;
   }
-  .idea-row {
+  .idea-fields {
     flex-direction: column;
+    align-items: stretch;
   }
   .run {
     padding: 12px;

@@ -25,8 +25,8 @@ The page's centerpiece is a drawing of the pipeline. The active agent glows, fin
 | Mode | When | What visitors see |
 | --- | --- | --- |
 | Replay | One of the three example requests | Genuine Claude output from a real run, played back faster than it ran. Runs in the browser, free, scrubbable. |
-| Live | Any typed idea, when `ANTHROPIC_API_KEY` is set | Each agent calls a real Claude model. The page shows an estimated cost when the run ends. |
-| Simulated | Any typed idea, with no key, over the limits, or while live runs are paused | Scripted text, labelled as such. |
+| Live | Any request built in the form, when `ANTHROPIC_API_KEY` is set | Each agent calls a real Claude model. The page shows an estimated cost when the run ends. |
+| Simulated | Any request built in the form, with no key, over the limits, or while live runs are paused | Scripted text, labelled as such. |
 
 The page labels the mode on every run.
 
@@ -45,7 +45,7 @@ npm install
 npm run dev        # http://localhost:3000
 ```
 
-With no configuration the site works: the examples replay and typed ideas run the labelled simulation.
+With no configuration the site works: the examples replay and requests built in the form run the labelled simulation.
 
 | Command | What it does |
 | --- | --- |
@@ -64,7 +64,7 @@ Copy `.env.example` to `.env.local`. Nothing is required.
 
 | Variable | Default | Meaning |
 | --- | --- | --- |
-| `ANTHROPIC_API_KEY` | none | Turns on live runs for typed ideas. Never commit it. |
+| `ANTHROPIC_API_KEY` | none | Turns on live runs for built requests. Never commit it. |
 | `FOUNDRY_LIVE` | `on` | `off` turns live runs off even with a key. |
 | `FOUNDRY_LIVE_PER_HOUR` | `3` | Live runs per visitor per hour. |
 | `FOUNDRY_LIVE_PER_DAY` | `40` | Live runs per day for the whole site. |

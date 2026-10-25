@@ -43,7 +43,7 @@ Rule of thumb: `lib/` files marked "browser safe" import nothing from `lib/serve
 1. The browser decides what to do (`components/Stage.tsx`, `go()`).
    - The idea matches a recording (`findRecording`): play it in the browser with `buildReplayRun` and `viewsAt`. No network.
    - Otherwise: `useLiveRun` POSTs `{ request }` to `/api/run`.
-2. `app/api/run/route.ts` validates the idea (`parseRequest`), checks the per-visitor and daily brake (`LiveLimiter`) for typed ideas, and starts `runPipeline` inside a `ReadableStream`. Each event goes to two places: the response (one JSON object per line) and a `RunRecorder` that will become the admin log entry.
+2. `app/api/run/route.ts` validates the request (`parseRequest`: a `spec` from `lib/spec.ts` is rebuilt into one sentence server-side; plain text is accepted only for the recorded examples), checks the per-visitor and daily brake (`LiveLimiter`) for typed ideas, and starts `runPipeline` inside a `ReadableStream`. Each event goes to two places: the response (one JSON object per line) and a `RunRecorder` that will become the admin log entry.
 3. `lib/pipeline/index.ts` `runPipeline`:
    - recorded idea: `replayOnServer` (kept for API clients);
    - live allowed and a key is set: a one-token preflight, then real model calls;

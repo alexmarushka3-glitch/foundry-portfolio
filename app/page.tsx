@@ -43,7 +43,7 @@ export default function Home() {
         <section id="dashboard" className="section" aria-labelledby="dashboard-title">
           <h2 id="dashboard-title">Watching the factory run</h2>
           <p className="lede">
-            Every typed idea is logged with its mode, result, time and cost. This is the dashboard I use to watch usage and pause live
+            Every request built in the form is logged with its mode, result, time and cost. This is the dashboard I use to watch usage and pause live
             runs. The numbers below are made up for this page. The real one sits behind a login.
           </p>
           <DashboardSection />

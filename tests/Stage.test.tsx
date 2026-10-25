@@ -43,8 +43,8 @@ const simulatedRun: FoundryEvent[] = [
   { type: "finish", ms: 100, rounds: 1, approved: true },
 ];
 
-const typeIdea = (text: string) => {
-  fireEvent.change(screen.getByLabelText(/feature idea/i), { target: { value: text } });
+const typeIdea = (name: string) => {
+  fireEvent.change(screen.getByLabelText(/field name/i), { target: { value: name } });
   fireEvent.click(screen.getByRole("button", { name: "Run" }));
 };
 
@@ -60,12 +60,12 @@ describe("Stage", () => {
   it("sends a typed idea to the server, labels it Simulated, and ends with a plain summary", async () => {
     const fetchMock = mockApi(() => ndjson(simulatedRun));
     render(<Stage />);
-    typeIdea("Add a nickname to tasks");
+    typeIdea("nickname");
 
     expect(await screen.findByText("Simulated")).toBeTruthy();
     expect(await screen.findByText(/This was scripted text, so no model ran/)).toBeTruthy();
     const post = fetchMock.mock.calls.find(([, init]) => init?.method === "POST")!;
-    expect(JSON.parse(String(post[1]!.body))).toEqual({ request: "Add a nickname to tasks" });
+    expect(JSON.parse(String(post[1]!.body))).toEqual({ spec: { kind: "field", name: "nickname", valueType: "date", required: false } });
     // the finished run can be scrubbed
     expect(screen.getByLabelText("Scrub through the run")).toBeTruthy();
   });
@@ -73,7 +73,7 @@ describe("Stage", () => {
   it("shows the server's error and lets the visitor try again (the Run button must not stay stuck)", async () => {
     mockApi(() => ndjson([{ type: "mode", mode: "live" }, { type: "error", message: "The run stopped before it finished." }]));
     render(<Stage />);
-    typeIdea("Add a nickname to tasks");
+    typeIdea("nickname");
 
     expect((await screen.findByRole("alert")).textContent).toContain("The run stopped before it finished.");
     const run = screen.getByRole("button", { name: "Run" }) as HTMLButtonElement;
@@ -83,7 +83,7 @@ describe("Stage", () => {
   it("recovers when the connection drops before the run finishes", async () => {
     mockApi(() => ndjson([{ type: "mode", mode: "simulated" }, { type: "start", agent: "researcher", round: 1, model: "m" }]));
     render(<Stage />);
-    typeIdea("Add a nickname to tasks");
+    typeIdea("nickname");
 
     expect((await screen.findByRole("alert")).textContent).toMatch(/ended before it finished/);
     expect((screen.getByRole("button", { name: "Run" }) as HTMLButtonElement).disabled).toBe(false);
@@ -92,7 +92,7 @@ describe("Stage", () => {
   it("shows the message from a rejected request", async () => {
     mockApi(() => Response.json({ error: "Keep it under 200 characters." }, { status: 400 }));
     render(<Stage />);
-    typeIdea("Add a nickname to tasks");
+    typeIdea("nickname");
     expect((await screen.findByRole("alert")).textContent).toContain("Keep it under 200 characters.");
   });
 

@@ -1,16 +1,27 @@
 // Small pieces of the run API, kept out of the route file so they can be tested on their own.
 
 import { MAX_INPUT } from "../limits";
+import { findRecording } from "../run";
+import { buildRequest, validateSpec } from "../spec";
 
 type Parsed = { ok: true; request: string } | { ok: false; error: string };
 
-/** Clean up and validate the visitor's idea. Control characters are stripped so odd input can't mangle the prompt or the stream. */
+/**
+ * Turn the browser's body into the request the agents get. A `spec` (fixed choices) is validated and rebuilt into
+ * a sentence here, so raw visitor text never reaches a prompt. A plain `request` is only accepted if it is one of
+ * the recorded examples, which replay for free.
+ */
 export function parseRequest(body: unknown): Parsed {
-  const raw = (body as { request?: unknown } | null)?.request;
-  const request = typeof raw === "string" ? raw.replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim() : "";
-  if (!request) return { ok: false, error: "Type an idea first." };
-  if (request.length > MAX_INPUT) return { ok: false, error: `Keep it under ${MAX_INPUT} characters.` };
-  return { ok: true, request };
+  const b = (body ?? {}) as { request?: unknown; spec?: unknown };
+  if (b.spec !== undefined) {
+    const checked = validateSpec(b.spec);
+    return checked.ok ? { ok: true, request: buildRequest(checked.spec) } : checked;
+  }
+  const raw = typeof b.request === "string" ? b.request.replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim() : "";
+  if (!raw) return { ok: false, error: "Pick what you want built first." };
+  if (raw.length > MAX_INPUT) return { ok: false, error: `Keep it under ${MAX_INPUT} characters.` };
+  if (!findRecording(raw)) return { ok: false, error: "Pick a feature type and a name, or choose one of the examples." };
+  return { ok: true, request: raw };
 }
 
 /** Who is asking, for the per-visitor limit. Behind Vercel the first forwarded address is the visitor's. */

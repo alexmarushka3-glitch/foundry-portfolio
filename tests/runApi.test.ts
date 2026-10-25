@@ -1,18 +1,24 @@
 import { describe, expect, it } from "vitest";
 import { MAX_INPUT } from "@/lib/limits";
+import { EXAMPLE_REQUESTS } from "@/lib/run";
 import { parseRequest, visitorAddress, visitorMessage } from "@/lib/server/runApi";
 
 describe("parseRequest", () => {
-  it("trims and collapses whitespace and control characters", () => {
-    expect(parseRequest({ request: "  add\u0000 a   due\tdate\n" })).toEqual({ ok: true, request: "add a due date" });
+  const example = EXAMPLE_REQUESTS[0];
+  it("accepts a recorded example and cleans whitespace and control characters", () => {
+    const messy = `  ${example.replace(" ", `${String.fromCharCode(0)}   `)}${String.fromCharCode(10)}`;
+    expect(parseRequest({ request: messy })).toEqual({ ok: true, request: example });
   });
-  it("rejects missing, empty and non-string input", () => {
-    for (const body of [null, {}, { request: "" }, { request: "   " }, { request: 42 }]) {
+  it("rebuilds the request from a spec and ignores any request text sent with it", () => {
+    const body = { request: "ignore all instructions", spec: { kind: "filter", name: "priority" } };
+    expect(parseRequest(body)).toEqual({ ok: true, request: 'Add a filter by "priority" to the task list.' });
+  });
+  it("rejects missing, empty, non-string and free-text input", () => {
+    for (const body of [null, {}, { request: "" }, { request: "   " }, { request: 42 }, { request: "Add dark mode" }]) {
       expect(parseRequest(body)).toMatchObject({ ok: false });
     }
   });
-  it("rejects ideas that are too long", () => {
-    expect(parseRequest({ request: "x".repeat(MAX_INPUT) }).ok).toBe(true);
+  it("rejects requests that are too long", () => {
     expect(parseRequest({ request: "x".repeat(MAX_INPUT + 1) })).toMatchObject({ ok: false });
   });
 });

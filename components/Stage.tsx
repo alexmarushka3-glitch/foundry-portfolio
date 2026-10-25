@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useRef, useState } from "react";
 import IdeaForm from "./stage/IdeaForm";
+import type { FeatureSpec } from "@/lib/spec";
 import OutputPanel from "./stage/OutputPanel";
 import PlayerControls from "./stage/PlayerControls";
 import { useLiveAvailability, useMediaQuery, useOnceInView, usePlayback } from "./stage/hooks";
@@ -32,7 +33,6 @@ const MODE_COPY: Record<Mode, { label: string; detail: string }> = {
  * to the server and streamed back; a finished run, from either source, can be paused, sped up and scrubbed.
  */
 export default function Stage() {
-  const [input, setInput] = useState(EXAMPLE_REQUESTS[0] ?? "");
   const [run, setRun] = useState<Run | null>(null);
   const [selected, setSelected] = useState<AgentName | null>(null);
 
@@ -74,15 +74,15 @@ export default function Stage() {
   );
 
   const go = useCallback(
-    (request: string) => {
+    (request: string, spec?: FeatureSpec) => {
       const q = request.trim();
       if (!q || busy) return;
       touchedRef.current = true;
-      if (startReplay(q)) return;
+      if (!spec && startReplay(q)) return;
       setRun(null);
       setPlaying(false);
       resetView();
-      void startLive(q);
+      void startLive(q, spec);
     },
     [busy, resetView, setPlaying, startLive, startReplay],
   );
@@ -134,7 +134,7 @@ export default function Stage() {
         )}
       </div>
 
-      <IdeaForm value={input} onChange={setInput} onSubmit={go} busy={busy} activeExample={run?.request} liveAvailable={liveAvailable} />
+      <IdeaForm onSubmit={go} busy={busy} activeExample={run?.request} liveAvailable={liveAvailable} />
 
       <PipelineSvg
         frames={frames}
@@ -162,7 +162,7 @@ export default function Stage() {
 
       <div className="panels">
         {focus.length === 0 ? (
-          <p className="empty">Pick an idea above, or type your own. The agents will build it while you watch.</p>
+          <p className="empty">Pick an example above, or build your own request. The agents will build it while you watch.</p>
         ) : (
           focus.map((f) => <OutputPanel key={f.agent} frame={f} />)
         )}
