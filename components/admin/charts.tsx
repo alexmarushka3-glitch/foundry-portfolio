@@ -38,38 +38,40 @@ export function StackedBars({ buckets }: { buckets: Bucket[] }) {
   const every = Math.ceil(buckets.length / 8);
 
   return (
-    <svg className="chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Runs over time. ${sum} runs across ${buckets.length} periods.`}>
-      {[0, 0.5, 1].map((f) => (
-        <g key={f}>
-          <line x1={pad.l} x2={W - pad.r} y1={y(niceMax * f)} y2={y(niceMax * f)} className="gridline" />
-          <text x={pad.l - 6} y={y(niceMax * f) + 4} textAnchor="end" className="tick">
-            {Math.round(niceMax * f)}
-          </text>
-        </g>
-      ))}
-      {buckets.map((b, i) => {
-        let acc = 0;
-        const x = pad.l + i * bw + bw * 0.15;
-        return (
-          <g key={b.start}>
-            <title>{`${b.label}: ${totals[i]} run${totals[i] === 1 ? "" : "s"}`}</title>
-            {MODE_ORDER.map((m) => {
-              const v = b.counts[m];
-              if (!v) return null;
-              const top = y(acc + v);
-              const h = y(acc) - top;
-              acc += v;
-              return <rect key={m} x={x} y={top} width={bw * 0.7} height={h} rx={2} fill={MODE_COLOR[m]} />;
-            })}
-            {i % every === 0 && (
-              <text x={x + bw * 0.35} y={H - 6} textAnchor="middle" className="tick">
-                {b.label}
-              </text>
-            )}
+    <div className="chart-scroll">
+      <svg className="chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Runs over time. ${sum} runs across ${buckets.length} periods.`}>
+        {[0, 0.5, 1].map((f) => (
+          <g key={f}>
+            <line x1={pad.l} x2={W - pad.r} y1={y(niceMax * f)} y2={y(niceMax * f)} className="gridline" />
+            <text x={pad.l - 6} y={y(niceMax * f) + 4} textAnchor="end" className="tick">
+              {Math.round(niceMax * f)}
+            </text>
           </g>
-        );
-      })}
-    </svg>
+        ))}
+        {buckets.map((b, i) => {
+          let acc = 0;
+          const x = pad.l + i * bw + bw * 0.15;
+          return (
+            <g key={b.start}>
+              <title>{`${b.label}: ${totals[i]} run${totals[i] === 1 ? "" : "s"}`}</title>
+              {MODE_ORDER.map((m) => {
+                const v = b.counts[m];
+                if (!v) return null;
+                const top = y(acc + v);
+                const h = y(acc) - top;
+                acc += v;
+                return <rect key={m} x={x} y={top} width={bw * 0.7} height={h} rx={2} fill={MODE_COLOR[m]} />;
+              })}
+              {i % every === 0 && (
+                <text x={x + bw * 0.35} y={H - 6} textAnchor="middle" className="tick">
+                  {b.label}
+                </text>
+              )}
+            </g>
+          );
+        })}
+      </svg>
+    </div>
   );
 }
 

@@ -81,6 +81,9 @@ export default function ControlPanel({ server, pending, onAct, onExport, exportC
         {destructive("clear-log", "Clear the run log", "Yes, clear it")}
       </div>
       <p className="fine">
+        Models: {server.models.fast} (fast), {server.models.build} (build), {server.models.smart} (smart).
+      </p>
+      <p className="fine">
         {sample ? (
           "In this sample, these buttons only change what is on your screen. Nothing is sent anywhere."
         ) : (

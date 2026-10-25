@@ -195,8 +195,18 @@
   margin: 0 0 16px;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
+}
+@media (min-width: 640px) {
+  .kpis {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (min-width: 1000px) {
+  .kpis {
+    grid-template-columns: repeat(6, 1fr);
+  }
 }
 .kpi {
   background: var(--card);
@@ -232,7 +242,7 @@
 /* layout of charts and panels */
 .admin .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
   gap: 16px;
   margin-bottom: 16px;
 }
@@ -454,6 +464,9 @@ table.runs {
   background: var(--soft);
   border: 1px solid var(--line);
 }
+.pill[class*="status-"] {
+  text-transform: none;
+}
 .pill.live,
 .pill.status-approved {
   color: var(--verdigris);
@@ -518,4 +531,93 @@ table.runs {
 .sample-banner a {
   font-weight: 600;
   white-space: nowrap;
+}
+
+/* wide charts scroll sideways on a phone instead of shrinking until the text is unreadable */
+.chart-scroll {
+  overflow-x: auto;
+}
+.chart-scroll .chart {
+  min-width: 520px;
+}
+
+/* sorting for the stacked table on a phone, where the column headers are hidden */
+.mobile-sort {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .sample-banner {
+    position: static;
+  }
+  .mobile-sort {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+  .mobile-sort select {
+    width: auto;
+    flex: 1;
+  }
+
+  /* tables become a stack of cards: the idea first, then the small facts in a row */
+  .table-wrap {
+    border: 0;
+    overflow: visible;
+  }
+  .runs thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  .runs,
+  .runs tbody {
+    display: block;
+  }
+  .runs tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+    padding: 12px;
+    margin-bottom: 8px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--card);
+  }
+  .runs td {
+    display: block;
+    padding: 0;
+    border: 0;
+    white-space: normal;
+    text-align: left;
+  }
+  .runs td.idea-cell {
+    flex-basis: 100%;
+    order: -1;
+    min-width: 0;
+    max-width: none;
+    font-weight: 600;
+  }
+  .runs td[data-label]::before {
+    content: attr(data-label) ": ";
+    color: var(--muted);
+    font-weight: 400;
+  }
+  .runs td:last-child:not(.idea-cell) {
+    margin-left: auto;
+  }
+  .runs tr.detail {
+    margin-top: -8px;
+    background: var(--soft);
+  }
+  .runs tr.detail td {
+    flex-basis: 100%;
+    background: none;
+  }
 }

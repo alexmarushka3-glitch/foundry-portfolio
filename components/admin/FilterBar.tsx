@@ -60,7 +60,7 @@ export default function FilterBar({ filters, onChange, shown, total }: Props) {
       </label>
       <label className="grow">
         <span>Search</span>
-        <input type="search" value={filters.query} placeholder="Idea text or visitor id" onChange={(e) => set("query", e.target.value)} />
+        <input type="search" value={filters.query} placeholder="Search ideas" onChange={(e) => set("query", e.target.value)} />
       </label>
       <div className="filters-end">
         <p className="count" aria-live="polite">

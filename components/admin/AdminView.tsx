@@ -118,7 +118,7 @@ export default function AdminView({ admin, sample = false, auto = false, onAuto 
             <section className="card wide" aria-labelledby="runs-over-time">
               <h2 id="runs-over-time">Runs over time</h2>
               <StackedBars buckets={buckets} />
-              <Legend items={MODES.map((m) => ({ label: m, color: MODE_COLOR[m] }))} />
+              <Legend items={MODES.map((m) => ({ label: `${m} (${byMode[m] ?? 0})`, color: MODE_COLOR[m] }))} />
             </section>
 
             <section className="card" aria-labelledby="by-result">
@@ -149,21 +149,6 @@ export default function AdminView({ admin, sample = false, auto = false, onAuto 
               onExport={() => downloadCsv(toCsv(shown), sample ? "sample-foundry-runs" : "foundry-runs")}
               exportCount={shown.length}
             />
-
-            <section className="card" aria-labelledby="by-mode">
-              <h2 id="by-mode">Modes</h2>
-              <ul className="stat-list">
-                {MODES.map((m) => (
-                  <li key={m}>
-                    <span className={`pill ${m}`}>{m}</span>
-                    <strong>{byMode[m] ?? 0}</strong>
-                  </li>
-                ))}
-              </ul>
-              <p className="fine">
-                Models in use: {data.server.models.fast} (fast), {data.server.models.build} (build), {data.server.models.smart} (smart).
-              </p>
-            </section>
           </div>
 
           <section className="card" aria-labelledby="runs-title">
@@ -198,9 +183,9 @@ export default function AdminView({ admin, sample = false, auto = false, onAuto 
                           {r.approved ? "Passed" : "Did not pass"}
                         </span>
                       </td>
-                      <td className="num">{r.rounds}</td>
-                      <td className="num">{formatDuration(r.totalMs)}</td>
-                      <td>{r.models.join(", ")}</td>
+                      <td className="num" data-label="Rounds">{r.rounds}</td>
+                      <td className="num" data-label="Real time">{formatDuration(r.totalMs)}</td>
+                      <td data-label="Models">{r.models.join(", ")}</td>
                     </tr>
                   ))}
                 </tbody>

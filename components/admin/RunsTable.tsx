@@ -54,6 +54,23 @@ export default function RunsTable({ runs, now }: Props) {
 
   return (
     <>
+      <label className="mobile-sort">
+        <span>Sort by</span>
+        <select
+          value={`${sort.key}-${sort.dir}`}
+          onChange={(e) => {
+            const [key, dir] = e.target.value.split("-") as [SortKey, SortState["dir"]];
+            setSort({ key, dir });
+          }}
+        >
+          <option value="at-desc">Newest first</option>
+          <option value="at-asc">Oldest first</option>
+          <option value="ms-desc">Slowest first</option>
+          <option value="ms-asc">Fastest first</option>
+          <option value="costUsd-desc">Costliest first</option>
+          <option value="costUsd-asc">Cheapest first</option>
+        </select>
+      </label>
       <div className="table-wrap" tabIndex={0} role="region" aria-label="Runs table">
         <table className="runs">
           <thead>
@@ -83,8 +100,8 @@ export default function RunsTable({ runs, now }: Props) {
                     <td>
                       <span className={`pill status-${r.status}`}>{STATUS_LABEL[r.status]}</span>
                     </td>
-                    <td className="num">{formatDuration(r.ms)}</td>
-                    <td className="num">{r.mode === "live" ? formatRunCost(r.costUsd) : "–"}</td>
+                    <td className="num" data-label="Time">{formatDuration(r.ms)}</td>
+                    <td className="num" data-label="Cost">{r.mode === "live" ? formatRunCost(r.costUsd) : "–"}</td>
                     <td className="num">
                       <button
                         type="button"
