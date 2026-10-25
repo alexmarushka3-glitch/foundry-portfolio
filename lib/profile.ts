@@ -1,5 +1,4 @@
 // Single source of truth for the portfolio copy. Edit this file to update the site.
-// Items marked TODO are guesses or placeholders: replace them with real details.
 
 export const profile = {
   name: "Alex Marushka",
@@ -35,10 +34,5 @@ export const profile = {
         "One living doc and an Obsidian vault that hold my projects, deadlines and notes, kept current by Claude sessions.",
       tags: ["Obsidian", "Claude Docs", "Workflow design"],
     },
-  ],
-  stats: [
-    { label: "Agents in the pipeline", value: "8" },
-    { label: "Models used", value: "3" },
-    { label: "Recorded runs that passed the AI checks", value: "3 of 3" },
   ],
 };

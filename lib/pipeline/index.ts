@@ -1,0 +1,113 @@
+import Anthropic from "@anthropic-ai/sdk";
+import { findRecording } from "../run";
+import { renderSampleRepo } from "../sampleRepo";
+import { serverState } from "../server/state";
+import type { AgentName, Emit } from "../types";
+import { runAgent, type LlmClient, type RunContext } from "./agentRunner";
+import { liveConfigured, liveEnabled, MAX_ROUNDS, MODELS, modelParams, ROUND_TIME_BUDGET_MS } from "./config";
+import { AGENT_SPECS } from "./prompts";
+import { replayOnServer } from "./replay";
+import { e2ePassed, validatorApproved } from "./verdicts";
+
+export type { AgentName, FoundryEvent, Emit, Gate, Mode } from "../types";
+export { costOf, liveConfigured, liveEnabled } from "./config";
+export type { LlmClient } from "./agentRunner";
+
+export type RunOptions = {
+  /** False when the caller has already decided this run may not go live (limits reached). */
+  allowLive?: boolean;
+  /** Shown to the visitor when a run is a simulation for a reason they should know. */
+  reason?: string;
+  /** Stop the run, and stop spending, when this aborts (the visitor left). */
+  signal?: AbortSignal;
+  /** Use this model client instead of the real SDK. For tests. */
+  client?: LlmClient;
+  /** Scales the delays in simulated and replayed runs. 0 skips them. For tests. */
+  pace?: number;
+};
+
+const PAUSED_REASON = "Live runs are paused right now, so this run is a simulation.";
+const UNAVAILABLE_REASON = "Live mode isn't available right now, so this run is a simulation.";
+
+/**
+ * Run the eight-agent pipeline and report progress through `emit`.
+ *
+ * A recorded example is replayed. Anything else runs live when the server is set up for it and the caller
+ * allows it, and otherwise runs the labelled simulation. Throws only for failures the visitor should see.
+ */
+export async function runPipeline(request: string, emit: Emit, opts: RunOptions = {}): Promise<void> {
+  const pace = opts.pace ?? 1;
+  const recorded = findRecording(request);
+  if (recorded) return replayOnServer(recorded, emit, pace);
+
+  const t0 = Date.now();
+  const wantLive = opts.allowLive !== false && (opts.client !== undefined || liveEnabled());
+  let client: LlmClient | null = wantLive ? (opts.client ?? (new Anthropic() as unknown as LlmClient)) : null;
+  let reason = client ? undefined : (opts.reason ?? (liveConfigured() && serverState().admin.livePaused ? PAUSED_REASON : undefined));
+
+  // A one-token check before the real run. If the key is wrong, the account is out of credit,
+  // or the API is down, the visitor gets the labelled simulation instead of an error.
+  if (client) {
+    try {
+      await client.messages.create({
+        model: MODELS.fast,
+        messages: [{ role: "user", content: "Reply with OK." }],
+        ...modelParams(MODELS.fast, 16),
+      });
+    } catch (err) {
+      const e = err as { name?: string; status?: number; error?: { error?: { type?: string } } };
+      console.error("live check failed, using simulation:", e?.name ?? typeof err, e?.status ?? "", e?.error?.error?.type ?? "");
+      client = null;
+      reason = UNAVAILABLE_REASON;
+    }
+  }
+  const live = client !== null;
+  emit({ type: "mode", mode: live ? "live" : "simulated", reason });
+
+  const ctx: RunContext = { client, emit, request, spend: { usd: 0 }, signal: opts.signal, pace };
+  const step = (agent: AgentName, round: number, input: string) => runAgent(ctx, AGENT_SPECS[agent], round, input);
+
+  const research = await step("researcher", 1, `Request: ${request}\n\nRepository (read-only):\n${renderSampleRepo()}`);
+  const story = await step("story", 1, `Rough idea: ${request}\n\nResearch:\n${research}`);
+  const blueprint = await step("pm", 1, `Story:\n${story}\n\nResearch:\n${research}`);
+
+  let feedback = "";
+  let backend = "";
+  let frontend = "";
+  let approved = false;
+  let roundsRun = 0;
+  for (let round = 1; round <= MAX_ROUNDS; round++) {
+    if (round > 1 && Date.now() - t0 > ROUND_TIME_BUDGET_MS) break;
+    roundsRun = round;
+    const fb = feedback ? `\n\nFeedback to address:\n${feedback}` : "";
+    [backend, frontend] = await Promise.all([
+      step("backend", round, `Blueprint:\n${blueprint}${fb}\n\nPrevious backend code:\n${backend}`),
+      step("frontend", round, `Blueprint:\n${blueprint}${fb}\n\nPrevious frontend code:\n${frontend}`),
+    ]);
+
+    const flows = await step("e2e", round, `Story:\n${story}\n\nBackend:\n${backend}\n\nFrontend:\n${frontend}`);
+    const flowsPass = e2ePassed(flows);
+    emit({ type: "verdict", gate: "e2e", round, approved: flowsPass });
+    if (!flowsPass) {
+      feedback = flows;
+      continue;
+    }
+
+    const audit = await step(
+      "validator",
+      round,
+      `Story:\n${story}\n\nBackend:\n${backend}\n\nFrontend:\n${frontend}\n\nE2E result:\n${flows}`,
+    );
+    approved = validatorApproved(audit);
+    emit({ type: "verdict", gate: "validator", round, approved });
+    if (approved) break;
+    feedback = audit;
+  }
+
+  await step(
+    "release",
+    roundsRun,
+    `Request: ${request}\n\nBlueprint:\n${blueprint}\n\nBackend:\n${backend}\n\nFrontend:\n${frontend}\n\nApproved: ${approved}`,
+  );
+  emit({ type: "finish", ms: Date.now() - t0, rounds: roundsRun, approved, costUsd: live ? ctx.spend.usd : undefined });
+}

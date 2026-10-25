@@ -2,7 +2,8 @@
 
 import type { KeyboardEvent } from "react";
 import { AGENT_BY_ID } from "@/lib/agents";
-import { formatDuration, type AgentFrame } from "@/lib/run";
+import { formatDuration } from "@/lib/format";
+import type { AgentFrame } from "@/lib/run";
 import type { AgentName } from "@/lib/types";
 
 type Layout = "wide" | "narrow";

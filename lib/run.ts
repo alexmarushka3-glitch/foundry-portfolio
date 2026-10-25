@@ -68,7 +68,7 @@ const stageMs = (real: number) => Math.min(3200, Math.max(900, real * 0.12));
 
 /** Lay a recorded run out on a playback timeline. Backend and Frontend start together. */
 export function buildReplayRun(rec: Recording): Run {
-  const byAgent = Object.fromEntries(rec.steps.map((s) => [s.agent, s]));
+  const byAgent = Object.fromEntries(rec.steps.map((s) => [s.agent, s])) as Record<AgentName, Recording["steps"][number]>;
   const steps: Step[] = [];
   let t = 0;
 
@@ -135,15 +135,3 @@ export function framesFrom(views: StepView[]): AgentFrame[] {
 }
 
 export const maxRound = (views: StepView[]) => views.reduce((m, v) => Math.max(m, v.round), 0);
-
-export function formatDuration(ms: number): string {
-  const s = ms / 1000;
-  if (s < 60) return `${s.toFixed(1)}s`;
-  const m = Math.floor(s / 60);
-  return `${m}m ${Math.round(s - m * 60)}s`;
-}
-
-export function formatClock(ms: number): string {
-  const s = Math.max(0, Math.floor(ms / 1000));
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
-}
