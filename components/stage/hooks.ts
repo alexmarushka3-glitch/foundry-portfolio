@@ -49,7 +49,7 @@ export function useMediaQuery(query: string): boolean {
   return matches;
 }
 
-/** Asks the server whether typed ideas can run live. Null until it answers. */
+/** Asks the server whether requests built in the form can run live. Null until it answers. */
 export function useLiveAvailability(): boolean | null {
   const [available, setAvailable] = useState<boolean | null>(null);
   useEffect(() => {

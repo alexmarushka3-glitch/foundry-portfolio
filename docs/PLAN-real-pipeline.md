@@ -2,6 +2,14 @@
 
 Goal: close the four honesty gaps in the site copy. Today the agents get a vague idea, work on pasted text with no tools, never run their code, and the E2E step is an agent. After this plan: a specific request, tool-using agents, code that runs, a real browser, and a real GitHub pull request.
 
+**Status (Oct 26, 2026): stages 0 to 6 are built and live.** What turned out differently from the plan below:
+
+- Each sandbox call starts from a prepared snapshot (repo, packages, Chromium), built from the /admin button, instead of cloning and installing every time. A snapshot made outside production was invisible to production runs.
+- The E2E Verifier does not get click-by-click browser tools. It writes one Playwright spec and calls `run_browser_test`; the sandbox runs it plus the repo's smoke test and returns the real result and screenshots.
+- The pull request is a draft, opened only for a run that passed both checks, and a daily cron closes them. Engineers can also call `run_tests`.
+- Real costs: about $0.18 to $0.31 and 55 to 90 seconds per live run. Live limits are 1 per visitor per hour and 8 per day.
+- The three recorded examples are from the old text-only version and the page says so.
+
 Decisions (Oct 25, 2026): Vercel Sandbox for running code, a new public `taskly-sample` repo for PRs, structured input fields, plan first then build stage by stage.
 
 ## Target flow

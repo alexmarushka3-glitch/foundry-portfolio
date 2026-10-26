@@ -7,11 +7,11 @@ export const profile = {
   headline: "Foundry",
   /** The paragraph under it. Keep it honest: a pull request draft checked by other agents, on a small sample app. */
   intro:
-    "Foundry is a team of eight AI agents. Give it a rough idea for a small task-tracker app and it hands back a pull request draft, already checked by other agents. One agent reads the code, two plan the change, two build it side by side, two check the result and can send it back, and one writes up the pull request.",
+    "Foundry is a team of eight AI agents. Pick a change for a small task-tracker app and it hands back a real draft pull request, already checked by other agents and by real tests. One agent reads the code, two plan the change, two build it side by side, two check the result, running the tests and a real browser, and can send it back, and one writes up the pull request.",
   /** The one-line version, used for the page description in search results and link previews. */
   title: "Student at the University of Chicago",
   pitch:
-    "I build teams of AI agents. Hand them a rough idea and they hand back a pull request draft, already checked by other agents.",
+    "I build teams of AI agents. Hand them a specific change and they hand back a real draft pull request, already checked by other agents and by real tests.",
   email: "alex.marushka3@gmail.com",
   links: [
     { label: "GitHub", href: "https://github.com/alexmarushka3-glitch" },
@@ -26,7 +26,7 @@ export const profile = {
     {
       name: "Foundry: multi-agent software factory",
       blurb:
-        "Eight agents turn a rough idea into a pull request draft checked by other agents: a read-only researcher, story writer, project manager, parallel backend and frontend engineers, an end-to-end verifier, a validator and a release agent. On this page you can watch it work: the three examples replay real recorded runs, and your own ideas run live on Claude models when the live switch is on.",
+        "Eight agents turn a specific request into a draft pull request checked by other agents and by real tests: a read-only researcher, story writer, project manager, parallel backend and frontend engineers, an end-to-end verifier, a validator and a release agent. On this page you can watch it work: the three examples replay real recorded runs from an earlier version, and a request you build in the form runs live on Claude models when the live switch is on, ending in a real draft pull request on a sample repo that no human reviews.",
       tags: ["Claude API", "TypeScript", "Next.js", "Streaming", "Multi-agent"],
     },
     {

@@ -15,9 +15,9 @@ describe("page copy", () => {
   });
 
   it("describes the output as a pull request draft checked by other agents", () => {
-    expect(profile.intro).toMatch(/pull request draft/i);
+    expect(profile.intro).toMatch(/draft pull request/i);
     expect(profile.intro).toMatch(/checked by other agents/i);
-    expect(profile.pitch).toMatch(/pull request draft/i);
+    expect(profile.pitch).toMatch(/draft pull request/i);
   });
 
   it("says the work happens on a small sample app, in the intro", () => {

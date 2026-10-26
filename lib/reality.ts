@@ -10,7 +10,7 @@ export const REALITY = [
       "In a live run the E2E Verifier writes a Playwright test for a real headless Chromium to run against the app inside the sandbox. Pictures from that browser show in the verifier's panel, and the real pass or fail decides the gate. If the browser cannot start, the panel says so and the verifier only reads the code.",
       "A live run that passes both checks opens a real draft pull request on the public taskly-sample repo, with the agents' files. It is closed automatically after about a day.",
       "The pipeline code, the streaming, and the stage you just watched.",
-      "Typed ideas run on live Claude models when the live switch is on. The badge on the stage says which mode you are in.",
+      "A request built in the form runs on live Claude models when the live switch is on. The badge on the stage says which mode you are in.",
       "Three recorded runs. All passed both of the pipeline's AI checks on the first round, in 72 to 94 seconds each.",
     ],
   },

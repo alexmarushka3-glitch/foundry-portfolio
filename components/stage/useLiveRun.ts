@@ -7,7 +7,7 @@ import type { Run } from "@/lib/run";
 import type { FeatureSpec } from "@/lib/spec";
 
 /**
- * Starts a typed idea on the server and follows its stream. While it runs, `live` holds the steps so far
+ * Starts a request built in the form on the server and follows its stream. While it runs, `live` holds the steps so far
  * (updates are batched to one render per frame, since tokens arrive far faster than that). When it ends,
  * `onComplete` gets a finished run that can be scrubbed.
  */

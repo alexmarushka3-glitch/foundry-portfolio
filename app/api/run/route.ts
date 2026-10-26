@@ -9,7 +9,7 @@ import type { FoundryEvent } from "@/lib/types";
 export const runtime = "nodejs";
 export const maxDuration = 200; // live runs with tools take 55 to 70 seconds; a second round adds about as much
 
-/** Tells the page whether typed ideas can run live. */
+/** Tells the page whether requests built in the form can run live. */
 export async function GET() {
   return Response.json({ live: liveEnabled() });
 }
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
   const state = serverState();
   const address = visitorAddress(req.headers);
 
-  // Recorded examples never cost anything, so only typed ideas count against the limits.
+  // Recorded examples never cost anything, so only other requests count against the limits.
   let allowLive = true;
   let reason: string | undefined;
   if (liveEnabled() && !findRecording(request)) {

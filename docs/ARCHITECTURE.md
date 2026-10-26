@@ -43,7 +43,7 @@ Rule of thumb: `lib/` files marked "browser safe" import nothing from `lib/serve
 1. The browser decides what to do (`components/Stage.tsx`, `go()`).
    - The idea matches a recording (`findRecording`): play it in the browser with `buildReplayRun` and `viewsAt`. No network.
    - Otherwise: `useLiveRun` POSTs `{ request }` to `/api/run`.
-2. `app/api/run/route.ts` validates the request (`parseRequest`: a `spec` from `lib/spec.ts` is rebuilt into one sentence server-side; plain text is accepted only for the recorded examples), checks the per-visitor and daily brake (`LiveLimiter`) for typed ideas, and starts `runPipeline` inside a `ReadableStream`. Each event goes to two places: the response (one JSON object per line) and a `RunRecorder` that will become the admin log entry.
+2. `app/api/run/route.ts` validates the request (`parseRequest`: a `spec` from `lib/spec.ts` is rebuilt into one sentence server-side; plain text is accepted only for the recorded examples), checks the per-visitor and daily brake (`LiveLimiter`) for requests built in the form, and starts `runPipeline` inside a `ReadableStream`. Each event goes to two places: the response (one JSON object per line) and a `RunRecorder` that will become the admin log entry.
 3. `lib/pipeline/index.ts` `runPipeline`:
    - recorded idea: `replayOnServer` (kept for API clients);
    - live allowed and a key is set: a one-token preflight, then real model calls. The E2E step starts by running the real tests (`sandbox.ts`: clone `taskly-sample` at the pinned commit, `npm ci`, network off, copy in the agents' files, `npm test`); a failing suite fails the gate. Backend and Frontend can also call `run_tests` (twice each). If the sandbox is unavailable the run goes on and the agents are told the tests did not run. When `FOUNDRY_SANDBOX_SNAPSHOT` is set, the E2E Verifier also gets `run_browser_test` (three calls): it submits a Playwright spec, `sandbox.ts` runs it plus the repo's smoke test in headless Chromium against `npm start` inside a network-off sandbox, and returns the real result and PNGs (`shot` events, shown in its panel). No browser run, or a failing one, fails the gate; a browser that cannot start does not block. After the Release agent, a run that passed both checks and wrote files opens a draft pull request through `github.ts` (branch `foundry/<id>` from the pinned commit, files committed with the Git Data API) and sends a `pr` event; failures are logged and the run still finishes. A new `Workspace` (`workspace.ts`) is made for the run. The Researcher and the two engineers get tools (`tools.ts`) and `agentRunner.ts` loops until they stop calling tools; each call is sent as a `tool` event. The checking agents are given the files the engineers wrote;
@@ -71,7 +71,7 @@ The route aborts an `AbortController` when the visitor disconnects. The signal r
 - **Data:** `GET /api/admin/stats` returns recent runs, server settings and the recorded examples. The page filters, sorts, paginates and charts in the browser with the pure functions in `lib/admin/aggregate.ts`, so every number is unit tested.
 - **Actions:** `POST /api/admin/actions` with `pause-live`, `resume-live`, `reset-limits` or `clear-log`. Each returns the fresh overview.
 - **Two front doors, one view:** `components/admin/AdminView.tsx` draws the dashboard from an `AdminData` object (`useAdminData.ts`) and does not know where it came from. `AdminDashboard` feeds it from the server (`/admin`, signed in). `DemoDashboard` feeds it from `useDemoData.ts` and `lib/admin/sampleData.ts` (`/admin-demo`, and a compact `embedded` version in the home page's "Watching the factory run" section, loaded lazily by `DashboardSection`; public, made-up data, no network). Anything shown on `/admin-demo` must stay clearly labelled as sample data.
-- **Privacy:** the log stores a short hash of the visitor address, never the address. It stores the idea text visitors typed.
+- **Privacy:** the log stores a short hash of the visitor address, never the address. It stores the request sentence built from the visitor's choices.
 
 ## Honesty constraints that shape the code
 
@@ -87,7 +87,7 @@ The route aborts an `AbortController` when the visitor disconnects. The signal r
 | --- | --- |
 | `pipeline.test.ts` | Simulated, replayed and live runs (with a fake model client): rounds, verdicts, cost, spending cap, preflight fallback, refusal, time budget, cancellation. |
 | `runRoute.test.ts` | The run API: validation, NDJSON streaming, limits, logging, error hiding, disconnect handling. |
-| `Stage.test.tsx` | The critical page flows in jsdom: replay, typed idea, server error, dropped connection, rejected request. |
+| `Stage.test.tsx` | The critical page flows in jsdom: replay, built request, server error, dropped connection, rejected request. |
 | `admin.test.ts` | Sign-in, lockout, cookie, every admin route and action. |
 | `sampleData.test.ts`, `DemoDashboard.test.tsx` | The sample data is repeatable, labelled and complete; the public demo makes no requests and its controls work on screen only. |
 | `aggregate.test.ts`, `runLog.test.ts` | Dashboard maths and the run log. |

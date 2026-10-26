@@ -28,7 +28,7 @@ export default function OpengraphImage() {
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <div style={{ fontSize: 40, lineHeight: 1.3, maxWidth: 940, color: "#1e252b" }}>
-            A rough idea goes in. A pull request draft, checked by other agents, comes out.
+            A specific change goes in. A draft pull request, checked by other agents and real tests, comes out.
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 28, color: "#4b555e" }}>
             <div style={{ width: 14, height: 14, borderRadius: 7, background: LOGO_COLORS.amber }} />
