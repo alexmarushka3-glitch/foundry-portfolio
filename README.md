@@ -33,7 +33,7 @@ The page labels the mode on every run.
 ## What is real and what is not
 
 - The three recorded runs were made with a separate Claude agent for every stage. The raw outputs are in `recordings-src/`, and `scripts/build-recordings.mjs` assembles them into `lib/recordings.json`. All three passed on the first round.
-- The agents work on an in-memory copy of a small real repo, [taskly-sample](https://github.com/alexmarushka3-glitch/taskly-sample) (`lib/tasklySnapshot.json`, rebuilt with `node scripts/build-snapshot.mjs`). The engineers write real files into the copy with a `write_file` tool, but nothing is run yet and no pull request is opened.
+- The agents work on an in-memory copy of a small real repo, [taskly-sample](https://github.com/alexmarushka3-glitch/taskly-sample) (`lib/tasklySnapshot.json`, rebuilt with `node scripts/build-snapshot.mjs`). The engineers write real files into the copy with a `write_file` tool. In a live run, the sample app's real tests (`npm test`) then run on those files in a Vercel Sandbox (`lib/pipeline/sandbox.ts`) with the network off; a failing suite fails the E2E gate. The app is never started, the E2E Verifier is still an agent, and no pull request is opened.
 - The E2E Verifier is an agent reasoning through flows. It does not drive a real browser.
 
 ## Getting started

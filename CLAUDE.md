@@ -45,7 +45,7 @@ Full map and recipes: `docs/ARCHITECTURE.md`. Short version:
 
 - The page must always say which mode ran. Never present simulated text as model output.
 - Never hand-edit `recordings-src/` text. Replay is only honest if it is the real output.
-- The agents work on an in-memory copy of a small sample app and their code is never run (until the sandbox stage ships). The E2E Verifier is an agent walking through flows, not a real browser. Keep those caveats wherever the project is described.
+- The agents work on an in-memory copy of a small sample app and in a live run only the sample app's own tests are run on it, in a Vercel Sandbox (recordings and simulations run no code, and the app itself is never started). The E2E Verifier is an agent walking through flows, not a real browser. Keep those caveats wherever the project is described.
 - All three recorded runs passed on the first round, so no recording has exercised the send-back to a second round. A live test run (Oct 24, 2026) was sent back once by the Validator and passed on round two, so the loop works, but that run was not recorded. Do not claim a success rate.
 - `/admin-demo` shows made-up data. It must always say so, and never be described as real usage, visitors or spend.
 - Do not commit `.env*` files (only `.env.example`) or `.vercel/`.

@@ -39,11 +39,28 @@ const WRITE_FILE: ToolDef = {
   },
 };
 
+/** Runs the sample app's real tests on the files written so far. Only offered when a sandbox is available. */
+export const RUN_TESTS_TOOL: ToolDef = {
+  name: "run_tests",
+  description:
+    "Run the sample app's real test suite (npm test) in an isolated sandbox on the files written so far, and read the result. Use it after writing files; fix what fails. Limited to two calls.",
+  input_schema: { type: "object", properties: {}, required: [] },
+};
+
 export const AGENT_TOOLS: Partial<Record<AgentName, ToolDef[]>> = {
   researcher: [LIST_DIR, READ_FILE, GREP],
-  backend: [READ_FILE, GREP, WRITE_FILE],
-  frontend: [READ_FILE, GREP, WRITE_FILE],
+  backend: [READ_FILE, GREP, WRITE_FILE, RUN_TESTS_TOOL],
+  frontend: [READ_FILE, GREP, WRITE_FILE, RUN_TESTS_TOOL],
 };
+
+/** The tools an agent is actually offered: run_tests only when a sandbox can run it. */
+export function toolsFor(agent: AgentName, canRunTests: boolean): ToolDef[] | undefined {
+  const all = AGENT_TOOLS[agent];
+  return all && (canRunTests ? all : all.filter((t) => t.name !== RUN_TESTS_TOOL.name));
+}
+
+/** How many times one agent may run the tests in one round. */
+export const MAX_TEST_RUNS = 2;
 
 /** Turns on the writes each engineer is meant to make, so the backend cannot rewrite the page and the reverse. */
 const OWN_PATHS: Partial<Record<AgentName, RegExp>> = {

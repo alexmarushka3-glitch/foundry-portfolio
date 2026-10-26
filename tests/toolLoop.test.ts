@@ -127,3 +127,62 @@ describe("tool loop", () => {
     expect(usage).toHaveLength(9); // eight agents plus the researcher's extra turn
   });
 });
+
+describe("real test runs", () => {
+  const report = (ok: boolean, ran = true) => ({ ran, ok, summary: ok ? "npm test: 5 passed, 0 failed" : "npm test: 3 passed, 2 failed", output: "details", ms: 5 });
+  const passingScript = (agent: string): Block[] | null => verdicts(agent);
+
+  async function runWith(testRunner: TestRunnerType, script = passingScript) {
+    const { client, seen } = toolClient((agent, turn) => script(agent) ?? (agent === "Backend" && turn === 0 ? [tool("r1", "run_tests", {})] : text("ok")));
+    const events: FoundryEvent[] = [];
+    await runPipeline("Add a nickname", (e) => events.push(e), { pace: 0, client, testRunner });
+    return { events, seen };
+  }
+  type TestRunnerType = NonNullable<Parameters<typeof runPipeline>[2]>["testRunner"];
+
+  it("offers run_tests to the engineers only when a runner exists, and returns its report to them", async () => {
+    const runner = vi.fn(async () => report(true));
+    const { events, seen } = await runWith(runner);
+    const toolNames = (agent: string) => (seen.find((s) => s.agent === agent)!.params.tools as Array<{ name: string }>).map((t) => t.name);
+    expect(toolNames("Backend")).toContain("run_tests");
+    expect(toolNames("Researcher")).not.toContain("run_tests");
+    const labels = events.filter((e): e is Extract<FoundryEvent, { type: "tool" }> => e.type === "tool").map((t) => `${t.agent}: ${t.label}`);
+    expect(labels).toContain("backend: npm test: 5 passed, 0 failed");
+    expect(labels).toContain("e2e: npm test: 5 passed, 0 failed");
+    const second = seen.filter((s) => s.agent === "Backend")[1].params.messages as Array<{ content: unknown }>;
+    expect(JSON.stringify(second[2].content)).toContain("5 passed");
+  });
+
+  it("does not offer run_tests when there is no runner", async () => {
+    const { seen } = await runWith(undefined as unknown as TestRunnerType);
+    expect(seen.every((s) => !JSON.stringify(s.params.tools ?? []).includes("run_tests"))).toBe(true);
+  });
+
+  it("fails the E2E gate when the real tests fail, even if the E2E agent says PASS, and sends the work back", async () => {
+    let calls = 0;
+    const runner = vi.fn(async () => report(++calls > 2)); // fails during round 1, passes from round 2
+    const { events } = await runWith(runner);
+    const gates = events.filter((e): e is Extract<FoundryEvent, { type: "verdict" }> => e.type === "verdict" && e.gate === "e2e");
+    expect(gates[0]).toMatchObject({ round: 1, approved: false });
+    expect(gates.at(-1)).toMatchObject({ approved: true });
+    expect(events.find((e) => e.type === "finish")).toMatchObject({ rounds: 2, approved: true });
+  });
+
+  it("does not block a run when the sandbox itself is unavailable, and says so", async () => {
+    const runner = vi.fn(async () => report(false, false));
+    const { events, seen } = await runWith(runner);
+    expect(events.find((e) => e.type === "finish")).toMatchObject({ rounds: 1, approved: true });
+    const validator = seen.find((s) => s.agent === "Validator")!.params.messages as Array<{ content: string }>;
+    expect(validator[0].content).toContain("sandbox was unavailable");
+  });
+
+  it("stops an agent from running the tests more than twice", async () => {
+    const runner = vi.fn(async () => report(true));
+    const { client } = toolClient((agent, turn) => verdicts(agent) ?? (agent === "Backend" && turn < 3 ? [tool(`r${turn}`, "run_tests", {})] : text("ok")));
+    const events: FoundryEvent[] = [];
+    await runPipeline("Add a nickname", (e) => events.push(e), { pace: 0, client, testRunner: runner });
+    const backendRuns = events.filter((e) => e.type === "tool" && e.agent === "backend" && e.label.startsWith("npm test"));
+    expect(backendRuns).toHaveLength(2);
+    expect(events.some((e) => e.type === "tool" && e.label === "run_tests (limit reached)")).toBe(true);
+  });
+});

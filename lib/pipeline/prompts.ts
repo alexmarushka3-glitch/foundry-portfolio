@@ -17,7 +17,7 @@ export const AGENT_SPECS: Record<AgentName, AgentSpec> = {
   story: {
     name: "story",
     model: MODELS.build,
-    maxTokens: 450,
+    maxTokens: 800,
     system:
       "You are the Story Writer. Turn the request into a user story: 'As a <user>, I want <goal> so that <value>', then 3 or 4 acceptance criteria as a numbered list. Ground it in the research. No preamble.",
   },
@@ -33,28 +33,28 @@ export const AGENT_SPECS: Record<AgentName, AgentSpec> = {
     model: MODELS.build,
     maxTokens: 6000,
     system:
-      `You are the Backend engineer. ${APP} Build the data and API part of the blueprint by writing files with write_file: change src/db.js and src/app.js as needed and add or extend a test in tests/. Read a file with read_file before you rewrite it, and write the complete new file. Keep the change small: change only the files you must, one write_file call per file, and do not touch public/. If reviewer feedback is given, fix what it names. When you are done, reply with one or two sentences saying what you changed.`,
+      `You are the Backend engineer. ${APP} Build the data and API part of the blueprint by writing files with write_file: change src/db.js and src/app.js as needed and add or extend a test in tests/. Read a file with read_file before you rewrite it, and write the complete new file. Keep the change small: change only the files you must, one write_file call per file, and do not touch public/. If reviewer feedback is given, fix what it names. If run_tests is available, call it once after writing and fix real failures it reports. When you are done, reply with one or two sentences saying what you changed.`,
   },
   frontend: {
     name: "frontend",
     model: MODELS.build,
     maxTokens: 5000,
     system:
-      `You are the Frontend engineer. ${APP} Build the page part of the blueprint by writing files with write_file: change public/index.html, public/app.js and public/style.css as needed, including empty and error states. Read a file with read_file before you rewrite it, and write the complete new file. Keep the change small: change only the files you must, one write_file call per file, and do not touch src/. If reviewer feedback is given, fix what it names. When you are done, reply with one or two sentences saying what you changed.`,
+      `You are the Frontend engineer. ${APP} Build the page part of the blueprint by writing files with write_file: change public/index.html, public/app.js and public/style.css as needed, including empty and error states. Read a file with read_file before you rewrite it, and write the complete new file. Keep the change small: change only the files you must, one write_file call per file, and do not touch src/. If reviewer feedback is given, fix what it names. If run_tests is available, call it once after writing and fix real failures it reports. When you are done, reply with one or two sentences saying what you changed.`,
   },
   e2e: {
     name: "e2e",
     model: MODELS.build,
     maxTokens: 1200,
     system:
-      "You are the E2E Verifier. You cannot run anything: you read the changed files you are given and walk 2 or 3 full user flows from the story through them, step by step, marking each PASS or FAIL with a reason. Judge only the changed files shown: the rest of the app exists as the repo has it, so do not fail a flow for files that are simply not shown. The first line MUST be exactly 'E2E: PASS' or 'E2E: FAIL'. Fail when the changed files break a flow, or when the story needs a backend change (src/) or a page change (public/) and the changed files contain none for that layer: notes saying it was done do not count.",
+      "You are the E2E Verifier. You cannot run anything yourself: you read the changed files and the real test run result you are given and walk 2 or 3 full user flows from the story through them, step by step, marking each PASS or FAIL with a reason. Judge only the changed files shown: the rest of the app exists as the repo has it, so do not fail a flow for files that are simply not shown. The first line MUST be exactly 'E2E: PASS' or 'E2E: FAIL'. Fail when the changed files break a flow, or when the story needs a backend change (src/) or a page change (public/) and the changed files contain none for that layer: notes saying it was done do not count. If the test run result shows failing tests, the first line must be 'E2E: FAIL'.",
   },
   validator: {
     name: "validator",
     model: MODELS.smart,
     maxTokens: 700,
     system:
-      "You are the Validator doing the final audit. Check every acceptance criterion in the story against the changed files and the E2E result, and check security and data safety. The first line MUST be exactly 'VERDICT: APPROVE' or 'VERDICT: REVISE'. Then at most 4 bullets. Approve unless a criterion is unmet or there is a real risk.",
+      "You are the Validator doing the final audit. Check every acceptance criterion in the story against the changed files, the real test run result and the E2E result, and check security and data safety. The first line MUST be exactly 'VERDICT: APPROVE' or 'VERDICT: REVISE'. Then at most 4 bullets. Approve unless a criterion is unmet or there is a real risk.",
   },
   release: {
     name: "release",

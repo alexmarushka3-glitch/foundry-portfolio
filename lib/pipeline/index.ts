@@ -6,6 +6,7 @@ import { runAgent, type LlmClient, type RunContext } from "./agentRunner";
 import { liveConfigured, liveEnabled, MAX_ROUNDS, MODELS, modelParams, ROUND_TIME_BUDGET_MS } from "./config";
 import { AGENT_SPECS } from "./prompts";
 import { replayOnServer } from "./replay";
+import { createSandboxTestRunner, type TestReport, type TestRunner } from "./sandbox";
 import { e2ePassed, validatorApproved } from "./verdicts";
 import { createWorkspace, type Workspace } from "./workspace";
 
@@ -22,6 +23,8 @@ export type RunOptions = {
   signal?: AbortSignal;
   /** Use this model client instead of the real SDK. For tests. */
   client?: LlmClient;
+  /** Runs the sample app's real tests. Defaults to a Vercel Sandbox on live runs; tests pass a fake. */
+  testRunner?: TestRunner;
   /** Scales the delays in simulated and replayed runs. 0 skips them. For tests. */
   pace?: number;
 };
@@ -31,6 +34,13 @@ function renderChanges(ws: Workspace): string {
   const entries = Object.entries(ws.changes());
   if (entries.length === 0) return "(no files were written)";
   return entries.map(([path, body]) => `--- ${path} ---\n${body}`).join("\n\n");
+}
+
+/** What the checking agents are told about the real test run. */
+function describeTests(t: TestReport | undefined): string {
+  if (!t) return "Test run: not run in this mode.";
+  if (!t.ran) return "Test run: the sandbox was unavailable, so the tests did not run. Judge the files by reading them.";
+  return `Test run (real, in a sandbox): ${t.summary}\n${t.output}`;
 }
 
 const PAUSED_REASON = "Live runs are paused right now, so this run is a simulation.";
@@ -72,7 +82,8 @@ export async function runPipeline(request: string, emit: Emit, opts: RunOptions 
   emit({ type: "mode", mode: live ? "live" : "simulated", reason });
 
   const workspace = createWorkspace();
-  const ctx: RunContext = { client, emit, request, workspace, spend: { usd: 0 }, signal: opts.signal, pace };
+  const testRunner = live ? (opts.testRunner ?? (opts.client ? undefined : createSandboxTestRunner())) : undefined;
+  const ctx: RunContext = { client, emit, request, workspace, testRunner, spend: { usd: 0 }, signal: opts.signal, pace };
   const step = (agent: AgentName, round: number, input: string) => runAgent(ctx, AGENT_SPECS[agent], round, input);
 
   const research = await step("researcher", 1, `Request: ${request}\n\nExplore the sample app with your tools.`);
@@ -94,22 +105,31 @@ export async function runPipeline(request: string, emit: Emit, opts: RunOptions 
     ]);
     const files = renderChanges(workspace);
 
-    const flows = await step(
-      "e2e",
+    let tests: TestReport | undefined;
+    const flows = await runAgent(
+      ctx,
+      AGENT_SPECS.e2e,
       round,
-      `Story:\n${story}\n\nBackend notes:\n${backend}\n\nFrontend notes:\n${frontend}\n\nChanged files:\n${files}`,
+      () => `Story:\n${story}\n\nBackend notes:\n${backend}\n\nFrontend notes:\n${frontend}\n\nChanged files:\n${files}\n\n${describeTests(tests)}`,
+      async () => {
+        if (!testRunner) return;
+        tests = await testRunner(workspace.changes(), opts.signal);
+        emit({ type: "tool", agent: "e2e", round, label: tests.summary, ok: tests.ok });
+      },
     );
-    const flowsPass = e2ePassed(flows);
+    // The real test run decides: an agent saying PASS cannot outvote a failing test suite.
+    const testsOk = !tests || !tests.ran || tests.ok;
+    const flowsPass = e2ePassed(flows) && testsOk;
     emit({ type: "verdict", gate: "e2e", round, approved: flowsPass });
     if (!flowsPass) {
-      feedback = flows;
+      feedback = `${describeTests(tests)}\n\n${flows}`;
       continue;
     }
 
     const audit = await step(
       "validator",
       round,
-      `Story:\n${story}\n\nChanged files:\n${files}\n\nE2E result:\n${flows}`,
+      `Story:\n${story}\n\nChanged files:\n${files}\n\n${describeTests(tests)}\n\nE2E result:\n${flows}`,
     );
     approved = validatorApproved(audit);
     emit({ type: "verdict", gate: "validator", round, approved });

@@ -2,7 +2,8 @@ import { costOf, MAX_RUN_COST_USD, MAX_TOOL_TURNS, modelParams } from "./config"
 import type { AgentSpec } from "./prompts";
 import { sleep } from "./replay";
 import { simulate } from "./simulate";
-import { AGENT_TOOLS, runTool } from "./tools";
+import type { TestRunner } from "./sandbox";
+import { MAX_TEST_RUNS, RUN_TESTS_TOOL, runTool, toolsFor } from "./tools";
 import type { Workspace } from "./workspace";
 import type { Emit } from "../types";
 
@@ -30,6 +31,8 @@ export type RunContext = {
   request: string;
   /** The copy of the sample app the agents' tools work on. */
   workspace: Workspace;
+  /** Runs the real tests in a sandbox. Absent in simulations and in tests that do not need it. */
+  testRunner?: TestRunner;
   /** Running total of what live calls have cost, in dollars. */
   spend: { usd: number };
   signal?: AbortSignal;
@@ -45,16 +48,28 @@ export class RunCancelled extends Error {
 }
 
 /** Run one agent for one round: a live model call, or scripted text. Returns the agent's full output. */
-export async function runAgent(ctx: RunContext, spec: AgentSpec, round: number, input: string): Promise<string> {
+export async function runAgent(
+  ctx: RunContext,
+  spec: AgentSpec,
+  round: number,
+  /** Text, or a function that builds it after `prelude` has run (so the input can include what the prelude found). */
+  inputOrBuild: string | (() => string),
+  /** Work to do right after the agent starts, shown under that agent: the E2E step uses it to run the real tests. */
+  prelude?: () => Promise<void>,
+): Promise<string> {
   const { client, emit, signal } = ctx;
   if (signal?.aborted) throw new RunCancelled();
   const t0 = Date.now();
   emit({ type: "start", agent: spec.name, round, model: client ? spec.model : `${spec.model} (simulated)` });
 
+  if (prelude) await prelude();
+  const input = typeof inputOrBuild === "function" ? inputOrBuild() : inputOrBuild;
+
   let out = "";
   if (client) {
     if (ctx.spend.usd > MAX_RUN_COST_USD) throw new Error("This run hit its spending limit and was stopped.");
-    const tools = AGENT_TOOLS[spec.name];
+    const tools = toolsFor(spec.name, Boolean(ctx.testRunner));
+    let testRuns = 0;
     const messages: unknown[] = [{ role: "user", content: input }];
     for (let turn = 0; ; turn++) {
       if (ctx.spend.usd > MAX_RUN_COST_USD) throw new Error("This run hit its spending limit and was stopped.");
@@ -99,11 +114,24 @@ export async function runAgent(ctx: RunContext, spec: AgentSpec, round: number, 
       if (final.stop_reason === "max_tokens") emit({ type: "tool", agent: spec.name, round, label: "output limit reached, answer cut off", ok: false });
       if (final.stop_reason !== "tool_use" || calls.length === 0) break;
 
-      const results = calls.map((call) => {
-        const r = runTool(ctx.workspace, spec.name, call.name ?? "", call.input);
+      const results = [];
+      for (const call of calls) {
+        let r: { ok: boolean; text: string; label: string };
+        if (call.name === RUN_TESTS_TOOL.name && ctx.testRunner && toolsFor(spec.name, true)?.some((t) => t.name === call.name)) {
+          if (testRuns >= MAX_TEST_RUNS) {
+            r = { ok: false, text: `You have already run the tests ${MAX_TEST_RUNS} times. Finish without running them again.`, label: "run_tests (limit reached)" };
+          } else {
+            testRuns += 1;
+            const report = await ctx.testRunner(ctx.workspace.changes(), signal);
+            r = { ok: report.ok, text: `${report.summary}
+${report.output}`, label: report.summary };
+          }
+        } else {
+          r = runTool(ctx.workspace, spec.name, call.name ?? "", call.input);
+        }
         emit({ type: "tool", agent: spec.name, round, label: r.label, ok: r.ok });
-        return { type: "tool_result", tool_use_id: call.id, content: r.text, ...(r.ok ? {} : { is_error: true }) };
-      });
+        results.push({ type: "tool_result", tool_use_id: call.id, content: r.text, ...(r.ok ? {} : { is_error: true }) });
+      }
       messages.push({ role: "assistant", content: final.content }, { role: "user", content: results });
     }
   } else {

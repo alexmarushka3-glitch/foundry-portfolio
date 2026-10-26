@@ -26,7 +26,8 @@ describe("page copy", () => {
 
   it("keeps the caveats about unrun code and the agent-only E2E check in What's real", () => {
     const notDone = REALITY.find((c) => c.heading === "Not done yet")!.items.join(" ");
-    expect(notDone).toMatch(/never run/i);
+    expect(notDone).toMatch(/never run any code/i);
+    expect(REALITY.find((c) => c.heading === "Real")!.items.join(" ")).toMatch(/sandbox/i);
     expect(notDone).toMatch(/does not drive a browser/i);
     expect(notDone).toMatch(/no human reviews/i);
   });
