@@ -12,10 +12,12 @@ type Props = {
   exportCount: number;
   /** True on the sample-data page. */
   sample?: boolean;
+  /** The heading level of the card title: one level below the dashboard title when the dashboard is embedded on the home page. */
+  heading?: "h2" | "h4";
 };
 
 /** The dashboard's key actions. Ones that throw data away ask twice. */
-export default function ControlPanel({ server, pending, onAct, onExport, exportCount, sample = false }: Props) {
+export default function ControlPanel({ server, pending, onAct, onExport, exportCount, sample = false, heading: Heading = "h2" }: Props) {
   const [confirm, setConfirm] = useState<AdminAction | null>(null);
   const { limits } = server;
   const dayShare = limits.perDay ? Math.min(1, limits.usedToday / limits.perDay) : 1;
@@ -52,7 +54,7 @@ export default function ControlPanel({ server, pending, onAct, onExport, exportC
 
   return (
     <section className="card controls" aria-labelledby="controls-title">
-      <h2 id="controls-title">Live runs</h2>
+      <Heading id="controls-title">Live runs</Heading>
       <p className={`live-status ${status.tone}`}>
         <span className="dot" aria-hidden="true" /> {status.text}
       </p>

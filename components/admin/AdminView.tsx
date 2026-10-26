@@ -176,6 +176,7 @@ export default function AdminView({ admin, sample = false, embedded = false, aut
               pending={pending}
               onAct={(a) => void act(a)}
               sample={sample}
+              heading={embedded ? "h4" : "h2"}
               onExport={() => downloadCsv(toCsv(shown), sample ? "sample-foundry-runs" : "foundry-runs")}
               exportCount={shown.length}
             />

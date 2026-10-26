@@ -66,6 +66,8 @@ describe("DemoDashboard embedded on the home page", () => {
     expect(document.querySelector("#dash-more")?.hasAttribute("hidden")).toBe(false);
     // the cards below the dashboard title are one level down from it, so the outline stays in order
     expect(screen.getAllByRole("heading", { level: 4 }).map((h) => h.textContent)).toContain("Runs over time");
+    expect(screen.getAllByRole("heading", { level: 4 }).map((h) => h.textContent)).toContain("Live runs");
+    expect(screen.queryAllByRole("heading", { level: 2 })).toHaveLength(0);
 
     fireEvent.click(screen.getByRole("button", { name: /Show the runs table/ }));
     expect(await screen.findByRole("region", { name: "Runs table" })).toBeTruthy();
