@@ -42,6 +42,8 @@ export type Run = {
   /** Real time the whole run took. */
   realMs: number;
   costUsd?: number;
+  /** The real draft pull request a live run opened, when it did. */
+  pr?: { url: string; number: number };
 };
 
 /** What the stage draws for one agent at one moment. */

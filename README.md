@@ -34,7 +34,7 @@ The page labels the mode on every run.
 
 - The three recorded runs were made with a separate Claude agent for every stage. The raw outputs are in `recordings-src/`, and `scripts/build-recordings.mjs` assembles them into `lib/recordings.json`. All three passed on the first round.
 - The agents work on an in-memory copy of a small real repo, [taskly-sample](https://github.com/alexmarushka3-glitch/taskly-sample) (`lib/tasklySnapshot.json`, rebuilt with `node scripts/build-snapshot.mjs`). The engineers write real files into the copy with a `write_file` tool. In a live run, the sample app's real tests (`npm test`) then run on those files in a Vercel Sandbox (`lib/pipeline/sandbox.ts`) with the network off; a failing suite fails the E2E gate. The app is never started, the E2E Verifier is still an agent, and no pull request is opened.
-- In a live run the E2E Verifier writes a Playwright test and a real headless Chromium runs it against the app started in the sandbox (needs `FOUNDRY_SANDBOX_SNAPSHOT`, see below); pictures show in its panel and the real result decides the gate. In the recordings and the simulation it is an agent reasoning through flows. Nothing opens a real pull request yet.
+- In a live run the E2E Verifier writes a Playwright test and a real headless Chromium runs it against the app started in the sandbox (needs `FOUNDRY_SANDBOX_SNAPSHOT`, see below); pictures show in its panel and the real result decides the gate. In the recordings and the simulation it is an agent reasoning through flows. A live run that passes both checks then opens a real draft pull request on taskly-sample through a GitHub App (`lib/pipeline/github.ts`); a daily Vercel cron (`/api/cron/close-stale-prs`) closes them after a day.
 
 ## Getting started
 
@@ -69,6 +69,8 @@ Copy `.env.example` to `.env.local`. Nothing is required.
 | `FOUNDRY_LIVE_PER_HOUR` | `1` | Live runs per visitor per hour. |
 | `FOUNDRY_LIVE_PER_DAY` | `8` | Live runs per day for the whole site. |
 | `FOUNDRY_SANDBOX_SNAPSHOT` | none | Id of the prepared sandbox snapshot (repo, dependencies, Chromium). Without it the real browser step is skipped and unit tests use a slower plain clone. Build one with `scripts/build-sandbox-snapshot.mjs`. |
+| `GITHUB_APP_ID`, `GITHUB_APP_INSTALLATION_ID`, `GITHUB_APP_PRIVATE_KEY` | none | The GitHub App that opens draft pull requests on taskly-sample. Without them no PR is opened. The key is the .pem text or its base64. |
+| `CRON_SECRET` | none | Lets Vercel Cron call `/api/cron/close-stale-prs` to close pull requests older than a day. Without it that route returns 404. |
 | `FOUNDRY_MODEL_SMART` / `_BUILD` / `_FAST` | Sonnet 5.5 / Sonnet 5.5 / Haiku 5.5 | Models for each tier. |
 | `ADMIN_TOKEN` | none | Turns on the admin dashboard. Use a long random value. |
 

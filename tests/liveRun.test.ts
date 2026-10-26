@@ -88,3 +88,15 @@ describe("shot events", () => {
     expect(toRun(s, 6)!.steps[0].shots).toHaveLength(2);
   });
 });
+
+describe("pr events", () => {
+  it("keep the pull request link on the finished run", () => {
+    let s = startLive("x");
+    s = applyEvent(s, { type: "mode", mode: "live" }, 0);
+    s = applyEvent(s, { type: "start", agent: "release", round: 1, model: "m" }, 1);
+    s = applyEvent(s, { type: "pr", url: "https://github.com/a/b/pull/3", number: 3 }, 2);
+    s = applyEvent(s, { type: "done", agent: "release", round: 1, ms: 2 }, 3);
+    s = applyEvent(s, { type: "finish", ms: 5, rounds: 1, approved: true }, 4);
+    expect(toRun(s, 5)!.pr).toEqual({ url: "https://github.com/a/b/pull/3", number: 3 });
+  });
+});

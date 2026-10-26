@@ -255,3 +255,50 @@ describe("real browser runs", () => {
     expect(events.some((e) => e.type === "tool" && e.label === "run_browser_test (limit reached)")).toBe(true);
   });
 });
+
+describe("opening the pull request", () => {
+  type Opts = NonNullable<Parameters<typeof runPipeline>[2]>;
+  const tests = { ran: true, ok: true, summary: "npm test: 5 passed, 0 failed", output: "", ms: 3 };
+
+  async function runWith(github: Opts["github"], approve = true) {
+    const { client } = toolClient((agent, turn) => {
+      if (agent === "Backend" && turn === 0) return [tool("w1", "write_file", { path: "src/db.js", content: "// new\n" })];
+      if (agent === "Validator") return text(approve ? "VERDICT: APPROVE" : "VERDICT: REVISE\n- no");
+      if (agent === "E2E Verifier") return text("E2E: PASS");
+      if (agent === "Release") return text("Add nickname field\n- Data: x");
+      return text("ok");
+    });
+    const events: FoundryEvent[] = [];
+    await runPipeline("Add a nickname", (e) => events.push(e), { pace: 0, client, testRunner: async () => tests, github });
+    return events;
+  }
+
+  it("opens a draft pull request with the written files after an approved run, and tells the page", async () => {
+    const github = { openPullRequest: vi.fn(async () => ({ url: "https://github.com/x/y/pull/9", number: 9 })), closeStale: vi.fn() };
+    const events = await runWith(github);
+    expect(github.openPullRequest).toHaveBeenCalledTimes(1);
+    const call = (github.openPullRequest.mock.calls[0] as unknown as [{ files: Record<string, string>; title: string }])[0];
+    expect(call.files).toEqual({ "src/db.js": "// new\n" });
+    expect(call.title).toBe("Add nickname field");
+    expect(events.find((e) => e.type === "pr")).toEqual({ type: "pr", url: "https://github.com/x/y/pull/9", number: 9 });
+    expect(events.findIndex((e) => e.type === "pr")).toBeLessThan(events.findIndex((e) => e.type === "finish"));
+  });
+
+  it("opens nothing when the run did not pass both checks", async () => {
+    const github = { openPullRequest: vi.fn(), closeStale: vi.fn() };
+    const events = await runWith(github, false);
+    expect(github.openPullRequest).not.toHaveBeenCalled();
+    expect(events.some((e) => e.type === "pr")).toBe(false);
+    expect(events.some((e) => e.type === "tool" && /did not pass both checks/.test(e.label))).toBe(true);
+    expect(events.find((e) => e.type === "finish")).toMatchObject({ approved: false });
+  });
+
+  it("finishes the run normally when GitHub fails, and says no pull request was opened", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const github = { openPullRequest: vi.fn().mockRejectedValue(new Error("GitHub POST /pulls failed (500)")), closeStale: vi.fn() };
+    const events = await runWith(github);
+    expect(events.some((e) => e.type === "pr")).toBe(false);
+    expect(events.some((e) => e.type === "tool" && /no pull request opened \(GitHub unavailable\)/.test(e.label))).toBe(true);
+    expect(events.find((e) => e.type === "finish")).toMatchObject({ approved: true });
+  });
+});

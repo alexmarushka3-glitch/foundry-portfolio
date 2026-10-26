@@ -189,7 +189,20 @@ export default function Stage() {
           seek(v);
         }}
       />
-      {run && atEnd && <p className="summary">{runSummary(run)}</p>}
+      {run && atEnd && (
+        <p className="summary">
+          {runSummary(run)}
+          {run.pr && (
+            <>
+              {" "}
+              <a href={run.pr.url} target="_blank" rel="noreferrer">
+                See the draft pull request on GitHub (#{run.pr.number})
+              </a>
+              . It is a draft on a throwaway sample app, and no human has reviewed it.
+            </>
+          )}
+        </p>
+      )}
     </section>
   );
 }

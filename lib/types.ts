@@ -23,6 +23,7 @@ export type FoundryEvent =
   | { type: "done"; agent: AgentName; round: number; ms: number }
   | { type: "usage"; agent: AgentName; round: number; inputTokens: number; outputTokens: number; costUsd: number }
   | { type: "verdict"; gate: Gate; round: number; approved: boolean }
+  | { type: "pr"; url: string; number: number }
   | { type: "finish"; ms: number; rounds: number; approved: boolean; costUsd?: number }
   | { type: "error"; message: string };
 

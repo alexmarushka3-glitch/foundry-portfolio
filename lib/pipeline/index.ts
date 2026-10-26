@@ -5,6 +5,7 @@ import type { AgentName, Emit } from "../types";
 import { runAgent, type LlmClient, type RunContext } from "./agentRunner";
 import { liveConfigured, liveEnabled, MAX_ROUNDS, MODELS, modelParams, ROUND_TIME_BUDGET_MS } from "./config";
 import { AGENT_SPECS } from "./prompts";
+import { createGithubClient, formatPullRequest, githubConfigured, type GithubClient } from "./github";
 import { replayOnServer } from "./replay";
 import {
   createSandboxBrowserRunner,
@@ -35,6 +36,8 @@ export type RunOptions = {
   testRunner?: TestRunner;
   /** Drives a real browser against the app. Defaults to Chromium in a Vercel Sandbox when a snapshot is set up; tests pass a fake. */
   browserRunner?: BrowserRunner;
+  /** Opens the real draft pull request. Defaults to GitHub when the app is set up on live runs; tests pass a fake. */
+  github?: GithubClient;
   /** Scales the delays in simulated and replayed runs. 0 skips them. For tests. */
   pace?: number;
 };
@@ -161,10 +164,27 @@ export async function runPipeline(request: string, emit: Emit, opts: RunOptions 
     feedback = audit;
   }
 
-  await step(
+  const releaseText = await step(
     "release",
     roundsRun,
     `Request: ${request}\n\nBlueprint:\n${blueprint}\n\nChanged files:\n${renderChanges(workspace)}\n\nApproved: ${approved}`,
   );
+
+  // A real draft pull request, only for a live run that passed both checks and has files to show.
+  const github = live ? (opts.github ?? (!opts.client && githubConfigured() ? createGithubClient() : undefined)) : undefined;
+  if (github && approved && Object.keys(workspace.changes()).length > 0) {
+    try {
+      const { title, body } = formatPullRequest(releaseText, request);
+      const runId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+      const pr = await github.openPullRequest({ files: workspace.changes(), title, body, runId });
+      emit({ type: "tool", agent: "release", round: roundsRun, label: `opened draft pull request #${pr.number}`, ok: true });
+      emit({ type: "pr", url: pr.url, number: pr.number });
+    } catch (err) {
+      console.error("opening the pull request failed:", (err as Error).name, String((err as Error).message).slice(0, 200));
+      emit({ type: "tool", agent: "release", round: roundsRun, label: "no pull request opened (GitHub unavailable)", ok: false });
+    }
+  } else if (github && !approved) {
+    emit({ type: "tool", agent: "release", round: roundsRun, label: "no pull request opened: the run did not pass both checks", ok: false });
+  }
   emit({ type: "finish", ms: Date.now() - t0, rounds: roundsRun, approved, costUsd: live ? ctx.spend.usd : undefined });
 }
