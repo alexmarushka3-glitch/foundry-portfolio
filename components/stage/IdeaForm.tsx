@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { EXAMPLE_REQUESTS } from "@/lib/run";
 import { KINDS, NAME_MAX, VALUE_TYPES, buildRequest, validateSpec, type FeatureSpec, type Kind, type ValueType } from "@/lib/spec";
 
@@ -20,6 +20,8 @@ export default function IdeaForm({ onSubmit, busy, activeExample, liveAvailable 
   const [name, setName] = useState("");
   const [valueType, setValueType] = useState<ValueType>("date");
   const [required, setRequired] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const nameRef = useRef<HTMLInputElement>(null);
 
   const kindInfo = KINDS.find((k) => k.id === kind)!;
   const checked = validateSpec({ kind, name, valueType, required });
@@ -37,7 +39,15 @@ export default function IdeaForm({ onSubmit, busy, activeExample, liveAvailable 
       className="idea"
       onSubmit={(e) => {
         e.preventDefault();
-        if (!busy && checked.ok) onSubmit(buildRequest(checked.spec), checked.spec);
+        if (busy) return;
+        // Not ready: say why next to the field and put the cursor there, instead of a dead button.
+        if (!checked.ok) {
+          setError(checked.error);
+          nameRef.current?.focus();
+          return;
+        }
+        setError(null);
+        onSubmit(buildRequest(checked.spec), checked.spec);
       }}
     >
       <div className="idea-fields">
@@ -54,11 +64,17 @@ export default function IdeaForm({ onSubmit, busy, activeExample, liveAvailable 
         <label className="idea-field idea-name">
           {kindInfo.nameLabel}
           <input
+            ref={nameRef}
             name="name"
+            aria-invalid={error ? true : undefined}
+            aria-describedby="idea-preview"
             autoComplete="off"
             value={name}
             maxLength={NAME_MAX}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              setName(e.target.value);
+              setError(null);
+            }}
             placeholder={`For example, ${kindInfo.example}`}
             disabled={busy}
           />
@@ -81,12 +97,18 @@ export default function IdeaForm({ onSubmit, busy, activeExample, liveAvailable 
             </label>
           </>
         )}
-        <button className="run" type="submit" disabled={busy || !checked.ok}>
+        <button className="run" type="submit" disabled={busy}>
           {busy ? "Running…" : "Run"}
         </button>
       </div>
-      <p className="idea-preview" aria-live="polite">
-        {preview ? `The agents will get: ${preview}` : "Fill in a name and the agents get one clear sentence to build from."}
+      <p id="idea-preview" className="idea-preview" aria-live="polite">
+        {error ? (
+          <span className="idea-error">{error}</span>
+        ) : preview ? (
+          `The agents will get: ${preview}`
+        ) : (
+          "Fill in a name and the agents get one clear sentence to build from."
+        )}
       </p>
       <div className="examples" role="group" aria-label="Recorded examples">
         {EXAMPLE_REQUESTS.map((ex) => (

@@ -138,7 +138,7 @@ main,
 
 /* ---------- hero ---------- */
 .hero {
-  padding: 64px 0 40px;
+  padding: 56px 0 36px;
 }
 .lockup {
   display: flex;
@@ -155,22 +155,104 @@ main,
   line-height: 0.95;
   letter-spacing: -0.045em;
 }
+.hero-tagline {
+  margin: 26px 0 0;
+  max-width: 24ch;
+  font-size: clamp(1.55rem, 3.4vw, 2.4rem);
+  font-weight: 550;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
 .hero-lede {
-  margin: 28px 0 0;
-  max-width: 44rem;
-  font-size: clamp(1.12rem, 1.8vw, 1.35rem);
-  line-height: 1.5;
+  margin: 16px 0 0;
+  max-width: 40rem;
+  color: var(--muted);
+  font-size: clamp(1.05rem, 1.5vw, 1.2rem);
+  line-height: 1.55;
   text-wrap: pretty;
 }
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
 .byline {
-  margin: 20px 0 0;
+  margin: 18px 0 0;
   color: var(--muted);
   max-width: var(--measure);
 }
 .byline a {
+  display: inline-block;
+  padding: 10px 2px;
+  margin-block: -10px;
   color: var(--ink);
   font-weight: 500;
   margin-left: 2px;
+}
+
+/* buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 20px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 160ms var(--ease-out), background-color 160ms var(--ease-out), border-color 160ms var(--ease-out);
+}
+.btn:active {
+  transform: scale(0.97);
+}
+.btn-primary {
+  color: #1b1405;
+  background: var(--amber);
+}
+.btn-ghost {
+  color: var(--ink);
+  background: transparent;
+  border-color: #98a1a8;
+}
+@media (hover: hover) and (pointer: fine) {
+  .btn-primary:hover {
+    background: #f6b55e;
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink);
+  }
+}
+
+/* the one orchestrated moment: the hero builds itself once when the page loads */
+.hero .lockup,
+.hero-tagline,
+.hero-lede,
+.hero-actions,
+.hero .byline {
+  animation: rise 520ms var(--ease-out) both;
+}
+.hero-tagline {
+  animation-delay: 70ms;
+}
+.hero-lede {
+  animation-delay: 140ms;
+}
+.hero-actions {
+  animation-delay: 210ms;
+}
+.hero .byline {
+  animation-delay: 280ms;
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
 }
 
 /* ---------- stage ---------- */
@@ -254,15 +336,28 @@ main,
   background: var(--iron-2);
   border: 1px solid var(--iron-line);
   border-radius: 10px;
-  padding: 11px 14px;
+  height: 46px;
+  padding: 0 14px;
   min-width: 0;
+  transition: border-color 160ms var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .idea select:hover:not(:disabled),
+  .idea input:not([type="checkbox"]):hover:not(:disabled) {
+    border-color: var(--on-iron-muted);
+  }
+}
+.idea input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--amber);
 }
 .idea select:disabled,
 .idea input:disabled {
   opacity: 0.55;
 }
 .idea-fields .run {
-  min-height: 44px;
+  min-height: 46px;
 }
 .idea-preview {
   margin: 10px 0 0;
@@ -278,7 +373,7 @@ main,
   font-weight: 600;
   color: #1b1405;
   background: var(--amber);
-  border: 0;
+  border: 1px solid transparent;
   border-radius: 10px;
   padding: 0 22px;
   cursor: pointer;
@@ -292,9 +387,18 @@ main,
     background: #f6b55e;
   }
 }
+/* busy: an outline, so it reads as "working" and not as a dim, broken button */
 .run:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
+  color: var(--on-iron-muted);
+  background: transparent;
+  border-color: var(--iron-line);
+  cursor: progress;
+}
+.idea input[aria-invalid="true"] {
+  border-color: var(--brick-lit);
+}
+.idea-error {
+  color: var(--brick-lit);
 }
 .examples {
   display: flex;
@@ -309,7 +413,7 @@ main,
   background: transparent;
   border: 1px solid var(--iron-line);
   border-radius: 999px;
-  padding: 5px 14px;
+  padding: 9px 16px;
   cursor: pointer;
   transition: border-color 160ms var(--ease-out), transform 160ms var(--ease-out);
 }
@@ -340,12 +444,16 @@ main,
   display: block;
   width: 100%;
   height: auto;
-  margin: 18px auto 0;
+  margin: 40px auto 0;
   overflow: visible;
 }
 @media (max-width: 760px) {
   .pipeline {
     max-width: 420px;
+    margin-top: 18px;
+  }
+  .pipeline-note {
+    margin-top: 14px;
   }
 }
 .edge {
@@ -422,6 +530,17 @@ main,
 .node.failed .node-sub {
   fill: var(--brick-lit);
 }
+.node.done .node-mark path {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pop 280ms var(--ease-out) both;
+}
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
 .node-mark path {
   fill: none;
   stroke: var(--verdigris-lit);
@@ -451,6 +570,14 @@ main,
   opacity: 1;
 }
 
+.pipeline-note {
+  margin: 44px auto 0;
+  max-width: 60ch;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--on-iron-muted);
+  text-wrap: pretty;
+}
 .mode-detail {
   margin: 14px 0 0;
   font-size: 0.9rem;
@@ -638,8 +765,32 @@ main,
   color: var(--on-iron-muted);
 }
 .summary {
-  margin: 14px 0 0;
+  display: grid;
+  gap: 12px;
+  margin: 18px 0 0;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--verdigris-lit) 45%, var(--iron-line));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--verdigris-lit) 8%, var(--iron-2));
+  animation: rise 360ms var(--ease-out) both;
+}
+.summary p {
+  margin: 0;
   font-weight: 500;
+}
+.summary-pr {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+}
+.summary-pr .fine {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--on-iron-muted);
+}
+.clock {
+  font-variant-numeric: tabular-nums;
 }
 
 /* ---------- sections ---------- */
@@ -683,12 +834,32 @@ main,
 .reality-col ul {
   list-style: none;
   padding: 0;
-  margin: 12px 0 0;
+  margin: 14px 0 0;
   display: grid;
-  gap: 12px;
+  gap: 16px;
 }
 .reality-col li {
-  font-size: 0.975rem;
+  position: relative;
+  padding-left: 18px;
+  font-size: 1rem;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+.reality-col li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--line);
+}
+.reality-col.real li::before {
+  background: var(--verdigris);
+}
+.reality-col.not-done-yet li::before {
+  background: var(--brick);
 }
 
 .projects {
@@ -757,7 +928,8 @@ main,
   .follow {
     order: 3;
   }
-  .pipeline {
+  .pipeline,
+  .pipeline-note {
     order: 4;
   }
   .player {
@@ -790,6 +962,9 @@ main,
   .run {
     padding: 12px;
   }
+  .hero-actions .btn {
+    flex: 1 1 100%;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -802,6 +977,20 @@ main,
   }
   .caret {
     animation: none;
+  }
+  .hero .lockup,
+  .hero-tagline,
+  .hero-lede,
+  .hero-actions,
+  .hero .byline,
+  .summary,
+  .node.done .node-mark path {
+    animation: none;
+  }
+  .btn,
+  .idea select,
+  .idea input {
+    transition: none;
   }
   .edge-fill,
   .sendback path,

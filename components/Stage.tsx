@@ -10,6 +10,7 @@ import { useLiveRun } from "./stage/useLiveRun";
 import PipelineSvg from "./PipelineSvg";
 import { AGENT_BY_ID } from "@/lib/agents";
 import { EXAMPLE_REQUESTS, buildReplayRun, findRecording, framesFrom, maxRound, viewsAt, type AgentFrame, type Run, type StepView } from "@/lib/run";
+import { profile } from "@/lib/profile";
 import { runSummary } from "@/lib/summary";
 import type { AgentName, Mode } from "@/lib/types";
 
@@ -143,6 +144,7 @@ export default function Stage() {
         onSelect={(a) => setSelected((cur) => (cur === a ? null : a))}
         sentBack={maxRound(views) > 1}
       />
+      <p className="pipeline-note">{profile.how}</p>
 
       <p className="sr-only" aria-live="polite">
         {announce}
@@ -190,18 +192,17 @@ export default function Stage() {
         }}
       />
       {run && atEnd && (
-        <p className="summary">
-          {runSummary(run)}
+        <div className="summary">
+          <p>{runSummary(run)}</p>
           {run.pr && (
-            <>
-              {" "}
-              <a href={run.pr.url} target="_blank" rel="noreferrer">
+            <div className="summary-pr">
+              <a className="btn btn-primary" href={run.pr.url} target="_blank" rel="noreferrer">
                 See the draft pull request on GitHub (#{run.pr.number})
               </a>
-              . It is a draft on a throwaway sample app, and no human has reviewed it.
-            </>
+              <p className="fine">It is a draft on a throwaway sample app, and no human has reviewed it.</p>
+            </div>
           )}
-        </p>
+        </div>
       )}
     </section>
   );

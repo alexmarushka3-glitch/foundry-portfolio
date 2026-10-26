@@ -102,3 +102,20 @@ describe("Stage", () => {
     expect(await screen.findByText(/runs a labelled simulation/)).toBeTruthy();
   });
 });
+
+describe("the request form", () => {
+  it("says what is missing next to the name field, and focuses it, instead of blocking the Run button", async () => {
+    const fetchMock = mockApi(() => ndjson([]));
+    render(<Stage />);
+    const run = screen.getByRole("button", { name: "Run" }) as HTMLButtonElement;
+    expect(run.disabled).toBe(false);
+    fireEvent.click(run);
+    expect((await screen.findByText(/at least two characters/)).textContent).toBeTruthy();
+    expect(document.activeElement).toBe(screen.getByLabelText(/field name/i));
+    expect(fetchMock.mock.calls.some(([, init]) => init?.method === "POST")).toBe(false);
+    // typing clears the message
+    fireEvent.change(screen.getByLabelText(/field name/i), { target: { value: "nickname" } });
+    expect(screen.queryByText(/at least two characters/)).toBeNull();
+    expect(screen.getByText(/The agents will get:/)).toBeTruthy();
+  });
+});

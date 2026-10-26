@@ -5,9 +5,13 @@ export const profile = {
   name: "Alex Marushka",
   /** The big title at the top of the page. */
   headline: "Foundry",
-  /** The paragraph under it. Keep it honest: a pull request draft checked by other agents, on a small sample app. */
+  /** The one line under the title: what it does, in plain verbs. */
+  tagline: "Eight AI agents plan, build, test and write up a code change.",
+  /** The paragraph under it. Keep it honest: a draft pull request checked by other agents, on a small sample app. */
   intro:
-    "Foundry is a team of eight AI agents. Pick a change for a small task-tracker app and it hands back a real draft pull request, already checked by other agents and by real tests. One agent reads the code, two plan the change, two build it side by side, two check the result, running the tests and a real browser, and can send it back, and one writes up the pull request.",
+    "Foundry is a team of eight AI agents. Pick a change for a small task-tracker app and it hands back a real draft pull request, already checked by other agents and by real tests.",
+  /** Who does what, shown as the caption under the pipeline drawing. */
+  how: "One agent reads the code, two plan the change, two build it side by side, two check the result, running the tests and a real browser, and can send it back, and one writes up the pull request.",
   /** The one-line version, used for the page description in search results and link previews. */
   title: "Student at the University of Chicago",
   pitch:

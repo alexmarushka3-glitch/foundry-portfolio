@@ -31,7 +31,16 @@ export default function Home() {
             <Logo className="hero-mark" />
             <h1>{profile.headline}</h1>
           </div>
+          <p className="hero-tagline">{profile.tagline}</p>
           <p className="hero-lede">{profile.intro}</p>
+          <div className="hero-actions">
+            <a className="btn btn-primary" href="#demo">
+              Watch it run
+            </a>
+            <a className="btn btn-ghost" href="#reality">
+              What’s real and what isn’t
+            </a>
+          </div>
           <p className="byline">
             {profile.name}, student at the University of Chicago.{" "}
             <ContactLinks label="Email" />

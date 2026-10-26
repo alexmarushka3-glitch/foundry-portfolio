@@ -5,7 +5,7 @@ import { REALITY } from "@/lib/reality";
 // The site's honesty rules (CLAUDE.md), enforced on the page copy so a rewrite can't quietly break them.
 
 const allCopy = () =>
-  [profile.headline, profile.intro, profile.pitch, ...profile.about, ...profile.projects.flatMap((p) => [p.name, p.blurb]), ...REALITY.flatMap((c) => c.items)].join("\n");
+  [profile.headline, profile.tagline, profile.intro, profile.how, profile.pitch, ...profile.about, ...profile.projects.flatMap((p) => [p.name, p.blurb]), ...REALITY.flatMap((c) => c.items)].join("\n");
 
 describe("page copy", () => {
   it("never calls the output a reviewed pull request, or says anything passed review", () => {

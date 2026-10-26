@@ -11,7 +11,8 @@ type Pos = { x: number; y: number };
 
 const GEOMETRY: Record<Layout, { viewBox: string; w: number; h: number; pos: Record<AgentName, Pos> }> = {
   wide: {
-    viewBox: "0 -26 1000 300",
+    // tight to the boxes: the "sent back" arcs are drawn outside it (the svg lets them overflow into the margin)
+    viewBox: "0 30 1000 190",
     w: 122,
     h: 58,
     pos: {
