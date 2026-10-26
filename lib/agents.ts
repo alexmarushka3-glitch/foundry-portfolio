@@ -13,7 +13,7 @@ export const AGENT_LIST: AgentInfo[] = [
   { id: "pm", label: "Project Manager", job: "Writes the blueprint: data, API and UI." },
   { id: "backend", label: "Backend", job: "Writes the migration and the API changes." },
   { id: "frontend", label: "Frontend", job: "Writes the UI change, with empty and error states." },
-  { id: "e2e", label: "E2E Verifier", job: "Walks full user flows. In a live run it writes a Playwright test and a real headless browser runs it." },
+  { id: "e2e", label: "E2E Verifier", job: "Walks full user flows. In a live run it writes a Playwright test for a real headless browser to run." },
   { id: "validator", label: "Validator", job: "Audits the result against the story's acceptance criteria." },
   { id: "release", label: "Release", job: "Writes the pull request title and description." },
 ];

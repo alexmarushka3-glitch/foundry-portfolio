@@ -7,7 +7,7 @@ export const REALITY = [
       "Each stage in the three example runs was its own Claude agent, fed the previous stage's real output. Those runs came from an earlier version, where the agents only read pasted text and wrote code in their replies.",
       "In a live run the Researcher uses read-only tools on a copy of a real repository, and the two engineers write real files into that in-memory copy. Their tool calls show in the output.",
       "In a live run the sample app's real test suite runs on the agents' files in a throwaway sandbox with the network switched off. A failing suite sends the work back, whatever the agents say.",
-      "In a live run the E2E Verifier writes a Playwright test and a real headless Chromium runs it against the app, started inside the sandbox. Pictures from that browser show in the verifier's panel, and its real pass or fail decides the gate.",
+      "In a live run the E2E Verifier writes a Playwright test for a real headless Chromium to run against the app inside the sandbox. Pictures from that browser show in the verifier's panel, and the real pass or fail decides the gate. If the browser cannot start, the panel says so and the verifier only reads the code.",
       "The pipeline code, the streaming, and the stage you just watched.",
       "Typed ideas run on live Claude models when the live switch is on. The badge on the stage says which mode you are in.",
       "Three recorded runs. All passed both of the pipeline's AI checks on the first round, in 72 to 94 seconds each.",

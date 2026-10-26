@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import "./admin.css";
 import { Donut, HBars, Legend, MODE_COLOR, StackedBars } from "./charts";
 import ControlPanel from "./ControlPanel";
+import SandboxPanel from "./SandboxPanel";
 import FilterBar from "./FilterBar";
 import KpiCards from "./KpiCards";
 import RunsTable from "./RunsTable";
@@ -166,6 +167,8 @@ export default function AdminView({ admin, sample = false, embedded = false, aut
               onExport={() => downloadCsv(toCsv(shown), sample ? "sample-foundry-runs" : "foundry-runs")}
               exportCount={shown.length}
             />
+
+            {!sample && <SandboxPanel />}
           </div>
 
           <section className="card" aria-labelledby="runs-title">

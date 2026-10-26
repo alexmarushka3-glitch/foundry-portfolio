@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { POST as actions } from "@/app/api/admin/actions/route";
 import { POST as login } from "@/app/api/admin/login/route";
 import { GET as stats } from "@/app/api/admin/stats/route";
@@ -114,5 +114,53 @@ describe("POST /api/admin/actions", () => {
     });
     expect((await (await act("reset-limits")).json()).server.limits.usedToday).toBe(0);
     expect((await (await act("clear-log")).json()).runs).toEqual([]);
+  });
+});
+
+describe("/api/admin/snapshot", async () => {
+  const build = vi.hoisted(() => ({ fn: vi.fn(), building: false }));
+  vi.doMock("@/lib/pipeline/snapshotBuild", () => ({ buildSandboxSnapshot: build.fn, snapshotBuilding: () => build.building }));
+  const { GET: snapGet, POST: snapPost } = await import("@/app/api/admin/snapshot/route");
+  const req = (method: string, headers: Record<string, string> = {}) => new Request("http://t/api/admin/snapshot", { method, headers });
+
+  beforeEach(() => {
+    build.fn.mockReset();
+    build.building = false;
+  });
+
+  it("is hidden without an admin token and closed to anyone not signed in", async () => {
+    expect((await snapPost(req("POST"))).status).toBe(401);
+    expect((await snapGet(req("GET"))).status).toBe(401);
+    delete process.env.ADMIN_TOKEN;
+    expect((await snapPost(req("POST", asAdmin()))).status).toBe(404);
+    expect(build.fn).not.toHaveBeenCalled();
+  });
+
+  it("builds on request from a signed-in admin and returns the id", async () => {
+    build.fn.mockResolvedValue({ snapshotId: "snap_abc", commit: "2242a8f", seconds: 31, steps: [] });
+    const res = await snapPost(req("POST", asAdmin()));
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ snapshotId: "snap_abc" });
+  });
+
+  it("refuses a second build while one is running, and reports a failed build without leaking internals", async () => {
+    build.building = true;
+    expect((await snapPost(req("POST", asAdmin()))).status).toBe(409);
+    expect(build.fn).not.toHaveBeenCalled();
+    build.building = false;
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    build.fn.mockRejectedValue(new Error("chromium failed: boom"));
+    const res = await snapPost(req("POST", asAdmin()));
+    expect(res.status).toBe(500);
+    expect((await res.json()).error).toMatch(/build failed/);
+  });
+
+  it("says whether a snapshot id is set, but never shows it", async () => {
+    process.env.FOUNDRY_SANDBOX_SNAPSHOT = "snap_secretish";
+    const res = await snapGet(req("GET", asAdmin()));
+    const text = await res.text();
+    expect(JSON.parse(text)).toEqual({ configured: true, building: false });
+    expect(text).not.toContain("snap_secretish");
+    delete process.env.FOUNDRY_SANDBOX_SNAPSHOT;
   });
 });
