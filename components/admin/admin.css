@@ -190,6 +190,18 @@
 }
 
 /* key numbers */
+.dash-toggle {
+  margin: 16px 0 0;
+}
+.dash-toggle button {
+  min-height: 44px;
+}
+#dash-more[hidden] {
+  display: none;
+}
+#dash-more > * + * {
+  margin-top: 16px;
+}
 .kpis {
   list-style: none;
   margin: 0 0 16px;

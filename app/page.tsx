@@ -19,7 +19,7 @@ export default function Home() {
         <nav aria-label="Sections">
           <a href="#demo">Demo</a>
           <a href="#dashboard">Dashboard</a>
-          <a href="#reality">What’s real</a>
+          <a href="#reality">Scope</a>
           <a href="#projects">Projects</a>
           <a href="#about">About</a>
         </nav>
@@ -38,7 +38,7 @@ export default function Home() {
               Watch it run
             </a>
             <a className="btn btn-ghost" href="#reality">
-              What’s real and what isn’t
+              Scope and limits
             </a>
           </div>
           <p className="byline">
@@ -59,11 +59,11 @@ export default function Home() {
         </section>
 
         <section id="reality" className="section" aria-labelledby="reality-title">
-          <h2 id="reality-title">What’s real and what isn’t</h2>
-          <p className="lede">A demo is only worth showing if you can tell what's behind it. Here is exactly that.</p>
+          <h2 id="reality-title">Scope and limits</h2>
+          <p className="lede">What runs for real, what is simulated, and where the limits are.</p>
           <div className="reality">
             {REALITY.map((col) => (
-              <div key={col.heading} className={`reality-col ${col.heading.toLowerCase().replace(/\s+/g, "-")}`}>
+              <div key={col.heading} className={`reality-col ${col.tone}`}>
                 <h3>{col.heading}</h3>
                 <ul>
                   {col.items.map((it) => (

@@ -52,7 +52,10 @@ type Props = {
 export default function AdminView({ admin, sample = false, embedded = false, auto = false, onAuto }: Props) {
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
   const [showRuns, setShowRuns] = useState(!embedded);
+  // On the home page the dashboard starts as just the key numbers; the filters, charts, controls and runs table open on request.
+  const [open, setOpen] = useState(!embedded);
   const Title = embedded ? "h3" : "h1";
+  const Card = embedded ? "h4" : "h2";
   const { data, error, loading, pending, refresh, act, signOut } = admin;
 
   const now = data?.generatedAt ?? 0;
@@ -124,18 +127,27 @@ export default function AdminView({ admin, sample = false, embedded = false, aut
             </p>
           )}
 
-          <FilterBar filters={filters} onChange={setFilters} shown={shown.length} total={data.runs.length} />
-          <KpiCards kpis={numbers} />
+          {open && <FilterBar filters={filters} onChange={setFilters} shown={shown.length} total={data.runs.length} />}
+          <KpiCards kpis={numbers} compact={embedded} />
 
+          {embedded && (
+            <p className="dash-toggle">
+              <button type="button" aria-expanded={open} aria-controls="dash-more" onClick={() => setOpen((v) => !v)}>
+                {open ? "Hide the full sample dashboard" : "Show the full sample dashboard"}
+              </button>
+            </p>
+          )}
+
+          <div id="dash-more" hidden={!open}>
           <div className="grid">
             <section className="card wide" aria-labelledby="runs-over-time">
-              <h2 id="runs-over-time">Runs over time</h2>
+              <Card id="runs-over-time">Runs over time</Card>
               <StackedBars buckets={buckets} />
               <Legend items={MODES.map((m) => ({ label: `${m} (${byMode[m] ?? 0})`, color: MODE_COLOR[m] }))} />
             </section>
 
             <section className="card" aria-labelledby="by-result">
-              <h2 id="by-result">Results</h2>
+              <Card id="by-result">Results</Card>
               <div className="donut-row">
                 <Donut
                   label="Runs by result"
@@ -155,7 +167,7 @@ export default function AdminView({ admin, sample = false, embedded = false, aut
             </section>
 
             <section className="card" aria-labelledby="by-agent">
-              <h2 id="by-agent">Average time per agent</h2>
+              <Card id="by-agent">Average time per agent</Card>
               <HBars rows={timings.map((t) => ({ label: t.label, value: t.avgMs }))} format={formatDuration} />
             </section>
 
@@ -173,7 +185,7 @@ export default function AdminView({ admin, sample = false, embedded = false, aut
 
           <section className="card" aria-labelledby="runs-title">
             <div className="card-head">
-              <h2 id="runs-title">Runs</h2>
+              <Card id="runs-title">Runs</Card>
               {embedded && (
                 <button type="button" aria-expanded={showRuns} aria-controls="runs-panel" onClick={() => setShowRuns((v) => !v)}>
                   {showRuns ? "Hide the runs table" : `Show the runs table (${shown.length})`}
@@ -186,6 +198,7 @@ export default function AdminView({ admin, sample = false, embedded = false, aut
               </div>
             )}
           </section>
+          </div>
 
           {!embedded && (
             <section className="card" aria-labelledby="recorded-title">

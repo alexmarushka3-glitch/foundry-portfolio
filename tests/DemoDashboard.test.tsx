@@ -56,6 +56,17 @@ describe("DemoDashboard embedded on the home page", () => {
     expect(screen.queryByText("Recorded examples")).toBeNull();
     expect(screen.queryByRole("region", { name: "Runs table" })).toBeNull();
 
+    // it opens as the key numbers only: four cards, with the charts, controls and runs table behind a button
+    expect(screen.getByLabelText("Key numbers").querySelectorAll("li")).toHaveLength(4);
+    const more = screen.getByRole("button", { name: "Show the full sample dashboard" });
+    expect(more.getAttribute("aria-expanded")).toBe("false");
+    expect(document.querySelector("#dash-more")?.hasAttribute("hidden")).toBe(true);
+    fireEvent.click(more);
+    expect(screen.getByRole("button", { name: "Hide the full sample dashboard" }).getAttribute("aria-expanded")).toBe("true");
+    expect(document.querySelector("#dash-more")?.hasAttribute("hidden")).toBe(false);
+    // the cards below the dashboard title are one level down from it, so the outline stays in order
+    expect(screen.getAllByRole("heading", { level: 4 }).map((h) => h.textContent)).toContain("Runs over time");
+
     fireEvent.click(screen.getByRole("button", { name: /Show the runs table/ }));
     expect(await screen.findByRole("region", { name: "Runs table" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Hide the runs table" }));

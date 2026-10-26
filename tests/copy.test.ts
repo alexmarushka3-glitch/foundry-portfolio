@@ -24,16 +24,16 @@ describe("page copy", () => {
     expect(profile.intro).toMatch(/small task-tracker app/i);
   });
 
-  it("keeps the caveats about unrun code and the agent-only E2E check in What's real", () => {
-    const notDone = REALITY.find((c) => c.heading === "Not done yet")!.items.join(" ");
+  it("keeps the caveats about unrun code and the agent-only E2E check in Scope and limits", () => {
+    const notDone = REALITY.find((c) => c.tone === "limits")!.items.join(" ");
     expect(notDone).toMatch(/never run any code/i);
-    expect(REALITY.find((c) => c.heading === "Real")!.items.join(" ")).toMatch(/sandbox/i);
+    expect(REALITY.find((c) => c.tone === "working")!.items.join(" ")).toMatch(/sandbox/i);
     expect(notDone).toMatch(/does not drive a browser/i);
     expect(notDone).toMatch(/no human reviews/i);
   });
 
   it("labels the sample dashboard as made up", () => {
-    const simulated = REALITY.find((c) => c.heading === "Simulated")!.items.join(" ");
+    const simulated = REALITY.find((c) => c.tone === "simulated")!.items.join(" ");
     expect(simulated).toMatch(/dashboard/i);
     expect(simulated).toMatch(/made up/i);
   });

@@ -32,10 +32,10 @@ describe("Home page", () => {
     expect(marks.length).toBeGreaterThanOrEqual(2);
   });
 
-  it("names the site in the nav and links the sections in page order, with the dashboard before What's real", () => {
+  it("names the site in the nav and links the sections in page order, with the dashboard before Scope and limits", () => {
     render(<Home />);
     const nav = within(screen.getByRole("navigation", { name: "Sections" }));
-    expect(nav.getAllByRole("link").map((a) => a.textContent)).toEqual(["Demo", "Dashboard", "What’s real", "Projects", "About"]);
+    expect(nav.getAllByRole("link").map((a) => a.textContent)).toEqual(["Demo", "Dashboard", "Scope", "Projects", "About"]);
     expect(screen.getByRole("link", { name: "Foundry" }).getAttribute("href")).toBe("#top");
 
     const ids = [...document.querySelectorAll("main > section")].map((s) => s.id);

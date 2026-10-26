@@ -37,7 +37,7 @@ export default function Stage() {
   const [run, setRun] = useState<Run | null>(null);
   const [selected, setSelected] = useState<AgentName | null>(null);
 
-  const narrow = useMediaQuery("(max-width: 760px)");
+  const narrow = useMediaQuery("(max-width: 900px)");
   const liveAvailable = useLiveAvailability();
   const { t, playing, speed, setPlaying, setSpeed, seek } = usePlayback(run?.total ?? 0);
 

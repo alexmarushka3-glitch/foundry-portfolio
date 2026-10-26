@@ -8,7 +8,9 @@
 
   --iron: #1e252b;
   --iron-2: #272f37;
-  --iron-line: #3a444e;
+  --iron-line: #3a444e; /* quiet dividers and decoration only */
+  --field-line: #707c88; /* outline of controls on the stage: 3.2:1 against their fill (WCAG 1.4.11) */
+  --ghost-line: #6b767f; /* outline of the light-page secondary button: 4:1 on the page */
   --on-iron: #e6ebee;
   --on-iron-muted: #9aa6b0;
 
@@ -119,8 +121,14 @@ h3 {
   font-size: 0.95rem;
 }
 .nav nav a {
+  padding-block: 10px;
+  margin-block: -10px;
   color: var(--muted);
   text-decoration: none;
+}
+.brand {
+  padding-block: 8px;
+  margin-block: -8px;
 }
 @media (hover: hover) and (pointer: fine) {
   .nav nav a:hover {
@@ -217,7 +225,7 @@ main,
 .btn-ghost {
   color: var(--ink);
   background: transparent;
-  border-color: #98a1a8;
+  border-color: var(--ghost-line);
 }
 @media (hover: hover) and (pointer: fine) {
   .btn-primary:hover {
@@ -334,7 +342,7 @@ main,
   font: inherit;
   color: var(--on-iron);
   background: var(--iron-2);
-  border: 1px solid var(--iron-line);
+  border: 1px solid var(--field-line);
   border-radius: 10px;
   height: 46px;
   padding: 0 14px;
@@ -358,6 +366,7 @@ main,
 }
 .idea-fields .run {
   min-height: 46px;
+  margin-left: auto;
 }
 .idea-preview {
   margin: 10px 0 0;
@@ -411,7 +420,7 @@ main,
   font-size: 0.9rem;
   color: var(--on-iron);
   background: transparent;
-  border: 1px solid var(--iron-line);
+  border: 1px solid var(--field-line);
   border-radius: 999px;
   padding: 9px 16px;
   cursor: pointer;
@@ -447,7 +456,7 @@ main,
   margin: 40px auto 0;
   overflow: visible;
 }
-@media (max-width: 760px) {
+@media (max-width: 900px) {
   .pipeline {
     max-width: 420px;
     margin-top: 18px;
@@ -718,8 +727,9 @@ main,
   font-size: 0.9rem;
   color: var(--on-iron);
   background: transparent;
-  border: 1px solid var(--iron-line);
+  border: 1px solid var(--field-line);
   border-radius: 8px;
+  min-height: 40px;
   padding: 6px 14px;
   cursor: pointer;
   transition: transform 160ms var(--ease-out), border-color 160ms var(--ease-out);
@@ -816,19 +826,19 @@ main,
   border-top: 3px solid var(--line);
   padding-top: 14px;
 }
-.reality-col.real {
+.reality-col.working {
   border-top-color: var(--verdigris);
 }
-.reality-col.not-done-yet {
+.reality-col.limits {
   border-top-color: var(--brick);
 }
 .reality-col h3 {
   font-size: 1.1rem;
 }
-.reality-col.real h3 {
+.reality-col.working h3 {
   color: var(--verdigris);
 }
-.reality-col.not-done-yet h3 {
+.reality-col.limits h3 {
   color: var(--brick);
 }
 .reality-col ul {
@@ -855,10 +865,10 @@ main,
   border-radius: 50%;
   background: var(--line);
 }
-.reality-col.real li::before {
+.reality-col.working li::before {
   background: var(--verdigris);
 }
-.reality-col.not-done-yet li::before {
+.reality-col.limits li::before {
   background: var(--brick);
 }
 
@@ -896,7 +906,9 @@ main,
   margin: 8px 0 0;
 }
 .contact a {
-  margin-right: 14px;
+  display: inline-block;
+  padding: 10px 2px;
+  margin: -10px 12px -10px 0;
 }
 
 .footer {
@@ -908,8 +920,8 @@ main,
   border-top: 1px solid var(--line);
 }
 
-/* On phones the drawing is tall, so put the text being written above it. */
-@media (max-width: 760px) {
+/* On phones and tablets the drawing is tall, so put the text being written above it. */
+@media (max-width: 900px) {
   .stage {
     display: flex;
     flex-direction: column;
@@ -1015,11 +1027,6 @@ main,
     justify-content: space-between;
     gap: 8px;
     font-size: 0.9rem;
-  }
-  /* taller tap area without moving the text much */
-  .nav nav a {
-    padding-block: 10px;
-    margin-block: -6px;
   }
 }
 

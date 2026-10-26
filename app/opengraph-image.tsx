@@ -27,8 +27,10 @@ export default function OpengraphImage() {
           <div style={{ fontSize: 148, fontWeight: 700, letterSpacing: -6, lineHeight: 1 }}>{profile.headline}</div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-          <div style={{ fontSize: 40, lineHeight: 1.3, maxWidth: 940, color: "#1e252b" }}>
-            A specific change goes in. A draft pull request, checked by other agents and real tests, comes out.
+          <div style={{ display: "flex", flexDirection: "column", fontSize: 40, lineHeight: 1.3, maxWidth: 1056, color: "#1e252b" }}>
+            <div>A specific change goes in.</div>
+            <div>A draft pull request comes out,</div>
+            <div>checked by other agents and real tests.</div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 28, color: "#4b555e" }}>
             <div style={{ width: 14, height: 14, borderRadius: 7, background: LOGO_COLORS.amber }} />

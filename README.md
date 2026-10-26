@@ -100,7 +100,7 @@ The run log is in memory on one server instance (the last 500 runs) and resets o
 
 ### Public sample-data demo
 
-`/admin-demo` is a public, read-only copy of the dashboard for visitors and recruiters. It needs no token, makes no requests to the server, and runs on **made-up** data generated in the browser (`lib/admin/sampleData.ts`). A banner at the top says so, every visitor id starts with `sample-`, and the buttons only change what is on that visitor's screen. The only real data on it is the table of the three recorded examples. A compact version of the same sample dashboard is also on the home page, between the demo and "What's real" (`components/admin/DashboardSection.tsx`). It loads after the page does, so it stays out of the first load.
+`/admin-demo` is a public, read-only copy of the dashboard for visitors and recruiters. It needs no token, makes no requests to the server, and runs on **made-up** data generated in the browser (`lib/admin/sampleData.ts`). A banner at the top says so, every visitor id starts with `sample-`, and the buttons only change what is on that visitor's screen. The only real data on it is the table of the three recorded examples. A compact version of the same sample dashboard is also on the home page, between the demo and "Scope and limits" (`components/admin/DashboardSection.tsx`). It loads after the page does, so it stays out of the first load.
 
 ## Project structure
 
