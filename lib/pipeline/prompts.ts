@@ -59,7 +59,7 @@ export const AGENT_SPECS: Record<AgentName, AgentSpec> = {
   release: {
     name: "release",
     model: MODELS.fast,
-    maxTokens: 350,
+    maxTokens: 700,
     system:
       "You are the Release agent. Write a pull request draft from the changed files: a one-line title, then a 3 bullet description covering data, API and UI. No preamble.",
   },
