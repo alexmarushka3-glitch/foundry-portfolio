@@ -47,20 +47,36 @@ export const RUN_TESTS_TOOL: ToolDef = {
   input_schema: { type: "object", properties: {}, required: [] },
 };
 
+/** The E2E Verifier's way into a real browser: it submits a Playwright test file and gets the real result back. */
+export const RUN_BROWSER_TEST_TOOL: ToolDef = {
+  name: "run_browser_test",
+  description:
+    "Run a Playwright test file in a real headless Chromium against the app, started fresh in an isolated sandbox with the changed files in place. The app's own smoke test runs too. Send the complete test file as `spec` (it is saved as e2e/zz-feature.spec.js and runs after the app's own smoke test, which leaves the task list empty; all tests share one running app and database, so use unique task titles and clean up. It imports { test, expect } from '@playwright/test', and uses relative URLs like page.goto('/')). Returns the real pass or fail result and picture(s) of the page. Limited to three calls.",
+  input_schema: {
+    type: "object",
+    properties: { spec: { type: "string", description: "The complete Playwright test file." } },
+    required: ["spec"],
+  },
+};
+
 export const AGENT_TOOLS: Partial<Record<AgentName, ToolDef[]>> = {
   researcher: [LIST_DIR, READ_FILE, GREP],
   backend: [READ_FILE, GREP, WRITE_FILE, RUN_TESTS_TOOL],
   frontend: [READ_FILE, GREP, WRITE_FILE, RUN_TESTS_TOOL],
+  e2e: [READ_FILE, GREP, RUN_BROWSER_TEST_TOOL],
 };
 
 /** The tools an agent is actually offered: run_tests only when a sandbox can run it. */
-export function toolsFor(agent: AgentName, canRunTests: boolean): ToolDef[] | undefined {
+export function toolsFor(agent: AgentName, canRunTests: boolean, canRunBrowser = false): ToolDef[] | undefined {
   const all = AGENT_TOOLS[agent];
-  return all && (canRunTests ? all : all.filter((t) => t.name !== RUN_TESTS_TOOL.name));
+  return all?.filter((t) => (t.name === RUN_TESTS_TOOL.name ? canRunTests : t.name === RUN_BROWSER_TEST_TOOL.name ? canRunBrowser : true));
 }
 
 /** How many times one agent may run the tests in one round. */
 export const MAX_TEST_RUNS = 2;
+
+/** How many times the E2E Verifier may run its browser test in one round. */
+export const MAX_BROWSER_RUNS = 3;
 
 /** Turns on the writes each engineer is meant to make, so the backend cannot rewrite the page and the reverse. */
 const OWN_PATHS: Partial<Record<AgentName, RegExp>> = {

@@ -521,6 +521,30 @@ main,
   overflow-wrap: anywhere;
   color: var(--on-iron);
 }
+.shots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+.shots figure {
+  margin: 0;
+  flex: 1 1 200px;
+  max-width: 320px;
+}
+.shots img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid var(--iron-line);
+  background: #fff;
+}
+.shots figcaption {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: var(--on-iron-muted);
+}
 .panel pre .muted {
   color: var(--on-iron-muted);
 }

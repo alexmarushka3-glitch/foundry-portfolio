@@ -94,7 +94,9 @@ describe("tool loop", () => {
     const { client, seen } = toolClient((agent) => verdicts(agent) ?? text("ok"));
     await run(client);
     const withTools = [...new Set(seen.filter((s) => s.params.tools).map((s) => s.agent))].sort();
-    expect(withTools).toEqual(["Backend", "Frontend", "Researcher"]);
+    expect(withTools).toEqual(["Backend", "E2E Verifier", "Frontend", "Researcher"]);
+    // without a sandbox nobody is offered the tools that need one
+    expect(seen.every((s) => !JSON.stringify(s.params.tools ?? []).match(/run_tests|run_browser_test/))).toBe(true);
   });
 
   it("makes an agent that keeps calling tools answer in text on its last turn", async () => {
@@ -184,5 +186,72 @@ describe("real test runs", () => {
     const backendRuns = events.filter((e) => e.type === "tool" && e.agent === "backend" && e.label.startsWith("npm test"));
     expect(backendRuns).toHaveLength(2);
     expect(events.some((e) => e.type === "tool" && e.label === "run_tests (limit reached)")).toBe(true);
+  });
+});
+
+describe("real browser runs", () => {
+  const tests = { ran: true, ok: true, summary: "npm test: 5 passed, 0 failed", output: "", ms: 3 };
+  const shot = { label: "adds a task", png: "iVBORw0KGgo=" };
+  const browserReport = (ok: boolean, ran = true) => ({
+    ran,
+    ok,
+    summary: ok ? "real browser: 2 passed, 0 failed" : "real browser: 1 passed, 1 failed",
+    output: "output",
+    ms: 9,
+    shots: ran ? [shot] : [],
+  });
+  type Opts = NonNullable<Parameters<typeof runPipeline>[2]>;
+
+  async function runWith(browserRunner: Opts["browserRunner"], verifierRuns = true) {
+    const { client, seen } = toolClient((agent, turn) => {
+      if (agent === "E2E Verifier") {
+        // the verifier's text always claims PASS: the real result must decide
+        return verifierRuns && turn === 0 ? [tool("e1", "run_browser_test", { spec: "test('x', async () => {})" }), ...text("")] : text("E2E: PASS\nchecked");
+      }
+      return verdicts(agent) ?? text("ok");
+    });
+    const events: FoundryEvent[] = [];
+    await runPipeline("Add a nickname", (e) => events.push(e), { pace: 0, client, testRunner: async () => tests, browserRunner });
+    return { events, seen };
+  }
+  const finish = (events: FoundryEvent[]) => events.find((e) => e.type === "finish");
+  const gates = (events: FoundryEvent[]) => events.filter((e): e is Extract<FoundryEvent, { type: "verdict" }> => e.type === "verdict" && e.gate === "e2e");
+
+  it("gives the verifier the browser tool, passes the spec to the runner, and streams the pictures", async () => {
+    const runner = vi.fn(async () => browserReport(true));
+    const { events, seen } = await runWith(runner);
+    expect(runner).toHaveBeenCalledWith(expect.any(Object), "test('x', async () => {})", undefined);
+    expect(JSON.stringify(seen.find((s) => s.agent === "E2E Verifier")!.params.tools)).toContain("run_browser_test");
+    expect(events.filter((e) => e.type === "shot")).toEqual([{ type: "shot", agent: "e2e", round: 1, label: "adds a task", png: "iVBORw0KGgo=" }]);
+    expect(finish(events)).toMatchObject({ rounds: 1, approved: true });
+  });
+
+  it("fails the gate when the real browser fails, even if the verifier says PASS, and sends the work back", async () => {
+    let n = 0;
+    const { events } = await runWith(vi.fn(async () => browserReport(++n > 1)));
+    expect(gates(events)[0]).toMatchObject({ round: 1, approved: false });
+    expect(finish(events)).toMatchObject({ rounds: 2, approved: true });
+  });
+
+  it("fails the gate when the verifier never ran the browser", async () => {
+    const runner = vi.fn(async () => browserReport(true));
+    const { events } = await runWith(runner, false);
+    expect(runner).not.toHaveBeenCalled();
+    expect(gates(events).every((g) => !g.approved)).toBe(true);
+    expect(finish(events)).toMatchObject({ rounds: 2, approved: false });
+  });
+
+  it("does not block the run when the browser itself could not start", async () => {
+    const { events } = await runWith(vi.fn(async () => browserReport(false, false)));
+    expect(finish(events)).toMatchObject({ rounds: 1, approved: true });
+  });
+
+  it("stops the verifier after three browser runs", async () => {
+    const runner = vi.fn(async () => browserReport(false));
+    const { client } = toolClient((agent, turn) => (agent === "E2E Verifier" && turn < 5 ? [tool(`e${turn}`, "run_browser_test", { spec: "x" })] : verdicts(agent) ?? text("ok")));
+    const events: FoundryEvent[] = [];
+    await runPipeline("Add a nickname", (e) => events.push(e), { pace: 0, client, testRunner: async () => tests, browserRunner: runner });
+    expect(runner).toHaveBeenCalledTimes(6); // three per round, two rounds
+    expect(events.some((e) => e.type === "tool" && e.label === "run_browser_test (limit reached)")).toBe(true);
   });
 });

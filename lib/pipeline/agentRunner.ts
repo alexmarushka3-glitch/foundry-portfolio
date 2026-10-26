@@ -2,8 +2,8 @@ import { costOf, MAX_RUN_COST_USD, MAX_TOOL_TURNS, modelParams } from "./config"
 import type { AgentSpec } from "./prompts";
 import { sleep } from "./replay";
 import { simulate } from "./simulate";
-import type { TestRunner } from "./sandbox";
-import { MAX_TEST_RUNS, RUN_TESTS_TOOL, runTool, toolsFor } from "./tools";
+import type { BrowserReport, BrowserRunner, TestRunner } from "./sandbox";
+import { MAX_BROWSER_RUNS, MAX_TEST_RUNS, RUN_BROWSER_TEST_TOOL, RUN_TESTS_TOOL, runTool, toolsFor } from "./tools";
 import type { Workspace } from "./workspace";
 import type { Emit } from "../types";
 
@@ -33,6 +33,10 @@ export type RunContext = {
   workspace: Workspace;
   /** Runs the real tests in a sandbox. Absent in simulations and in tests that do not need it. */
   testRunner?: TestRunner;
+  /** Drives a real browser in a sandbox. Absent in simulations and in tests that do not need it. */
+  browserRunner?: BrowserRunner;
+  /** What the E2E Verifier's browser runs found this run, so the pipeline can judge by the real result. */
+  browser?: { runs: number; last?: BrowserReport };
   /** Running total of what live calls have cost, in dollars. */
   spend: { usd: number };
   signal?: AbortSignal;
@@ -68,8 +72,9 @@ export async function runAgent(
   let out = "";
   if (client) {
     if (ctx.spend.usd > MAX_RUN_COST_USD) throw new Error("This run hit its spending limit and was stopped.");
-    const tools = toolsFor(spec.name, Boolean(ctx.testRunner));
+    const tools = toolsFor(spec.name, Boolean(ctx.testRunner), Boolean(ctx.browserRunner));
     let testRuns = 0;
+    let browserRuns = 0;
     const messages: unknown[] = [{ role: "user", content: input }];
     for (let turn = 0; ; turn++) {
       if (ctx.spend.usd > MAX_RUN_COST_USD) throw new Error("This run hit its spending limit and was stopped.");
@@ -125,6 +130,20 @@ export async function runAgent(
             const report = await ctx.testRunner(ctx.workspace.changes(), signal);
             r = { ok: report.ok, text: `${report.summary}
 ${report.output}`, label: report.summary };
+          }
+        } else if (call.name === RUN_BROWSER_TEST_TOOL.name && ctx.browserRunner && toolsFor(spec.name, false, true)?.some((t) => t.name === call.name)) {
+          if (browserRuns >= MAX_BROWSER_RUNS) {
+            r = { ok: false, text: `You have already run the browser test ${MAX_BROWSER_RUNS} times. Finish with the last real result.`, label: "run_browser_test (limit reached)" };
+          } else {
+            browserRuns += 1;
+            const spec_ = typeof (call.input as { spec?: unknown } | null)?.spec === "string" ? (call.input as { spec: string }).spec : "";
+            const report = await ctx.browserRunner(ctx.workspace.changes(), spec_, signal);
+            if (ctx.browser) {
+              ctx.browser.runs += 1;
+              ctx.browser.last = report;
+            }
+            report.shots.forEach((s) => emit({ type: "shot", agent: spec.name, round, label: s.label, png: s.png }));
+            r = { ok: report.ok, text: `${report.summary}\n${report.output}`, label: report.summary };
           }
         } else {
           r = runTool(ctx.workspace, spec.name, call.name ?? "", call.input);

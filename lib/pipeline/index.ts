@@ -6,7 +6,15 @@ import { runAgent, type LlmClient, type RunContext } from "./agentRunner";
 import { liveConfigured, liveEnabled, MAX_ROUNDS, MODELS, modelParams, ROUND_TIME_BUDGET_MS } from "./config";
 import { AGENT_SPECS } from "./prompts";
 import { replayOnServer } from "./replay";
-import { createSandboxTestRunner, type TestReport, type TestRunner } from "./sandbox";
+import {
+  createSandboxBrowserRunner,
+  createSandboxTestRunner,
+  snapshotConfigured,
+  type BrowserReport,
+  type BrowserRunner,
+  type TestReport,
+  type TestRunner,
+} from "./sandbox";
 import { e2ePassed, validatorApproved } from "./verdicts";
 import { createWorkspace, type Workspace } from "./workspace";
 
@@ -25,6 +33,8 @@ export type RunOptions = {
   client?: LlmClient;
   /** Runs the sample app's real tests. Defaults to a Vercel Sandbox on live runs; tests pass a fake. */
   testRunner?: TestRunner;
+  /** Drives a real browser against the app. Defaults to Chromium in a Vercel Sandbox when a snapshot is set up; tests pass a fake. */
+  browserRunner?: BrowserRunner;
   /** Scales the delays in simulated and replayed runs. 0 skips them. For tests. */
   pace?: number;
 };
@@ -41,6 +51,14 @@ function describeTests(t: TestReport | undefined): string {
   if (!t) return "Test run: not run in this mode.";
   if (!t.ran) return "Test run: the sandbox was unavailable, so the tests did not run. Judge the files by reading them.";
   return `Test run (real, in a sandbox): ${t.summary}\n${t.output}`;
+}
+
+/** What the checking agents are told about the real browser run. */
+function describeBrowser(b: { runs: number; last?: BrowserReport } | undefined): string {
+  if (!b) return "Browser run: not available in this run.";
+  if (b.runs === 0 || !b.last) return "Browser run: the E2E Verifier never ran the real browser test.";
+  if (!b.last.ran) return "Browser run: the real browser could not start, so there is no browser result.";
+  return `Browser run (real Chromium, in a sandbox): ${b.last.summary}\n${b.last.output}`;
 }
 
 const PAUSED_REASON = "Live runs are paused right now, so this run is a simulation.";
@@ -83,7 +101,8 @@ export async function runPipeline(request: string, emit: Emit, opts: RunOptions 
 
   const workspace = createWorkspace();
   const testRunner = live ? (opts.testRunner ?? (opts.client ? undefined : createSandboxTestRunner())) : undefined;
-  const ctx: RunContext = { client, emit, request, workspace, testRunner, spend: { usd: 0 }, signal: opts.signal, pace };
+  const browserRunner = live ? (opts.browserRunner ?? (!opts.client && snapshotConfigured() ? createSandboxBrowserRunner() : undefined)) : undefined;
+  const ctx: RunContext = { client, emit, request, workspace, testRunner, browserRunner, spend: { usd: 0 }, signal: opts.signal, pace };
   const step = (agent: AgentName, round: number, input: string) => runAgent(ctx, AGENT_SPECS[agent], round, input);
 
   const research = await step("researcher", 1, `Request: ${request}\n\nExplore the sample app with your tools.`);
@@ -106,6 +125,7 @@ export async function runPipeline(request: string, emit: Emit, opts: RunOptions 
     const files = renderChanges(workspace);
 
     let tests: TestReport | undefined;
+    ctx.browser = browserRunner ? { runs: 0 } : undefined;
     const flows = await runAgent(
       ctx,
       AGENT_SPECS.e2e,
@@ -119,17 +139,21 @@ export async function runPipeline(request: string, emit: Emit, opts: RunOptions 
     );
     // The real test run decides: an agent saying PASS cannot outvote a failing test suite.
     const testsOk = !tests || !tests.ran || tests.ok;
-    const flowsPass = e2ePassed(flows) && testsOk;
+    const browser = ctx.browser;
+    // The same for the real browser: the verifier must have run it, and a failing run fails the gate.
+    // If the browser could not start at all (no result), that does not block the run.
+    const browserOk = !browser || (browser.runs > 0 && (browser.last?.ran === false || browser.last?.ok === true));
+    const flowsPass = e2ePassed(flows) && testsOk && browserOk;
     emit({ type: "verdict", gate: "e2e", round, approved: flowsPass });
     if (!flowsPass) {
-      feedback = `${describeTests(tests)}\n\n${flows}`;
+      feedback = `${describeTests(tests)}\n\n${describeBrowser(browser)}\n\n${flows}`;
       continue;
     }
 
     const audit = await step(
       "validator",
       round,
-      `Story:\n${story}\n\nChanged files:\n${files}\n\n${describeTests(tests)}\n\nE2E result:\n${flows}`,
+      `Story:\n${story}\n\nChanged files:\n${files}\n\n${describeTests(tests)}\n\n${describeBrowser(browser)}\n\nE2E result:\n${flows}`,
     );
     approved = validatorApproved(audit);
     emit({ type: "verdict", gate: "validator", round, approved });

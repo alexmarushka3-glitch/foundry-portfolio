@@ -30,6 +30,7 @@ Full map and recipes: `docs/ARCHITECTURE.md`. Short version:
 - Public sample-data dashboard: `app/admin-demo/` (full page) and `components/admin/DashboardSection.tsx` (compact, on the home page before "What's real"), `lib/admin/sampleData.ts`. All numbers are made up; keep the banner, the `sample-` ids and the "made up" line in `lib/reality.ts`. Never present it as real traffic.
 - Admin dashboard: `app/admin/`, `app/api/admin/*`, `components/admin/`, `lib/admin/`. Off unless `ADMIN_TOKEN` is set. Run log is in memory per server instance.
 - Design: light page, dark stage; Schibsted Grotesk and JetBrains Mono (mono only for agent output). Motion answers a user action, respects reduced motion, and animates only transform and opacity.
+- `lib/pipeline/sandbox.ts`: unit tests and the real browser in a Vercel Sandbox. `node scripts/build-sandbox-snapshot.mjs` (needs `.env.sandbox.local` from `npx.cmd vercel@latest env pull .env.sandbox.local --environment=development`, which is gitignored) builds the sandbox snapshot id for `FOUNDRY_SANDBOX_SNAPSHOT`; rebuild it when taskly-sample changes or after 30 days unused.
 - `lib/tasklySnapshot.json`: an in-memory copy of the `taskly-sample` repo (rebuild with `node scripts/build-snapshot.mjs` after committing there). `lib/pipeline/workspace.ts` serves it to the agents and keeps their writes in an overlay; `lib/pipeline/tools.ts` defines the tools (Researcher: read-only; Backend: `src/` and `tests/`; Frontend: `public/`). No agent has a shell, so the Researcher is read-only by construction and nothing leaves memory.
 - `recordings-src/`: raw outputs of real runs (`<slug>/N-agent.txt`) plus `meta.json` (models, timings, request text).
 - `lib/recordings.json`: generated from `recordings-src/`. Do not edit by hand.
@@ -45,7 +46,7 @@ Full map and recipes: `docs/ARCHITECTURE.md`. Short version:
 
 - The page must always say which mode ran. Never present simulated text as model output.
 - Never hand-edit `recordings-src/` text. Replay is only honest if it is the real output.
-- The agents work on an in-memory copy of a small sample app and in a live run only the sample app's own tests are run on it, in a Vercel Sandbox (recordings and simulations run no code, and the app itself is never started). The E2E Verifier is an agent walking through flows, not a real browser. Keep those caveats wherever the project is described.
+- The agents work on an in-memory copy of a small sample app and in a live run its own tests and one Playwright browser test (written by the E2E Verifier, run in real headless Chromium) are run on it, in a Vercel Sandbox started from the snapshot in `FOUNDRY_SANDBOX_SNAPSHOT` (recordings and simulations run no code; they came from the older text-only version, where the E2E Verifier was an agent walking through flows). No real pull request is opened. Keep those caveats wherever the project is described.
 - All three recorded runs passed on the first round, so no recording has exercised the send-back to a second round. A live test run (Oct 24, 2026) was sent back once by the Validator and passed on round two, so the loop works, but that run was not recorded. Do not claim a success rate.
 - `/admin-demo` shows made-up data. It must always say so, and never be described as real usage, visitors or spend.
 - Do not commit `.env*` files (only `.env.example`) or `.vercel/`.

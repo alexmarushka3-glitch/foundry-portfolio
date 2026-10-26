@@ -14,6 +14,9 @@ export function findRecording(request: string): Recording | undefined {
 
 export const EXAMPLE_REQUESTS: string[] = recordings.examples.map((e) => e.request);
 
+/** A picture taken by the real browser during the E2E step. */
+export type Shot = { label: string; png: string };
+
 /** One agent's work in one round, placed on a timeline (milliseconds on the playback clock). */
 export type Step = {
   agent: AgentName;
@@ -25,6 +28,7 @@ export type Step = {
   /** Real wall-clock time this agent took, for display. */
   ms: number;
   passed?: boolean;
+  shots?: Shot[];
 };
 
 export type Run = {
@@ -49,6 +53,7 @@ export type StepView = {
   status: "active" | "done";
   ms?: number;
   passed?: boolean;
+  shots?: Shot[];
 };
 
 export type AgentFrame = {
@@ -59,6 +64,7 @@ export type AgentFrame = {
   text: string;
   ms?: number;
   passed?: boolean;
+  shots?: Shot[];
 };
 
 const GAP = 450; // pause between stages on the playback clock
@@ -116,7 +122,7 @@ export function viewsAt(run: Run, t: number): StepView[] {
   for (const s of run.steps) {
     if (t < s.start) continue;
     if (t >= s.end) {
-      views.push({ agent: s.agent, round: s.round, model: s.model, text: s.text, status: "done", ms: s.ms, passed: s.passed });
+      views.push({ agent: s.agent, round: s.round, model: s.model, text: s.text, status: "done", ms: s.ms, passed: s.passed, shots: s.shots });
     } else {
       const p = (t - s.start) / Math.max(1, s.end - s.start);
       views.push({ agent: s.agent, round: s.round, model: s.model, text: s.text.slice(0, Math.floor(s.text.length * p)), status: "active" });
@@ -130,7 +136,7 @@ export function framesFrom(views: StepView[]): AgentFrame[] {
   return AGENT_LIST.map((a) => {
     const mine = views.filter((v) => v.agent === a.id).sort((x, y) => y.round - x.round)[0];
     if (!mine) return { agent: a.id, status: "pending", round: 0, text: "" };
-    return { agent: a.id, status: mine.status, round: mine.round, model: mine.model, text: mine.text, ms: mine.ms, passed: mine.passed };
+    return { agent: a.id, status: mine.status, round: mine.round, model: mine.model, text: mine.text, ms: mine.ms, passed: mine.passed, shots: mine.shots };
   });
 }
 

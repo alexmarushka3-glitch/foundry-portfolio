@@ -71,3 +71,20 @@ describe("tool events", () => {
     expect(s.steps[0].text).toBe("Looking.\n› read_file src/db.js\n› write_file package.json (not allowed) (failed)\n");
   });
 });
+
+describe("shot events", () => {
+  it("attach browser pictures to the agent's step and carry them into the finished run", () => {
+    let s = startLive("x");
+    s = applyEvent(s, { type: "mode", mode: "live" }, 0);
+    s = applyEvent(s, { type: "start", agent: "e2e", round: 1, model: "m" }, 1);
+    s = applyEvent(s, { type: "shot", agent: "e2e", round: 1, label: "adds a task", png: "AAAA" }, 2);
+    s = applyEvent(s, { type: "shot", agent: "e2e", round: 1, label: "deletes it", png: "BBBB" }, 3);
+    s = applyEvent(s, { type: "done", agent: "e2e", round: 1, ms: 5 }, 4);
+    s = applyEvent(s, { type: "finish", ms: 10, rounds: 1, approved: true }, 5);
+    expect(s.steps[0].shots).toEqual([
+      { label: "adds a task", png: "AAAA" },
+      { label: "deletes it", png: "BBBB" },
+    ]);
+    expect(toRun(s, 6)!.steps[0].shots).toHaveLength(2);
+  });
+});

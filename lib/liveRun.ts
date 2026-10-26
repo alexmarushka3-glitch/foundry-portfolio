@@ -43,6 +43,13 @@ export function applyEvent(state: LiveState, e: FoundryEvent, at: number): LiveS
             : s,
         ),
       };
+    case "shot":
+      return {
+        ...state,
+        steps: state.steps.map((s) =>
+          sameStep(s, e.agent, e.round) ? { ...s, shots: [...(s.shots ?? []), { label: e.label, png: e.png }] } : s,
+        ),
+      };
     case "done":
       return {
         ...state,
@@ -73,6 +80,7 @@ export function toRun(state: LiveState, now: number): Run | null {
     end: s.end ?? now,
     ms: s.ms ?? 0,
     passed: s.passed,
+    shots: s.shots,
   }));
   const mode = state.mode ?? "simulated";
   return {

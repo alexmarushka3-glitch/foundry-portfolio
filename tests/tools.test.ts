@@ -51,7 +51,10 @@ describe("runTool", () => {
   });
 
   it("gives no tools to the planning and checking agents", () => {
-    for (const a of ["story", "pm", "e2e", "validator", "release"] as const) expect(AGENT_TOOLS[a]).toBeUndefined();
+    for (const a of ["story", "pm", "validator", "release"] as const) expect(AGENT_TOOLS[a]).toBeUndefined();
+    // the verifier can read the files and run a browser test, but never write
+    expect(AGENT_TOOLS.e2e!.map((t) => t.name)).toEqual(["read_file", "grep", "run_browser_test"]);
+    expect(runTool(createWorkspace(), "e2e", "write_file", { path: "src/db.js", content: "x" }).ok).toBe(false);
     expect(runTool(createWorkspace(), "validator", "read_file", { path: "src/db.js" }).ok).toBe(false);
   });
 
