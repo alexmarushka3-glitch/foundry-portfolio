@@ -72,15 +72,17 @@ export function summarizeBrowserOutput(out: string, exitCode: number): string {
   return exitCode === 0 ? "real browser tests passed" : "real browser tests failed";
 }
 
-export const snapshotConfigured = () => Boolean(process.env.FOUNDRY_SANDBOX_SNAPSHOT);
+/** The snapshot id, trimmed: a stray newline from however it was pasted into the host makes the sandbox say "not found". */
+export const snapshotId = () => process.env.FOUNDRY_SANDBOX_SNAPSHOT?.trim() ?? "";
+export const snapshotConfigured = () => snapshotId() !== "";
 
 /** A sandbox ready to test: from the snapshot if there is one and it still works, else a fresh clone with dependencies. */
 async function openSandbox(signal: AbortSignal | undefined, ms: number): Promise<{ sandbox: Sandbox; fromSnapshot: boolean }> {
   const common = { timeout: ms + 30_000, persistent: false, signal };
-  const snapshotId = process.env.FOUNDRY_SANDBOX_SNAPSHOT;
-  if (snapshotId) {
+  const id = snapshotId();
+  if (id) {
     try {
-      const sandbox = await Sandbox.create({ ...common, source: { type: "snapshot", snapshotId }, networkPolicy: "deny-all" });
+      const sandbox = await Sandbox.create({ ...common, source: { type: "snapshot", snapshotId: id }, networkPolicy: "deny-all" });
       return { sandbox, fromSnapshot: true };
     } catch (err) {
       if (signal?.aborted) throw err;
