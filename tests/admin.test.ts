@@ -83,7 +83,7 @@ describe("GET /api/admin/stats", () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.runs).toEqual([]);
-    expect(body.server.limits).toMatchObject({ perHour: 3, perDay: 40, usedToday: 0 });
+    expect(body.server.limits).toMatchObject({ perHour: 1, perDay: 8, usedToday: 0 });
     expect(body.recorded).toHaveLength(3);
     expect(res.headers.get("cache-control")).toBe("no-store");
   });

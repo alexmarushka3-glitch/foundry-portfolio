@@ -6,7 +6,7 @@ Live site: https://foundry-portfolio.vercel.app
 
 ## The pipeline
 
-1. **Researcher** reads the sample codebase. It is read-only: it only receives the repo text and has no tools.
+1. **Researcher** explores the sample codebase with read-only tools (`list_dir`, `read_file`, `grep`) on an in-memory copy of the `taskly-sample` repo.
 2. **Story Writer** turns the rough idea into a user story with acceptance criteria.
 3. **Project Manager** writes the technical blueprint: data, API and UI.
 4. **Backend** and **Frontend** engineers work in parallel.
@@ -33,7 +33,7 @@ The page labels the mode on every run.
 ## What is real and what is not
 
 - The three recorded runs were made with a separate Claude agent for every stage. The raw outputs are in `recordings-src/`, and `scripts/build-recordings.mjs` assembles them into `lib/recordings.json`. All three passed on the first round.
-- The agents worked from a small bundled sample app (`lib/sampleRepo.ts`), not a real codebase. Their code is plausible but was never run.
+- The agents work on an in-memory copy of a small real repo, [taskly-sample](https://github.com/alexmarushka3-glitch/taskly-sample) (`lib/tasklySnapshot.json`, rebuilt with `node scripts/build-snapshot.mjs`). The engineers write real files into the copy with a `write_file` tool, but nothing is run yet and no pull request is opened.
 - The E2E Verifier is an agent reasoning through flows. It does not drive a real browser.
 
 ## Getting started
@@ -66,8 +66,8 @@ Copy `.env.example` to `.env.local`. Nothing is required.
 | --- | --- | --- |
 | `ANTHROPIC_API_KEY` | none | Turns on live runs for built requests. Never commit it. |
 | `FOUNDRY_LIVE` | `on` | `off` turns live runs off even with a key. |
-| `FOUNDRY_LIVE_PER_HOUR` | `3` | Live runs per visitor per hour. |
-| `FOUNDRY_LIVE_PER_DAY` | `40` | Live runs per day for the whole site. |
+| `FOUNDRY_LIVE_PER_HOUR` | `1` | Live runs per visitor per hour. |
+| `FOUNDRY_LIVE_PER_DAY` | `8` | Live runs per day for the whole site. |
 | `FOUNDRY_MODEL_SMART` / `_BUILD` / `_FAST` | Sonnet 5.5 / Sonnet 5.5 / Haiku 5.5 | Models for each tier. |
 | `ADMIN_TOKEN` | none | Turns on the admin dashboard. Use a long random value. |
 

@@ -60,3 +60,14 @@ describe("toRun", () => {
     expect(toRun(sim, 100)!.costUsd).toBeUndefined();
   });
 });
+
+describe("tool events", () => {
+  it("show each tool call as a line in the agent's output, marking failures", () => {
+    let s = startLive("x");
+    s = applyEvent(s, { type: "start", agent: "backend", round: 1, model: "m" }, 0);
+    s = applyEvent(s, { type: "token", agent: "backend", round: 1, text: "Looking." }, 1);
+    s = applyEvent(s, { type: "tool", agent: "backend", round: 1, label: "read_file src/db.js", ok: true }, 2);
+    s = applyEvent(s, { type: "tool", agent: "backend", round: 1, label: "write_file package.json (not allowed)", ok: false }, 3);
+    expect(s.steps[0].text).toBe("Looking.\n› read_file src/db.js\n› write_file package.json (not allowed) (failed)\n");
+  });
+});

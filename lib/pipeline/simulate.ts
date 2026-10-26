@@ -12,10 +12,10 @@ export function simulate(agent: AgentName, round: number, request: string): stri
   switch (agent) {
     case "researcher":
       return lines(
-        "- db/schema.sql: single 'tasks' table (id, title, done, created_at)",
-        "- src/api/tasks.ts: GET, POST and PATCH /tasks, no input validation",
-        "- src/ui/TaskList.tsx: renders title and checkbox only",
-        "- tests/e2e: none; unit tests cover db helpers only",
+        "- src/db.js: schema has a single tasks table (id, title, done, created_at)",
+        "- src/app.js: GET, POST, PATCH and DELETE /api/tasks, title checked on POST only",
+        "- public/app.js: renders title, checkbox and a Delete button",
+        "- tests/api.test.js: API tests; e2e/smoke.spec.js: one browser test",
         `Gaps: nothing yet supports "${topic}".`,
       );
     case "story":
@@ -27,9 +27,9 @@ export function simulate(agent: AgentName, round: number, request: string): stri
       );
     case "pm":
       return lines(
-        "Data: migration adds one nullable column to tasks; existing rows unaffected.",
-        "API: extend POST and PATCH /tasks to accept the field; validate type and length.",
-        "UI: update TaskList.tsx to show and edit the field; add empty and error states.",
+        "Data: schema change adds one nullable column to tasks; existing rows unaffected.",
+        "API: extend POST and PATCH /api/tasks to accept the field; validate type and length.",
+        "UI: update public/app.js to show and edit the field; add empty and error states.",
       );
     case "backend":
       return firstRound

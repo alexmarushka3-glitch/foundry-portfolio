@@ -4,7 +4,8 @@ export const REALITY = [
   {
     heading: "Real",
     items: [
-      "Each stage in the three example runs was its own Claude agent, fed the previous stage's real output.",
+      "Each stage in the three example runs was its own Claude agent, fed the previous stage's real output. Those runs came from an earlier version, where the agents only read pasted text and wrote code in their replies.",
+      "In a live run the Researcher uses read-only tools on a copy of a real repository, and the two engineers write real files into that in-memory copy. Their tool calls show in the output.",
       "The pipeline code, the streaming, and the stage you just watched.",
       "Typed ideas run on live Claude models when the live switch is on. The badge on the stage says which mode you are in.",
       "Three recorded runs. All passed both of the pipeline's AI checks on the first round, in 72 to 94 seconds each.",
@@ -14,7 +15,7 @@ export const REALITY = [
     heading: "Simulated",
     items: [
       "A request built in the form with the live switch off runs scripted text. The badge says Simulated.",
-      "The task-tracker app the agents work on. It is a toy of about 36 lines.",
+      "The task-tracker app the agents work on. It is a real but tiny repository, about 240 lines, and the agents change a copy of it in memory.",
       "The admin dashboard section above. Its runs, visitors and costs are made up to show the layout. The real dashboard needs a login.",
     ],
   },

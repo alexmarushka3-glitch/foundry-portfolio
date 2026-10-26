@@ -21,9 +21,9 @@ export function serverState(): ServerState {
     startedAt: Date.now(),
     runLog: new RunLog(),
     liveLimiter: new LiveLimiter({
-      // A live run costs roughly 5 to 10 cents, so these keep a bad day to a few dollars.
-      perHour: envInt("FOUNDRY_LIVE_PER_HOUR", 3),
-      perDay: envInt("FOUNDRY_LIVE_PER_DAY", 40),
+      // A live run with tools costs roughly 20 cents, so these keep a bad day to a couple of dollars.
+      perHour: envInt("FOUNDRY_LIVE_PER_HOUR", 1),
+      perDay: envInt("FOUNDRY_LIVE_PER_DAY", 8),
     }),
     loginLimiter: new SlidingWindowLimiter(5, 15 * 60_000),
     admin: { livePaused: false },

@@ -34,6 +34,15 @@ export function applyEvent(state: LiveState, e: FoundryEvent, at: number): LiveS
       };
     case "token":
       return { ...state, steps: state.steps.map((s) => (sameStep(s, e.agent, e.round) ? { ...s, text: s.text + e.text } : s)) };
+    case "tool":
+      return {
+        ...state,
+        steps: state.steps.map((s) =>
+          sameStep(s, e.agent, e.round)
+            ? { ...s, text: `${s.text}${s.text && !s.text.endsWith("\n") ? "\n" : ""}› ${e.label}${e.ok ? "" : " (failed)"}\n` }
+            : s,
+        ),
+      };
     case "done":
       return {
         ...state,

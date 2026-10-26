@@ -22,8 +22,11 @@ export const costOf = (model: string, inputTokens: number, outputTokens: number)
   return (inputTokens * pin + outputTokens * pout) / 1_000_000;
 };
 
-/** A run that has spent more than this stops. A normal run costs a few cents. */
-export const MAX_RUN_COST_USD = 0.25;
+/** A run that has spent more than this stops. Tool use makes runs dearer than the old text-only ones. */
+export const MAX_RUN_COST_USD = 0.6;
+
+/** Most model calls one agent may make while it reads and writes files. The last one cannot use tools. */
+export const MAX_TOOL_TURNS = 8;
 
 /** The first attempt plus one send-back. */
 export const MAX_ROUNDS = 2;

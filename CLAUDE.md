@@ -30,7 +30,7 @@ Full map and recipes: `docs/ARCHITECTURE.md`. Short version:
 - Public sample-data dashboard: `app/admin-demo/` (full page) and `components/admin/DashboardSection.tsx` (compact, on the home page before "What's real"), `lib/admin/sampleData.ts`. All numbers are made up; keep the banner, the `sample-` ids and the "made up" line in `lib/reality.ts`. Never present it as real traffic.
 - Admin dashboard: `app/admin/`, `app/api/admin/*`, `components/admin/`, `lib/admin/`. Off unless `ADMIN_TOKEN` is set. Run log is in memory per server instance.
 - Design: light page, dark stage; Schibsted Grotesk and JetBrains Mono (mono only for agent output). Motion answers a user action, respects reduced motion, and animates only transform and opacity.
-- `lib/sampleRepo.ts`: the small "taskly" app text the Researcher reads. It gets text only and no tools, so it is read-only by construction.
+- `lib/tasklySnapshot.json`: an in-memory copy of the `taskly-sample` repo (rebuild with `node scripts/build-snapshot.mjs` after committing there). `lib/pipeline/workspace.ts` serves it to the agents and keeps their writes in an overlay; `lib/pipeline/tools.ts` defines the tools (Researcher: read-only; Backend: `src/` and `tests/`; Frontend: `public/`). No agent has a shell, so the Researcher is read-only by construction and nothing leaves memory.
 - `recordings-src/`: raw outputs of real runs (`<slug>/N-agent.txt`) plus `meta.json` (models, timings, request text).
 - `lib/recordings.json`: generated from `recordings-src/`. Do not edit by hand.
 - `tests/`: Vitest. Run `npm test` before pushing. Pipeline tests inject a fake model client; no test needs a key.
@@ -45,7 +45,7 @@ Full map and recipes: `docs/ARCHITECTURE.md`. Short version:
 
 - The page must always say which mode ran. Never present simulated text as model output.
 - Never hand-edit `recordings-src/` text. Replay is only honest if it is the real output.
-- The agents worked on a small sample app and their code was never run. The E2E Verifier is an agent walking through flows, not a real browser. Keep those caveats wherever the project is described.
+- The agents work on an in-memory copy of a small sample app and their code is never run (until the sandbox stage ships). The E2E Verifier is an agent walking through flows, not a real browser. Keep those caveats wherever the project is described.
 - All three recorded runs passed on the first round, so no recording has exercised the send-back to a second round. A live test run (Oct 24, 2026) was sent back once by the Validator and passed on round two, so the loop works, but that run was not recorded. Do not claim a success rate.
 - `/admin-demo` shows made-up data. It must always say so, and never be described as real usage, visitors or spend.
 - Do not commit `.env*` files (only `.env.example`) or `.vercel/`.

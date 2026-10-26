@@ -1,6 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { findRecording } from "../run";
-import { renderSampleRepo } from "../sampleRepo";
 import { serverState } from "../server/state";
 import type { AgentName, Emit } from "../types";
 import { runAgent, type LlmClient, type RunContext } from "./agentRunner";
@@ -8,6 +7,7 @@ import { liveConfigured, liveEnabled, MAX_ROUNDS, MODELS, modelParams, ROUND_TIM
 import { AGENT_SPECS } from "./prompts";
 import { replayOnServer } from "./replay";
 import { e2ePassed, validatorApproved } from "./verdicts";
+import { createWorkspace, type Workspace } from "./workspace";
 
 export type { AgentName, FoundryEvent, Emit, Gate, Mode } from "../types";
 export { costOf, liveConfigured, liveEnabled } from "./config";
@@ -25,6 +25,13 @@ export type RunOptions = {
   /** Scales the delays in simulated and replayed runs. 0 skips them. For tests. */
   pace?: number;
 };
+
+/** The files the engineers wrote, for the agents that check and describe their work. */
+function renderChanges(ws: Workspace): string {
+  const entries = Object.entries(ws.changes());
+  if (entries.length === 0) return "(no files were written)";
+  return entries.map(([path, body]) => `--- ${path} ---\n${body}`).join("\n\n");
+}
 
 const PAUSED_REASON = "Live runs are paused right now, so this run is a simulation.";
 const UNAVAILABLE_REASON = "Live mode isn't available right now, so this run is a simulation.";
@@ -64,11 +71,12 @@ export async function runPipeline(request: string, emit: Emit, opts: RunOptions 
   const live = client !== null;
   emit({ type: "mode", mode: live ? "live" : "simulated", reason });
 
-  const ctx: RunContext = { client, emit, request, spend: { usd: 0 }, signal: opts.signal, pace };
+  const workspace = createWorkspace();
+  const ctx: RunContext = { client, emit, request, workspace, spend: { usd: 0 }, signal: opts.signal, pace };
   const step = (agent: AgentName, round: number, input: string) => runAgent(ctx, AGENT_SPECS[agent], round, input);
 
-  const research = await step("researcher", 1, `Request: ${request}\n\nRepository (read-only):\n${renderSampleRepo()}`);
-  const story = await step("story", 1, `Rough idea: ${request}\n\nResearch:\n${research}`);
+  const research = await step("researcher", 1, `Request: ${request}\n\nExplore the sample app with your tools.`);
+  const story = await step("story", 1, `Request: ${request}\n\nResearch:\n${research}`);
   const blueprint = await step("pm", 1, `Story:\n${story}\n\nResearch:\n${research}`);
 
   let feedback = "";
@@ -81,11 +89,16 @@ export async function runPipeline(request: string, emit: Emit, opts: RunOptions 
     roundsRun = round;
     const fb = feedback ? `\n\nFeedback to address:\n${feedback}` : "";
     [backend, frontend] = await Promise.all([
-      step("backend", round, `Blueprint:\n${blueprint}${fb}\n\nPrevious backend code:\n${backend}`),
-      step("frontend", round, `Blueprint:\n${blueprint}${fb}\n\nPrevious frontend code:\n${frontend}`),
+      step("backend", round, `Blueprint:\n${blueprint}${fb}`),
+      step("frontend", round, `Blueprint:\n${blueprint}${fb}`),
     ]);
+    const files = renderChanges(workspace);
 
-    const flows = await step("e2e", round, `Story:\n${story}\n\nBackend:\n${backend}\n\nFrontend:\n${frontend}`);
+    const flows = await step(
+      "e2e",
+      round,
+      `Story:\n${story}\n\nBackend notes:\n${backend}\n\nFrontend notes:\n${frontend}\n\nChanged files:\n${files}`,
+    );
     const flowsPass = e2ePassed(flows);
     emit({ type: "verdict", gate: "e2e", round, approved: flowsPass });
     if (!flowsPass) {
@@ -96,7 +109,7 @@ export async function runPipeline(request: string, emit: Emit, opts: RunOptions 
     const audit = await step(
       "validator",
       round,
-      `Story:\n${story}\n\nBackend:\n${backend}\n\nFrontend:\n${frontend}\n\nE2E result:\n${flows}`,
+      `Story:\n${story}\n\nChanged files:\n${files}\n\nE2E result:\n${flows}`,
     );
     approved = validatorApproved(audit);
     emit({ type: "verdict", gate: "validator", round, approved });
@@ -107,7 +120,7 @@ export async function runPipeline(request: string, emit: Emit, opts: RunOptions 
   await step(
     "release",
     roundsRun,
-    `Request: ${request}\n\nBlueprint:\n${blueprint}\n\nBackend:\n${backend}\n\nFrontend:\n${frontend}\n\nApproved: ${approved}`,
+    `Request: ${request}\n\nBlueprint:\n${blueprint}\n\nChanged files:\n${renderChanges(workspace)}\n\nApproved: ${approved}`,
   );
   emit({ type: "finish", ms: Date.now() - t0, rounds: roundsRun, approved, costUsd: live ? ctx.spend.usd : undefined });
 }

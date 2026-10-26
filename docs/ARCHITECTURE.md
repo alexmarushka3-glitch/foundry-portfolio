@@ -46,7 +46,7 @@ Rule of thumb: `lib/` files marked "browser safe" import nothing from `lib/serve
 2. `app/api/run/route.ts` validates the request (`parseRequest`: a `spec` from `lib/spec.ts` is rebuilt into one sentence server-side; plain text is accepted only for the recorded examples), checks the per-visitor and daily brake (`LiveLimiter`) for typed ideas, and starts `runPipeline` inside a `ReadableStream`. Each event goes to two places: the response (one JSON object per line) and a `RunRecorder` that will become the admin log entry.
 3. `lib/pipeline/index.ts` `runPipeline`:
    - recorded idea: `replayOnServer` (kept for API clients);
-   - live allowed and a key is set: a one-token preflight, then real model calls;
+   - live allowed and a key is set: a one-token preflight, then real model calls. A new `Workspace` (`workspace.ts`) is made for the run. The Researcher and the two engineers get tools (`tools.ts`) and `agentRunner.ts` loops until they stop calling tools; each call is sent as a `tool` event. The checking agents are given the files the engineers wrote;
    - otherwise: scripted text from `simulate.ts`.
    
    The order is fixed: researcher, story, PM, then up to two rounds of (backend and frontend in parallel, E2E verifier, validator), then release. If E2E fails, or the validator says REVISE, round two starts with that feedback. Verdicts are read by `verdicts.ts`.
@@ -59,7 +59,7 @@ Rule of thumb: `lib/` files marked "browser safe" import nothing from `lib/serve
 
 ### Cancellation and spending
 
-The route aborts an `AbortController` when the visitor disconnects. The signal reaches the SDK request and the simulation loop, so a live run stops spending. A run also stops by itself past `MAX_RUN_COST_USD` ($0.25), and never starts round two after `ROUND_TIME_BUDGET_MS` (75 s). All three live in `lib/pipeline/config.ts`.
+The route aborts an `AbortController` when the visitor disconnects. The signal reaches the SDK request and the simulation loop, so a live run stops spending. A run also stops by itself past `MAX_RUN_COST_USD` ($0.60), caps each agent at `MAX_TOOL_TURNS` model calls, and never starts round two after `ROUND_TIME_BUDGET_MS` (75 s). These live in `lib/pipeline/config.ts`.
 
 ## Server state
 
