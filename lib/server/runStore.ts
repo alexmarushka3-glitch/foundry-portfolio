@@ -1,4 +1,5 @@
 import { RunLog, type RunRecord } from "./runLog";
+import { upstashConfig, upstashPipeline, type RedisCommand, type UpstashConfig } from "./upstash";
 
 // Where the admin run history lives. Memory by default (one server instance, resets on a cold start).
 // With an Upstash Redis database connected (Vercel Marketplace), the history survives restarts and is
@@ -38,34 +39,20 @@ export class MemoryRunStore implements RunStore {
 
 const KEY = "foundry:runs";
 
-type RedisOptions = { url: string; token: string; capacity?: number; fetchFn?: typeof fetch };
+type RedisOptions = UpstashConfig & { capacity?: number };
 
 export class RedisRunStore implements RunStore {
   readonly capacity: number;
   readonly persistent = true;
-  private url: string;
-  private token: string;
-  private fetchFn: typeof fetch;
+  private config: UpstashConfig;
 
-  constructor({ url, token, capacity = 500, fetchFn = fetch }: RedisOptions) {
-    this.url = url.replace(/\/+$/, "");
-    this.token = token;
+  constructor({ capacity = 500, ...config }: RedisOptions) {
+    this.config = config;
     this.capacity = capacity;
-    this.fetchFn = fetchFn;
   }
 
-  private async pipeline(commands: (string | number)[][]): Promise<unknown[]> {
-    const res = await this.fetchFn(`${this.url}/pipeline`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${this.token}`, "Content-Type": "application/json" },
-      body: JSON.stringify(commands),
-      cache: "no-store",
-    });
-    if (!res.ok) throw new Error(`Run log database answered ${res.status}.`);
-    const out = (await res.json()) as { result?: unknown; error?: string }[];
-    const failed = out.find((o) => o.error);
-    if (failed) throw new Error(`Run log database error: ${failed.error}`);
-    return out.map((o) => o.result);
+  private pipeline(commands: RedisCommand[]): Promise<unknown[]> {
+    return upstashPipeline(this.config, commands);
   }
 
   async add(record: RunRecord): Promise<void> {
@@ -96,9 +83,8 @@ export class RedisRunStore implements RunStore {
 
 /** Redis when the Upstash REST variables are set (Vercel's `KV_*` or Upstash's own names), memory otherwise. */
 export function createRunStore(env: Record<string, string | undefined> = process.env): RunStore {
-  const url = env.KV_REST_API_URL ?? env.UPSTASH_REDIS_REST_URL;
-  const token = env.KV_REST_API_TOKEN ?? env.UPSTASH_REDIS_REST_TOKEN;
-  return url && token ? new RedisRunStore({ url, token }) : new MemoryRunStore();
+  const config = upstashConfig(env);
+  return config ? new RedisRunStore(config) : new MemoryRunStore();
 }
 
 /**

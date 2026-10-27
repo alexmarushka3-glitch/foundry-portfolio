@@ -1,5 +1,6 @@
 import { envInt } from "./env";
-import { LiveLimiter, SlidingWindowLimiter } from "./rateLimit";
+import { createLiveBrake, type LiveBrake } from "./liveBrake";
+import { SlidingWindowLimiter } from "./rateLimit";
 import { FallbackRunStore, MemoryRunStore, createRunStore, type RunStore } from "./runStore";
 
 // Everything the server remembers between requests, in one place. It hangs off globalThis so that
@@ -8,7 +9,7 @@ import { FallbackRunStore, MemoryRunStore, createRunStore, type RunStore } from 
 type ServerState = {
   startedAt: number;
   runLog: RunStore;
-  liveLimiter: LiveLimiter;
+  liveLimiter: LiveBrake;
   loginLimiter: SlidingWindowLimiter;
   /** Admin kill switch. `paused` turns live runs off until someone turns them back on. */
   admin: { livePaused: boolean };
@@ -26,7 +27,7 @@ export function serverState(): ServerState {
   g.__foundry ??= {
     startedAt: Date.now(),
     runLog: openRunLog(),
-    liveLimiter: new LiveLimiter({
+    liveLimiter: createLiveBrake({
       // A live run with tools costs roughly 20 cents, so these keep a bad day to a couple of dollars.
       perHour: envInt("FOUNDRY_LIVE_PER_HOUR", 1),
       perDay: envInt("FOUNDRY_LIVE_PER_DAY", 8),

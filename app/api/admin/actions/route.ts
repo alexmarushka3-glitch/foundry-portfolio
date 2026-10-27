@@ -25,7 +25,7 @@ export async function POST(req: Request) {
       state.admin.livePaused = false;
       break;
     case "reset-limits":
-      state.liveLimiter.reset();
+      await state.liveLimiter.reset();
       break;
     case "clear-log":
       await state.runLog.clear();

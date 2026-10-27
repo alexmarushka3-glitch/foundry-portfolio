@@ -107,7 +107,7 @@ describe("POST /api/run limits", () => {
     pipeline.live = true;
     process.env.FOUNDRY_LIVE_PER_HOUR = "1";
     for (let i = 0; i < 3; i++) await (await post({ request: "Let users set a due date on tasks" })).text();
-    expect(serverState().liveLimiter.snapshot().usedToday).toBe(0);
+    expect((await serverState().liveLimiter.snapshot()).usedToday).toBe(0);
   });
 });
 

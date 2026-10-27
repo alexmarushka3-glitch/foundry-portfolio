@@ -28,7 +28,7 @@ export async function POST(req: Request) {
   let allowLive = true;
   let reason: string | undefined;
   if (liveEnabled() && !findRecording(request)) {
-    reason = state.liveLimiter.check(address) ?? undefined;
+    reason = (await state.liveLimiter.check(address)) ?? undefined;
     allowLive = !reason;
   }
 

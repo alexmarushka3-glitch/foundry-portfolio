@@ -1,4 +1,5 @@
 import { liveConfigured, liveEnabled, MODELS } from "../pipeline/config";
+import type { LiveBrakeSnapshot } from "../server/liveBrake";
 import type { RunRecord } from "../server/runLog";
 import { serverState } from "../server/state";
 import { recordedExamples, type RecordedExample } from "./recorded";
@@ -17,7 +18,7 @@ export type AdminOverview = {
     livePaused: boolean;
     liveEnabled: boolean;
     models: typeof MODELS;
-    limits: ReturnType<ReturnType<typeof serverState>["liveLimiter"]["snapshot"]>;
+    limits: LiveBrakeSnapshot;
   };
   recorded: RecordedExample[];
 };
@@ -35,7 +36,7 @@ export async function buildOverview(now: number = Date.now()): Promise<AdminOver
       livePaused: state.admin.livePaused,
       liveEnabled: liveEnabled(),
       models: MODELS,
-      limits: state.liveLimiter.snapshot(),
+      limits: await state.liveLimiter.snapshot(),
     },
     recorded: recordedExamples(),
   };

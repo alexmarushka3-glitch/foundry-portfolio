@@ -63,7 +63,7 @@ The route aborts an `AbortController` when the visitor disconnects. The signal r
 
 ## Server state
 
-`lib/server/state.ts` keeps one object on `globalThis` (so dev hot reloads don't wipe it): the run log, the live limiter, the login limiter, and the admin pause switch. The live limiter, login limiter and pause switch are **in memory, per server instance**. On Vercel each warm instance has its own copy and a cold start resets it. That is fine for a brake; it is not a database. The run log is different: `lib/server/runStore.ts` keeps it in Upstash Redis when `KV_REST_API_URL` and `KV_REST_API_TOKEN` are set (history survives restarts), and in memory otherwise or if the database errors. For exact limiter counts, back `LiveLimiter` with Redis too; its small public methods (`check/reset/snapshot`) are the seam.
+`lib/server/state.ts` keeps one object on `globalThis` (so dev hot reloads don't wipe it): the run log, the live limiter, the login limiter, and the admin pause switch. The login limiter and pause switch are **in memory, per server instance**: on Vercel each warm instance has its own copy and a cold start resets it. That is fine for a brake. The run log and the live brake are different: with `KV_REST_API_URL` and `KV_REST_API_TOKEN` set, `lib/server/runStore.ts` keeps the history in Upstash Redis and `lib/server/liveBrake.ts` keeps the live-run counts there (per visitor per hour, and per UTC day for the site; fixed windows, visitor address hashed), so both survive restarts and are shared by every instance. Without those variables, or if the database errors, they fall back to memory (the brake then counts per instance, never lets every run through). Both share the small client in `lib/server/upstash.ts`.
 
 ## Admin dashboard
 
@@ -91,6 +91,7 @@ The route aborts an `AbortController` when the visitor disconnects. The signal r
 | `admin.test.ts` | Sign-in, lockout, cookie, every admin route and action. |
 | `sampleData.test.ts`, `DemoDashboard.test.tsx` | The sample data is repeatable, labelled and complete; the public demo makes no requests and its controls work on screen only. |
 | `aggregate.test.ts`, `runLog.test.ts`, `runStore.test.ts` | Dashboard maths, the run log, and its memory/Redis stores. |
+| `liveBrake.test.ts` | The live-run brake: Redis counts (fake database), refused runs not counted, daily rollover, memory fallback. |
 | `rateLimit.test.ts`, `runApi.test.ts`, `ndjson.test.ts`, `liveRun.test.ts`, `run.test.ts`, `verdicts.test.ts`, `format.test.ts` | The smaller building blocks, including the integrity of the recordings. |
 
 Pipeline tests pass `pace: 0` to skip the simulation's delays and `client` to inject a fake model.
@@ -107,4 +108,4 @@ Pipeline tests pass `pace: 0` to skip the simulation's delays and `client` to in
 
 **Add an admin action:** add its name to `lib/admin/actions.ts`, handle it in `app/api/admin/actions/route.ts`, add a button in `ControlPanel.tsx`, and a case in `tests/admin.test.ts`.
 
-**Move more server state to a database:** the run log already has a Redis store (`runStore.ts`). For `LiveLimiter`, implement the same methods and construct it in `lib/server/state.ts`.
+**Move more server state to a database:** the run log (`runStore.ts`) and the live brake (`liveBrake.ts`) already have Redis stores. For the login limiter, follow the same pattern and construct it in `lib/server/state.ts`.
