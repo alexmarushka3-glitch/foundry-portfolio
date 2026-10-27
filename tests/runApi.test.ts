@@ -1,10 +1,15 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { MAX_INPUT } from "@/lib/limits";
-import { EXAMPLE_REQUESTS } from "@/lib/run";
+import { FIXTURE_REQUEST } from "./fixtures/liveRecording";
 import { parseRequest, visitorAddress, visitorMessage } from "@/lib/server/runApi";
 
+vi.mock("@/lib/liveRecordings.json", async () => {
+  const { fixtureRecording } = await import("./fixtures/liveRecording");
+  return { default: { recordings: [fixtureRecording()] } };
+});
+
 describe("parseRequest", () => {
-  const example = EXAMPLE_REQUESTS[0];
+  const example = FIXTURE_REQUEST;
   it("accepts a recorded example and cleans whitespace and control characters", () => {
     const messy = `  ${example.replace(" ", `${String.fromCharCode(0)}   `)}${String.fromCharCode(10)}`;
     expect(parseRequest({ request: messy })).toEqual({ ok: true, request: example });

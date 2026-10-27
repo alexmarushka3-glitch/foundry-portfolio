@@ -1,8 +1,30 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import recordings from "@/lib/recordings.json";
 import { AGENT_LIST } from "@/lib/agents";
 import { e2ePassed, validatorApproved } from "@/lib/pipeline/verdicts";
-import { EXAMPLE_REQUESTS, buildReplayRun, findRecording, framesFrom, maxRound, viewsAt } from "@/lib/run";
+import { EXAMPLE_REQUESTS as OLD_EXAMPLES, buildReplayRun, findRecording, framesFrom, maxRound, viewsAt } from "@/lib/run";
+import { EXAMPLE_REQUESTS } from "@/lib/exampleRequests";
+import liveRecordings from "@/lib/liveRecordings.json";
+import { loadLiveRecordings } from "@/lib/liveReplay";
+
+vi.mock("@/lib/liveRecordings.json", async () => {
+  const { fixtureRecording } = await import("./fixtures/liveRecording");
+  return { default: { recordings: [fixtureRecording()] } };
+});
+vi.mock("@/lib/exampleRequests", async () => {
+  const { FIXTURE_REQUEST } = await import("./fixtures/liveRecording");
+  return { EXAMPLE_REQUESTS: [FIXTURE_REQUEST] };
+});
+
+describe("live recordings", () => {
+  it("lists the same requests as the recordings", async () => {
+    expect(EXAMPLE_REQUESTS).toEqual((liveRecordings.recordings as { request: string }[]).map((r) => r.request));
+    expect((await loadLiveRecordings()).map((r) => r.request)).toEqual(EXAMPLE_REQUESTS);
+  });
+  it("loads once and hands back the same list", async () => {
+    expect(await loadLiveRecordings()).toBe(await loadLiveRecordings());
+  });
+});
 
 describe("recordings", () => {
   it("has all eight agents, in pipeline order, with real text, for every example", () => {
@@ -27,7 +49,7 @@ describe("recordings", () => {
 
 describe("findRecording", () => {
   it("matches ignoring case, spacing and trailing punctuation", () => {
-    const first = EXAMPLE_REQUESTS[0];
+    const first = OLD_EXAMPLES[0];
     expect(findRecording(first)).toBeDefined();
     expect(findRecording(`  ${first.toUpperCase()}!! `)).toBe(findRecording(first));
   });
@@ -37,7 +59,7 @@ describe("findRecording", () => {
 });
 
 describe("buildReplayRun", () => {
-  const run = buildReplayRun(findRecording(EXAMPLE_REQUESTS[0])!);
+  const run = buildReplayRun(findRecording(OLD_EXAMPLES[0])!);
   const step = (agent: string) => run.steps.find((s) => s.agent === agent)!;
 
   it("runs backend and frontend at the same time and everything else in order", () => {
@@ -55,7 +77,7 @@ describe("buildReplayRun", () => {
 });
 
 describe("viewsAt and framesFrom", () => {
-  const run = buildReplayRun(findRecording(EXAMPLE_REQUESTS[0])!);
+  const run = buildReplayRun(findRecording(OLD_EXAMPLES[0])!);
 
   it("shows nothing before the start, and every agent finished at the end", () => {
     expect(viewsAt(run, -1)).toEqual([]);

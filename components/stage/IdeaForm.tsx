@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { EXAMPLE_REQUESTS } from "@/lib/run";
+import { EXAMPLE_REQUESTS } from "@/lib/exampleRequests";
 import { KINDS, NAME_MAX, VALUE_TYPES, buildRequest, validateSpec, type FeatureSpec, type Kind, type ValueType } from "@/lib/spec";
 
 type Props = {
@@ -31,8 +31,8 @@ export default function IdeaForm({ onSubmit, busy, activeExample, liveAvailable 
     liveAvailable === null
       ? ""
       : liveAvailable
-        ? "The examples replay real recorded runs. Anything you build here runs live on real Claude models."
-        : "The examples replay real recorded runs. Anything you build here runs a labelled simulation.";
+        ? "The examples replay real live runs. Anything you build here runs live on real Claude models."
+        : "The examples replay real live runs. Anything you build here runs a labelled simulation.";
 
   return (
     <form

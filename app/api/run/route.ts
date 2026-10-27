@@ -1,6 +1,6 @@
 import { encodeEvent } from "@/lib/ndjson";
 import { liveEnabled, runPipeline } from "@/lib/pipeline";
-import { findRecording } from "@/lib/run";
+import { findServerRecording } from "@/lib/server/liveRecordings";
 import { createRecorder, hashVisitor } from "@/lib/server/runLog";
 import { logRunFailure, parseRequest, readJsonBody, visitorAddress, visitorMessage } from "@/lib/server/runApi";
 import { serverState } from "@/lib/server/state";
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   // Recorded examples never cost anything, so only other requests count against the limits.
   let allowLive = true;
   let reason: string | undefined;
-  if (liveEnabled() && !findRecording(request)) {
+  if (liveEnabled() && !findServerRecording(request)) {
     reason = (await state.liveLimiter.check(address)) ?? undefined;
     allowLive = !reason;
   }

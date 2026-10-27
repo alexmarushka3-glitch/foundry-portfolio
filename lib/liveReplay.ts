@@ -33,3 +33,11 @@ export function buildLiveReplayRun(rec: LiveRecording): Run {
 export function findLiveRecording(recs: LiveRecording[], request: string): LiveRecording | undefined {
   return recs.find((r) => normalizeRequest(r.request) === normalizeRequest(request));
 }
+
+let loaded: Promise<LiveRecording[]> | null = null;
+
+/** Loads the recordings on demand, so their size never lands in the first page load. */
+export function loadLiveRecordings(): Promise<LiveRecording[]> {
+  loaded ??= import("./liveRecordings.json").then((m) => m.default.recordings as unknown as LiveRecording[]);
+  return loaded;
+}
