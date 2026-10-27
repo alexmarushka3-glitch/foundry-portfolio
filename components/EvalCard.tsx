@@ -12,7 +12,7 @@ export default function EvalCard({ runs }: { runs: EvalRun[] }) {
       <h3>Measured runs</h3>
       <p>
         {s.approved} of {s.total} live runs were approved by the pipeline&apos;s checks: the other agents, the sample app&apos;s own tests and a
-        real browser test. {s.sentBack} were sent back for a second round at least once. With this few runs the true rate could be anywhere from{" "}
+        real browser test. {s.sentBack} {s.sentBack === 1 ? "was" : "were"} sent back for a second round at least once. With this few runs the true rate could be anywhere from{" "}
         {pct(s.low ?? 0)} to {pct(s.high ?? 1)}, so this is a small sample, not a success rate.
       </p>
       <p>

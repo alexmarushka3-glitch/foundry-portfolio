@@ -32,6 +32,13 @@ describe("EvalCard", () => {
     expect(text).not.toMatch(/reviewed pull request|passed review/i);
   });
 
+  it("says 1 was sent back, and 2 were, so the sentence reads correctly", () => {
+    const { container, rerender } = render(<EvalCard runs={[run({ rounds: 2 }), run()]} />);
+    expect(container.textContent).toMatch(/1 was sent back/);
+    rerender(<EvalCard runs={[run({ rounds: 2 }), run({ rounds: 2 })]} />);
+    expect(container.textContent).toMatch(/2 were sent back/);
+  });
+
   it("reports average cost and time over every run, including the ones not approved", () => {
     render(<EvalCard runs={[run({ costUsd: 0.1, ms: 40_000 }), run({ approved: false, costUsd: 0.3, ms: 80_000 })]} />);
     expect(screen.getByText(/\$0\.20/)).toBeTruthy();
