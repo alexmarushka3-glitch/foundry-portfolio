@@ -86,6 +86,15 @@ Live runs use Haiku 5.5 for the researcher and release agent, and Sonnet 5.5 for
 - The hard cap is the spend limit set in the Anthropic console. Set one.
 - Input is limited to 200 characters. `FOUNDRY_LIVE=off`, or **Pause live runs** in the admin dashboard, turns live runs off at any time.
 
+## Security
+
+- **Headers:** every response carries a Content-Security-Policy limited to the site itself (no framing, no plugins, no other origins), `X-Content-Type-Options`, `X-Frame-Options`, a referrer policy, a permissions policy and a cross-origin opener policy (`lib/securityHeaders.ts`, wired in `next.config.ts`). The policy is left out in development. Admin pages and `/api/admin/*` are never cached.
+- **Admin session:** the cookie is HttpOnly, Secure and SameSite=Strict, and holds a signed expiry the server checks, so a copied cookie stops working after 8 hours. State-changing admin requests that a browser says came from another site are refused (`blockCrossSite`). Login is limited to five tries per address per 15 minutes, and the token comparison is constant-time.
+- **Inputs:** request bodies are capped at 4 KB (`readJsonBody`). The run form is validated against fixed choices and rebuilt server-side, so visitor text never reaches a prompt. The agents' file writes are allowlisted, and the sandbox runs their code with the network off.
+- **Secrets:** only `.env.example` is committed. The GitHub App key, the API key and the admin token live in Vercel. The cron route does not exist without `CRON_SECRET`.
+- **Known, not fixed:** `npm audit` reports 6 advisories in build-time and CLI dependencies (`zod` inside `@vercel/sandbox`, `postcss` inside `next`). Neither handles visitor input, and the only fixes are major version changes. Live-run limits are per server instance, so the $10 API credit cap is the real spending limit.
+- Reviewed against the VibeSec checklist on Oct 26 and 27, 2026.
+
 ## Admin dashboard
 
 Set `ADMIN_TOKEN` and open `/admin`. Without a token the page and its API return 404.

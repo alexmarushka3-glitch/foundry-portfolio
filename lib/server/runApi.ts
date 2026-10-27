@@ -24,6 +24,25 @@ export function parseRequest(body: unknown): Parsed {
   return { ok: true, request: raw };
 }
 
+/** The largest request body any route here reads. The real ones are a few hundred bytes. */
+export const MAX_BODY_BYTES = 4096;
+
+type JsonBody = { ok: true; body: unknown } | { ok: false; status: number; error: string };
+
+/** Read a JSON body with a size cap, so a huge or endless body cannot be used to tie up the server. */
+export async function readJsonBody(req: Request, max = MAX_BODY_BYTES): Promise<JsonBody> {
+  const tooLarge: JsonBody = { ok: false, status: 413, error: "That request is too large." };
+  if (Number(req.headers.get("content-length") ?? 0) > max) return tooLarge;
+  const text = await req.text().catch(() => null);
+  if (text === null) return { ok: false, status: 400, error: "Invalid JSON" };
+  if (new TextEncoder().encode(text).length > max) return tooLarge;
+  try {
+    return { ok: true, body: JSON.parse(text) };
+  } catch {
+    return { ok: false, status: 400, error: "Invalid JSON" };
+  }
+}
+
 /** Who is asking, for the per-visitor limit. Behind Vercel the first forwarded address is the visitor's. */
 export function visitorAddress(headers: Headers): string {
   return headers.get("x-forwarded-for")?.split(",")[0]?.trim() || headers.get("x-real-ip")?.trim() || "unknown";

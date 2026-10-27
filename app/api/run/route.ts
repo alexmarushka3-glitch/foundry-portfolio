@@ -2,7 +2,7 @@ import { encodeEvent } from "@/lib/ndjson";
 import { liveEnabled, runPipeline } from "@/lib/pipeline";
 import { findRecording } from "@/lib/run";
 import { createRecorder, hashVisitor } from "@/lib/server/runLog";
-import { logRunFailure, parseRequest, visitorAddress, visitorMessage } from "@/lib/server/runApi";
+import { logRunFailure, parseRequest, readJsonBody, visitorAddress, visitorMessage } from "@/lib/server/runApi";
 import { serverState } from "@/lib/server/state";
 import type { FoundryEvent } from "@/lib/types";
 
@@ -15,13 +15,9 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  let body: unknown;
-  try {
-    body = await req.json();
-  } catch {
-    return Response.json({ error: "Invalid JSON" }, { status: 400 });
-  }
-  const parsed = parseRequest(body);
+  const read = await readJsonBody(req);
+  if (!read.ok) return Response.json({ error: read.error }, { status: read.status });
+  const parsed = parseRequest(read.body);
   if (!parsed.ok) return Response.json({ error: parsed.error }, { status: 400 });
   const { request } = parsed;
 

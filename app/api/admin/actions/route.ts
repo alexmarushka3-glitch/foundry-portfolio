@@ -1,6 +1,7 @@
 import { ADMIN_ACTIONS } from "@/lib/admin/actions";
 import { buildOverview } from "@/lib/admin/overview";
 import { requireAdmin } from "@/lib/server/adminAuth";
+import { readJsonBody } from "@/lib/server/runApi";
 import { serverState } from "@/lib/server/state";
 
 export const runtime = "nodejs";
@@ -10,8 +11,9 @@ export async function POST(req: Request) {
   const denied = requireAdmin(req);
   if (denied) return denied;
 
-  const body = (await req.json().catch(() => null)) as { action?: unknown } | null;
-  const action = ADMIN_ACTIONS.find((a) => a === body?.action);
+  const read = await readJsonBody(req);
+  if (!read.ok) return Response.json({ error: read.error }, { status: read.status });
+  const action = ADMIN_ACTIONS.find((a) => a === (read.body as { action?: unknown } | null)?.action);
   if (!action) return Response.json({ error: "Unknown action." }, { status: 400 });
 
   const state = serverState();

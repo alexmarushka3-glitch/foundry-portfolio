@@ -53,7 +53,8 @@ describe("POST /api/admin/login", () => {
     const res = await login(new Request("http://t/api/admin/login", json({ token: TOKEN })));
     expect(res.status).toBe(200);
     const cookie = res.headers.get("set-cookie")!;
-    expect(cookie).toContain(`foundry_admin=${sessionValue()}`);
+    const value = /foundry_admin=([^;]+)/.exec(cookie)![1];
+    expect(sessionValid(value)).toBe(true);
     expect(cookie).toMatch(/HttpOnly/);
     expect(cookie).toMatch(/SameSite=Strict/);
   });
