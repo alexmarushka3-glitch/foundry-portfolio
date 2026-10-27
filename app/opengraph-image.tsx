@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import Logo, { LOGO_COLORS } from "@/components/Logo";
 import { profile } from "@/lib/profile";
@@ -7,7 +9,11 @@ export const alt = `${profile.headline}: a team of AI agents, by ${profile.name}
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default function OpengraphImage() {
+// The image renderer needs the font file itself (woff, not woff2); the site's web font does not carry over.
+const fontFile = (weight: 400 | 700) => readFile(join(process.cwd(), `assets/fonts/schibsted-grotesk-latin-${weight}-normal.woff`));
+
+export default async function OpengraphImage() {
+  const [regular, bold] = await Promise.all([fontFile(400), fontFile(700)]);
   return new ImageResponse(
     (
       <div
@@ -20,6 +26,7 @@ export default function OpengraphImage() {
           padding: 72,
           background: "#eef0f0",
           color: "#161a1e",
+          fontFamily: "Schibsted Grotesk",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 36 }}>
@@ -39,6 +46,12 @@ export default function OpengraphImage() {
         </div>
       </div>
     ),
-    size,
+    {
+      ...size,
+      fonts: [
+        { name: "Schibsted Grotesk", data: regular, weight: 400, style: "normal" },
+        { name: "Schibsted Grotesk", data: bold, weight: 700, style: "normal" },
+      ],
+    },
   );
 }
