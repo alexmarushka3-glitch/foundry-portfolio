@@ -3,18 +3,33 @@ import type { Emit } from "../types";
 
 export const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
+function abortableSleep(ms: number, signal?: AbortSignal): Promise<void> {
+  if (!signal) return sleep(ms);
+  return new Promise<void>((resolve) => {
+    const done = () => {
+      clearTimeout(timer);
+      signal.removeEventListener("abort", done);
+      resolve();
+    };
+    const timer = setTimeout(done, ms);
+    signal.addEventListener("abort", done);
+  });
+}
+
 /**
  * Server-side replay of a recorded live run, kept for API clients. The page itself replays recordings
  * in the browser. Events go out in order, each at its recorded time scaled by `pace` (0 skips the waits,
  * which tests use).
  */
-export async function replayOnServer(rec: LiveRecording, emit: Emit, pace = 1): Promise<void> {
+export async function replayOnServer(rec: LiveRecording, emit: Emit, pace = 1, signal?: AbortSignal): Promise<void> {
   const t0 = Date.now();
   emit({ type: "mode", mode: "replay" });
   for (const { at, event } of rec.events) {
-    if (event.type === "mode") continue; // the replay announces itself, not the original mode
+    if (signal?.aborted) return;
+    if (event.type === "mode" || event.type === "pr") continue; // the replay announces itself and never opens a pull request
     const wait = at * pace - (Date.now() - t0);
-    if (pace > 0 && wait > 0) await sleep(wait);
+    if (pace > 0 && wait > 0) await abortableSleep(wait, signal);
+    if (signal?.aborted) return;
     emit(event);
   }
 }

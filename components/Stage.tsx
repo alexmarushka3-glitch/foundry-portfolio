@@ -106,6 +106,7 @@ export default function Stage() {
       if (!first) return;
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
         void loadLiveRecordings().then((recs) => {
+          if (touchedRef.current) return;
           const rec = findLiveRecording(recs, first);
           if (rec) showFinished(buildLiveReplayRun(rec));
         });

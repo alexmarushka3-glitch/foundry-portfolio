@@ -76,7 +76,7 @@ const UNAVAILABLE_REASON = "Live mode isn't available right now, so this run is 
 export async function runPipeline(request: string, emit: Emit, opts: RunOptions = {}): Promise<void> {
   const pace = opts.pace ?? 1;
   const recorded = findServerRecording(request);
-  if (recorded) return replayOnServer(recorded, emit, pace);
+  if (recorded) return replayOnServer(recorded, emit, pace, opts.signal);
 
   const t0 = Date.now();
   const wantLive = opts.allowLive !== false && (opts.client !== undefined || liveEnabled());
