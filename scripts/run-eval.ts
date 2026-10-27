@@ -60,7 +60,8 @@ for (const [i, request] of plan.requests.entries()) {
     await runPipeline(request, (e) => events.push(e));
   } catch (err) {
     errors++;
-    console.error(`run ${i + 1}: failed (${(err as Error).name})`);
+    const e = err as Error;
+    console.error(`run ${i + 1}: failed (${e.name}: ${String(e.message).slice(0, 200)})`);
     if (errors >= 3) fail("Three runs failed, stopping to avoid wasted spend.");
     continue;
   }
