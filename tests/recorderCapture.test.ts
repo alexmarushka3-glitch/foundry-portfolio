@@ -63,6 +63,45 @@ describe("captureRun", () => {
   });
 });
 
+describe("captureRun checks", () => {
+  for (const [name, text] of [
+    ["sk-ant-", "sk-ant-abc"],
+    ["vcp_", "vcp_abcdef1234567890"],
+    ["ghp_", "ghp_abcdefghijklmnopqrstuvwxyz0123"],
+    ["BEGIN PRIVATE KEY", "-----BEGIN PRIVATE KEY-----"],
+  ]) {
+    it(`rejects ${name}`, async () => {
+      await expect(
+        captureRun("s", "r", async (emit) => {
+          emit({ type: "mode", mode: "live" });
+          emit({ type: "token", agent: "researcher", round: 1, text });
+          emit({ type: "finish", ms: 1, rounds: 1, approved: true });
+        }),
+      ).rejects.toThrow(/secret/);
+    });
+  }
+
+  it("rejects an error event before finish", async () => {
+    await expect(
+      captureRun("s", "r", async (emit) => {
+        emit({ type: "mode", mode: "live" });
+        emit({ type: "error", message: "boom" });
+        emit({ type: "finish", ms: 1, rounds: 1, approved: false });
+      }),
+    ).rejects.toThrow(/error/);
+  });
+
+  it("rejects a later non-live mode event", async () => {
+    await expect(
+      captureRun("s", "r", async (emit) => {
+        emit({ type: "mode", mode: "live" });
+        emit({ type: "mode", mode: "simulated" });
+        emit({ type: "finish", ms: 1, rounds: 1, approved: true });
+      }),
+    ).rejects.toThrow(/live/);
+  });
+});
+
 describe("assertRecordingSize", () => {
   it("throws over 1.5 million characters", () => {
     expect(() => assertRecordingSize("x".repeat(1_500_001))).toThrow();

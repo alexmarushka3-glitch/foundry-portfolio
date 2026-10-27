@@ -21,6 +21,7 @@ const SECRET_PATTERNS: RegExp[] = [
   /sk-[A-Za-z0-9]{20,}/,
   /gh[pousr]_[A-Za-z0-9]{20,}/,
   /github_pat_/i,
+  /vcp_[A-Za-z0-9]{10,}/,
   /-----BEGIN [A-Z ]*PRIVATE KEY-----/,
   /ANTHROPIC_API_KEY\s*[=:]/i,
   /(?:KV_REST_API_TOKEN|ADMIN_TOKEN|CRON_SECRET|GITHUB_APP_PRIVATE_KEY)\s*[=:]/i,
@@ -38,9 +39,12 @@ export async function captureRun(
   const events: TimedEvent[] = [];
   await run((event) => events.push({ at: Math.max(0, now() - started), event }));
 
-  const firstMode = events.find((e) => e.event.type === "mode")?.event;
-  if (!firstMode || firstMode.type !== "mode" || firstMode.mode !== "live") {
-    throw new Error("Not a live run: the first mode event was not live.");
+  const modes = events.flatMap((e) => (e.event.type === "mode" ? [e.event.mode] : []));
+  if (modes.length === 0 || modes.some((m) => m !== "live")) {
+    throw new Error("Not a live run: every mode event must be live.");
+  }
+  if (events.some((e) => e.event.type === "error")) {
+    throw new Error("The run emitted an error event; recording refused.");
   }
   const finish = events.find((e) => e.event.type === "finish")?.event;
   if (!finish || finish.type !== "finish") throw new Error("The run has no finish event.");

@@ -58,6 +58,10 @@ function slugFor(request: string, i: number): string {
 let failures = 0;
 for (const [i, request] of plan.requests.entries()) {
   const slug = slugFor(request, i);
+  if (existsSync(`${OUT_DIR}/${slug}.json`)) {
+    console.log(`${slug}: already recorded, skipping (delete the file by hand to re-record).`);
+    continue;
+  }
   let saved = false;
   for (let attempt = 1; attempt <= 2 && !saved; attempt++) {
     try {
