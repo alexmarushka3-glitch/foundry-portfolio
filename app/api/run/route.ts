@@ -51,7 +51,7 @@ export async function POST(req: Request) {
           emit({ type: "error", message: visitorMessage(err) });
         }
       } finally {
-        state.runLog.add(recorder.close(abort.signal.aborted));
+        await state.runLog.add(recorder.close(abort.signal.aborted));
         if (!closed) {
           closed = true;
           controller.close();

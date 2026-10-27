@@ -7,5 +7,5 @@ export const dynamic = "force-dynamic";
 export async function GET(req: Request) {
   const denied = requireAdmin(req);
   if (denied) return denied;
-  return Response.json(buildOverview(), { headers: { "Cache-Control": "no-store" } });
+  return Response.json(await buildOverview(), { headers: { "Cache-Control": "no-store" } });
 }

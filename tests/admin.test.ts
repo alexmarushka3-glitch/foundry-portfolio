@@ -109,7 +109,7 @@ describe("POST /api/admin/actions", () => {
   it("resets visitor limits and clears the log", async () => {
     const state = serverState();
     state.liveLimiter.check("a");
-    state.runLog.add({
+    await state.runLog.add({
       id: "1", at: 1, request: "x", mode: "live", status: "approved", ms: 1, rounds: 1, costUsd: 0,
       inputTokens: 0, outputTokens: 0, agentMs: {}, visitor: "v",
     });

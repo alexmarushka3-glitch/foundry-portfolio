@@ -122,8 +122,12 @@ export default function AdminView({ admin, sample = false, embedded = false, aut
           {!embedded && (
             <p className="notice">
               {sample
-                ? "On the real dashboard, runs are kept in the server's memory (the last 500) and reset when the server restarts. Only runs that reach the API are counted."
-                : `Runs are kept in this server's memory (the last ${data.logCapacity}) and reset when the server restarts. Only runs that reach the API are counted. Replays of the three examples play in the visitor's browser.`}
+                ? "On the real dashboard, the last 500 runs are kept in the server's memory and reset when the server restarts, unless a database is connected. Only runs that reach the API are counted."
+                : `${
+                    data.logPersistent
+                      ? `The last ${data.logCapacity} runs are kept in a database and survive restarts.`
+                      : `Runs are kept in this server's memory (the last ${data.logCapacity}) and reset when the server restarts.`
+                  } Only runs that reach the API are counted. Replays of the three examples play in the visitor's browser.`}
             </p>
           )}
 

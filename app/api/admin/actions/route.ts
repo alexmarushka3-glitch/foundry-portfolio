@@ -28,8 +28,8 @@ export async function POST(req: Request) {
       state.liveLimiter.reset();
       break;
     case "clear-log":
-      state.runLog.clear();
+      await state.runLog.clear();
       break;
   }
-  return Response.json(buildOverview(), { headers: { "Cache-Control": "no-store" } });
+  return Response.json(await buildOverview(), { headers: { "Cache-Control": "no-store" } });
 }

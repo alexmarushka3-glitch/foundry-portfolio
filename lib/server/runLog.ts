@@ -1,8 +1,8 @@
 import { createHash, randomUUID } from "node:crypto";
 import type { AgentName, FoundryEvent, Mode } from "../types";
 
-// A short in-memory history of API runs, for the admin dashboard.
-// It lives in one server instance and resets on a cold start; it is a window onto recent traffic, not a database.
+// A short history of API runs, for the admin dashboard. `RunLog` is the in-memory list; `runStore.ts` decides
+// whether it is used alone (resets on a cold start) or backed by a database.
 // Replays that play in the browser never reach the server, so they are not logged.
 
 export type RunStatus = "approved" | "not-approved" | "error" | "cancelled";

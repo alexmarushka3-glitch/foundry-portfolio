@@ -90,7 +90,7 @@ The route aborts an `AbortController` when the visitor disconnects. The signal r
 | `Stage.test.tsx` | The critical page flows in jsdom: replay, built request, server error, dropped connection, rejected request. |
 | `admin.test.ts` | Sign-in, lockout, cookie, every admin route and action. |
 | `sampleData.test.ts`, `DemoDashboard.test.tsx` | The sample data is repeatable, labelled and complete; the public demo makes no requests and its controls work on screen only. |
-| `aggregate.test.ts`, `runLog.test.ts` | Dashboard maths and the run log. |
+| `aggregate.test.ts`, `runLog.test.ts`, `runStore.test.ts` | Dashboard maths, the run log, and its memory/Redis stores. |
 | `rateLimit.test.ts`, `runApi.test.ts`, `ndjson.test.ts`, `liveRun.test.ts`, `run.test.ts`, `verdicts.test.ts`, `format.test.ts` | The smaller building blocks, including the integrity of the recordings. |
 
 Pipeline tests pass `pace: 0` to skip the simulation's delays and `client` to inject a fake model.

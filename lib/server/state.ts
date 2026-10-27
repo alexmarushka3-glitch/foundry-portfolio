@@ -1,13 +1,13 @@
 import { envInt } from "./env";
 import { LiveLimiter, SlidingWindowLimiter } from "./rateLimit";
-import { RunLog } from "./runLog";
+import { FallbackRunStore, MemoryRunStore, createRunStore, type RunStore } from "./runStore";
 
 // Everything the server remembers between requests, in one place. It hangs off globalThis so that
 // development hot reloads don't wipe it. Each serverless instance has its own copy.
 
 type ServerState = {
   startedAt: number;
-  runLog: RunLog;
+  runLog: RunStore;
   liveLimiter: LiveLimiter;
   loginLimiter: SlidingWindowLimiter;
   /** Admin kill switch. `paused` turns live runs off until someone turns them back on. */
@@ -16,10 +16,16 @@ type ServerState = {
 
 const g = globalThis as typeof globalThis & { __foundry?: ServerState };
 
+/** Memory alone stays as is; a database gets the memory fallback around it. */
+function openRunLog(): RunStore {
+  const store = createRunStore();
+  return store instanceof MemoryRunStore ? store : new FallbackRunStore(store);
+}
+
 export function serverState(): ServerState {
   g.__foundry ??= {
     startedAt: Date.now(),
-    runLog: new RunLog(),
+    runLog: openRunLog(),
     liveLimiter: new LiveLimiter({
       // A live run with tools costs roughly 20 cents, so these keep a bad day to a couple of dollars.
       perHour: envInt("FOUNDRY_LIVE_PER_HOUR", 1),

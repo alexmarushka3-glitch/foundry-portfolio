@@ -70,7 +70,7 @@ describe("POST /api/run streaming", () => {
   it("logs the finished run for the admin dashboard, with a hashed visitor", async () => {
     const res = await post(NICK, { "x-forwarded-for": "203.0.113.9" });
     await res.text();
-    const [logged] = serverState().runLog.list();
+    const [logged] = await serverState().runLog.list();
     expect(logged).toMatchObject({ request: 'Add a "nickname" field to tasks (type: text, optional).', mode: "simulated", status: "approved", rounds: 1 });
     expect(logged.visitor).toHaveLength(8);
     expect(JSON.stringify(logged)).not.toContain("203.0.113.9");
@@ -83,7 +83,7 @@ describe("POST /api/run streaming", () => {
     const events = await readLines(res);
     const err = events.find((e) => e.type === "error");
     expect(err).toMatchObject({ message: "The run stopped before it finished. Try again in a moment." });
-    expect(serverState().runLog.list()[0].status).toBe("error");
+    expect((await serverState().runLog.list())[0].status).toBe("error");
   });
 });
 
@@ -124,8 +124,8 @@ describe("POST /api/run cancellation", () => {
     const reader = res.body!.getReader();
     await reader.read(); // first event arrives
     await reader.cancel(); // the visitor leaves
-    await vi.waitFor(() => expect(serverState().runLog.list()).toHaveLength(1));
+    await vi.waitFor(async () => expect(await serverState().runLog.list()).toHaveLength(1));
     expect(seen?.aborted).toBe(true);
-    expect(serverState().runLog.list()[0].status).toBe("cancelled");
+    expect((await serverState().runLog.list())[0].status).toBe("cancelled");
   });
 });
