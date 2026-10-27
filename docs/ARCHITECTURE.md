@@ -63,7 +63,7 @@ The route aborts an `AbortController` when the visitor disconnects. The signal r
 
 ## Server state
 
-`lib/server/state.ts` keeps one object on `globalThis` (so dev hot reloads don't wipe it): the run log, the live limiter, the login limiter, and the admin pause switch. It is **in memory, per server instance**. On Vercel each warm instance has its own copy and a cold start resets it. That is fine for a brake and for a recent-activity view; it is not a database. If you need durable history or exact counts, replace `RunLog` and `LiveLimiter` with versions backed by Redis or Postgres. Their small public methods (`add/list/clear`, `check/reset/snapshot`) are the seam.
+`lib/server/state.ts` keeps one object on `globalThis` (so dev hot reloads don't wipe it): the run log, the live limiter, the login limiter, and the admin pause switch. The live limiter, login limiter and pause switch are **in memory, per server instance**. On Vercel each warm instance has its own copy and a cold start resets it. That is fine for a brake; it is not a database. The run log is different: `lib/server/runStore.ts` keeps it in Upstash Redis when `KV_REST_API_URL` and `KV_REST_API_TOKEN` are set (history survives restarts), and in memory otherwise or if the database errors. For exact limiter counts, back `LiveLimiter` with Redis too; its small public methods (`check/reset/snapshot`) are the seam.
 
 ## Admin dashboard
 
@@ -107,4 +107,4 @@ Pipeline tests pass `pace: 0` to skip the simulation's delays and `client` to in
 
 **Add an admin action:** add its name to `lib/admin/actions.ts`, handle it in `app/api/admin/actions/route.ts`, add a button in `ControlPanel.tsx`, and a case in `tests/admin.test.ts`.
 
-**Move server state to a database:** implement the same methods as `RunLog` and `LiveLimiter` and construct them in `lib/server/state.ts`.
+**Move more server state to a database:** the run log already has a Redis store (`runStore.ts`). For `LiveLimiter`, implement the same methods and construct it in `lib/server/state.ts`.
