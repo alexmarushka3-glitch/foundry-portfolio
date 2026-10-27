@@ -1,1 +1,68 @@
-{ "runs": [] }
+{
+  "runs": [
+    {
+      "at": "2026-10-27T03:11:10.779Z",
+      "request": "Add a \"estimate\" field to tasks (type: number, optional).",
+      "approved": true,
+      "rounds": 1,
+      "costUsd": 0.2517954,
+      "ms": 78989
+    },
+    {
+      "at": "2026-10-27T03:12:10.575Z",
+      "request": "Add a filter by \"completed\" to the task list.",
+      "approved": true,
+      "rounds": 1,
+      "costUsd": 0.1799156,
+      "ms": 59790
+    },
+    {
+      "at": "2026-10-27T03:13:08.726Z",
+      "request": "Add a sort option by \"created date\" to the task list.",
+      "approved": true,
+      "rounds": 1,
+      "costUsd": 0.20356109999999997,
+      "ms": 58148
+    },
+    {
+      "at": "2026-10-27T03:14:33.493Z",
+      "request": "Add a \"mark all done\" button that acts on many tasks at once.",
+      "approved": false,
+      "rounds": 1,
+      "costUsd": 0.20920960000000002,
+      "ms": 84765
+    },
+    {
+      "at": "2026-10-27T03:15:39.916Z",
+      "request": "Add a \"estimate\" field to tasks (type: number, optional).",
+      "approved": true,
+      "rounds": 1,
+      "costUsd": 0.221032,
+      "ms": 66421
+    },
+    {
+      "at": "2026-10-27T03:17:15.044Z",
+      "request": "Add a filter by \"completed\" to the task list.",
+      "approved": true,
+      "rounds": 2,
+      "costUsd": 0.3170595,
+      "ms": 95126
+    },
+    {
+      "at": "2026-10-27T03:18:16.656Z",
+      "request": "Add a sort option by \"created date\" to the task list.",
+      "approved": true,
+      "rounds": 1,
+      "costUsd": 0.21878,
+      "ms": 61610
+    },
+    {
+      "at": "2026-10-27T03:19:17.024Z",
+      "request": "Add a \"mark all done\" button that acts on many tasks at once.",
+      "approved": true,
+      "rounds": 1,
+      "costUsd": 0.18616240000000003,
+      "ms": 60366
+    }
+  ]
+}
