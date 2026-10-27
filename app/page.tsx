@@ -1,6 +1,8 @@
 import DashboardSection from "@/components/admin/DashboardSection";
 import ContactLinks from "@/components/ContactLinks";
+import EvalCard from "@/components/EvalCard";
 import Logo from "@/components/Logo";
+import evalResults from "@/lib/eval/results.json";
 import Stage from "@/components/Stage";
 import { profile } from "@/lib/profile";
 import { REALITY } from "@/lib/reality";
@@ -73,6 +75,7 @@ export default function Home() {
               </div>
             ))}
           </div>
+          <EvalCard runs={evalResults.runs} />
         </section>
 
         <section id="projects" className="section" aria-labelledby="projects-title">

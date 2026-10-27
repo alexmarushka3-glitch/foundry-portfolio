@@ -826,6 +826,18 @@ main,
   border-top: 3px solid var(--line);
   padding-top: 14px;
 }
+.eval-card {
+  margin-top: 28px;
+  border-top: 3px solid var(--line);
+  padding-top: 14px;
+  max-width: 68ch;
+}
+.eval-card h3 {
+  font-size: 1.1rem;
+}
+.eval-card p {
+  margin: 10px 0 0;
+}
 .reality-col.working {
   border-top-color: var(--verdigris);
 }

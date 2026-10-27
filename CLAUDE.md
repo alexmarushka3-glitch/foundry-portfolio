@@ -2,6 +2,10 @@
 
 Portfolio site with a live demo of Foundry, an eight-agent software factory. Visitors give a rough idea for a small task-tracker app and watch agents turn it into a pull request draft checked by other agents. Live at https://foundry-portfolio.vercel.app.
 
+## Workflow
+
+Built with Claude Code and the Superpowers plugin (brainstorm, plan, test first, verify before claiming done). It is a dev workflow only: the site never runs it, and the site copy does not claim it.
+
 ## Commands
 
 ```bash
@@ -11,6 +15,7 @@ npm run typecheck
 npm test             # vitest, no network or key needed
 npm run build
 node scripts/build-recordings.mjs   # rebuild lib/recordings.json from recordings-src/
+npx.cmd vite-node scripts/run-eval.ts -- --runs 8 --confirm   # real live runs, costs money; appends to lib/eval/results.json
 ```
 
 On Windows PowerShell, run `npx.cmd` instead of `npx` (the `npx.ps1` script is blocked by the execution policy).
@@ -33,6 +38,7 @@ Full map and recipes: `docs/ARCHITECTURE.md`. Short version:
 - `lib/pipeline/sandbox.ts`: unit tests and the real browser in a Vercel Sandbox. `node scripts/build-sandbox-snapshot.mjs` (needs `.env.sandbox.local` from `npx.cmd vercel@latest env pull .env.sandbox.local --environment=development`, which is gitignored) builds the sandbox snapshot id for `FOUNDRY_SANDBOX_SNAPSHOT`; rebuild it when taskly-sample changes or after 30 days unused.
 - `lib/pipeline/github.ts`: the GitHub App client that opens the draft PR and closes stale ones; `app/api/cron/close-stale-prs` plus `vercel.json` run daily. Needs `GITHUB_APP_ID`, `GITHUB_APP_INSTALLATION_ID`, `GITHUB_APP_PRIVATE_KEY` and `CRON_SECRET` in Vercel; without them no PR is opened.
 - `lib/tasklySnapshot.json`: an in-memory copy of the `taskly-sample` repo (rebuild with `node scripts/build-snapshot.mjs` after committing there). `lib/pipeline/workspace.ts` serves it to the agents and keeps their writes in an overlay; `lib/pipeline/tools.ts` defines the tools (Researcher: read-only; Backend: `src/` and `tests/`; Frontend: `public/`). No agent has a shell, so the Researcher is read-only by construction and nothing leaves memory.
+- `lib/eval/` and `scripts/run-eval.ts`: measured runs. `collect.ts` counts only finished live runs (never simulations or replays), `summarize.ts` adds a 95% interval, `plan.ts` fixes the four requests and the spend cap. Results go to `lib/eval/results.json` (append-only, real runs only; never hand-edit). `components/EvalCard.tsx` shows them under Scope and limits and renders nothing while the file is empty. The script needs `--confirm`, `ANTHROPIC_API_KEY` in `.env.local`, the sandbox login in `.env.sandbox.local` and `FOUNDRY_SANDBOX_SNAPSHOT` in either that file or `.env.eval.local`.
 - `recordings-src/`: raw outputs of real runs (`<slug>/N-agent.txt`) plus `meta.json` (models, timings, request text).
 - `lib/recordings.json`: generated from `recordings-src/`. Do not edit by hand.
 - `tests/`: Vitest. Run `npm test` before pushing. Pipeline tests inject a fake model client; no test needs a key.
