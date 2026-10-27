@@ -6,10 +6,11 @@ import type { AgentName, Mode } from "./types";
 
 export type Recording = (typeof recordings.examples)[number];
 
-const normalize = (s: string) => s.trim().toLowerCase().replace(/[.!?]+$/, "");
+/** Compare requests ignoring case, outer spacing and trailing punctuation. */
+export const normalizeRequest = (s: string) => s.trim().toLowerCase().replace(/[.!?]+$/, "");
 
 export function findRecording(request: string): Recording | undefined {
-  return recordings.examples.find((e) => normalize(e.request) === normalize(request));
+  return recordings.examples.find((e) => normalizeRequest(e.request) === normalizeRequest(request));
 }
 
 export const EXAMPLE_REQUESTS: string[] = recordings.examples.map((e) => e.request);
@@ -44,6 +45,8 @@ export type Run = {
   costUsd?: number;
   /** The real draft pull request a live run opened, when it did. */
   pr?: { url: string; number: number };
+  /** Set on a replay of a recorded live run (real model output, played back faster). */
+  source?: "live-run";
 };
 
 /** What the stage draws for one agent at one moment. */
