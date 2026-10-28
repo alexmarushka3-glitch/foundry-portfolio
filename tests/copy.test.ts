@@ -51,6 +51,15 @@ describe("page copy", () => {
     expect(limits).not.toMatch(/recordings and the simulation never run any code/i);
   });
 
+  it("describes the hand check of three drafts as a spot check, not a review, and names its one finding", () => {
+    const limits = REALITY.find((c) => c.tone === "limits")!.items.join(" ");
+    expect(limits).toMatch(/three of the eight draft pull requests/i);
+    expect(limits).toMatch(/spot check, not a review/i);
+    expect(limits).toMatch(/browser test that is not in the pull request/i);
+    expect(limits).toMatch(/no human reviews the pull requests/i);
+    expect(limits).not.toMatch(/reviewed pull request|passed review/i);
+  });
+
   it("labels the sample dashboard as made up", () => {
     const simulated = REALITY.find((c) => c.tone === "simulated")!.items.join(" ");
     expect(simulated).toMatch(/dashboard/i);
