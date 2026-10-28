@@ -44,4 +44,26 @@ describe("EvalCard", () => {
     expect(screen.getByText(/\$0\.20/)).toBeTruthy();
     expect(screen.getByText(/60 s/)).toBeTruthy();
   });
+
+  it("breaks the outcomes down so the not approved and sent back runs are visible", () => {
+    const { container } = render(
+      <EvalCard runs={[run(), run({ rounds: 2, request: "Add a filter" }), run({ approved: false, request: "Add a sort" })]} />,
+    );
+    const text = container.textContent ?? "";
+    expect(text).toMatch(/1 approved on the first round/);
+    expect(text).toMatch(/1 approved after a second round/);
+    expect(text).toMatch(/1 not approved/);
+  });
+
+  it("lists each run that was not approved on the first round, with its request", () => {
+    render(<EvalCard runs={[run(), run({ rounds: 2, request: "Add a filter" }), run({ approved: false, request: "Add a sort" })]} />);
+    expect(screen.getByText(/Add a filter/)).toBeTruthy();
+    expect(screen.getByText(/Add a sort/)).toBeTruthy();
+    expect(screen.getAllByRole("listitem")).toHaveLength(2);
+  });
+
+  it("says runs that did not finish are not counted", () => {
+    const { container } = render(<EvalCard runs={[run()]} />);
+    expect(container.textContent).toMatch(/did not finish.*not counted/i);
+  });
 });

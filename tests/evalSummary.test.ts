@@ -5,7 +5,7 @@ const run = (over: Partial<EvalRun> = {}): EvalRun => ({ approved: true, rounds:
 
 describe("summarizeRuns", () => {
   it("returns zero counts and no rate for an empty list, so the site shows nothing", () => {
-    expect(summarizeRuns([])).toEqual({ total: 0, approved: 0, sentBack: 0, rate: null, low: null, high: null, avgCostUsd: null, avgMs: null });
+    expect(summarizeRuns([])).toEqual({ total: 0, approved: 0, firstRound: 0, afterSendBack: 0, notApproved: 0, sentBack: 0, rate: null, low: null, high: null, avgCostUsd: null, avgMs: null });
   });
 
   it("counts approved runs and runs the Validator sent back at least once", () => {
@@ -33,5 +33,13 @@ describe("summarizeRuns", () => {
     const few = summarizeRuns(Array.from({ length: 5 }, () => run()));
     const many = summarizeRuns(Array.from({ length: 50 }, () => run()));
     expect(many.low!).toBeGreaterThan(few.low!);
+  });
+
+  it("splits outcomes into approved first round, approved after a send-back, and not approved", () => {
+    const s = summarizeRuns([run(), run(), run({ rounds: 2 }), run({ approved: false, rounds: 2 }), run({ approved: false })]);
+    expect(s.firstRound).toBe(2);
+    expect(s.afterSendBack).toBe(1);
+    expect(s.notApproved).toBe(2);
+    expect(s.firstRound + s.afterSendBack + s.notApproved).toBe(s.total);
   });
 });
