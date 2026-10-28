@@ -918,6 +918,23 @@ main,
   padding: 6px 0;
   color: var(--ink);
 }
+.projects .project-shots {
+  margin: 10px 0 0;
+  display: grid;
+  gap: 8px;
+}
+.projects .project-shots img {
+  display: block;
+  width: 100%;
+  max-width: 640px;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.projects .project-shots figcaption {
+  font-size: 0.875rem;
+  color: var(--muted);
+}
 
 .about {
   margin-top: 16px;

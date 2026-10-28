@@ -70,4 +70,16 @@ describe("page copy", () => {
     expect(profile.headline).toBe("Foundry");
     expect(profile.siteUrl).toMatch(/^https:\/\//);
   });
+
+  it("keeps the private projects unlinked and says their images use sample data", () => {
+    const priv = profile.projects.filter((p) => "private" in p && p.private);
+    expect(priv.length).toBe(2);
+    for (const p of priv) {
+      expect("links" in p && p.links).toBeFalsy();
+      expect(p.note).toMatch(/private/i);
+      expect(p.note).toMatch(/sample data/i);
+      expect(JSON.stringify(p)).not.toMatch(/claude\.ai\/artifact|docs\.google|drive\.google|canvas\.uchicago/i);
+      for (const img of p.images ?? []) expect(img.alt).toMatch(/sample data/i);
+    }
+  });
 });

@@ -41,14 +41,32 @@ export const profile = {
     {
       name: "Personal AI workflow",
       blurb:
-        "Custom Claude Code skills and plugins I wrote for my own use: a Canvas deadline checker, a writing-voice chain, a LinkedIn networking tracker, and a skill publisher that syncs skills to claude.ai.",
+        "Custom Claude Code skills I wrote for my own use: a Canvas deadline checker, a writing chain that drafts in my voice and then runs cleanup passes, a LinkedIn networking tracker, and a skill bus that passes one skill's output to the next.",
       tags: ["Claude Code", "Skills", "Automation"],
+      /** Private: never link it. The image is a recreation with made-up courses and dates. */
+      private: true,
+      note: "Personal tool, private. The image recreates it with sample data.",
+      images: [
+        {
+          src: "/projects/personal-ai-workflow-sample.png",
+          alt: "A Claude Code session with sample data: the Canvas checker lists five made-up assignments due in the next two weeks and one missing one, then a tutor skill turns the calculus dates into a three-day study plan.",
+        },
+      ],
     },
     {
       name: "Second Brain",
       blurb:
-        "A single doc and an Obsidian vault where I keep my projects, deadlines and notes. Claude sessions keep them up to date.",
+        "One Claude doc that holds my projects, tasks, schedule and docs, plus an Obsidian vault for notes. A daily check refreshes the doc from Canvas, Google Calendar and Google Drive, and any Claude session can read or update it.",
       tags: ["Obsidian", "Claude Docs", "Workflow design"],
+      /** Private: it holds my real schedule. Never link it. The image is a recreation with made-up tasks. */
+      private: true,
+      note: "Personal tool, private. The image recreates it with sample data.",
+      images: [
+        {
+          src: "/projects/second-brain-sample.png",
+          alt: "The Second Brain doc with sample data: a task table with made-up classes, due dates and statuses, a projects table, and a this-week list.",
+        },
+      ],
     },
   ],
 };
