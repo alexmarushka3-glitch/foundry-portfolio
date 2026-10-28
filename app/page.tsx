@@ -52,14 +52,19 @@ export default function Home() {
 
         <section id="reality" className="section" aria-labelledby="reality-title">
           <h2 id="reality-title">Scope and limits</h2>
-          <p className="lede">What runs for real, what is simulated, and what the limits are.</p>
+          <p className="lede">What runs for real, what is simulated, and what the limits are. Select any line for the detail.</p>
           <div className="reality">
             {REALITY.map((col) => (
               <div key={col.heading} className={`reality-col ${col.tone}`}>
                 <h3>{col.heading}</h3>
                 <ul>
-                  {col.items.map((it) => (
-                    <li key={it}>{it}</li>
+                  {col.items.map((it, i) => (
+                    <li key={it}>
+                      <details>
+                        <summary>{col.short[i]}</summary>
+                        <p>{it}</p>
+                      </details>
+                    </li>
                   ))}
                 </ul>
               </div>

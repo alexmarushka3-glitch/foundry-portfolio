@@ -18,6 +18,7 @@ export const profile = {
     "I build teams of AI agents. Give them a specific change and they produce a draft pull request, checked by other agents and by real tests.",
   email: "alex.marushka3@gmail.com",
   links: [
+    { label: "Resume", href: "/Alex-Marushka-Resume.pdf" },
     { label: "GitHub", href: "https://github.com/alexmarushka3-glitch" },
     { label: "LinkedIn", href: "https://www.linkedin.com/in/alex-marushka-4bb1113b9/" },
   ],
@@ -41,7 +42,7 @@ export const profile = {
     {
       name: "Personal AI workflow",
       blurb:
-        "Custom Claude Code skills I wrote for my own use: a Canvas deadline checker, a writing chain that drafts in my voice and then runs cleanup passes, a LinkedIn networking tracker, and a skill bus that passes one skill's output to the next.",
+        "Custom Claude Code skills I wrote for my own use: a Canvas deadline checker, a writing chain that drafts in my voice and then runs cleanup passes, a LinkedIn networking tracker, a skill bus that passes one skill's output to the next, and a skill publisher that syncs my skills to claude.ai.",
       tags: ["Claude Code", "Skills", "Automation"],
       /** Private: never link it. The image is a recreation with made-up courses and dates. */
       private: true,

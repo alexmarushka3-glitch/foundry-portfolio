@@ -879,6 +879,25 @@ main,
   border-radius: 50%;
   background: var(--line);
 }
+.reality-col summary {
+  cursor: pointer;
+  padding: 2px 0;
+  list-style: none;
+}
+.reality-col summary::-webkit-details-marker {
+  display: none;
+}
+.reality-col summary:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.reality-col details[open] summary {
+  font-weight: 600;
+}
+.reality-col details p {
+  margin: 8px 0 4px;
+  color: var(--muted);
+}
 .reality-col.working li::before {
   background: var(--verdigris);
 }
