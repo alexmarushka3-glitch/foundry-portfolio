@@ -114,6 +114,18 @@ export default function Home() {
           </ul>
         </section>
 
+        <section id="lessons" className="section" aria-labelledby="lessons-title">
+          <h2 id="lessons-title">What building it taught me</h2>
+          <ul className="lessons">
+            {profile.lessons.map((l) => (
+              <li key={l.title}>
+                <h3>{l.title}</h3>
+                <p>{l.body}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+
         <section id="about" className="section" aria-labelledby="about-title">
           <h2 id="about-title">About</h2>
           <div className="about">

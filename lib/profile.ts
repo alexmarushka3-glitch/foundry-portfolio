@@ -27,6 +27,25 @@ export const profile = {
     "I built it with Claude Code. One agent reads the code. Two more write the story and the plan, two build in parallel, and two check the result before a pull request is written. It is still rough. The sample app is small, and the three examples are replays of real live runs, each recorded once, with no pull request opened. In a live run, the verifier writes a test that a real headless browser runs. If the browser can't start, the run says so.",
     "I'm recruiting for consulting and tech roles. I like projects where I can say what the thing does, how well it works and what it costs.",
   ],
+  /** "What building it taught me": each item is a decision made in the code, stated as it is. Keep it factual. */
+  lessons: [
+    {
+      title: "Let the checks decide, not the agents",
+      body: "An agent's own report can't tell you whether the work is done. The sample app's tests and a real browser test decide, and a failing result sends the work back whatever the agents say about it.",
+    },
+    {
+      title: "Put a limit on the loop",
+      body: "A send-back gets one extra round at most, and only if the run is still under 75 seconds. A run also stops at a $0.25 spending cap, and there are per-visitor and daily limits. One of the 23 measured runs failed its first round and hit the time limit before a second, so it ended unapproved. I would rather show that than hide it.",
+    },
+    {
+      title: "Keep the agents in a box",
+      body: "They work on an in-memory copy of a small repository, can only write to allowed folders, and have no shell. The sample app's code runs only in an isolated sandbox with the network off.",
+    },
+    {
+      title: "Settings can fail a run quietly",
+      body: "In my first live tests the answers were cut off at the output limit and the browser step failed. I raised the limits and loosened that prompt. The models also need thinking switched off and effort set low, or the thinking uses up the short output limit.",
+    },
+  ],
   projects: [
     {
       name: "Foundry: multi-agent software factory",
