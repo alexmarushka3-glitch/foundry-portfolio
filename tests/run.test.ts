@@ -1,8 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import recordings from "@/lib/recordings.json";
-import { AGENT_LIST } from "@/lib/agents";
-import { e2ePassed, validatorApproved } from "@/lib/pipeline/verdicts";
-import { EXAMPLE_REQUESTS as OLD_EXAMPLES, buildReplayRun, findRecording, framesFrom, maxRound, viewsAt } from "@/lib/run";
+import { framesFrom, maxRound, normalizeRequest, viewsAt, type Run } from "@/lib/run";
 import { EXAMPLE_REQUESTS } from "@/lib/exampleRequests";
 import liveRecordings from "@/lib/liveRecordings.json";
 import { loadLiveRecordings } from "@/lib/liveReplay";
@@ -26,62 +23,31 @@ describe("live recordings", () => {
   });
 });
 
-describe("recordings", () => {
-  it("has all eight agents, in pipeline order, with real text, for every example", () => {
-    expect(recordings.examples.length).toBeGreaterThan(0);
-    for (const ex of recordings.examples) {
-      expect(ex.steps.map((s) => s.agent)).toEqual(AGENT_LIST.map((a) => a.id));
-      for (const s of ex.steps) {
-        expect(s.text.length).toBeGreaterThan(20);
-        expect(s.ms).toBeGreaterThan(0);
-      }
-    }
-  });
-
-  it("stores verdict flags that agree with the recorded text", () => {
-    for (const ex of recordings.examples) {
-      const text = (agent: string) => ex.steps.find((s) => s.agent === agent)!.text;
-      expect(ex.e2eOk).toBe(e2ePassed(text("e2e")));
-      expect(ex.approved).toBe(validatorApproved(text("validator")));
-    }
-  });
-});
-
-describe("findRecording", () => {
-  it("matches ignoring case, spacing and trailing punctuation", () => {
-    const first = OLD_EXAMPLES[0];
-    expect(findRecording(first)).toBeDefined();
-    expect(findRecording(`  ${first.toUpperCase()}!! `)).toBe(findRecording(first));
-  });
-  it("returns nothing for an idea that was not recorded", () => {
-    expect(findRecording("Add dark mode")).toBeUndefined();
-  });
-});
-
-describe("buildReplayRun", () => {
-  const run = buildReplayRun(findRecording(OLD_EXAMPLES[0])!);
-  const step = (agent: string) => run.steps.find((s) => s.agent === agent)!;
-
-  it("runs backend and frontend at the same time and everything else in order", () => {
-    expect(step("backend").start).toBe(step("frontend").start);
-    const order = ["researcher", "story", "pm", "backend", "e2e", "validator", "release"].map((a) => step(a).start);
-    expect([...order].sort((a, b) => a - b)).toEqual(order);
-    expect(step("e2e").start).toBeGreaterThanOrEqual(Math.max(step("backend").end, step("frontend").end));
-  });
-
-  it("ends after the last stage and keeps the real timings for display", () => {
-    expect(run.total).toBeGreaterThan(step("release").end);
-    expect(run.mode).toBe("replay");
-    expect(run.realMs).toBeGreaterThan(run.steps.reduce((m, s) => Math.max(m, s.ms), 0));
+describe("normalizeRequest", () => {
+  it("ignores case, outer spacing and trailing punctuation", () => {
+    expect(normalizeRequest("  Add a Due Date!! ")).toBe(normalizeRequest("add a due date"));
   });
 });
 
 describe("viewsAt and framesFrom", () => {
-  const run = buildReplayRun(findRecording(OLD_EXAMPLES[0])!);
+  const run: Run = {
+    request: "x",
+    mode: "replay",
+    steps: [
+      { agent: "researcher", round: 1, model: "m", text: "Reading the repository and its tests.", start: 0, end: 1000, ms: 5000 },
+      { agent: "story", round: 1, model: "m", text: "As a user I want a due date.", start: 1450, end: 2450, ms: 4000 },
+    ],
+    total: 3150,
+    approved: true,
+    rounds: 1,
+    realMs: 9000,
+  };
 
-  it("shows nothing before the start, and every agent finished at the end", () => {
+  it("shows nothing before the start, and every started agent is finished at the end", () => {
     expect(viewsAt(run, -1)).toEqual([]);
-    expect(framesFrom(viewsAt(run, run.total)).every((f) => f.status === "done")).toBe(true);
+    const frames = framesFrom(viewsAt(run, run.total));
+    expect(frames.filter((f) => f.status === "done")).toHaveLength(run.steps.length);
+    expect(frames.filter((f) => f.status === "active")).toHaveLength(0);
   });
 
   it("reveals text in proportion to progress while an agent is active", () => {

@@ -22,18 +22,20 @@ components/              React UI.
 lib/                     Everything that isn't React or HTTP.
   types.ts               Shared types: AgentName, FoundryEvent (the stream protocol), Mode.
   agents.ts              Labels and one-line jobs for the eight agents (what the page shows).
-  run.ts                 Recordings, replay timeline, frames at a moment. Browser and server safe.
+  run.ts                 Run and step types, frames at a moment. Browser and server safe.
+  liveReplay.ts          Lays a recorded live run out on a replay timeline (buildLiveReplayRun, findLiveRecording).
   liveRun.ts             Pure reducer that builds a run from streamed events. Browser safe.
   ndjson.ts              Encode and read the event stream.
   format.ts, summary.ts  Display helpers.
   pipeline/              The eight agents. Server only.
   server/                Server state: rate limits, run log, admin auth, env parsing. Server only.
   admin/                 Dashboard maths (aggregate.ts), the stats payload (overview.ts), action names.
-  recordings.json        GENERATED from recordings-src/. Never hand-edit.
+  liveRecordings.json    GENERATED from recordings-src/live/ (npm run recordings:live). Never hand-edit.
+  exampleRequests.ts     GENERATED with it: the three example requests.
 
 tests/                   Vitest. One file per area; see "Tests" below.
-recordings-src/          Raw outputs of the three real recorded runs.
-scripts/                 build-recordings.mjs.
+recordings-src/live/     The three real recorded live runs (full event streams). archive-text-only/ holds the old text-only recordings, kept for history.
+scripts/                 record-live-runs.ts, build-live-recordings.mjs.
 ```
 
 Rule of thumb: `lib/` files marked "browser safe" import nothing from `lib/server/` or `node:*`. The admin dashboard imports only *types* from `lib/server/runLog`, which TypeScript erases.
@@ -41,7 +43,7 @@ Rule of thumb: `lib/` files marked "browser safe" import nothing from `lib/serve
 ## A run, end to end
 
 1. The browser decides what to do (`components/Stage.tsx`, `go()`).
-   - The idea matches a recording (`findRecording`): play it in the browser with `buildReplayRun` and `viewsAt`. No network.
+   - The idea matches a recording (`findLiveRecording`): play it in the browser with `buildLiveReplayRun` and `viewsAt`. No network.
    - Otherwise: `useLiveRun` POSTs `{ request }` to `/api/run`.
 2. `app/api/run/route.ts` validates the request (`parseRequest`: a `spec` from `lib/spec.ts` is rebuilt into one sentence server-side; plain text is accepted only for the recorded examples), checks the per-visitor and daily brake (`LiveLimiter`) for requests built in the form, and starts `runPipeline` inside a `ReadableStream`. Each event goes to two places: the response (one JSON object per line) and a `RunRecorder` that will become the admin log entry.
 3. `lib/pipeline/index.ts` `runPipeline`:
@@ -75,7 +77,7 @@ The route aborts an `AbortController` when the visitor disconnects. The signal r
 
 ## Honesty constraints that shape the code
 
-- `recordings-src/` and `lib/recordings.json` are real output; the build script is the only writer of the JSON.
+- `recordings-src/live/` and `lib/liveRecordings.json` are real output of live runs; the recorder is the only writer of the sources and `build-live-recordings.mjs` the only writer of the JSON.
 - Every mode is labelled on the page. Simulated text is never shown as model output (`MODE_COPY` in `Stage.tsx`, `runSummary` in `lib/summary.ts`).
 - `lib/reality.ts` and the project copy in `lib/profile.ts` must keep the caveats listed in `CLAUDE.md`.
 

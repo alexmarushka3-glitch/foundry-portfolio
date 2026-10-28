@@ -14,7 +14,7 @@ export const REALITY: { tone: RealityTone; heading: string; items: string[] }[] 
       "The E2E Verifier writes a Playwright test, and a headless Chromium runs it against the app inside the sandbox. The browser's pass or fail decides the gate, and its screenshots appear in the verifier's panel. If the browser cannot start, the panel says so and the verifier reads the code instead.",
       "A live run that passes both checks opens a draft pull request on the public taskly-sample repository. Drafts are closed automatically after about a day.",
       "Requests built in the form run on live Claude models while live mode is on. The badge on the stage always shows which mode ran.",
-      "Three recorded runs, played back faster than they ran. They come from an earlier version in which the agents read pasted text and wrote code in their replies. Each passed both of the pipeline's checks in the first round, in 72 to 94 seconds.",
+      "The three examples replay real live runs, played back faster than they ran. Each request was recorded once and kept as it came out. Each includes the sample app's real unit tests and a real headless Chromium test in the sandbox, with screenshots from that browser. Each passed both of the pipeline's checks in the first round, in 67 to 75 seconds, for $0.19 to $0.22.",
     ],
   },
   {
@@ -29,10 +29,10 @@ export const REALITY: { tone: RealityTone; heading: string; items: string[] }[] 
     tone: "limits",
     heading: "Limitations",
     items: [
-      "The recordings and the simulation never run any code. In a live run, the sample app starts only inside the sandbox, for its tests and one browser test.",
-      "In the recordings and the simulation, the E2E Verifier is an agent reasoning through user flows. It does not drive a browser.",
+      "The simulation never runs any code. In a live run, and so in the recordings of live runs, the sample app starts only inside the sandbox, for its tests and one browser test.",
+      "In the simulation, the E2E Verifier is an agent reasoning through user flows. It does not drive a browser.",
       "The sample app is a real but small repository of about 240 lines. The results say little about large codebases.",
-      "None of the three recordings needed the send-back round. Live runs sometimes do, and the simulation always shows it.",
+      "None of the three recordings includes a send-back round: all three were approved in round one. Live runs sometimes do, and the simulation always shows it.",
       "No human reviews the pull requests, and the recordings and the simulation open none. Three recorded runs make a demo, not a success rate.",
     ],
   },

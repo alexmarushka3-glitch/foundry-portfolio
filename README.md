@@ -32,9 +32,9 @@ The page labels the mode on every run.
 
 ## What is real and what is not
 
-- The three recorded runs were made with a separate Claude agent for every stage. The raw outputs are in `recordings-src/`, and `scripts/build-recordings.mjs` assembles them into `lib/recordings.json`. All three passed on the first round.
-- The agents work on an in-memory copy of a small real repo, [taskly-sample](https://github.com/alexmarushka3-glitch/taskly-sample) (`lib/tasklySnapshot.json`, rebuilt with `node scripts/build-snapshot.mjs`). The engineers write real files into the copy with a `write_file` tool. In a live run, the sample app's real tests (`npm test`) then run on those files in a Vercel Sandbox (`lib/pipeline/sandbox.ts`) with the network off; a failing suite fails the E2E gate. The app is never started, the E2E Verifier is still an agent, and no pull request is opened.
-- In a live run the E2E Verifier writes a Playwright test and a real headless Chromium runs it against the app started in the sandbox (needs `FOUNDRY_SANDBOX_SNAPSHOT`, see below); pictures show in its panel and the real result decides the gate. In the recordings and the simulation it is an agent reasoning through flows. A live run that passes both checks then opens a real draft pull request on taskly-sample through a GitHub App (`lib/pipeline/github.ts`); a daily Vercel cron (`/api/cron/close-stale-prs`) closes them after a day.
+- The three recorded examples are real live runs, each recorded once with `scripts/record-live-runs.ts` and kept as it came out (`recordings-src/live/`, collected into `lib/liveRecordings.json` by `npm run recordings:live`). The site replays them faster than they ran. All three were approved on the first round, include the sample app's real tests and a real browser test, and opened no pull request.
+- The agents work on an in-memory copy of a small real repo, [taskly-sample](https://github.com/alexmarushka3-glitch/taskly-sample) (`lib/tasklySnapshot.json`, rebuilt with `node scripts/build-snapshot.mjs`). The engineers write real files into the copy with a `write_file` tool. In a live run, the sample app's real tests (`npm test`) then run on those files in a Vercel Sandbox (`lib/pipeline/sandbox.ts`) with the network off; a failing suite fails the E2E gate.
+- In a live run the E2E Verifier writes a Playwright test and a real headless Chromium runs it against the app started in the sandbox (needs `FOUNDRY_SANDBOX_SNAPSHOT`, see below); pictures show in its panel and the real result decides the gate. In the simulation it is an agent reasoning through flows. A live run that passes both checks then opens a real draft pull request on taskly-sample through a GitHub App (`lib/pipeline/github.ts`); a daily Vercel cron (`/api/cron/close-stale-prs`) closes them after a day.
 
 ## Getting started
 
@@ -54,7 +54,7 @@ With no configuration the site works: the examples replay and requests built in 
 | `npm run typecheck` | TypeScript, no emit. |
 | `npm test` | The whole test suite (about 3 seconds, no network, no API key). |
 | `npm run test:watch` | Tests in watch mode. |
-| `node scripts/build-recordings.mjs` | Rebuild `lib/recordings.json` from `recordings-src/`. |
+| `npm run recordings:live` | Rebuild `lib/liveRecordings.json` and `lib/exampleRequests.ts` from `recordings-src/live/`. |
 
 On Windows PowerShell, run `npx.cmd` instead of `npx`.
 
@@ -118,8 +118,8 @@ app/            Routes: the page, /admin, /admin-demo, /api/run, /api/admin/*
 components/     Stage (and stage/), PipelineSvg, Logo, admin/
 lib/            pipeline/ (the agents), server/ (limits, log, auth), admin/ (dashboard maths), run.ts, liveRun.ts, ...
 tests/          Vitest suites
-recordings-src/ Raw outputs of the three real runs
-scripts/        build-recordings.mjs
+recordings-src/ The three real recorded live runs (live/), old text-only ones archived
+scripts/        record-live-runs.ts, build-live-recordings.mjs
 docs/           ARCHITECTURE.md
 ```
 

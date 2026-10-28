@@ -76,7 +76,7 @@ export default function AdminView({ admin, sample = false, embedded = false, aut
       {sample && !embedded && (
         <aside className="sample-banner" role="note">
           <strong>Sample data.</strong> Everything on this page is made up to show how the dashboard works. These are not real visitors,
-          runs or costs, and the buttons only change what you see here. The three recorded examples at the bottom are the real ones.{" "}
+          runs or costs, and the buttons only change what you see here. The three recorded examples at the bottom are the real live-run recordings.{" "}
           <a href="/">Back to the site</a>
         </aside>
       )}
@@ -208,7 +208,7 @@ export default function AdminView({ admin, sample = false, embedded = false, aut
           {!embedded && (
             <section className="card" aria-labelledby="recorded-title">
               <h2 id="recorded-title">Recorded examples</h2>
-              <p className="muted">The three runs the site replays. They are fixed, so they cost nothing to show.</p>
+              <p className="muted">The three real live runs the site replays, each recorded once. They are fixed, so replaying them costs nothing.</p>
               <div className="table-wrap" tabIndex={0} role="region" aria-label="Recorded examples">
                 <table className="runs">
                   <thead>

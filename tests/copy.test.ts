@@ -26,10 +26,29 @@ describe("page copy", () => {
 
   it("keeps the caveats about unrun code and the agent-only E2E check in Scope and limits", () => {
     const notDone = REALITY.find((c) => c.tone === "limits")!.items.join(" ");
-    expect(notDone).toMatch(/never run any code/i);
+    expect(notDone).toMatch(/simulation never runs any code/i);
     expect(REALITY.find((c) => c.tone === "working")!.items.join(" ")).toMatch(/sandbox/i);
     expect(notDone).toMatch(/does not drive a browser/i);
     expect(notDone).toMatch(/no human reviews/i);
+  });
+
+  it("describes the replays as real live runs, not the older text-only version", () => {
+    const copy = allCopy();
+    const working = REALITY.find((c) => c.tone === "working")!.items.join(" ");
+    expect(copy).not.toMatch(/earlier version/i);
+    expect(copy).not.toMatch(/older text-only/i);
+    expect(working).toMatch(/real live runs/i);
+    expect(working).toMatch(/faster than they ran/i);
+    expect(working).toMatch(/recorded once/i);
+    expect(profile.pitch).not.toMatch(/earlier version/i);
+  });
+
+  it("says the recordings opened no pull request and no human reviewed anything", () => {
+    const limits = REALITY.find((c) => c.tone === "limits")!.items.join(" ");
+    expect(limits).toMatch(/recordings and the simulation open none/i);
+    expect(limits).toMatch(/demo, not a success rate/i);
+    expect(limits).toMatch(/none of the three recordings includes a send-back/i);
+    expect(limits).not.toMatch(/recordings and the simulation never run any code/i);
   });
 
   it("labels the sample dashboard as made up", () => {

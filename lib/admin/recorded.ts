@@ -1,6 +1,7 @@
-import recordings from "../recordings.json";
+import data from "../liveRecordings.json";
+import type { LiveRecording } from "../recorder/capture";
 
-// The three real recorded runs, summarised for the admin pages. Browser and server safe.
+// The three real recorded live runs, summarised for the admin pages. Browser and server safe.
 
 export type RecordedExample = {
   request: string;
@@ -8,14 +9,16 @@ export type RecordedExample = {
   approved: boolean;
   totalMs: number;
   models: string[];
+  costUsd: number;
 };
 
 export function recordedExamples(): RecordedExample[] {
-  return recordings.examples.map((e) => ({
-    request: e.request,
-    rounds: e.rounds,
-    approved: e.approved,
-    totalMs: e.totalMs,
-    models: [...new Set(e.steps.map((s) => s.model))],
+  return (data.recordings as unknown as LiveRecording[]).map((r) => ({
+    request: r.request,
+    rounds: r.rounds,
+    approved: r.approved,
+    totalMs: r.totalMs,
+    models: [...new Set(r.events.flatMap((e) => (e.event.type === "start" ? [e.event.model] : [])))],
+    costUsd: r.costUsd,
   }));
 }

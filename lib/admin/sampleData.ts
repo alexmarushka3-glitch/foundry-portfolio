@@ -5,7 +5,7 @@ import type { AgentName, Mode } from "../types";
 
 // MADE-UP DATA for the public /admin-demo page. None of this describes real visitors, runs or spend.
 // It is generated (not stored) from a fixed seed, so the page looks the same on every visit apart from the clock.
-// The recorded examples shown on the page are the real ones from recordings.json.
+// The recorded examples shown on the page are the real ones from lib/liveRecordings.json.
 
 /** Every visitor id in the sample data starts with this, so it can't be mistaken for a real hash. */
 export const SAMPLE_VISITOR_PREFIX = "sample-";
