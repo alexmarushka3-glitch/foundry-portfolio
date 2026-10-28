@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { framesFrom, maxRound, normalizeRequest, viewsAt, type Run } from "@/lib/run";
-import { loadLiveRecordings } from "@/lib/liveReplay";
+import { loadLiveRecording } from "@/lib/liveReplay";
 
 vi.mock("@/lib/liveRecordings.json", async () => {
   const { fixtureRecording } = await import("./fixtures/liveRecording");
@@ -12,8 +12,12 @@ vi.mock("@/lib/exampleRequests", async () => {
 });
 
 describe("live recordings", () => {
-  it("loads once and hands back the same list", async () => {
-    expect(await loadLiveRecordings()).toBe(await loadLiveRecordings());
+  it("loads an example once and hands back the same recording", async () => {
+    const { RECORDING_CHUNKS } = await import("@/lib/liveRecordingChunks");
+    const request = RECORDING_CHUNKS[0].request;
+    const first = await loadLiveRecording(request);
+    expect(first).toBeDefined();
+    expect(await loadLiveRecording(request)).toBe(first);
   });
 });
 

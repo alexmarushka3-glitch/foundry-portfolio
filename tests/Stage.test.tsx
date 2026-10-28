@@ -10,7 +10,8 @@ vi.mock("@/lib/liveRecordings.json", () => ({ default: { recordings: [] } }));
 vi.mock("@/lib/liveReplay", async (orig) => {
   const mod = await orig<typeof import("@/lib/liveReplay")>();
   const { fixtureRecording } = await import("./fixtures/liveRecording");
-  return { ...mod, loadLiveRecordings: async () => [fixtureRecording()] };
+  const rec = fixtureRecording();
+  return { ...mod, loadLiveRecording: async (request: string) => mod.findLiveRecording([rec], request) };
 });
 vi.mock("@/lib/exampleRequests", () => ({ EXAMPLE_REQUESTS: ["Let users set a due date on tasks"] }));
 

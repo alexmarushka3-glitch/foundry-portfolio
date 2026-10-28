@@ -15,7 +15,7 @@ npm run typecheck
 npm test             # vitest, no network or key needed
 npm run build
 npx.cmd vite-node scripts/record-live-runs.ts -- --requests 4 --confirm   # record real live runs into recordings-src/live/, costs money, opens no pull request
-npm run recordings:live   # rebuild lib/liveRecordings.json and lib/exampleRequests.ts from recordings-src/live/
+npm run recordings:live   # rebuild lib/liveRecordings.json, the per-example lib/liveRecordings/*.json chunks and lib/exampleRequests.ts from recordings-src/live/
 npx.cmd vite-node scripts/run-eval.ts -- --runs 8 --confirm   # real live runs, costs money; appends to lib/eval/results.json
 ```
 
@@ -41,7 +41,7 @@ Full map and recipes: `docs/ARCHITECTURE.md`. Short version:
 - `lib/tasklySnapshot.json`: an in-memory copy of the `taskly-sample` repo (rebuild with `node scripts/build-snapshot.mjs` after committing there). `lib/pipeline/workspace.ts` serves it to the agents and keeps their writes in an overlay; `lib/pipeline/tools.ts` defines the tools (Researcher: read-only; Backend: `src/` and `tests/`; Frontend: `public/`). No agent has a shell, so the Researcher is read-only by construction and nothing leaves memory.
 - `lib/eval/` and `scripts/run-eval.ts`: measured runs. `collect.ts` counts only finished live runs (never simulations or replays), `summarize.ts` adds a 95% interval, `plan.ts` fixes the four requests and the spend cap. Results go to `lib/eval/results.json` (append-only, real runs only; never hand-edit). `components/EvalCard.tsx` shows them under Scope and limits and renders nothing while the file is empty. The script needs `--confirm`, `ANTHROPIC_API_KEY` in `.env.local`, the sandbox login in `.env.sandbox.local` and `FOUNDRY_SANDBOX_SNAPSHOT` in either that file or `.env.eval.local`.
 - `recordings-src/live/`: one JSON file per recorded real live run (the full event stream with timings), written by `scripts/record-live-runs.ts` (`lib/recorder/`). `recordings-src/archive-text-only/`: the old text-only recordings, kept for history, never edited, not shown anywhere.
-- `lib/liveRecordings.json` and `lib/exampleRequests.ts`: generated from `recordings-src/live/` by `npm run recordings:live`. Do not edit by hand.
+- `lib/liveRecordings.json` (server), `lib/liveRecordings/<slug>.json` with `lib/liveRecordingChunks.ts` (browser: `loadLiveRecording` fetches only the example it plays, about 90 KB) and `lib/exampleRequests.ts`: generated from `recordings-src/live/` by `npm run recordings:live`. Do not edit by hand.
 - `tests/`: Vitest. Run `npm test` before pushing. Pipeline tests inject a fake model client; no test needs a key.
 
 ## Modes
@@ -68,6 +68,6 @@ Pushes to `main` redeploy automatically through the Vercel GitHub integration (p
 1. Add the request to the plan in `lib/eval/plan.ts` (or pass the count to `--requests`); the script records the first N planned requests.
 2. Put `ANTHROPIC_API_KEY` in `.env.local`, the sandbox login in `.env.sandbox.local` and `FOUNDRY_SANDBOX_SNAPSHOT` in `.env.eval.local` (all gitignored; never print them).
 3. Run `npx.cmd vite-node scripts/record-live-runs.ts -- --requests N --confirm`. It costs about $0.18 to $0.31 a run, reads no GitHub env (so no pull request opens) and writes `recordings-src/live/<slug>.json`. Keep each run as it came out; never edit or cherry-pick events.
-4. Run `npm run recordings:live` to rebuild `lib/liveRecordings.json` and `lib/exampleRequests.ts`.
+4. Run `npm run recordings:live` to rebuild `lib/liveRecordings.json`, the per-example chunks and `lib/exampleRequests.ts`.
 5. Run `npm test` (the recorder, replay and example-request tests check shape, size, secrets and that the shipped request list matches the recordings), `npm run typecheck`, `npm run build`, then push.
 6. Re-check the numbers in `lib/reality.ts` (seconds, cost, rounds) against the new files.

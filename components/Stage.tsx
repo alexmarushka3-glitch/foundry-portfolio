@@ -13,7 +13,7 @@ import PipelineSvg from "./PipelineSvg";
 import { AGENT_BY_ID } from "@/lib/agents";
 import { framesFrom, maxRound, viewsAt, type AgentFrame, type Run, type StepView } from "@/lib/run";
 import { EXAMPLE_REQUESTS } from "@/lib/exampleRequests";
-import { buildLiveReplayRun, findLiveRecording, loadLiveRecordings } from "@/lib/liveReplay";
+import { buildLiveReplayRun, loadLiveRecording } from "@/lib/liveReplay";
 import { profile } from "@/lib/profile";
 import { runSummary } from "@/lib/summary";
 import type { AgentName, Mode } from "@/lib/types";
@@ -73,7 +73,7 @@ export default function Stage() {
   /** Play a recorded example in the browser. Resolves false if the request isn't a recorded one. */
   const startReplay = useCallback(
     async (request: string) => {
-      const rec = findLiveRecording(await loadLiveRecordings(), request);
+      const rec = await loadLiveRecording(request);
       if (!rec) return false;
       cancelLive();
       resetView();
@@ -108,9 +108,8 @@ export default function Stage() {
       const first = EXAMPLE_REQUESTS[0];
       if (!first) return;
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        void loadLiveRecordings().then((recs) => {
+        void loadLiveRecording(first).then((rec) => {
           if (touchedRef.current) return;
-          const rec = findLiveRecording(recs, first);
           if (rec) showFinished(buildLiveReplayRun(rec));
         });
       } else {

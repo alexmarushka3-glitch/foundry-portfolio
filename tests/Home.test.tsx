@@ -21,7 +21,7 @@ describe("Home page", () => {
     const { container } = render(<Home />);
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Foundry");
     expect(screen.getByText(profile.intro)).toBeTruthy();
-    expect(container.querySelector(".hero .byline")?.textContent).toMatch(/Alex Marushka, student at the University of Chicago/);
+    expect(container.querySelector(".hero .byline")?.textContent).toMatch(/Alex Marushka, Business Economics student at the University of Chicago, class of 2029/);
   });
 
   it("shows the logo in the nav and next to the title, hidden from screen readers", () => {
@@ -42,6 +42,13 @@ describe("Home page", () => {
     expect(ids.indexOf("demo")).toBeLessThan(ids.indexOf("reality"));
     expect(ids.indexOf("reality")).toBeLessThan(ids.indexOf("dashboard"));
     expect(ids.indexOf("dashboard")).toBeLessThan(ids.indexOf("projects"));
+  });
+
+  it("links the resume PDF from the header, outside the section links", () => {
+    const { container } = render(<Home />);
+    const resume = container.querySelector(".nav > a.nav-resume");
+    expect(resume?.textContent).toBe("Resume");
+    expect(resume?.getAttribute("href")).toBe("/Alex-Marushka-Resume.pdf");
   });
 
   it("has no link to the admin demo page, and every nav link points at a real section", () => {
