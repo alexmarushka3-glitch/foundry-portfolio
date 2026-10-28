@@ -25,7 +25,13 @@ export default function EvalCard({ runs }: { runs: EvalRun[] }) {
         <ul>
           {notClean.map((r, i) => (
             <li key={`${r.request ?? "run"}-${i}`}>
-              {r.request ?? "A request"} ({r.approved ? "approved after a second round" : "not approved"})
+              {r.request ?? "A request"} (
+              {r.approved
+                ? "approved after a second round"
+                : r.rounds > 1
+                  ? "not approved after a second round"
+                  : "not approved: the first round failed and the run hit its time limit before a second round"}
+              )
             </li>
           ))}
         </ul>
