@@ -69,6 +69,8 @@ export const profile = {
       images: [
         {
           src: "/projects/personal-ai-workflow-sample.png",
+          /** Same sample data, animated. Shown only when the visitor allows motion. */
+          animated: "/projects/personal-ai-workflow-sample.gif",
           alt: "A Claude Code session with sample data: the Canvas checker lists five made-up assignments due in the next two weeks and one missing one, then a tutor skill turns the calculus dates into a three-day study plan.",
         },
       ],
@@ -84,6 +86,8 @@ export const profile = {
       images: [
         {
           src: "/projects/second-brain-sample.png",
+          /** Same sample data, animated. Shown only when the visitor allows motion. */
+          animated: "/projects/second-brain-sample.gif",
           alt: "The Second Brain doc with sample data: a task table with made-up classes, due dates and statuses, a projects table, and a this-week list.",
         },
       ],
