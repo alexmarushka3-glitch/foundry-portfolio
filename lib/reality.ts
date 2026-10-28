@@ -34,6 +34,7 @@ export const REALITY: { tone: RealityTone; heading: string; items: string[] }[] 
       "The sample app is a real but small repository of about 240 lines. The results say little about large codebases.",
       "None of the three recordings includes a send-back round: all three were approved in round one. Live runs sometimes do, and the simulation always shows it.",
       "No human reviews the pull requests, and the recordings and the simulation open none. Three recorded runs make a demo, not a success rate.",
+      "After the fact, I checked three of the eight draft pull requests the pipeline has opened so far (#5, #6 and #8) by reading their diffs on GitHub. Each did what its request said, touched only the expected files and included tests, but the written descriptions were sometimes loose: one mentioned a browser test that is not in the pull request. Three of eight is a spot check, not a review.",
     ],
   },
 ];
