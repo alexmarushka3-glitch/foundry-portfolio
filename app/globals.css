@@ -1127,6 +1127,10 @@ main,
   .idea-name {
     flex: none;
   }
+  /* a select is as wide as its longest option unless told otherwise, which pushed the form past 320px screens */
+  .idea select {
+    width: 100%;
+  }
   .run {
     padding: 12px;
   }
