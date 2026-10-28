@@ -130,10 +130,27 @@ h3 {
   padding-block: 8px;
   margin-block: -8px;
 }
+.nav nav {
+  margin-left: auto;
+}
+.nav-resume {
+  padding: 6px 14px;
+  margin-block: -6px;
+  border: 1px solid var(--ghost-line);
+  border-radius: 999px;
+  font-size: 0.9rem;
+  color: var(--ink);
+  text-decoration: none;
+  white-space: nowrap;
+}
 @media (hover: hover) and (pointer: fine) {
   .nav nav a:hover {
     color: var(--ink);
     text-decoration: underline;
+  }
+  .nav-resume:hover {
+    background: var(--ink);
+    color: var(--paper);
   }
 }
 
@@ -1161,7 +1178,14 @@ main,
   .brand {
     white-space: nowrap;
   }
+  /* brand and Resume share the first row; the section links get the second */
+  .nav-resume {
+    margin-left: auto;
+    font-size: 0.85rem;
+  }
   .nav nav {
+    order: 1;
+    margin-left: 0;
     width: 100%;
     justify-content: space-between;
     gap: 8px;

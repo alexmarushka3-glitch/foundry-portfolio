@@ -24,6 +24,9 @@ export default function Home() {
           <a href="#projects">Projects</a>
           <a href="#about">About</a>
         </nav>
+        <a className="nav-resume" href="/Alex-Marushka-Resume.pdf" target="_blank" rel="noreferrer">
+          Resume
+        </a>
       </header>
 
       <main id="top">
@@ -43,7 +46,8 @@ export default function Home() {
             </a>
           </div>
           <p className="byline">
-            {profile.name}, student at the University of Chicago. Recruiting for consulting and tech roles.{" "}
+            {profile.name}, Business Economics student at the University of Chicago, class of 2029. Recruiting for consulting and tech
+            roles.{" "}
             <ContactLinks label="Email" />
           </p>
         </section>

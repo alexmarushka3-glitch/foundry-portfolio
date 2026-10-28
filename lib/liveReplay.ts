@@ -1,5 +1,6 @@
 import { applyEvent, startLive, toRun } from "./liveRun";
 import type { LiveState } from "./liveRun";
+import { RECORDING_CHUNKS } from "./liveRecordingChunks";
 import type { LiveRecording } from "./recorder/capture";
 import { normalizeRequest, type Run } from "./run";
 
@@ -34,20 +35,27 @@ export function findLiveRecording(recs: LiveRecording[], request: string): LiveR
   return recs.find((r) => normalizeRequest(r.request) === normalizeRequest(request));
 }
 
-let loaded: Promise<LiveRecording[]> | null = null;
+type Chunk = { request: string; load: () => Promise<{ default: unknown }> };
 
-/** Loads the recordings on demand, so their size never lands in the first page load. */
-export function loadLiveRecordings(
-  loader: () => Promise<LiveRecording[]> = () =>
-    import("./liveRecordings.json").then((m) => m.default.recordings as unknown as LiveRecording[]),
-): Promise<LiveRecording[]> {
-  if (!loaded) {
-    const attempt = loader();
-    loaded = attempt;
+const loaded = new Map<string, Promise<LiveRecording>>();
+
+/**
+ * Loads the one recording that matches `request`, on demand, so no recording lands in the first page load
+ * and playing one example never downloads the others. Resolves undefined if the request isn't a recorded one.
+ */
+export async function loadLiveRecording(request: string, chunks: Chunk[] = RECORDING_CHUNKS): Promise<LiveRecording | undefined> {
+  const key = normalizeRequest(request);
+  const chunk = chunks.find((c) => normalizeRequest(c.request) === key);
+  if (!chunk) return undefined;
+  let attempt = loaded.get(key);
+  if (!attempt) {
+    const next = chunk.load().then((m) => m.default as LiveRecording);
+    loaded.set(key, next);
     // A failed load must not be remembered, or every later call would fail too.
-    attempt.catch(() => {
-      if (loaded === attempt) loaded = null;
+    next.catch(() => {
+      if (loaded.get(key) === next) loaded.delete(key);
     });
+    attempt = next;
   }
-  return loaded;
+  return attempt;
 }
