@@ -79,7 +79,10 @@ describe("page copy", () => {
       expect(p.note).toMatch(/private/i);
       expect(p.note).toMatch(/sample data/i);
       expect(JSON.stringify(p)).not.toMatch(/claude\.ai\/artifact|docs\.google|drive\.google|canvas\.uchicago/i);
-      for (const img of p.images ?? []) expect(img.alt).toMatch(/sample data/i);
+      for (const img of p.images ?? []) {
+        expect(img.alt).toMatch(/sample data/i);
+        if (img.animated) expect(img.animated).toMatch(/-sample\.gif$/);
+      }
     }
   });
 });

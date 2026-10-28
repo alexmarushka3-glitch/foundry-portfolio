@@ -103,7 +103,10 @@ export default function Home() {
                   <figure className="project-shots">
                     {p.images.map((img) => (
                       <a key={img.src} href={img.src} target="_blank" rel="noreferrer">
-                        <img src={img.src} alt={img.alt} width={1800} height={990} loading="lazy" />
+                        <picture>
+                          {img.animated && <source media="(prefers-reduced-motion: no-preference)" srcSet={img.animated} />}
+                          <img src={img.src} alt={img.alt} width={1800} height={990} loading="lazy" />
+                        </picture>
                       </a>
                     ))}
                     {p.note && <figcaption>{p.note}</figcaption>}
