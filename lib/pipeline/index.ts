@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { findRecording } from "../run";
+import { findServerRecording } from "../server/liveRecordings";
 import { serverState } from "../server/state";
 import type { AgentName, Emit } from "../types";
 import { runAgent, type LlmClient, type RunContext } from "./agentRunner";
@@ -75,8 +75,8 @@ const UNAVAILABLE_REASON = "Live mode isn't available right now, so this run is 
  */
 export async function runPipeline(request: string, emit: Emit, opts: RunOptions = {}): Promise<void> {
   const pace = opts.pace ?? 1;
-  const recorded = findRecording(request);
-  if (recorded) return replayOnServer(recorded, emit, pace);
+  const recorded = findServerRecording(request);
+  if (recorded) return replayOnServer(recorded, emit, pace, opts.signal);
 
   const t0 = Date.now();
   const wantLive = opts.allowLive !== false && (opts.client !== undefined || liveEnabled());

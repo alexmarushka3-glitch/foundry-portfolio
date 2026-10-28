@@ -1,7 +1,7 @@
 // Small pieces of the run API, kept out of the route file so they can be tested on their own.
 
 import { MAX_INPUT } from "../limits";
-import { findRecording } from "../run";
+import { findServerRecording } from "./liveRecordings";
 import { buildRequest, validateSpec } from "../spec";
 
 type Parsed = { ok: true; request: string } | { ok: false; error: string };
@@ -20,7 +20,7 @@ export function parseRequest(body: unknown): Parsed {
   const raw = typeof b.request === "string" ? b.request.replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim() : "";
   if (!raw) return { ok: false, error: "Pick what you want built first." };
   if (raw.length > MAX_INPUT) return { ok: false, error: `Keep it under ${MAX_INPUT} characters.` };
-  if (!findRecording(raw)) return { ok: false, error: "Pick a feature type and a name, or choose one of the examples." };
+  if (!findServerRecording(raw)) return { ok: false, error: "Pick a feature type and a name, or choose one of the examples." };
   return { ok: true, request: raw };
 }
 

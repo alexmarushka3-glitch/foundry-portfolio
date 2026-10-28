@@ -14,7 +14,8 @@ npm run dev          # http://localhost:3000
 npm run typecheck
 npm test             # vitest, no network or key needed
 npm run build
-node scripts/build-recordings.mjs   # rebuild lib/recordings.json from recordings-src/
+npx.cmd vite-node scripts/record-live-runs.ts -- --requests 4 --confirm   # record real live runs into recordings-src/live/, costs money, opens no pull request
+npm run recordings:live   # rebuild lib/liveRecordings.json and lib/exampleRequests.ts from recordings-src/live/
 npx.cmd vite-node scripts/run-eval.ts -- --runs 8 --confirm   # real live runs, costs money; appends to lib/eval/results.json
 ```
 
@@ -28,7 +29,7 @@ Full map and recipes: `docs/ARCHITECTURE.md`. Short version:
 - Logo: `components/Logo.tsx` (the mark, used in the nav and hero), `app/icon.svg` (tab icon, same drawing), `app/apple-icon.tsx` and `app/opengraph-image.tsx` (home-screen icon and the share-preview picture).
 - `app/page.tsx`, `app/layout.tsx`, `app/globals.css`: the page and styles.
 - `components/Stage.tsx` plus `components/stage/`: the live agent view (hooks `usePlayback`, `useLiveRun`; `IdeaForm`, `OutputPanel`, `PlayerControls`). Recorded runs replay in the browser (a pure function of time, so it can be scrubbed); requests built from the form fields (`lib/spec.ts`) stream from the server and become a scrubbable run. `components/PipelineSvg.tsx` draws the pipeline.
-- `lib/run.ts`: recordings, replay timeline, frames at a moment. `lib/liveRun.ts`: reducer for streamed runs. `lib/agents.ts`, `lib/types.ts`: agent list and shared types (`FoundryEvent` is the stream protocol). Browser and server safe.
+- `lib/run.ts`: run and step types, frames at a moment. `lib/liveReplay.ts`: lays a recorded live run out on a replay timeline. `lib/liveRun.ts`: reducer for streamed runs. `lib/agents.ts`, `lib/types.ts`: agent list and shared types (`FoundryEvent` is the stream protocol). Browser and server safe.
 - `app/api/run/route.ts`: GET says whether live runs are on. POST streams a run (NDJSON), logs it, and aborts the agents if the visitor leaves. Live runs have per-visitor and per-day brakes (`lib/server/liveBrake.ts`: shared in Upstash Redis when `KV_REST_API_URL` and `KV_REST_API_TOKEN` are set, per instance in memory otherwise); replays and simulations are free.
 - `lib/pipeline/`: `index.ts` (the run), `prompts.ts` (the eight agents), `config.ts` (models, prices, caps), `agentRunner.ts`, `simulate.ts`, `replay.ts`, `verdicts.ts`. Live models need thinking switched off and effort low (see `modelParams` in `config.ts`), or thinking tokens eat the short output limit.
 - `lib/server/`: in-memory server state (`state.ts`), rate limits, run log, admin auth, env parsing.
@@ -39,22 +40,22 @@ Full map and recipes: `docs/ARCHITECTURE.md`. Short version:
 - `lib/pipeline/github.ts`: the GitHub App client that opens the draft PR and closes stale ones; `app/api/cron/close-stale-prs` plus `vercel.json` run daily. Needs `GITHUB_APP_ID`, `GITHUB_APP_INSTALLATION_ID`, `GITHUB_APP_PRIVATE_KEY` and `CRON_SECRET` in Vercel; without them no PR is opened.
 - `lib/tasklySnapshot.json`: an in-memory copy of the `taskly-sample` repo (rebuild with `node scripts/build-snapshot.mjs` after committing there). `lib/pipeline/workspace.ts` serves it to the agents and keeps their writes in an overlay; `lib/pipeline/tools.ts` defines the tools (Researcher: read-only; Backend: `src/` and `tests/`; Frontend: `public/`). No agent has a shell, so the Researcher is read-only by construction and nothing leaves memory.
 - `lib/eval/` and `scripts/run-eval.ts`: measured runs. `collect.ts` counts only finished live runs (never simulations or replays), `summarize.ts` adds a 95% interval, `plan.ts` fixes the four requests and the spend cap. Results go to `lib/eval/results.json` (append-only, real runs only; never hand-edit). `components/EvalCard.tsx` shows them under Scope and limits and renders nothing while the file is empty. The script needs `--confirm`, `ANTHROPIC_API_KEY` in `.env.local`, the sandbox login in `.env.sandbox.local` and `FOUNDRY_SANDBOX_SNAPSHOT` in either that file or `.env.eval.local`.
-- `recordings-src/`: raw outputs of real runs (`<slug>/N-agent.txt`) plus `meta.json` (models, timings, request text).
-- `lib/recordings.json`: generated from `recordings-src/`. Do not edit by hand.
+- `recordings-src/live/`: one JSON file per recorded real live run (the full event stream with timings), written by `scripts/record-live-runs.ts` (`lib/recorder/`). `recordings-src/archive-text-only/`: the old text-only recordings, kept for history, never edited, not shown anywhere.
+- `lib/liveRecordings.json` and `lib/exampleRequests.ts`: generated from `recordings-src/live/` by `npm run recordings:live`. Do not edit by hand.
 - `tests/`: Vitest. Run `npm test` before pushing. Pipeline tests inject a fake model client; no test needs a key.
 
 ## Modes
 
-1. **Replay:** the request matches a recorded example. Genuine Claude output from a real run, played back faster than it ran.
+1. **Replay:** the request matches one of the three recorded examples. The full event stream of a real live run (real Claude output, the sample app's real unit tests, a real headless-Chromium test and its screenshots), played back faster than it ran. No code runs and no model is called at replay time; the recordings opened no pull request.
 2. **Live:** typed idea and `ANTHROPIC_API_KEY` is set (and `FOUNDRY_LIVE` is not `off`). Each agent calls a real model. Costs money: keep the Anthropic console spend limit in place. Live models need thinking switched off and effort low (see `modelParams` in `lib/pipeline.ts`), or thinking tokens eat the short output limit.
 3. **Simulated:** typed idea with no key, or over the live limits. Scripted text, labelled as such on the page.
 
 ## Honesty rules
 
 - The page must always say which mode ran. Never present simulated text as model output.
-- Never hand-edit `recordings-src/` text. Replay is only honest if it is the real output.
-- The agents work on an in-memory copy of a small sample app and in a live run its own tests and one Playwright browser test (written by the E2E Verifier, run in real headless Chromium) are run on it, in a Vercel Sandbox started from the snapshot in `FOUNDRY_SANDBOX_SNAPSHOT` (recordings and simulations run no code; they came from the older text-only version, where the E2E Verifier was an agent walking through flows). A live run that passes both checks opens a real *draft* pull request on taskly-sample (GitHub App, repo-scoped; recordings and simulations open none); no human reviews it. Keep those caveats wherever the project is described.
-- All three recorded runs passed on the first round, so no recording has exercised the send-back to a second round. A live test run (Oct 24, 2026) was sent back once by the Validator and passed on round two, so the loop works, but that run was not recorded. Do not claim a success rate.
+- Never hand-edit `recordings-src/live/` events or `recordings-src/archive-text-only/`. Replay is only honest if it is the real output. Each example is recorded once and kept as it came out.
+- The agents work on an in-memory copy of a small sample app and in a live run its own tests and one Playwright browser test (written by the E2E Verifier, run in real headless Chromium) are run on it, in a Vercel Sandbox started from the snapshot in `FOUNDRY_SANDBOX_SNAPSHOT` (the simulation runs no code and its E2E Verifier is an agent walking through flows; the recordings are of live runs, so they include the real tests and browser test). A live run that passes both checks opens a real *draft* pull request on taskly-sample (GitHub App, repo-scoped; the recordings were recorded without opening a pull request (no `pr` event in any recording), and simulations open none); no human reviews it. Keep those caveats wherever the project is described.
+- All three recorded runs were approved on the first round, so no recording shows the send-back to a second round. Live runs sometimes are sent back (a live test run on Oct 24, 2026 was sent back once by the Validator and passed on round two), but those runs were not recorded. Three replays are a demo, not a success rate; do not claim one. Say the pull request is "a draft checked by other agents and real tests", never "reviewed".
 - `/admin-demo` shows made-up data. It must always say so, and never be described as real usage, visitors or spend.
 - Do not commit `.env*` files (only `.env.example`) or `.vercel/`.
 
@@ -64,9 +65,9 @@ Pushes to `main` redeploy automatically through the Vercel GitHub integration (p
 
 ## Adding a recorded example
 
-1. Run the eight stages as separate agents on a new request. Pass each stage the previous stage's real output.
-2. Save each output as `recordings-src/<slug>/1-researcher.txt` through `8-release.txt`.
-3. Add the request and per-stage timings (ms) to `recordings-src/meta.json`.
-4. Run `node scripts/build-recordings.mjs`.
-5. Add the request text to `EXAMPLES` in `components/Demo.tsx`.
-6. Run `npm test` (it checks the recordings are complete and their verdict flags match the text), typecheck, build, and push.
+1. Add the request to the plan in `lib/eval/plan.ts` (or pass the count to `--requests`); the script records the first N planned requests.
+2. Put `ANTHROPIC_API_KEY` in `.env.local`, the sandbox login in `.env.sandbox.local` and `FOUNDRY_SANDBOX_SNAPSHOT` in `.env.eval.local` (all gitignored; never print them).
+3. Run `npx.cmd vite-node scripts/record-live-runs.ts -- --requests N --confirm`. It costs about $0.18 to $0.31 a run, reads no GitHub env (so no pull request opens) and writes `recordings-src/live/<slug>.json`. Keep each run as it came out; never edit or cherry-pick events.
+4. Run `npm run recordings:live` to rebuild `lib/liveRecordings.json` and `lib/exampleRequests.ts`.
+5. Run `npm test` (the recorder, replay and example-request tests check shape, size, secrets and that the shipped request list matches the recordings), `npm run typecheck`, `npm run build`, then push.
+6. Re-check the numbers in `lib/reality.ts` (seconds, cost, rounds) against the new files.

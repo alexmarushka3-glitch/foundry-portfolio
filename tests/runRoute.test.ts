@@ -9,6 +9,11 @@ vi.mock("@/lib/pipeline", () => ({
   liveEnabled: () => pipeline.live,
 }));
 
+vi.mock("@/lib/liveRecordings.json", async () => {
+  const { fixtureRecording } = await import("./fixtures/liveRecording");
+  return { default: { recordings: [fixtureRecording()] } };
+});
+
 import { GET, POST } from "@/app/api/run/route";
 import { serverState } from "@/lib/server/state";
 

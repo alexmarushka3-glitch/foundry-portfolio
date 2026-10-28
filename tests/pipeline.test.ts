@@ -3,6 +3,12 @@ import { costOf, runPipeline, type LlmClient } from "@/lib/pipeline";
 import { MAX_RUN_COST_USD } from "@/lib/pipeline/config";
 import { serverState } from "@/lib/server/state";
 import type { FoundryEvent } from "@/lib/types";
+import { FIXTURE_REQUEST, fixtureRecording } from "./fixtures/liveRecording";
+
+vi.mock("@/lib/liveRecordings.json", async () => {
+  const { fixtureRecording } = await import("./fixtures/liveRecording");
+  return { default: { recordings: [fixtureRecording()] } };
+});
 
 async function run(request: string, opts: Parameters<typeof runPipeline>[2] = {}) {
   const events: FoundryEvent[] = [];
@@ -78,8 +84,12 @@ describe("simulated runs", () => {
 describe("recorded examples", () => {
   it("replay the recording and never call a model", async () => {
     const { client } = fakeClient(() => "unused");
-    const events = await run("Let users set a due date on tasks", { client });
+    const events = await run(FIXTURE_REQUEST, { client });
     expect(of(events, "mode")[0]).toMatchObject({ mode: "replay" });
+    expect(of(events, "mode")).toHaveLength(1);
+    expect(events.slice(1)).toEqual(fixtureRecording().events.map((e) => e.event).filter((e) => e.type !== "mode" && e.type !== "usage"));
+    expect(of(events, "usage")).toHaveLength(0); // recorded spend is not new spend
+    expect(of(events, "tool").length).toBeGreaterThan(0);
     expect(of(events, "finish")[0]).toMatchObject({ rounds: 1, approved: true });
     expect(client.messages.stream).not.toHaveBeenCalled();
   });

@@ -23,14 +23,14 @@ export const profile = {
   ],
   about: [
     "I'm a student at the University of Chicago, and one question has kept me busy: how much of building software can you hand to a team of AI agents, and how do you know the work is any good? Foundry is my answer so far.",
-    "I built it with Claude Code. One agent reads the code, two more write the story and the blueprint, two build in parallel, and two check the result before a pull request gets written. It's rough in places. The sample app is small, and the three recorded examples came from an earlier version, where the end-to-end check was an agent walking through the flows. In a live run the verifier writes a test for a real headless browser to run, and the run says so if the browser could not start.",
+    "I built it with Claude Code. One agent reads the code, two more write the story and the blueprint, two build in parallel, and two check the result before a pull request gets written. It's rough in places. The sample app is small, and the three examples are replays of real live runs, each recorded once, with no pull request opened. In a live run the verifier writes a test for a real headless browser to run, and the run says so if the browser could not start.",
     "I'm recruiting for consulting and tech roles. I like projects where I can say what it does, how well it works, and what it costs.",
   ],
   projects: [
     {
       name: "Foundry: multi-agent software factory",
       blurb:
-        "Eight agents turn a specific request into a draft pull request checked by other agents and by real tests: a read-only researcher, story writer, project manager, parallel backend and frontend engineers, an end-to-end verifier, a validator and a release agent. On this page you can watch it work: the three examples replay real recorded runs from an earlier version, and a request you build in the form runs live on Claude models when the live switch is on, ending in a real draft pull request on a sample repo that no human reviews.",
+        "Eight agents turn a specific request into a draft pull request checked by other agents and by real tests: a read-only researcher, story writer, project manager, parallel backend and frontend engineers, an end-to-end verifier, a validator and a release agent. On this page you can watch it work: the three examples replay real live runs, played back faster than they ran, and a request you build in the form runs live on Claude models when the live switch is on, ending in a real draft pull request on a sample repo that no human reviews.",
       tags: ["Claude API", "TypeScript", "Next.js", "Streaming", "Multi-agent"],
     },
     {

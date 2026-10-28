@@ -1,18 +1,10 @@
-import recordings from "./recordings.json";
 import { AGENT_LIST } from "./agents";
 import type { AgentName, Mode } from "./types";
 
 // Safe to import in the browser and on the server: no Node-only code.
 
-export type Recording = (typeof recordings.examples)[number];
-
-const normalize = (s: string) => s.trim().toLowerCase().replace(/[.!?]+$/, "");
-
-export function findRecording(request: string): Recording | undefined {
-  return recordings.examples.find((e) => normalize(e.request) === normalize(request));
-}
-
-export const EXAMPLE_REQUESTS: string[] = recordings.examples.map((e) => e.request);
+/** Compare requests ignoring case, outer spacing and trailing punctuation. */
+export const normalizeRequest = (s: string) => s.trim().toLowerCase().replace(/[.!?]+$/, "");
 
 /** A picture taken by the real browser during the E2E step. */
 export type Shot = { label: string; png: string };
@@ -44,6 +36,8 @@ export type Run = {
   costUsd?: number;
   /** The real draft pull request a live run opened, when it did. */
   pr?: { url: string; number: number };
+  /** Set on a replay of a recorded live run (real model output, played back faster). */
+  source?: "live-run";
 };
 
 /** What the stage draws for one agent at one moment. */
@@ -68,55 +62,6 @@ export type AgentFrame = {
   passed?: boolean;
   shots?: Shot[];
 };
-
-const GAP = 450; // pause between stages on the playback clock
-const TAIL = 700;
-// Replays compress real time. A stage plays for 12% of the time it really took, within bounds.
-const stageMs = (real: number) => Math.min(3200, Math.max(900, real * 0.12));
-
-/** Lay a recorded run out on a playback timeline. Backend and Frontend start together. */
-export function buildReplayRun(rec: Recording): Run {
-  const byAgent = Object.fromEntries(rec.steps.map((s) => [s.agent, s])) as Record<AgentName, Recording["steps"][number]>;
-  const steps: Step[] = [];
-  let t = 0;
-
-  const place = (agents: AgentName[]) => {
-    const durations = agents.map((a) => stageMs(byAgent[a].ms));
-    const end = t + Math.max(...durations);
-    agents.forEach((a, i) => {
-      const s = byAgent[a];
-      steps.push({
-        agent: a,
-        round: s.round,
-        model: s.model,
-        text: s.text,
-        start: t,
-        end: t + durations[i],
-        ms: s.ms,
-        passed: a === "e2e" ? rec.e2eOk : a === "validator" ? rec.approved : undefined,
-      });
-    });
-    t = end + GAP;
-  };
-
-  place(["researcher"]);
-  place(["story"]);
-  place(["pm"]);
-  place(["backend", "frontend"]);
-  place(["e2e"]);
-  place(["validator"]);
-  place(["release"]);
-
-  return {
-    request: rec.request,
-    mode: "replay",
-    steps,
-    total: t - GAP + TAIL,
-    approved: rec.approved,
-    rounds: rec.rounds,
-    realMs: rec.totalMs,
-  };
-}
 
 /** Everything that has started by time t, with text revealed in proportion to progress. */
 export function viewsAt(run: Run, t: number): StepView[] {

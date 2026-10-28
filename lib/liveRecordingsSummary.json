@@ -1,0 +1,35 @@
+[
+  {
+    "request": "Add a \"estimate\" field to tasks (type: number, optional).",
+    "rounds": 1,
+    "approved": true,
+    "totalMs": 74537,
+    "models": [
+      "claude-haiku-5-5",
+      "claude-sonnet-5-5"
+    ],
+    "costUsd": 0.2064697
+  },
+  {
+    "request": "Add a filter by \"completed\" to the task list.",
+    "rounds": 1,
+    "approved": true,
+    "totalMs": 69466,
+    "models": [
+      "claude-haiku-5-5",
+      "claude-sonnet-5-5"
+    ],
+    "costUsd": 0.21509159999999997
+  },
+  {
+    "request": "Add a sort option by \"created date\" to the task list.",
+    "rounds": 1,
+    "approved": true,
+    "totalMs": 67017,
+    "models": [
+      "claude-haiku-5-5",
+      "claude-sonnet-5-5"
+    ],
+    "costUsd": 0.18770989999999999
+  }
+]

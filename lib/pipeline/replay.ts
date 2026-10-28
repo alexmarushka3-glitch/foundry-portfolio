@@ -1,30 +1,36 @@
-import { buildReplayRun, type Recording } from "../run";
+import type { LiveRecording } from "../recorder/capture";
 import type { Emit } from "../types";
 
 export const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
+function abortableSleep(ms: number, signal?: AbortSignal): Promise<void> {
+  if (!signal) return sleep(ms);
+  return new Promise<void>((resolve) => {
+    const done = () => {
+      clearTimeout(timer);
+      signal.removeEventListener("abort", done);
+      resolve();
+    };
+    const timer = setTimeout(done, ms);
+    signal.addEventListener("abort", done);
+  });
+}
+
 /**
- * Server-side replay of a recorded run, kept for API clients. The page itself replays recordings
- * in the browser. `pace` scales the waits (0 skips them, which tests use).
+ * Server-side replay of a recorded live run, kept for API clients. The page itself replays recordings
+ * in the browser. Events go out in order, each at its recorded time scaled by `pace` (0 skips the waits,
+ * which tests use).
  */
-export async function replayOnServer(rec: Recording, emit: Emit, pace = 1): Promise<void> {
-  const run = buildReplayRun(rec);
-  emit({ type: "mode", mode: "replay" });
+export async function replayOnServer(rec: LiveRecording, emit: Emit, pace = 1, signal?: AbortSignal): Promise<void> {
   const t0 = Date.now();
-  const byStart = [...run.steps].sort((a, b) => a.start - b.start);
-  for (const s of byStart) {
-    const wait = (s.start - (Date.now() - t0)) * pace;
-    if (wait > 0) await sleep(wait);
-    emit({ type: "start", agent: s.agent, round: s.round, model: s.model });
-    const chunks = s.text.match(/.{1,8}/gs) ?? [];
-    const span = Math.max(1, s.end - s.start);
-    for (const c of chunks) {
-      emit({ type: "token", agent: s.agent, round: s.round, text: c });
-      if (pace > 0) await sleep((span / chunks.length) * pace);
-    }
-    emit({ type: "done", agent: s.agent, round: s.round, ms: s.ms });
-    if (s.agent === "e2e") emit({ type: "verdict", gate: "e2e", round: s.round, approved: rec.e2eOk });
-    if (s.agent === "validator") emit({ type: "verdict", gate: "validator", round: s.round, approved: rec.approved });
+  emit({ type: "mode", mode: "replay" });
+  for (const { at, event } of rec.events) {
+    if (signal?.aborted) return;
+    // The replay announces itself, opens no pull request and spends nothing, so recorded usage is not re-emitted.
+    if (event.type === "mode" || event.type === "pr" || event.type === "usage") continue;
+    const wait = at * pace - (Date.now() - t0);
+    if (pace > 0 && wait > 0) await abortableSleep(wait, signal);
+    if (signal?.aborted) return;
+    emit(event);
   }
-  emit({ type: "finish", ms: rec.totalMs, rounds: rec.rounds, approved: rec.approved });
 }

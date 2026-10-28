@@ -9,7 +9,9 @@ import { useLiveAvailability, useMediaQuery, useOnceInView, usePlayback } from "
 import { useLiveRun } from "./stage/useLiveRun";
 import PipelineSvg from "./PipelineSvg";
 import { AGENT_BY_ID } from "@/lib/agents";
-import { EXAMPLE_REQUESTS, buildReplayRun, findRecording, framesFrom, maxRound, viewsAt, type AgentFrame, type Run, type StepView } from "@/lib/run";
+import { framesFrom, maxRound, viewsAt, type AgentFrame, type Run, type StepView } from "@/lib/run";
+import { EXAMPLE_REQUESTS } from "@/lib/exampleRequests";
+import { buildLiveReplayRun, findLiveRecording, loadLiveRecordings } from "@/lib/liveReplay";
 import { profile } from "@/lib/profile";
 import { runSummary } from "@/lib/summary";
 import type { AgentName, Mode } from "@/lib/types";
@@ -27,6 +29,12 @@ const MODE_COPY: Record<Mode, { label: string; detail: string }> = {
     label: "Simulated",
     detail: "Scripted text. No model was called.",
   },
+};
+
+const LIVE_REPLAY_COPY = {
+  label: "Replay of a real live run",
+  detail:
+    "Genuine output of a live run on Claude models, with the sample app's real tests and a real browser test in a sandbox, played back faster than it ran. This recording opened no pull request.",
 };
 
 /**
@@ -59,14 +67,14 @@ export default function Stage() {
     clearError();
   }, [clearError]);
 
-  /** Play a recorded example in the browser. Returns false if the request isn't a recorded one. */
+  /** Play a recorded example in the browser. Resolves false if the request isn't a recorded one. */
   const startReplay = useCallback(
-    (request: string) => {
-      const rec = findRecording(request);
+    async (request: string) => {
+      const rec = findLiveRecording(await loadLiveRecordings(), request);
       if (!rec) return false;
       cancelLive();
       resetView();
-      setRun(buildReplayRun(rec));
+      setRun(buildLiveReplayRun(rec));
       seek(0);
       setPlaying(true);
       return true;
@@ -79,11 +87,13 @@ export default function Stage() {
       const q = request.trim();
       if (!q || busy) return;
       touchedRef.current = true;
-      if (!spec && startReplay(q)) return;
-      setRun(null);
-      setPlaying(false);
-      resetView();
-      void startLive(q, spec);
+      void (async () => {
+        if (!spec && (await startReplay(q))) return;
+        setRun(null);
+        setPlaying(false);
+        resetView();
+        void startLive(q, spec);
+      })();
     },
     [busy, resetView, setPlaying, startLive, startReplay],
   );
@@ -95,10 +105,13 @@ export default function Stage() {
       const first = EXAMPLE_REQUESTS[0];
       if (!first) return;
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        const rec = findRecording(first);
-        if (rec) showFinished(buildReplayRun(rec));
+        void loadLiveRecordings().then((recs) => {
+          if (touchedRef.current) return;
+          const rec = findLiveRecording(recs, first);
+          if (rec) showFinished(buildLiveReplayRun(rec));
+        });
       } else {
-        startReplay(first);
+        void startReplay(first);
       }
     },
     () => !touchedRef.current,
@@ -108,7 +121,7 @@ export default function Stage() {
   const views: StepView[] = useMemo(() => (live ? live.steps : run ? viewsAt(run, t) : []), [live, run, t]);
   const frames = useMemo(() => framesFrom(views), [views]);
   const mode: Mode | null = live ? live.mode : (run?.mode ?? null);
-  const modeCopy = mode ? MODE_COPY[mode] : null;
+  const modeCopy = mode ? (mode === "replay" && run?.source === "live-run" && !live ? LIVE_REPLAY_COPY : MODE_COPY[mode]) : null;
   const reason = live?.reason;
   const atEnd = run !== null && t >= run.total - 1;
 

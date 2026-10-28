@@ -1,0 +1,6646 @@
+{
+  "slug": "01-add-a-estimate-field-to-tasks-type-numbe",
+  "request": "Add a \"estimate\" field to tasks (type: number, optional).",
+  "recordedAt": "2026-10-28T14:58:07.960Z",
+  "events": [
+    {
+      "at": 831,
+      "event": {
+        "type": "mode",
+        "mode": "live"
+      }
+    },
+    {
+      "at": 833,
+      "event": {
+        "type": "start",
+        "agent": "researcher",
+        "round": 1,
+        "model": "claude-haiku-5-5"
+      }
+    },
+    {
+      "at": 1460,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "I'll start by listing the"
+      }
+    },
+    {
+      "at": 1460,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " top-"
+      }
+    },
+    {
+      "at": 1461,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "level directory."
+      }
+    },
+    {
+      "at": 1867,
+      "event": {
+        "type": "usage",
+        "agent": "researcher",
+        "round": 1,
+        "inputTokens": 850,
+        "outputTokens": 119,
+        "costUsd": 0.0001445
+      }
+    },
+    {
+      "at": 1869,
+      "event": {
+        "type": "tool",
+        "agent": "researcher",
+        "round": 1,
+        "label": "list_dir .",
+        "ok": true
+      }
+    },
+    {
+      "at": 1887,
+      "event": {
+        "type": "tool",
+        "agent": "researcher",
+        "round": 1,
+        "label": "grep CREATE TABLE|tasks",
+        "ok": true
+      }
+    },
+    {
+      "at": 1887,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "\n"
+      }
+    },
+    {
+      "at": 2420,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "Now I'll read the core"
+      }
+    },
+    {
+      "at": 2574,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " files."
+      }
+    },
+    {
+      "at": 2941,
+      "event": {
+        "type": "usage",
+        "agent": "researcher",
+        "round": 1,
+        "inputTokens": 2408,
+        "outputTokens": 209,
+        "costUsd": 0.0003453
+      }
+    },
+    {
+      "at": 2942,
+      "event": {
+        "type": "tool",
+        "agent": "researcher",
+        "round": 1,
+        "label": "read_file src/db.js",
+        "ok": true
+      }
+    },
+    {
+      "at": 2942,
+      "event": {
+        "type": "tool",
+        "agent": "researcher",
+        "round": 1,
+        "label": "read_file src/app.js",
+        "ok": true
+      }
+    },
+    {
+      "at": 2942,
+      "event": {
+        "type": "tool",
+        "agent": "researcher",
+        "round": 1,
+        "label": "read_file public/app.js",
+        "ok": true
+      }
+    },
+    {
+      "at": 2942,
+      "event": {
+        "type": "tool",
+        "agent": "researcher",
+        "round": 1,
+        "label": "read_file tests/api.test.js",
+        "ok": true
+      }
+    },
+    {
+      "at": 2942,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "\n"
+      }
+    },
+    {
+      "at": 3541,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "-"
+      }
+    },
+    {
+      "at": 3694,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " **"
+      }
+    },
+    {
+      "at": 3703,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "src"
+      }
+    },
+    {
+      "at": 3703,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "/db.js**: `"
+      }
+    },
+    {
+      "at": 3703,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "tasks` table def"
+      }
+    },
+    {
+      "at": 3703,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ined in the"
+      }
+    },
+    {
+      "at": 3703,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " `SCHEMA`"
+      }
+    },
+    {
+      "at": 3703,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " constant (`id`"
+      }
+    },
+    {
+      "at": 3710,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": ", `title T"
+      }
+    },
+    {
+      "at": 3729,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "EXT NOT NUL"
+      }
+    },
+    {
+      "at": 3751,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "L`, `done INTE"
+      }
+    },
+    {
+      "at": 3765,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "GER DEFAULT"
+      }
+    },
+    {
+      "at": 3796,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " 0`, `created_at"
+      }
+    },
+    {
+      "at": 3832,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " TEXT`"
+      }
+    },
+    {
+      "at": 3832,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "),"
+      }
+    },
+    {
+      "at": 3849,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " created"
+      }
+    },
+    {
+      "at": 3873,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " with `CREATE TAB"
+      }
+    },
+    {
+      "at": 3890,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "LE IF NOT E"
+      }
+    },
+    {
+      "at": 3911,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "XISTS`, so there"
+      }
+    },
+    {
+      "at": 3935,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " is no migration m"
+      }
+    },
+    {
+      "at": 3950,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "echanism for ad"
+      }
+    },
+    {
+      "at": 3974,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ding a"
+      }
+    },
+    {
+      "at": 3992,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " column to"
+      }
+    },
+    {
+      "at": 4014,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " an existing database"
+      }
+    },
+    {
+      "at": 4035,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": ".\n- **src/db."
+      }
+    },
+    {
+      "at": 4051,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "js que"
+      }
+    },
+    {
+      "at": 4076,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ries**: `addTask("
+      }
+    },
+    {
+      "at": 4096,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "db, title)` inserts"
+      }
+    },
+    {
+      "at": 4118,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " only"
+      }
+    },
+    {
+      "at": 4139,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " title/"
+      }
+    },
+    {
+      "at": 4156,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "done/created_at;"
+      }
+    },
+    {
+      "at": 4190,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " `updateTask("
+      }
+    },
+    {
+      "at": 4202,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "db, id, {"
+      }
+    },
+    {
+      "at": 4227,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " title, done })` upd"
+      }
+    },
+    {
+      "at": 4245,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ates only those"
+      }
+    },
+    {
+      "at": 4270,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " two fields;"
+      }
+    },
+    {
+      "at": 4279,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " `listTasks` u"
+      }
+    },
+    {
+      "at": 4299,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ses `SELECT *`"
+      }
+    },
+    {
+      "at": 4320,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": ", so a"
+      }
+    },
+    {
+      "at": 4340,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " new column would appear automatically"
+      }
+    },
+    {
+      "at": 4364,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " in"
+      }
+    },
+    {
+      "at": 4382,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " respon"
+      }
+    },
+    {
+      "at": 4401,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ses.\n- **src/app"
+      }
+    },
+    {
+      "at": 4424,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": ".js**: `PO"
+      }
+    },
+    {
+      "at": 4442,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ST /api/tasks`"
+      }
+    },
+    {
+      "at": 4462,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " validates only"
+      }
+    },
+    {
+      "at": 4482,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " `"
+      }
+    },
+    {
+      "at": 4506,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "title` (trimmed string"
+      }
+    },
+    {
+      "at": 4524,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": ", 400 if empty)"
+      }
+    },
+    {
+      "at": 4544,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " and passes only that to `add"
+      }
+    },
+    {
+      "at": 4564,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "Task`; `PATC"
+      }
+    },
+    {
+      "at": 4587,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "H /api/tasks/"
+      }
+    },
+    {
+      "at": 4603,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": ":id` for"
+      }
+    },
+    {
+      "at": 4625,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "wards the"
+      }
+    },
+    {
+      "at": 4650,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " whole `req.body` to"
+      }
+    },
+    {
+      "at": 4671,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " `updateTask`, which"
+      }
+    },
+    {
+      "at": 4693,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " "
+      }
+    },
+    {
+      "at": 4726,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ignores un"
+      }
+    },
+    {
+      "at": 4738,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "known fields; express"
+      }
+    },
+    {
+      "at": 4759,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": ".json lim"
+      }
+    },
+    {
+      "at": 4803,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "it is 10kb."
+      }
+    },
+    {
+      "at": 4808,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "\n- **public"
+      }
+    },
+    {
+      "at": 4822,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "/app.js**: ren"
+      }
+    },
+    {
+      "at": 4850,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ders each task as a checkb"
+      }
+    },
+    {
+      "at": 4861,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ox,"
+      }
+    },
+    {
+      "at": 4879,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " title"
+      }
+    },
+    {
+      "at": 4912,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " span, and"
+      }
+    },
+    {
+      "at": 4933,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " Delete button in"
+      }
+    },
+    {
+      "at": 4952,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " `"
+      }
+    },
+    {
+      "at": 4970,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "render"
+      }
+    },
+    {
+      "at": 4986,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "()`;"
+      }
+    },
+    {
+      "at": 5021,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " the add"
+      }
+    },
+    {
+      "at": 5030,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " form pos"
+      }
+    },
+    {
+      "at": 5053,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ts only `{"
+      }
+    },
+    {
+      "at": 5063,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " title }`. No estim"
+      }
+    },
+    {
+      "at": 5084,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ate input or display"
+      }
+    },
+    {
+      "at": 5106,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " exists."
+      }
+    },
+    {
+      "at": 5132,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "\n- **tests/api."
+      }
+    },
+    {
+      "at": 5152,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "test.js**: node"
+      }
+    },
+    {
+      "at": 5159,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": ":"
+      }
+    },
+    {
+      "at": 5175,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "test su"
+      }
+    },
+    {
+      "at": 5205,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ite using `createApp(open"
+      }
+    },
+    {
+      "at": 5223,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "Db())` with in-mem"
+      }
+    },
+    {
+      "at": 5235,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ory DB; covers create/"
+      }
+    },
+    {
+      "at": 5260,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "list/update/delete,"
+      }
+    },
+    {
+      "at": 5276,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " empty-"
+      }
+    },
+    {
+      "at": 5296,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "title "
+      }
+    },
+    {
+      "at": 5323,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "400, and 404s"
+      }
+    },
+    {
+      "at": 5338,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": ". No"
+      }
+    },
+    {
+      "at": 5365,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " test for field"
+      }
+    },
+    {
+      "at": 5381,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " validation or a num"
+      }
+    },
+    {
+      "at": 5404,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "eric estimate."
+      }
+    },
+    {
+      "at": 5423,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "\n\nGaps: no mig"
+      }
+    },
+    {
+      "at": 5440,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ration/"
+      }
+    },
+    {
+      "at": 5468,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ALTER T"
+      }
+    },
+    {
+      "at": 5482,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ABLE log"
+      }
+    },
+    {
+      "at": 5507,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ic for"
+      }
+    },
+    {
+      "at": 5539,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " existing `"
+      }
+    },
+    {
+      "at": 5554,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ta"
+      }
+    },
+    {
+      "at": 5563,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "skly`"
+      }
+    },
+    {
+      "at": 5586,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " databases, no num"
+      }
+    },
+    {
+      "at": 5610,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "eric valid"
+      }
+    },
+    {
+      "at": 5624,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ation p"
+      }
+    },
+    {
+      "at": 5651,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "attern ex"
+      }
+    },
+    {
+      "at": 5669,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ists in the codebase, and"
+      }
+    },
+    {
+      "at": 5686,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " the U"
+      }
+    },
+    {
+      "at": 5719,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "I and"
+      }
+    },
+    {
+      "at": 5729,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " e"
+      }
+    },
+    {
+      "at": 5747,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "2e tests (`e2"
+      }
+    },
+    {
+      "at": 5769,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "e/smoke.spec"
+      }
+    },
+    {
+      "at": 5792,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": ".js`) have no estim"
+      }
+    },
+    {
+      "at": 5810,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ate co"
+      }
+    },
+    {
+      "at": 5826,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "verage."
+      }
+    },
+    {
+      "at": 5826,
+      "event": {
+        "type": "usage",
+        "agent": "researcher",
+        "round": 1,
+        "inputTokens": 5206,
+        "outputTokens": 532,
+        "costUsd": 0.0007866
+      }
+    },
+    {
+      "at": 5826,
+      "event": {
+        "type": "done",
+        "agent": "researcher",
+        "round": 1,
+        "ms": 4993
+      }
+    },
+    {
+      "at": 5826,
+      "event": {
+        "type": "start",
+        "agent": "story",
+        "round": 1,
+        "model": "claude-sonnet-5-5"
+      }
+    },
+    {
+      "at": 6529,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "**User story**"
+      }
+    },
+    {
+      "at": 6875,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "\n\nAs a task"
+      }
+    },
+    {
+      "at": 6880,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "-"
+      }
+    },
+    {
+      "at": 6880,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "list"
+      }
+    },
+    {
+      "at": 6880,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " user, I want to opt"
+      }
+    },
+    {
+      "at": 6880,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ionally record a"
+      }
+    },
+    {
+      "at": 6880,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " numeric estimate on a"
+      }
+    },
+    {
+      "at": 6881,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " task so that I can see"
+      }
+    },
+    {
+      "at": 6881,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " ro"
+      }
+    },
+    {
+      "at": 6881,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ughly how much effort each task"
+      }
+    },
+    {
+      "at": 6881,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " repres"
+      }
+    },
+    {
+      "at": 6897,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ents.\n\n**Accept"
+      }
+    },
+    {
+      "at": 6928,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ance criteria**\n\n1."
+      }
+    },
+    {
+      "at": 7270,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " `POST /api/tas"
+      }
+    },
+    {
+      "at": 7270,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ks` accepts an"
+      }
+    },
+    {
+      "at": 7270,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " optional num"
+      }
+    },
+    {
+      "at": 7270,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "eric `estimate`"
+      }
+    },
+    {
+      "at": 7270,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " alongside `title`; a"
+      }
+    },
+    {
+      "at": 7270,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " task created with"
+      }
+    },
+    {
+      "at": 7270,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " `{"
+      }
+    },
+    {
+      "at": 7270,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " \""
+      }
+    },
+    {
+      "at": 7270,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "title\": \"x"
+      }
+    },
+    {
+      "at": 7270,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "\", \"estimate\": 3"
+      }
+    },
+    {
+      "at": 7302,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " "
+      }
+    },
+    {
+      "at": 7330,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "}` is returned and"
+      }
+    },
+    {
+      "at": 7701,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " list"
+      }
+    },
+    {
+      "at": 7701,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ed by"
+      }
+    },
+    {
+      "at": 7701,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " `GET /api/tas"
+      }
+    },
+    {
+      "at": 7701,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ks` with `estimate:"
+      }
+    },
+    {
+      "at": 7701,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " 3`, and a task created"
+      }
+    },
+    {
+      "at": 7701,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " without it"
+      }
+    },
+    {
+      "at": 7701,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " is returned with `estimate"
+      }
+    },
+    {
+      "at": 7701,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": ":"
+      }
+    },
+    {
+      "at": 7701,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " null`,"
+      }
+    },
+    {
+      "at": 7701,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " with cre"
+      }
+    },
+    {
+      "at": 7701,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ation still succeeding."
+      }
+    },
+    {
+      "at": 7728,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "\n2. `PATCH /"
+      }
+    },
+    {
+      "at": 8006,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "api/tasks/:id"
+      }
+    },
+    {
+      "at": 8006,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "` can set or change"
+      }
+    },
+    {
+      "at": 8006,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " `estimate` to"
+      }
+    },
+    {
+      "at": 8006,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " a number"
+      }
+    },
+    {
+      "at": 8006,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": ", and can cl"
+      }
+    },
+    {
+      "at": 8006,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ear it by"
+      }
+    },
+    {
+      "at": 8006,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " s"
+      }
+    },
+    {
+      "at": 8006,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ending `null`, without alt"
+      }
+    },
+    {
+      "at": 8029,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ering `"
+      }
+    },
+    {
+      "at": 8063,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "title` or `done` when those"
+      }
+    },
+    {
+      "at": 8097,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " are"
+      }
+    },
+    {
+      "at": 8126,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " not"
+      }
+    },
+    {
+      "at": 8355,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " sent; the upd"
+      }
+    },
+    {
+      "at": 8355,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ated value pers"
+      }
+    },
+    {
+      "at": 8355,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ists on"
+      }
+    },
+    {
+      "at": 8355,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " subsequent `GET /"
+      }
+    },
+    {
+      "at": 8355,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "api/tasks`."
+      }
+    },
+    {
+      "at": 8355,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "\n3. A non-numeric"
+      }
+    },
+    {
+      "at": 8363,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " `estimate` (e"
+      }
+    },
+    {
+      "at": 8398,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": ".g. `\"abc\""
+      }
+    },
+    {
+      "at": 8431,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "`, an"
+      }
+    },
+    {
+      "at": 8463,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " object, or a"
+      }
+    },
+    {
+      "at": 8496,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " bo"
+      }
+    },
+    {
+      "at": 8532,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "olean)"
+      }
+    },
+    {
+      "at": 8724,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " s"
+      }
+    },
+    {
+      "at": 8724,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ent to"
+      }
+    },
+    {
+      "at": 8724,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " `POST`"
+      }
+    },
+    {
+      "at": 8724,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " or `PATCH` is"
+      }
+    },
+    {
+      "at": 8724,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " rejected with a 400 "
+      }
+    },
+    {
+      "at": 8732,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "and"
+      }
+    },
+    {
+      "at": 8773,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " an"
+      }
+    },
+    {
+      "at": 8794,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " error message, and the task is not"
+      }
+    },
+    {
+      "at": 8829,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " created or modified.\n4."
+      }
+    },
+    {
+      "at": 8863,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " The UI add"
+      }
+    },
+    {
+      "at": 8895,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " form has"
+      }
+    },
+    {
+      "at": 8929,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " an optional est"
+      }
+    },
+    {
+      "at": 9104,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "imate input that"
+      }
+    },
+    {
+      "at": 9104,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " is"
+      }
+    },
+    {
+      "at": 9104,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " s"
+      }
+    },
+    {
+      "at": 9104,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ent with"
+      }
+    },
+    {
+      "at": 9104,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " the new"
+      }
+    },
+    {
+      "at": 9127,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " task, and each"
+      }
+    },
+    {
+      "at": 9160,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " task in"
+      }
+    },
+    {
+      "at": 9196,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " the list displays its estimate"
+      }
+    },
+    {
+      "at": 9236,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " when one is set"
+      }
+    },
+    {
+      "at": 9263,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": ". Existing databases created"
+      }
+    },
+    {
+      "at": 9294,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " before this change contin"
+      }
+    },
+    {
+      "at": 9329,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ue to load"
+      }
+    },
+    {
+      "at": 9368,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " and work"
+      }
+    },
+    {
+      "at": 9396,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": ","
+      }
+    },
+    {
+      "at": 9432,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " with their"
+      }
+    },
+    {
+      "at": 9461,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " tasks show"
+      }
+    },
+    {
+      "at": 9495,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ing no"
+      }
+    },
+    {
+      "at": 9512,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " estimate."
+      }
+    },
+    {
+      "at": 9518,
+      "event": {
+        "type": "usage",
+        "agent": "story",
+        "round": 1,
+        "inputTokens": 715,
+        "outputTokens": 395,
+        "costUsd": 0.00538
+      }
+    },
+    {
+      "at": 9518,
+      "event": {
+        "type": "done",
+        "agent": "story",
+        "round": 1,
+        "ms": 3692
+      }
+    },
+    {
+      "at": 9518,
+      "event": {
+        "type": "start",
+        "agent": "pm",
+        "round": 1,
+        "model": "claude-sonnet-5-5"
+      }
+    },
+    {
+      "at": 9949,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "**"
+      }
+    },
+    {
+      "at": 10259,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "Data**"
+      }
+    },
+    {
+      "at": 10259,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "\n- `src/db.js`"
+      }
+    },
+    {
+      "at": 10259,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": ": add n"
+      }
+    },
+    {
+      "at": 10259,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ullable `estimate REA"
+      }
+    },
+    {
+      "at": 10259,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "L` to"
+      }
+    },
+    {
+      "at": 10259,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " the"
+      }
+    },
+    {
+      "at": 10259,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " `SCHEMA`"
+      }
+    },
+    {
+      "at": 10263,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " `tasks` table for"
+      }
+    },
+    {
+      "at": 10296,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " new datab"
+      }
+    },
+    {
+      "at": 10332,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ases. For"
+      }
+    },
+    {
+      "at": 10369,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " existing datab"
+      }
+    },
+    {
+      "at": 10403,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ases, `"
+      }
+    },
+    {
+      "at": 10491,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "open"
+      }
+    },
+    {
+      "at": 10492,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "Db` runs `PR"
+      }
+    },
+    {
+      "at": 10512,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "AGMA table_info("
+      }
+    },
+    {
+      "at": 10545,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "tasks)` after"
+      }
+    },
+    {
+      "at": 10589,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " schema cre"
+      }
+    },
+    {
+      "at": 10619,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ation and `ALTER T"
+      }
+    },
+    {
+      "at": 10654,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ABLE tasks AD"
+      }
+    },
+    {
+      "at": 10691,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "D COLUMN estim"
+      }
+    },
+    {
+      "at": 10726,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ate REAL` if"
+      }
+    },
+    {
+      "at": 10769,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " the column is missing (no default"
+      }
+    },
+    {
+      "at": 10811,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": ", so old r"
+      }
+    },
+    {
+      "at": 10836,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ows read"
+      }
+    },
+    {
+      "at": 10874,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " `"
+      }
+    },
+    {
+      "at": 10903,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "NULL`).\n- `"
+      }
+    },
+    {
+      "at": 10940,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "addTask(db, title,"
+      }
+    },
+    {
+      "at": 10977,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " estimate ="
+      }
+    },
+    {
+      "at": 11012,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " null)` inserts `est"
+      }
+    },
+    {
+      "at": 11048,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "imate`. `updateT"
+      }
+    },
+    {
+      "at": 11084,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ask`"
+      }
+    },
+    {
+      "at": 11119,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " s"
+      }
+    },
+    {
+      "at": 11157,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ets `estimate` only when"
+      }
+    },
+    {
+      "at": 11193,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " the key is present in"
+      }
+    },
+    {
+      "at": 11229,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " the input"
+      }
+    },
+    {
+      "at": 11262,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " (dist"
+      }
+    },
+    {
+      "at": 11303,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "inguish"
+      }
+    },
+    {
+      "at": 11337,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " `"
+      }
+    },
+    {
+      "at": 11384,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "undefined` from `null`"
+      }
+    },
+    {
+      "at": 11407,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "), le"
+      }
+    },
+    {
+      "at": 11441,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "aving `title` and `done"
+      }
+    },
+    {
+      "at": 11475,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "` untouched when not"
+      }
+    },
+    {
+      "at": 11513,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " sent. `listTasks"
+      }
+    },
+    {
+      "at": 11548,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "` ("
+      }
+    },
+    {
+      "at": 11584,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "`SELECT *`)"
+      }
+    },
+    {
+      "at": 11617,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " needs no change.\n\n**API"
+      }
+    },
+    {
+      "at": 11654,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "**\n- `src/app."
+      }
+    },
+    {
+      "at": 11689,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "js`: add a hel"
+      }
+    },
+    {
+      "at": 11730,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "per `valid"
+      }
+    },
+    {
+      "at": 11765,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "E"
+      }
+    },
+    {
+      "at": 11797,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "stimate(v)` that"
+      }
+    },
+    {
+      "at": 11835,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " returns true"
+      }
+    },
+    {
+      "at": 11867,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " for `undefined`, `"
+      }
+    },
+    {
+      "at": 11904,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "null`, or a finite `"
+      }
+    },
+    {
+      "at": 11939,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "typeof number` (reject"
+      }
+    },
+    {
+      "at": 11979,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " strings, objects, boole"
+      }
+    },
+    {
+      "at": 12020,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ans, NaN/"
+      }
+    },
+    {
+      "at": 12052,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "Infinity). On fail"
+      }
+    },
+    {
+      "at": 12085,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ure resp"
+      }
+    },
+    {
+      "at": 12118,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ond `400 { error: \""
+      }
+    },
+    {
+      "at": 12156,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "estimate must be a number or"
+      }
+    },
+    {
+      "at": 12196,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " null\" }`"
+      }
+    },
+    {
+      "at": 12229,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " before tou"
+      }
+    },
+    {
+      "at": 12266,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ching the DB.\n- `"
+      }
+    },
+    {
+      "at": 12299,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "POST /api/tasks"
+      }
+    },
+    {
+      "at": 12332,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "` body"
+      }
+    },
+    {
+      "at": 12376,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " `{ title, estimate"
+      }
+    },
+    {
+      "at": 12406,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "?"
+      }
+    },
+    {
+      "at": 12440,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " }`"
+      }
+    },
+    {
+      "at": 12475,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " returns the created"
+      }
+    },
+    {
+      "at": 12516,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " task with `estimate` as"
+      }
+    },
+    {
+      "at": 12549,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " a"
+      }
+    },
+    {
+      "at": 12584,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " number or `null`"
+      }
+    },
+    {
+      "at": 12619,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": ". `PATCH /api"
+      }
+    },
+    {
+      "at": 12655,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "/tasks/:id`"
+      }
+    },
+    {
+      "at": 12692,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " body"
+      }
+    },
+    {
+      "at": 12729,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " `{ title"
+      }
+    },
+    {
+      "at": 12766,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "?, done?, estimate"
+      }
+    },
+    {
+      "at": 12797,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "? }` where"
+      }
+    },
+    {
+      "at": 12837,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " `estimate: null"
+      }
+    },
+    {
+      "at": 12874,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "` clears it;"
+      }
+    },
+    {
+      "at": 12906,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " other fields are"
+      }
+    },
+    {
+      "at": 12948,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " unchanged if"
+      }
+    },
+    {
+      "at": 12976,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " om"
+      }
+    },
+    {
+      "at": 13014,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "itted. "
+      }
+    },
+    {
+      "at": 13050,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "404 beh"
+      }
+    },
+    {
+      "at": 13087,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "avior st"
+      }
+    },
+    {
+      "at": 13120,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ays as is.\n\n**UI"
+      }
+    },
+    {
+      "at": 13154,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "**\n- `public/app."
+      }
+    },
+    {
+      "at": 13191,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "js`: add an optional `"
+      }
+    },
+    {
+      "at": 13226,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "<input type=\"number\" step"
+      }
+    },
+    {
+      "at": 13270,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "=\"any\">` to the add form"
+      }
+    },
+    {
+      "at": 13316,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "; send"
+      }
+    },
+    {
+      "at": 13332,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " `est"
+      }
+    },
+    {
+      "at": 13373,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "imate` as a number only"
+      }
+    },
+    {
+      "at": 13407,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " when the field"
+      }
+    },
+    {
+      "at": 13443,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " is non-empty (om"
+      }
+    },
+    {
+      "at": 13477,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "it ot"
+      }
+    },
+    {
+      "at": 13518,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "herwise), and"
+      }
+    },
+    {
+      "at": 13549,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " clear the field after submit."
+      }
+    },
+    {
+      "at": 13589,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "\n- In"
+      }
+    },
+    {
+      "at": 13623,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " `render()`, show the"
+      }
+    },
+    {
+      "at": 13662,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " estimate (e.g."
+      }
+    },
+    {
+      "at": 13691,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " a small `est:"
+      }
+    },
+    {
+      "at": 13727,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " 3` span next"
+      }
+    },
+    {
+      "at": 13770,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " to the title) only when it"
+      }
+    },
+    {
+      "at": 13801,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " is not `null`;"
+      }
+    },
+    {
+      "at": 13843,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " tasks without one"
+      }
+    },
+    {
+      "at": 13874,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " render"
+      }
+    },
+    {
+      "at": 13902,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " exactly as today"
+      }
+    },
+    {
+      "at": 13945,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": ". Sur"
+      }
+    },
+    {
+      "at": 13977,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "face a 400 from the API"
+      }
+    },
+    {
+      "at": 14014,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " as an inline error r"
+      }
+    },
+    {
+      "at": 14052,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ather than silently fail"
+      }
+    },
+    {
+      "at": 14084,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ing.\n\n**Tests**"
+      }
+    },
+    {
+      "at": 14120,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "\n- `tests/api."
+      }
+    },
+    {
+      "at": 14158,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "test.js`: POST with"
+      }
+    },
+    {
+      "at": 14191,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " and without `"
+      }
+    },
+    {
+      "at": 14224,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "estimate` (3"
+      }
+    },
+    {
+      "at": 14262,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " vs `null`), app"
+      }
+    },
+    {
+      "at": 14297,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ear"
+      }
+    },
+    {
+      "at": 14342,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ing in `GET`"
+      }
+    },
+    {
+      "at": 14376,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "; PATCH set"
+      }
+    },
+    {
+      "at": 14416,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": ", change"
+      }
+    },
+    {
+      "at": 14462,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": ", and clear via"
+      }
+    },
+    {
+      "at": 14487,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " `null` with `title`/"
+      }
+    },
+    {
+      "at": 14519,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "`done` pre"
+      }
+    },
+    {
+      "at": 14553,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "served; "
+      }
+    },
+    {
+      "at": 14585,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "400 for `\"abc\""
+      }
+    },
+    {
+      "at": 14619,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "`, `{}`, and"
+      }
+    },
+    {
+      "at": 14653,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " `true` on both"
+      }
+    },
+    {
+      "at": 14691,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " POST and PATCH,"
+      }
+    },
+    {
+      "at": 14731,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " conf"
+      }
+    },
+    {
+      "at": 14762,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "irming no"
+      }
+    },
+    {
+      "at": 14800,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " task is"
+      }
+    },
+    {
+      "at": 14837,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " created or modified.\n-"
+      }
+    },
+    {
+      "at": 14872,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " Add a migration test in"
+      }
+    },
+    {
+      "at": 14907,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " `tests/`"
+      }
+    },
+    {
+      "at": 14953,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " that buil"
+      }
+    },
+    {
+      "at": 14974,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ds an old-schema D"
+      }
+    },
+    {
+      "at": 15011,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "B ("
+      }
+    },
+    {
+      "at": 15058,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "no `estimate`"
+      }
+    },
+    {
+      "at": 15087,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " column), opens it via"
+      }
+    },
+    {
+      "at": 15124,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " `openDb`, and conf"
+      }
+    },
+    {
+      "at": 15152,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "irms exist"
+      }
+    },
+    {
+      "at": 15196,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ing tasks load with `est"
+      }
+    },
+    {
+      "at": 15227,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "imate: null` and new"
+      }
+    },
+    {
+      "at": 15265,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " ones acc"
+      }
+    },
+    {
+      "at": 15297,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ept a"
+      }
+    },
+    {
+      "at": 15334,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " value. Extend `e2"
+      }
+    },
+    {
+      "at": 15370,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "e/smoke.spec"
+      }
+    },
+    {
+      "at": 15406,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": ".js`"
+      }
+    },
+    {
+      "at": 15439,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": ": add a"
+      }
+    },
+    {
+      "at": 15475,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " task with an estimate and"
+      }
+    },
+    {
+      "at": 15515,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " ass"
+      }
+    },
+    {
+      "at": 15547,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ert it displ"
+      }
+    },
+    {
+      "at": 15582,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ays, and"
+      }
+    },
+    {
+      "at": 15621,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " add one"
+      }
+    },
+    {
+      "at": 15655,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " without and"
+      }
+    },
+    {
+      "at": 15690,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " assert n"
+      }
+    },
+    {
+      "at": 15726,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "othing is shown."
+      }
+    },
+    {
+      "at": 15729,
+      "event": {
+        "type": "usage",
+        "agent": "pm",
+        "round": 1,
+        "inputTokens": 1064,
+        "outputTokens": 829,
+        "costUsd": 0.010418
+      }
+    },
+    {
+      "at": 15729,
+      "event": {
+        "type": "done",
+        "agent": "pm",
+        "round": 1,
+        "ms": 6211
+      }
+    },
+    {
+      "at": 15729,
+      "event": {
+        "type": "start",
+        "agent": "backend",
+        "round": 1,
+        "model": "claude-sonnet-5-5"
+      }
+    },
+    {
+      "at": 15729,
+      "event": {
+        "type": "start",
+        "agent": "frontend",
+        "round": 1,
+        "model": "claude-sonnet-5-5"
+      }
+    },
+    {
+      "at": 16552,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "I'll start by reading the"
+      }
+    },
+    {
+      "at": 16587,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " current page files."
+      }
+    },
+    {
+      "at": 16788,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "I"
+      }
+    },
+    {
+      "at": 16839,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "'ll start by reading the exist"
+      }
+    },
+    {
+      "at": 16873,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "ing files."
+      }
+    },
+    {
+      "at": 17233,
+      "event": {
+        "type": "usage",
+        "agent": "frontend",
+        "round": 1,
+        "inputTokens": 1843,
+        "outputTokens": 160,
+        "costUsd": 0.005286
+      }
+    },
+    {
+      "at": 17233,
+      "event": {
+        "type": "tool",
+        "agent": "frontend",
+        "round": 1,
+        "label": "read_file public/index.html",
+        "ok": true
+      }
+    },
+    {
+      "at": 17233,
+      "event": {
+        "type": "tool",
+        "agent": "frontend",
+        "round": 1,
+        "label": "read_file public/app.js",
+        "ok": true
+      }
+    },
+    {
+      "at": 17233,
+      "event": {
+        "type": "tool",
+        "agent": "frontend",
+        "round": 1,
+        "label": "read_file public/style.css",
+        "ok": true
+      }
+    },
+    {
+      "at": 17234,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "\n"
+      }
+    },
+    {
+      "at": 17634,
+      "event": {
+        "type": "usage",
+        "agent": "backend",
+        "round": 1,
+        "inputTokens": 1842,
+        "outputTokens": 163,
+        "costUsd": 0.005314
+      }
+    },
+    {
+      "at": 17634,
+      "event": {
+        "type": "tool",
+        "agent": "backend",
+        "round": 1,
+        "label": "read_file src/db.js",
+        "ok": true
+      }
+    },
+    {
+      "at": 17635,
+      "event": {
+        "type": "tool",
+        "agent": "backend",
+        "round": 1,
+        "label": "read_file src/app.js",
+        "ok": true
+      }
+    },
+    {
+      "at": 17635,
+      "event": {
+        "type": "tool",
+        "agent": "backend",
+        "round": 1,
+        "label": "read_file tests/api.test.js",
+        "ok": true
+      }
+    },
+    {
+      "at": 17635,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "\n"
+      }
+    },
+    {
+      "at": 18251,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "Now I'll write the three"
+      }
+    },
+    {
+      "at": 18251,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " files."
+      }
+    },
+    {
+      "at": 19171,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "The"
+      }
+    },
+    {
+      "at": 19171,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " br"
+      }
+    },
+    {
+      "at": 19172,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "ief says not"
+      }
+    },
+    {
+      "at": 19172,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " to touch public/,"
+      }
+    },
+    {
+      "at": 19172,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " so I'm"
+      }
+    },
+    {
+      "at": 19172,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " doing the backend and"
+      }
+    },
+    {
+      "at": 19172,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " tests only."
+      }
+    },
+    {
+      "at": 26625,
+      "event": {
+        "type": "usage",
+        "agent": "frontend",
+        "round": 1,
+        "inputTokens": 3256,
+        "outputTokens": 1869,
+        "costUsd": 0.025202
+      }
+    },
+    {
+      "at": 26625,
+      "event": {
+        "type": "tool",
+        "agent": "frontend",
+        "round": 1,
+        "label": "write_file public/index.html",
+        "ok": true
+      }
+    },
+    {
+      "at": 26626,
+      "event": {
+        "type": "tool",
+        "agent": "frontend",
+        "round": 1,
+        "label": "write_file public/app.js",
+        "ok": true
+      }
+    },
+    {
+      "at": 26626,
+      "event": {
+        "type": "tool",
+        "agent": "frontend",
+        "round": 1,
+        "label": "write_file public/style.css",
+        "ok": true
+      }
+    },
+    {
+      "at": 26626,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "\n"
+      }
+    },
+    {
+      "at": 28719,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "I"
+      }
+    },
+    {
+      "at": 28721,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " added"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " the"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " optional estimate to"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " the page"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": ". The add form has"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " a"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " number field"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": ", s"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "ent only when fil"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "led and"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " cleared after"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " submit. Each task shows"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " a"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " small \""
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "est: N\" label"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " only when it"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " has an"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " estimate. API errors,"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " including a 400 "
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "on a"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " bad estimate, now app"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "ear in"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " an inline al"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "ert instead of failing sil"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "ently. I did not run the"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " tests, and I did not tou"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "ch `src/` or the t"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "ests. The page"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " chang"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "es are"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " in `public/index.html`"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": ", `public/app.js`"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " and `public/style.css`"
+      }
+    },
+    {
+      "at": 28726,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "."
+      }
+    },
+    {
+      "at": 28729,
+      "event": {
+        "type": "usage",
+        "agent": "frontend",
+        "round": 1,
+        "inputTokens": 5252,
+        "outputTokens": 145,
+        "costUsd": 0.011954
+      }
+    },
+    {
+      "at": 28729,
+      "event": {
+        "type": "done",
+        "agent": "frontend",
+        "round": 1,
+        "ms": 13000
+      }
+    },
+    {
+      "at": 36888,
+      "event": {
+        "type": "usage",
+        "agent": "backend",
+        "round": 1,
+        "inputTokens": 3924,
+        "outputTokens": 3832,
+        "costUsd": 0.046168
+      }
+    },
+    {
+      "at": 36888,
+      "event": {
+        "type": "tool",
+        "agent": "backend",
+        "round": 1,
+        "label": "write_file src/db.js",
+        "ok": true
+      }
+    },
+    {
+      "at": 36888,
+      "event": {
+        "type": "tool",
+        "agent": "backend",
+        "round": 1,
+        "label": "write_file src/app.js",
+        "ok": true
+      }
+    },
+    {
+      "at": 36888,
+      "event": {
+        "type": "tool",
+        "agent": "backend",
+        "round": 1,
+        "label": "write_file tests/api.test.js",
+        "ok": true
+      }
+    },
+    {
+      "at": 36888,
+      "event": {
+        "type": "tool",
+        "agent": "backend",
+        "round": 1,
+        "label": "write_file tests/migration.test.js",
+        "ok": true
+      }
+    },
+    {
+      "at": 44376,
+      "event": {
+        "type": "tool",
+        "agent": "backend",
+        "round": 1,
+        "label": "npm test: 8 passed, 0 failed",
+        "ok": true
+      }
+    },
+    {
+      "at": 44377,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "\n"
+      }
+    },
+    {
+      "at": 47463,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "I"
+      }
+    },
+    {
+      "at": 47468,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " added a nullable `estim"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "ate`"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " column to t"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "asks, with `"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "openDb` adding it to"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " existing datab"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "ases that"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " l"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "ack it. PO"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "ST and PATCH now acc"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "ept `"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "estimate`, and P"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "ATCH with"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " `estimate: null` cl"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "ears it. The other chang"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "es are:"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "\n\n- **"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "API:"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "** a"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " non-num"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "eric est"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "imate g"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "ets `"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "400 { error: \"estim"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "ate must be a number or null\""
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " }` before the database"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " is touched.\n- **"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "Tests:** I"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " extended `tests/api."
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "test.js` and added `t"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "ests/migration.test.js"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "`, and the su"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "ite passes (8 tests"
+      }
+    },
+    {
+      "at": 47473,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": ").\n- **Not done:"
+      }
+    },
+    {
+      "at": 47474,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "** the UI form and `render"
+      }
+    },
+    {
+      "at": 47474,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "()` in `public/app."
+      }
+    },
+    {
+      "at": 47474,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "js`"
+      }
+    },
+    {
+      "at": 47474,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": ", because the"
+      }
+    },
+    {
+      "at": 47474,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " brief said not to touch `"
+      }
+    },
+    {
+      "at": 47474,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "public/`. I"
+      }
+    },
+    {
+      "at": 47474,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " also did"
+      }
+    },
+    {
+      "at": 47474,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " not ext"
+      }
+    },
+    {
+      "at": 47474,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "end `e2e/smo"
+      }
+    },
+    {
+      "at": 47474,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "ke.spec.js`,"
+      }
+    },
+    {
+      "at": 47474,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " so the"
+      }
+    },
+    {
+      "at": 47474,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " add"
+      }
+    },
+    {
+      "at": 47474,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "-form"
+      }
+    },
+    {
+      "at": 47474,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " input"
+      }
+    },
+    {
+      "at": 47474,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": ", the"
+      }
+    },
+    {
+      "at": 47474,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " `"
+      }
+    },
+    {
+      "at": 47474,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "est:"
+      }
+    },
+    {
+      "at": 47474,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "` display and the e2e chec"
+      }
+    },
+    {
+      "at": 47474,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "ks are still outstanding."
+      }
+    },
+    {
+      "at": 47475,
+      "event": {
+        "type": "usage",
+        "agent": "backend",
+        "round": 1,
+        "inputTokens": 8343,
+        "outputTokens": 255,
+        "costUsd": 0.019236
+      }
+    },
+    {
+      "at": 47475,
+      "event": {
+        "type": "done",
+        "agent": "backend",
+        "round": 1,
+        "ms": 31746
+      }
+    },
+    {
+      "at": 47475,
+      "event": {
+        "type": "start",
+        "agent": "e2e",
+        "round": 1,
+        "model": "claude-sonnet-5-5"
+      }
+    },
+    {
+      "at": 50818,
+      "event": {
+        "type": "tool",
+        "agent": "e2e",
+        "round": 1,
+        "label": "npm test: 8 passed, 0 failed",
+        "ok": true
+      }
+    },
+    {
+      "at": 52758,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "I'll read"
+      }
+    },
+    {
+      "at": 52758,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " the page"
+      }
+    },
+    {
+      "at": 52769,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " first"
+      }
+    },
+    {
+      "at": 52793,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " so"
+      }
+    },
+    {
+      "at": 52854,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " my selectors are real."
+      }
+    },
+    {
+      "at": 53169,
+      "event": {
+        "type": "usage",
+        "agent": "e2e",
+        "round": 1,
+        "inputTokens": 7674,
+        "outputTokens": 67,
+        "costUsd": 0.016018
+      }
+    },
+    {
+      "at": 53169,
+      "event": {
+        "type": "tool",
+        "agent": "e2e",
+        "round": 1,
+        "label": "read_file public/index.html",
+        "ok": true
+      }
+    },
+    {
+      "at": 53170,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "\n"
+      }
+    },
+    {
+      "at": 57536,
+      "event": {
+        "type": "usage",
+        "agent": "e2e",
+        "round": 1,
+        "inputTokens": 8090,
+        "outputTokens": 635,
+        "costUsd": 0.02253
+      }
+    },
+    {
+      "at": 64968,
+      "event": {
+        "type": "shot",
+        "agent": "e2e",
+        "round": 1,
+        "label": "add complete and delete a task",
+        "png": "iVBORw0KGgoAAAANSUhEUgAAAoAAAAHgCAIAAAC6s0uzAAAQAElEQVR4nOzdB3iNZ//A8Qcxg0QFVSkxSq00ZkRQtBLEiE2thFhFUoRYidDaq9WW2nulpUGHKmK9dsw/be2ktWqk9kr4/zh9H6dJEH1bv0i+nzdXrvPc5znjeuuc77nv55wTm5s3rhgAAODFSmsAAIAXjgADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggADH99nnk4sWK27+bN26NemX/XzyFOvLbtu2zQAAIDEEGAAABQQYAAAFySLA8+bNt6zZvte6jQEAQCpgYyQDq3/4wQAAIDXRD/DZs2d37440AABITfQD/M233xoAAKQymgG+devWjJmzZs2abY7IVFiOBJubXl51J04YH+8imzdv2bdvf1S0/O/XX3/7NU+ePIUKFSxSuHC9el7FihV70m0dOXJUjjQf/unwxYuXL126mD17tpw5czo4OFSqVKlhg/p58+Y1kmzlylWBffuZmwUK5F+0cGGuXA5P2v/y5Zi3q9e4c+eOORKxfm2+fPni7bZ27br3u/cwN11dK86fN9cAAKRQagE+efJke5+O586dTfpF+vXrL0eLb9++He96xLp166dOm17FvfKIER+9+upfanr//v2QkCFhX35lPXjpkmT4slR569ZtkyZ92q9voI9P+yTcBWPT5i39Bww0N195JceM6dOfUl/LPu+++863335njqxZ86Ovr0+83davj7De9Kpb1wAApFxq74KWQ7/PVV8hnYtX33i2/Gdr/wGDHjx4YD04YuSoePWNJzY2Nn/+140kOHT4sL9/gOxv2cySJcu0qV/IDPiZF/T29rbeXB8REW+HuLi4tevWmZsZM2asU6e2AQBIudRmwNmyZ69c2U1OyBzUHLSzy16yZElzs1ChQtYX8fHxmb9goaXBsoRbokRxpwJOhw4fsr4GOb1s+fKmTZpYNmXnRYsWm+fmyGFfpYp73lfzHjt+Yv/+fTIJlsEiRQrXqFHDeJaoqOjOnbrcvHnTsmljYzNp0ifOzs5GElSt4i53+PTp05bNnTt3/X7hQu5cucwddu7c+ccff5ib1atXt7OzMwAAKZdagEuXKjVn9iw5UaJkaXNO+cYbb1gGEyUz4AD/njExMXW96pQoXsIcl+IOGDDI3JQjxGaADx78P/PKhZ9fx05+fubmtm3b1q5bX8alTJo0aZ50o2nTPlwkiIn5o2u3bhcuXjTHP/xwaLWqVYykkStp5N3ws88nWzZljr5u7bpWrVqaO6yP2GC9fz2vOgYAIEV7yb4Jq2PHDoGBfazrK5o0bmxvb29uHj16zDxtyadpx/YdV65cMTfd3NyCBw+qV+9pR1szZcp0586drt3eP378hDkYEOAvN2o8j8aNG1lvrrNacBY//rjWPJ09e/aaNWsaAIAULYV8FaWj4+M3FZsrveLNN4vJ8VRzc9PmLU2bNQ8PX3H37l0jaWxts3bv3mPv3r3mSMuWLbq/3814To6OjlXcK5ubW7dtN9ecDxw4eObMGfMsOfqbPn16AwCQoiWLb8JKOjlWumzZ18dPHJd6ybLwtWvXEu7z4P5987StrW3DBvWt34Qlh3L7BfUfMXKUp6dH8+bNZCX86be4+ocfJNvmpkQ0dEiI8bd4e3tv+c+ff1tJFsbXrV9vmUZH/PU9WfXreRkAgJTupZkBS2ubt2jVpm37r8PDZcoYHf1rovVNSJasXV1d4w1Kv5cuDWvSpNmwDz+y/oRuQjNn/uWY9C+/HLE+EvxcPDxqZcuWzdw0P3e0bt3jAMtEuUKFCgYAIKV7OQIcFxfXq1fvffv2WQ/K2nLhwoUqV3aTH+uwxSOHh+fMntmvb2DOnK8kPHfBgoXt2vtevXr1SRc33/ZsIfUNCuof75NOSSSHk729G5ibmzdvuX37tiyY//zLz+agTH+f8o4wAECK8XIEeMeOHdbrwNmzZx8zelTk7p3ff/ftnNmz5MfJqcBTLp4uXTo/v45bNm+aOnWKi4tLvHPl+O7kKV8YT5Ujx+M3eW3dum327DnG32L9gWCp74YNG1av/ssfoqhfv74BAEgFXo4A//TTz9abHwT4e3s3zJAhgzkSb56aKMlwjerVw5Yulgw7OTlZn7V92w7zdLwJqFxq0MABc+fMtn5j1PgJEw8dPmw8PznkXLLk47dwR+7Zu337dnPT2dm5SJHCBgAgFdAPsCzMmqdv3bqV6D4nT52y3ixYsKD15pUrV6w/I/RMkuHly760/varyzEx5ul4y8tDQoLbt2/35ptvfvCBvzl47969fv2CklL9hMzPKItjR4/uP3DQ3GxQv54BAEgd9APs4PD4i5Slo+bM8tq1a+vXr7eczpb1L4d49x84YJ6Ojo7269TlCddt/Oc/W/38Oi0NC7t48ZL1eGxs7K2bj2OfL98T/xiD2emOHTq4ulY0x48ePTZy1Gjj+Xl51TUn03v37Tc/jCRT7Tp1+P4NAEgt9D+GVKpUiVP/neDKYdG2bds7O5f+/fffT548JUd2LV9JUbz4m9YX+fjjTzZt2lyubNlff/tVTjxlJhp3/74cPJaf4OAhBQrkL1SocNE3ikRFR2/fvsP6qx8rV65sPEvatGlHjxpZv4G3+e7rpUvDqlZx9/DwMJ6Hvb19nTqeK1d+Y/x15bxqlSpP/6MOAICURH8G7FGrlvXm9evXt27dduzY8bi4OHPQ09Mj3lHbPXv2TJ8xY/XqH6RhNjY2nfw6Gs8SFRUdERExddp0uZR1fR1y5mzerImRBK+99lr//kHWI4MGB589+3x/UkJ4N2yUcFBmxgYAINXQD3Dt2rWbN2/29H0yZsz42aeTEv0ckQgJGRwY2CdPnleN51ekSOF58+Ym/bLNmjapXr26uXnlytU+gX2f91NJ7u5u8f4ecJYsWeRFhgEASDWSxbugP/pw2JjRo6zfHlz8zeItWjTv9cEH5kjRom8sXrSwVq135VipZSR37tx16tT+/LNPW7ZokSZNGlnXTXjN7pXdvvhictu2rStWrGD9WWHZv2zZsgEB/suXffW8bzweOWK49UuB3bsjZVZtPA+59XhfDe3p4WH9ZjQAQIqX5uaNKwZeuFmzZo8aPcbcnDFjetL/thIAIAV4yb4LOsVY9c035mmZyrs/+tPIAIDUgwArWLZ8+aFDj7/Ho2GDBua6OgAglSDAL1RsbOyaNT+OGDHKHJHjwa1atTAAAKkMAX4Rjh8/UderXqlSJU+dior3R5zat2/n6OhoAABSGQL8gjx48ODgwf+LN1jFvXLfwD4GACD1eWn+HnAKIwd9Ze47deoX1n/jAQCQejADfhEyZ86UK1euCxcu2NraFi5c2K2Sq7e3d+HChQwAQGrF54ABAFDAEjQAAAoIMAAACggwAAAKCDAAAAoIMAAACggwAAAKCDAAAAoIMAAACggwAAAKCDAAAAoIMAAACggwAAAKCDAAAAoIMAAACggwAAAKCDAAAAoIMAAACggwAAAKCDAAAAoIMAAACggwAAAKCDAAAApsDPzLQocON4AULXTIICNV4tH9vFLtP5VEEeB/lzw+R48ebQApWlBQUCp8YuXR/Tekzn8qT8ISNAAACggwAAAKCDAAAAoIMAAACggwAAAKeBc0ACBZCAtbdvPWrVOnoowXwsmpQJbMmZs3b2IoIcAAAH1SX9us2Rp6NzJeoLVr18rtajWYJWgAgL6bN2+9++67xosltyi3ayhhBgwA0Hcq6gWtPCeT2zWYAQMAoIIAAwCgQDPAs2bNLlqs+MSJH8cb9/PrFBwyxEiWgoIG+Ph2MAAk2fvde8gj3fqnp/8Hz3UN3333fS0Pz2vXrhlACqI/A54xc9aJEyeNF2JwcMjyr782ALxYb7311vx5c8yfHt3ff/r+tTxq//bbb+ZmunRpHfPlM/5p8W4FydzBgwenTJnylB1Onz6dI0eOK1euJHFcnfKbsFxcXK5duxoyZMiC+fOMf5m8fF63bl3ZsmUMAC+WXfZsrq6uSdx57969UX99X4znI8Y/KuGtIJmbNGnSypUrq1WrVrJkSSNFUJ4Bx8beCwkevHPnrrAvv3zSPkePHusTGFil6tv1GzQcPmLk7du3Hzx4UK58xc8nP34p5Fm7btlyFeLi4iybCxcuKlnK+ebNm+YO8kir69Xg0qXL/fsPlBWwOnW9LOM//PBD585dq1arUdHVrUfPgGPHjlvGo6Oj+/YN8qpXX662dZu2k6d8kfCOxcT8IdfTvUdP83YBPJclS5bKMR159MkKsxzfOXDg4Jo1a9r7PDzKU/OdWvJQtRyN+vKrZXI6NjbWcrpRoybr16+XdezyFVzlMSgHs36/cEEWut3dq8oThSx0/fHHH5brl+eKL6ZOk4ewPJDfreUxdNiHlmlQorci1kdEyBNChYquLVu1njv3X58VIOkuXrwo/9X8/PwWLVoU76y7d+9GRkbu3r07iePJh/IMWGrq5ubWoEH98eMn1KheI1cuh3g7yLS1o1/nV3Lk6BvYJzYudvr0GRcuXPh44oQqVdz3REZa9jly5Oj58+dtbGx27twp1yYjuyMjK1QonyVLFvN67O3tR44Y3qFjx65dOru7V86UKZNl/PDhn3LnyV2vXr2bt27MmDGzb99+X3+9TMZDQ4feuHnL19fndUdHecT+9tvpeHdM6t6pc5dX8+SZOGF8unTpDADPSV55hwwJ7dmju49P+8yZMsmmvb3dK6/k8O/ZY8zYcfLIcnDImStX7oQXPHL06CeffNa6TauGDerLQaVRo8d89/33Tk4FhgwJOXrsmDyQbW1tB/QPkj3TpEmzd+++8uXKdfD1PfzTTzNnzpInikEDB5QoUSLhrURG7unevec779QcNXKkvGQfP2Gi7Ny69XsGkoGwsLC6detKgGvVqhUcHGw+h0tf27VrZ2dnJ0/U7u7u5v5PGk9WlAMcG/tw7ti3b+CGDRvHjh03ZsyoeDssXLQ4Jubyl18uyZP74SPEwSFXJ+lel06VXF3lwXPv3r306dNv3LRRjjBlzpx506YtlgDLI7lt2zbW1yP/GcqXLysnnAo6WS+F9er1+M0gmTJm6hfUX1qeJ0+ek6ei6tfzatqkyRPudmzPnv4PHtyfPPnzDBkyGACeatPmLTLRNDeHds8mYAAAEABJREFUD/+oWdMmp6KipJTyUJXXxzJoPjCLFitmPDxs7Ozo6JjotckDv1u3zrVr15bT5cuXW7duvTwdjxs7VjY9PGqdPXNGomvuPPWLyZYTUtbz585v3bpVTss1J7wVOb74ZrFin076RLJtPFziipk8eUrLli14hZ0cLFy4MDQ0tGDBgkWLFl21alWzZs2MRyscvXv3btOmzcCBA+/fvx8QEGDZ+UnjyY3yErT83yS/Ja4B/j3DV6ywPDasbdmypZJrRUt9RdkyLvL70KHDFStWvHHjxr59+2Vz48ZNLm85lytXJmJDhGz+8ssRmSXLpYznJK+g5fely5fkd82aNWTlqlfvPgnfo5EhQ8aRo0ZLoWdMny7VNwA8S7w3YVWrVlUGK7tVkt+NGjddGhZmeSpIuooV/6y1/UN2Msc1z8rn6Pj7778neqkCTvllJTPRs2Q1Tl4leNb2tNRXlCnjcuHixdOnTxvQtm3bNjmsULNmTTnduHHjJUuWWMZPnjx58ODBTp06yem0adN27tz56ePJTXL5Jqz33mu1YuXKocM+WhG+PG3ax683ZfVAprPWr53FtavXChcu9Nprr8lSs7wgkh1kNSlTpsxjx44/deqUrDxkz569dOnSSbnd1atXfx2+8tixo7LIbP0UIItUFSuU/+yzKXJ0uXr1tzv5dXRxcbGcdfDggb1791y9eu3UqZM5cvCWLuDZEn0Tlkw9v1m1Yv4CmdkMmzFjVqNG3h07+GbMmDEpV5gtW1brTXnIm6eloHFx9y2nJauLFi2O2LDhxPETFx6lN0cO+0Sv8OqjzzhNmDBRfqzHr1y9akCbHPc9c+aMg8PjY5TR0dH58+eXBUtZg8yVK5dlMGfOnJYTTxpPbpJLgGWRJyQ4uGmz5lOnTsv438V94+HL2xzuld26du1ivbP8/248fPnsJoeB8732mhw0KleunLzMefXVvDt37ZIfWYhOyqrRwoWLPho+wt+/p/S1dOlShw8fbtHyz+M9cm2enp7vvvvuf7Zu++STT7p2ez9i/TrLfNfGJsPyZV8FB4cE9R+4fNmXWbNmNQD8Lfny5esf1M/Xp/2SJUs//fQzG5t0nR/NWp7JnKc+3YCBg3bv3tOz5/tvOTu/8cYbM2aKWYnuafco4R06+Nao/rb1eEEnJwOqZLFz+fLlO3bskMVny4ivr+/8+fMHDRokhwvv3r17/fp1y/OwrH1adnjSeHKTjL4Jy9m5tMyDZ8ycdfbsWXNQpqHHT5wqVqyYq5W8efM+PKtihf0HDsr0t0b1GpJbeUC+/XbVPZF79+8/kOj6sxwtNh4dPTJHNm7a7FbJtVvXLnIYSV53J/xGULnaalWrDOjf//LlmLNnz1kGCxcuKHdg+IjhsiQyfPhIA8D/Rp4uAwL85aX2kSNHZTO9zcNXz3fv3jP+Z2vXrmvVqkXzZs3kOUReVUdHRZtnxbsVeQaoVKnS8WPHXf+KV9jqwsLC5BCGWV/RokWLBQsWyMFdWQGVxU6ZI8lgXFyc+SnhJ40nN8nrqyh7fRBga5vlwIED5kjbtm2yZs3SvEWrefPmb3tEFoiuPloUcnOrJAncsHFjjRp/vmJ9u1q1zVu2yEqFPJASXrnUtGjRN8LDV2zfvj0yco+MvP6649Fjx8+ff1hWeeTPnTPf3FluZf78hfKaS25x+oyZ8p/T0fEv3wMgh6WHDR2ybPlyWcQ2ADzVlavXdlj55ZcjxqN3Zn0+eYo8hGXkq2XLdu7abVmmLlSooPyeO2+ejFuS/LcVKlho7569shBtPPzo0Y9r1617fFaCW+ndK0COavn4dlj2aL61cdOmRD9/iBds8eLFzZs3tx7x8PCQGdeaNWvk94QJEyTG8pxfoUKF6tWrWw5GPGk8uUlefw3Jzs4uMLDPwIGDzRF7e/v58+YNCQ2VtWJbW1tZRMqdO7dlLiuvmiWo0dG/Vq1a1bKzu3vlmJgYGZcjxIlevxzZHfbhR+3a+xYrWmzVqvDOnfzk0G/VajXkrFKlSn740dAOHTpa9rx06dL2HTuPHTsmqx9Vq7jPnjUj4buda9eu7d1wQ8iQoWXKljXfJgYgof3797dt52NuyvGdTyd9nCljhl27doWHh0dFRedycAjs07tZ04efO8iT59XgwYM++/zzxYuXtGnTOiR4sPF3DR48UJapnN96+F6NunXrjB83rnefPpazEt6Ki4vLnNkzQ4cOGzBgUM6crxQpUkQWrg1ok9DGG5HFDDliaDldvnx5+dclm/LfS5YrWrZs+fTxZCXNzRvJ7tu5UpLQocNHjx5tAClaUFBQ6JBBRirDo/tveMo/Ffn/c8CAAcYLN3LkSK1/vfw1JAAAFBBgAAAUJK9jwACA1MmpQAFDg9btGsyAAQDJQZYsmdeuXWu8WHKLcruGEmbAAAB9zZs3CQtbtnjxolOnXtCfiXRyKpAlc2a5XUMJAQYAJAuKLVTBEjQAAAoIMAAACggwAAAKCDAAAAoIMAAACvgu6H9d6NDhBpCipcIvgrbg0f28Uu0/lUQRYAAAFLAEDQCAAgIMAIACAgwAgAICDACAAgIMAIACAgwAgAICDACAAgIMAIACAgwAgAICDACAAgIMAIACAgwAgAICDACAAgIMAIACAgwAgAICDACAAgIMAIACAgwAgAICDACAAgIMAIACzQDPmjW7aLHiEyd+HG/cz69TcMgQ44WLioqS+7Njxw4DAIB/mf4MeMbMWSdOnDT+Z79fuFDLo7bxUnkZ7zMA4B+hHGAXF5f8+V8PGfIPzHfDw8ONl83LeJ8BAP8I5QDHxt4LCR68c+eusC+/fNI+sjIcFDTAw7OOe5VqH/TqvX///oT7jBs3fty4CZY1ZPlZuXKVDB46fDiwbz/P2nVdypRr2659xIYN5v5Lliz18e1Q0dWtloenXPmBAwcTXueiRYvlgnv27JHTW7du7d6jZ7W3a7pVdu/cpdvq1aut97x69WppZ5fZs+dYD77Xuk3nzl0tp9dHRMjpChVdW7ZqPXfuvKfcZwBAKmFjqLp9+7abm1uDBvXHj59Qo3qNXLkc4u0gi7TtfTo4Oubr0qVTXNz9r75a1qFjpwUL5hZ/s7j1bnW96pw///v2HTvHjR0lm4UKFZbf58+du379hq9ve3s7u4WLlgQE9Ppxzfd58rwqvQ8ZEtqzR3cfn/aZM2WSTXt7u3i3K4kdOWr0lMmTy5YtK3eyew//d96pOXBAvxw5ckRFR6dPn8F65+zZs3t6eixfHu7r62MZOXfu7O7dkWPHjJbTkZF7unfvKRcfNXKk5Hb8hIk2NjatW7+X6H0GAKQSygGOjY2T3337Bm7YsHHs2HFjxoyKt8O0adPv3bs3Y/q0TJkyyWaD+vWaNWs5evTYObNnWe9WoniJvHlfzZQpo6urqzlY8xHLaWdn5+o13tm5M7J+fa9TUVG2trZt27axt7eXs6wvYrFt27a+/fqPHzemSpXKxsOanrtx40aDBg2qVa2S6P7Cu6F3h5UdZc5dskQJ2QxfsSpLlixSZTk9ZcqUN4sV+3TSJ2nSpJHNmJiYyZOntGzZItH7DABIJZSXoB88eCC/8+TOHeDfM3zFClnpjbfD/v0HZA5qqa+QEzJxlDml8Zxee+01uWxMzGU5Xdmtkvxu1Ljp0rAwyx2wdv78Bf+AD/z9e3h4eFhG8ufPX7JkiR49espLhJs3byZ6/e7ubvny5VuxYqVlc8WKFR61asktyux50+YtnrU9LfUVZcq4XLh48fTp0wYAIBVLLp8Dfu+9Vs7OpYcO+0iKlTZtOnP8xo3rdnbZrffMkcP+zp07t27deuZ1ypHdfv36e9WrLwdo5SCrXLNl3NHR8ZtVK2R6Gho6TA4tT57yhVyheakRI0ekSZM2MnKvOZI2bdr58+b2Deyz/OuvZRodOnTY+fPn4t2W9LVx40YrV66Mi4v76eefjh8/4VXPS8avXrsmvydMmGg50Cs/Xbt1l5ErV68aAIBUTHkJ2pQuXbqQ4OCmzZpPnTot43/nu8bDw6t2169ft94zJuYPWd3NnDnz06/w/w4dat2mbT0vr379+r7l7CyrzZJh81yZrfYP6ufr037JkqWffvqZjU26zp06Wc5q2aJF5cqV27Rtt3DhIjlSaxnMmjWrLFk3adL42+++nzhh4pnTZ6ZN+yLeLTbybihXtWPHjj179+XJk6eK+8Pla7vsD189dOjgW6P629Y7F3RyMgAAqVhyCbDx8DBtaZkHz5g5q1ixYua7osqVLRMevkJmqBkzZrSMbN68WQYTXjx9hgx37tw1N+U4rvwePvxDmb/KCVnytZ7mWkgmAwL8Dx48eOTIUXPQza1SxYoVOvl1HDtuvJubW6FCBc2zJPzNmja5dOnSokVLEt4BmVhXreK+YeOmPXv21q1bR15SyKDc7UqVKh0/dlx6/8z7LM6cOSO3Yjk4DQBIwZLXV1H2+iDA1jbLgQMHzJH2Pu2zZc8W2DdIgiqTyxEjR/388y/+/j0TXragU8Fz587KjFZ2kyXi1x0dpbiWr7WSSbMsbsss1rKnHJT9fPKUDRs3yrlfLVu2c9fuhG+DkjAXLOjUJzDw7t27v/3228SJH69c+Y3svz4iQo7vWo4iJ+Tt3WjNmh/l/svM2xzs3Stgd2Skj2+HZcuXyzVs3LRJFr0Tvc9ygLl2HS+/Tp0NAEBKl4xmwMLOzi4wsM/AgYPNkdy5ci2YP39IaKiPb8cHDx689dZb8+bNKVWyZMLLenrWar6j2YcfDY+NjZ0wflzt2p6yaNzt/R5SNZnpBvXrlyHDn58dypQxw65du8LDw6OionM5OAT26S3z2njXJjuPHzfOu1Hjjz+e5Ovr89NPP0dEbDx+4nj69Onr1683aOCARO9/rVpyhHioTJpLly5lDrq4uMyZPVOOHA8YMChnzleKFCkiS+KJ3mc5LO3g4JA7d24DAJDSpbl544qBf8i9e/eqvV29Xbt23bp2MQAAeLLkNQN+2a1du/bq1WveDRsYAAA8FQH+B8jEd8+ePTdu3AgOCW3atEnevHkNAACeiiXof8DlyzGV3B5+6EgOPI8eNfKZH5ECAIAAAwCgIHl9DAkAgFSCAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggDLUjbgAAAR/SURBVAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKCAAAMAoIAAAwCggAADAKDg/wEAAP//25i75gAAAAZJREFUAwBuQFDFTLQN9QAAAABJRU5ErkJggg=="
+      }
+    },
+    {
+      "at": 64968,
+      "event": {
+        "type": "shot",
+        "agent": "e2e",
+        "round": 1,
+        "label": "feature estimate flow",
+        "png": "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AgIYAAAFBDAAAAoIYAAAFBDAAAAoIIABAFBAAAMAoIAABgBAAQEMAIACAhgAAAUEMAAACghgAAAUEMAAACgggAEAUEAAAwCggAAGAEABAQwAgAICGAAABQQwAAAKCGAAABQQwAAAKCCAAQBQQAADAKCAAAYAQAEBDACAAgIYAAAFBDAAAAoIYAAAFBDAAAAoIIABAFBAAAMAoIAABgBAAQEMAIACAhgAAAUEMAAACghgAAAUEMAAACgggAEAUEAAAwCggAAGAEABAQwAgAICGAAABQQwAAAKCGAAABQQwAAAKCCAAQBQQAADAKCAAAYAQAEBDACAAgIYAAAFBDAAAAoIYAAAFBDAAAAoIIABAFBAAAMAoIAABgBAAQEMAIACAhgAAAUEMAAACghgAAAUEMAAACgggAEAUEAAAwCggAAGAEABAQwAgAICGAAABQQwAAAKCGAAABQQwAAAKCCAAQBQQAADAKCAAAYAQAEBDACAAgIYAAAFBDAAAAoIYAAAFBDAAAAoIIABAFBAAAMAoIAABgBAAQEMAIACAhgAAAUEMAAACghgAAAUEMAAACgggAEAUEAAAwCggAAGAEABAQwAgAICGAAABQQwAAAKCGAAABQQwAAAKCCAAQBQQAADAKCAAAYAQAEBDACAAgIYAAAFBDAAAAoIYAAAFBDAAAAoIIABAFBAAAMAoIAABgBAAQEMAIACAhgAAAUEMAAACghgAAAUEMAAACgggAEAUEAAAwCggAAGAEABAQwAgAICGAAABQQwAAAKCGAAABQQwAAAKCCAAQBQQAADAKCAAAYAQAEBDACAAgIYAAAFBDAAAAoIYAAAFBDAAAAoIIABAFBAAAMAoIAABgBAAQEMAIACAhgAAAUEMAAACghgAAAUEMAAACgggAEAUEAAAwCggAAGAEABAQwAgAICGAAABQQwAAAKCGAAABQQwAAAKCCAAQBQQAADAKCAAAYAQAEBDACAAgIYAAAFBDAAAAoIYAAAFBDAAAAoIIABAFBAAAMAoIAABgBAAQEMAIACAhgAAAUEMAAACghgAAAUEMAAACgggAEAUEAAAwCggAAGAEABAQwAgAICGAAABQQwAAAKCGAAABQQwAAAKCCAAQBQQAADAKCAAAYAQAEBDACAAgIYAAAFBDAAAAoIYAAAFBDAAAAoIIABAFBAAAMAoIAABgBAAQEMAIACAhgAAAX/DwAA//8kmWKhAAAABklEQVQDABg4UW2ZFNHGAAAAAElFTkSuQmCC"
+      }
+    },
+    {
+      "at": 64968,
+      "event": {
+        "type": "tool",
+        "agent": "e2e",
+        "round": 1,
+        "label": "real browser: 2 passed, 0 failed",
+        "ok": true
+      }
+    },
+    {
+      "at": 67642,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "E2E: PASS"
+      }
+    },
+    {
+      "at": 67645,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "\n- The brow"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "ser test and"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " the app's own smoke test"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " both passed, and"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " the unit tests passed "
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "8 "
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "of 8.\n- Ad"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "ding a task with est"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "imate 3 through the form"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " shows \"est: 3\""
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " on that task, and"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " the estimate field"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " clears after submit.\n-"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " A"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " task added without an estimate sh"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "ows no \"est:\" label."
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "\n- `"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "POST`"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " with `estimate: \"ab"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "c\"` retur"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "ns 400 with an error message"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": ".\n- The listing retur"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "ns `est"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "imate: 3` for the"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " first task, and `PATC"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "H` with `estimate:"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " null` clears it while"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " leaving the"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " title un"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "changed.\n- I did"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " not test `"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "PATCH` with an object"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " or boolean estimate in"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " the browser run"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "; the"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " unit tests cover those and"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " that a"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " r"
+      }
+    },
+    {
+      "at": 67651,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "ejected request"
+      }
+    },
+    {
+      "at": 67652,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " leaves t"
+      }
+    },
+    {
+      "at": 67652,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "asks unchanged."
+      }
+    },
+    {
+      "at": 67652,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "\n- Lo"
+      }
+    },
+    {
+      "at": 67652,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "ading an old database: only"
+      }
+    },
+    {
+      "at": 67652,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " the unit mig"
+      }
+    },
+    {
+      "at": 67652,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "ration test covers this, not"
+      }
+    },
+    {
+      "at": 67652,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " the brow"
+      }
+    },
+    {
+      "at": 67652,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "ser run."
+      }
+    },
+    {
+      "at": 67653,
+      "event": {
+        "type": "usage",
+        "agent": "e2e",
+        "round": 1,
+        "inputTokens": 8849,
+        "outputTokens": 259,
+        "costUsd": 0.020288
+      }
+    },
+    {
+      "at": 67653,
+      "event": {
+        "type": "done",
+        "agent": "e2e",
+        "round": 1,
+        "ms": 20178
+      }
+    },
+    {
+      "at": 67654,
+      "event": {
+        "type": "verdict",
+        "gate": "e2e",
+        "round": 1,
+        "approved": true
+      }
+    },
+    {
+      "at": 67654,
+      "event": {
+        "type": "start",
+        "agent": "validator",
+        "round": 1,
+        "model": "claude-sonnet-5-5"
+      }
+    },
+    {
+      "at": 68482,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "VERDICT: APP"
+      }
+    },
+    {
+      "at": 68864,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "ROVE"
+      }
+    },
+    {
+      "at": 68864,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "\n- AC1 and"
+      }
+    },
+    {
+      "at": 68864,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " AC2: PO"
+      }
+    },
+    {
+      "at": 68864,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "ST and"
+      }
+    },
+    {
+      "at": 68864,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " PATCH accept an opt"
+      }
+    },
+    {
+      "at": 68864,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "ional numeric estimate."
+      }
+    },
+    {
+      "at": 68864,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " Om"
+      }
+    },
+    {
+      "at": 68864,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "it"
+      }
+    },
+    {
+      "at": 68864,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "ted values"
+      }
+    },
+    {
+      "at": 68864,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " come back as null, P"
+      }
+    },
+    {
+      "at": 68864,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "ATCH pre"
+      }
+    },
+    {
+      "at": 68883,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "serves title and"
+      }
+    },
+    {
+      "at": 69252,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " done when they"
+      }
+    },
+    {
+      "at": 69252,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " a"
+      }
+    },
+    {
+      "at": 69252,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "ren't sent, and null cl"
+      }
+    },
+    {
+      "at": 69252,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "ears the"
+      }
+    },
+    {
+      "at": 69252,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " estimate. Un"
+      }
+    },
+    {
+      "at": 69252,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "it tests cover all"
+      }
+    },
+    {
+      "at": 69252,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " of this"
+      }
+    },
+    {
+      "at": 69252,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": ".\n- AC3:"
+      }
+    },
+    {
+      "at": 69252,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " `"
+      }
+    },
+    {
+      "at": 69252,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "validEstimate` rej"
+      }
+    },
+    {
+      "at": 69252,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "ects str"
+      }
+    },
+    {
+      "at": 69283,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "ings, objects and"
+      }
+    },
+    {
+      "at": 69661,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " booleans ("
+      }
+    },
+    {
+      "at": 69661,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "and non"
+      }
+    },
+    {
+      "at": 69661,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "-finite numbers) with"
+      }
+    },
+    {
+      "at": 69661,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " a"
+      }
+    },
+    {
+      "at": 69661,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " 400 and a cl"
+      }
+    },
+    {
+      "at": 69661,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "ear message. On PATCH"
+      }
+    },
+    {
+      "at": 69661,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " the check"
+      }
+    },
+    {
+      "at": 69661,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " run"
+      }
+    },
+    {
+      "at": 69661,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "s before `"
+      }
+    },
+    {
+      "at": 69661,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "updateTask`, so a"
+      }
+    },
+    {
+      "at": 69661,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " rejected request mod"
+      }
+    },
+    {
+      "at": 69686,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "ifies nothing. The test"
+      }
+    },
+    {
+      "at": 69989,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " conf"
+      }
+    },
+    {
+      "at": 69989,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "irms the"
+      }
+    },
+    {
+      "at": 69989,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " list is unchanged after the"
+      }
+    },
+    {
+      "at": 69989,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " bad requests.\n- A"
+      }
+    },
+    {
+      "at": 69989,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "C4: The UI form has"
+      }
+    },
+    {
+      "at": 69989,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " a"
+      }
+    },
+    {
+      "at": 69989,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " numeric input that"
+      }
+    },
+    {
+      "at": 69989,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " is sent only"
+      }
+    },
+    {
+      "at": 69989,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " when non-empty,"
+      }
+    },
+    {
+      "at": 70018,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " and the"
+      }
+    },
+    {
+      "at": 70049,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " list shows \""
+      }
+    },
+    {
+      "at": 70085,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "est: N\" only"
+      }
+    },
+    {
+      "at": 70471,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " when an"
+      }
+    },
+    {
+      "at": 70471,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " estimate is set. The brow"
+      }
+    },
+    {
+      "at": 70471,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "ser E2E confirms both"
+      }
+    },
+    {
+      "at": 70471,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": ". The migration test conf"
+      }
+    },
+    {
+      "at": 70471,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "irms an"
+      }
+    },
+    {
+      "at": 70471,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " old database loads with null"
+      }
+    },
+    {
+      "at": 70471,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " estimates, and re"
+      }
+    },
+    {
+      "at": 70471,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "opening it is idempotent"
+      }
+    },
+    {
+      "at": 70471,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": ".\n- Security and data saf"
+      }
+    },
+    {
+      "at": 70472,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "ety: all"
+      }
+    },
+    {
+      "at": 70472,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " S"
+      }
+    },
+    {
+      "at": 70486,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "QL is"
+      }
+    },
+    {
+      "at": 70789,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " parameterized, the"
+      }
+    },
+    {
+      "at": 70789,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " request body is size"
+      }
+    },
+    {
+      "at": 70789,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "-limited, the title"
+      }
+    },
+    {
+      "at": 70789,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " is tr"
+      }
+    },
+    {
+      "at": 70789,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "immed, and the D"
+      }
+    },
+    {
+      "at": 70789,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "O"
+      }
+    },
+    {
+      "at": 70789,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "M is built"
+      }
+    },
+    {
+      "at": 70789,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " with `textContent`, so"
+      }
+    },
+    {
+      "at": 70790,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " there"
+      }
+    },
+    {
+      "at": 70820,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " is no XSS or"
+      }
+    },
+    {
+      "at": 70854,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " injection risk. The"
+      }
+    },
+    {
+      "at": 70886,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " migration is additive and non-"
+      }
+    },
+    {
+      "at": 71404,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "destructive."
+      }
+    },
+    {
+      "at": 71405,
+      "event": {
+        "type": "usage",
+        "agent": "validator",
+        "round": 1,
+        "inputTokens": 6578,
+        "outputTokens": 348,
+        "costUsd": 0.016636
+      }
+    },
+    {
+      "at": 71405,
+      "event": {
+        "type": "done",
+        "agent": "validator",
+        "round": 1,
+        "ms": 3751
+      }
+    },
+    {
+      "at": 71406,
+      "event": {
+        "type": "verdict",
+        "gate": "validator",
+        "round": 1,
+        "approved": true
+      }
+    },
+    {
+      "at": 71406,
+      "event": {
+        "type": "start",
+        "agent": "release",
+        "round": 1,
+        "model": "claude-haiku-5-5"
+      }
+    },
+    {
+      "at": 73352,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "Add opt"
+      }
+    },
+    {
+      "at": 73366,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "ional num"
+      }
+    },
+    {
+      "at": 73366,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "eric estimate to tas"
+      }
+    },
+    {
+      "at": 73366,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "ks across"
+      }
+    },
+    {
+      "at": 73473,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " D"
+      }
+    },
+    {
+      "at": 73473,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "B, API,"
+      }
+    },
+    {
+      "at": 73473,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " and UI\n\n-"
+      }
+    },
+    {
+      "at": 73473,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " Data: new"
+      }
+    },
+    {
+      "at": 73473,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " n"
+      }
+    },
+    {
+      "at": 73489,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "ullable `estimate REA"
+      }
+    },
+    {
+      "at": 73509,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "L` column on `tasks"
+      }
+    },
+    {
+      "at": 73527,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "` (added"
+      }
+    },
+    {
+      "at": 73549,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " via"
+      }
+    },
+    {
+      "at": 73569,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " `ALTER TABL"
+      }
+    },
+    {
+      "at": 73590,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "E` on existing databases);"
+      }
+    },
+    {
+      "at": 73611,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " `addTask`"
+      }
+    },
+    {
+      "at": 73648,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " accepts an"
+      }
+    },
+    {
+      "at": 73651,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " estimate, and"
+      }
+    },
+    {
+      "at": 73678,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " `updateTask` only chang"
+      }
+    },
+    {
+      "at": 73691,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "es `"
+      }
+    },
+    {
+      "at": 73721,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "estimate` when the key is"
+      }
+    },
+    {
+      "at": 73741,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " present,"
+      }
+    },
+    {
+      "at": 73756,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " so `null` clears it while"
+      }
+    },
+    {
+      "at": 73774,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " om"
+      }
+    },
+    {
+      "at": 73797,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "itted f"
+      }
+    },
+    {
+      "at": 73816,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "ields st"
+      }
+    },
+    {
+      "at": 73839,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "ay untouched.\n- API"
+      }
+    },
+    {
+      "at": 73857,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": ": `POST /api/t"
+      }
+    },
+    {
+      "at": 73875,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "asks` and `PATC"
+      }
+    },
+    {
+      "at": 73900,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "H /api/tasks/"
+      }
+    },
+    {
+      "at": 73922,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": ":id` accept an"
+      }
+    },
+    {
+      "at": 73938,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " optional `estimate`"
+      }
+    },
+    {
+      "at": 73960,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " (number or `null`),"
+      }
+    },
+    {
+      "at": 73982,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " validated by"
+      }
+    },
+    {
+      "at": 74003,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " `"
+      }
+    },
+    {
+      "at": 74020,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "validEstimate` and r"
+      }
+    },
+    {
+      "at": 74040,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "ejected"
+      }
+    },
+    {
+      "at": 74063,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " with `"
+      }
+    },
+    {
+      "at": 74088,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "400 { error: \"estim"
+      }
+    },
+    {
+      "at": 74101,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "ate must be a number or null\""
+      }
+    },
+    {
+      "at": 74126,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " }` before any DB write"
+      }
+    },
+    {
+      "at": 74141,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "."
+      }
+    },
+    {
+      "at": 74164,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "\n- UI: the"
+      }
+    },
+    {
+      "at": 74182,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " add form g"
+      }
+    },
+    {
+      "at": 74203,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "ets an optional est"
+      }
+    },
+    {
+      "at": 74226,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "imate input ("
+      }
+    },
+    {
+      "at": 74244,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "om"
+      }
+    },
+    {
+      "at": 74262,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "itted when empty,"
+      }
+    },
+    {
+      "at": 74288,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " cleared after submit),"
+      }
+    },
+    {
+      "at": 74305,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " t"
+      }
+    },
+    {
+      "at": 74326,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "asks show"
+      }
+    },
+    {
+      "at": 74345,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " `est: N` only when an"
+      }
+    },
+    {
+      "at": 74389,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " estimate is set, and API"
+      }
+    },
+    {
+      "at": 74390,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " errors surface in"
+      }
+    },
+    {
+      "at": 74408,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "line. Tests cover create"
+      }
+    },
+    {
+      "at": 74428,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "/update"
+      }
+    },
+    {
+      "at": 74448,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "/clear, invalid input"
+      }
+    },
+    {
+      "at": 74468,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": ","
+      }
+    },
+    {
+      "at": 74492,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " and mig"
+      }
+    },
+    {
+      "at": 74512,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "ration"
+      }
+    },
+    {
+      "at": 74535,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " of an old-"
+      }
+    },
+    {
+      "at": 74535,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "schema database."
+      }
+    },
+    {
+      "at": 74538,
+      "event": {
+        "type": "usage",
+        "agent": "release",
+        "round": 1,
+        "inputTokens": 6158,
+        "outputTokens": 295,
+        "costUsd": 0.0007633000000000001
+      }
+    },
+    {
+      "at": 74538,
+      "event": {
+        "type": "done",
+        "agent": "release",
+        "round": 1,
+        "ms": 3132
+      }
+    },
+    {
+      "at": 74538,
+      "event": {
+        "type": "finish",
+        "ms": 74537,
+        "rounds": 1,
+        "approved": true,
+        "costUsd": 0.2064697
+      }
+    }
+  ],
+  "approved": true,
+  "rounds": 1,
+  "totalMs": 74537,
+  "costUsd": 0.2064697
+}

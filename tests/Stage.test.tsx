@@ -3,8 +3,16 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import Stage from "@/components/Stage";
 import { encodeEvent } from "@/lib/ndjson";
-import { EXAMPLE_REQUESTS } from "@/lib/run";
 import type { FoundryEvent } from "@/lib/types";
+import { FIXTURE_REQUEST, fixtureRecording } from "./fixtures/liveRecording";
+
+vi.mock("@/lib/liveRecordings.json", () => ({ default: { recordings: [] } }));
+vi.mock("@/lib/liveReplay", async (orig) => {
+  const mod = await orig<typeof import("@/lib/liveReplay")>();
+  const { fixtureRecording } = await import("./fixtures/liveRecording");
+  return { ...mod, loadLiveRecordings: async () => [fixtureRecording()] };
+});
+vi.mock("@/lib/exampleRequests", () => ({ EXAMPLE_REQUESTS: ["Let users set a due date on tasks"] }));
 
 // jsdom has no matchMedia, and the stage's replays should not animate in these tests.
 beforeEach(() => {
@@ -49,12 +57,39 @@ const typeIdea = (name: string) => {
 };
 
 describe("Stage", () => {
-  it("replays a recorded example in the browser without calling the run API", async () => {
+  it("replays a live-run recording in the browser, with its tool lines, without calling the run API", async () => {
     const fetchMock = mockApi(() => ndjson([]));
-    render(<Stage />);
-    fireEvent.click(screen.getByRole("button", { name: EXAMPLE_REQUESTS[1] }));
-    expect(await screen.findByText("Replay of a real run")).toBeTruthy();
+    const { container } = render(<Stage />);
+    fireEvent.click(screen.getByRole("button", { name: FIXTURE_REQUEST }));
+    expect(await screen.findByText("Replay of a real live run")).toBeTruthy();
+    expect(screen.getByText(/This recording opened no pull request/)).toBeTruthy();
+    const scrub = screen.getByLabelText("Scrub through the run") as HTMLInputElement;
+    fireEvent.change(scrub, { target: { value: scrub.max } });
+    fireEvent.click(screen.getByRole("button", { name: /^Researcher:.*Show its output/ }));
+    await waitFor(() => expect(container.textContent).toContain("› read src/db.js"));
     expect(fetchMock.mock.calls.some(([, init]) => init?.method === "POST")).toBe(false);
+  });
+
+  it("shows the first example already finished when the visitor prefers reduced motion", async () => {
+    vi.stubGlobal("matchMedia", vi.fn().mockImplementation((query: string) => ({ matches: true, media: query, addEventListener: () => {}, removeEventListener: () => {} })));
+    class IO {
+      constructor(private cb: (e: unknown[]) => void) {}
+      observe() {
+        this.cb([{ isIntersecting: true, intersectionRatio: 1, intersectionRect: { height: 9999 } }]);
+      }
+      disconnect() {}
+    }
+    vi.stubGlobal("IntersectionObserver", IO);
+    mockApi(() => ndjson([]));
+    render(<Stage />);
+    expect(await screen.findByText("Run finished.")).toBeTruthy();
+    expect(screen.getByText("Replay of a real live run")).toBeTruthy();
+  });
+
+  it("lists the examples as replays of real live runs", async () => {
+    mockApi(() => ndjson([]));
+    render(<Stage />);
+    expect(await screen.findByText(/The examples replay real live runs/)).toBeTruthy();
   });
 
   it("sends a typed idea to the server, labels it Simulated, and ends with a plain summary", async () => {
