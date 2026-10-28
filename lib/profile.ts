@@ -1,7 +1,7 @@
 // Single source of truth for the portfolio copy. Edit this file to update the site.
 
 export const profile = {
-  siteUrl: "https://foundry-portfolio.vercel.app",
+  siteUrl: "https://alexmarushka.vercel.app",
   name: "Alex Marushka",
   /** The big title at the top of the page. */
   headline: "Foundry",
