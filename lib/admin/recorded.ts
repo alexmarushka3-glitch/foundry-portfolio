@@ -1,7 +1,7 @@
-import data from "../liveRecordings.json";
-import type { LiveRecording } from "../recorder/capture";
+import summary from "../liveRecordingsSummary.json";
 
 // The three real recorded live runs, summarised for the admin pages. Browser and server safe.
+// Reads the small generated summary, never the big recordings file (it holds screenshots).
 
 export type RecordedExample = {
   request: string;
@@ -13,12 +13,5 @@ export type RecordedExample = {
 };
 
 export function recordedExamples(): RecordedExample[] {
-  return (data.recordings as unknown as LiveRecording[]).map((r) => ({
-    request: r.request,
-    rounds: r.rounds,
-    approved: r.approved,
-    totalMs: r.totalMs,
-    models: [...new Set(r.events.flatMap((e) => (e.event.type === "start" ? [e.event.model] : [])))],
-    costUsd: r.costUsd,
-  }));
+  return summary as RecordedExample[];
 }
