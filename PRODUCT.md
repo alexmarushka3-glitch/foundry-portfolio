@@ -34,7 +34,7 @@ Constraints future work must keep (confirmed by Alex):
 - **Brand:** keep the Foundry name and the F logo mark with the amber dot.
 - **Fast and light:** the home page ships about 125 kB of first-load JavaScript; no heavy libraries or video.
 
-Standing project rules, already recorded in CLAUDE.md (not re-confirmed in this interview): the honesty wording rules. Say "draft pull request checked by other agents and by real tests", never "reviewed pull request" or "passed review"; always say it is a sample app and that no human reviews the pull requests; the recorded examples came from an earlier, text-only version; do not claim a success rate.
+Standing project rules, already recorded in CLAUDE.md (not re-confirmed in this interview): the honesty wording rules. Say "draft pull request checked by other agents and by real tests", never "reviewed pull request" or "passed review"; always say it is a sample app and that no human reviews the pull requests; the recorded examples are recordings of real live runs (not of the older text-only version); do not claim a success rate.
 
 Undecided: a custom domain; a measured success rate; whether to keep the run log in a database.
 
@@ -42,7 +42,7 @@ Undecided: a custom domain; a measured success rate; whether to keep the run log
 Name: Foundry. Mark: the F with an amber dot (components/Logo.tsx, app/icon.svg). Written voice is short and plain.
 
 ## Evidence on Hand
-- Three recorded runs (recordings-src/), each approved by the pipeline's checks in the first round, in 72 to 94 seconds. They come from the earlier text-only version.
+- Three recordings of real live runs (recordings-src/live/), one per request, each recorded once and kept as it came out. All approved by the pipeline's checks on round 1, 67 to 75 seconds, $0.19 to $0.22 each. They ran the real unit tests and the real headless Chromium test in a sandbox. No pull request was opened and no human reviewed them.
 - Several live runs on the deployed site, including draft pull requests on taskly-sample (for example #5). Some runs were sent back or not approved.
 - No testimonials, customers, benchmarks or success rate exist. Do not invent any. No human reviews the pull requests.
 

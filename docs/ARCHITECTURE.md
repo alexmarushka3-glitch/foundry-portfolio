@@ -102,7 +102,7 @@ Pipeline tests pass `pace: 0` to skip the simulation's delays and `client` to in
 
 **Change an agent's instructions or model:** edit `lib/pipeline/prompts.ts` (and `MODELS` in `config.ts`). Update `lib/agents.ts` only if its on-page description changes.
 
-**Add an agent:** add its name to `AgentName` (`types.ts`), a row to `AGENT_LIST`, a spec in `prompts.ts`, a case in `simulate.ts`, a node and edges in `PipelineSvg.tsx`, and a step in `runPipeline` and `buildReplayRun`. The recordings would need re-recording.
+**Add an agent:** add its name to `AgentName` (`types.ts`), a row to `AGENT_LIST`, a spec in `prompts.ts`, a case in `simulate.ts`, a node and edges in `PipelineSvg.tsx`, and a step in `runPipeline` and `buildLiveReplayRun`. Replay uses the same shared reducer as live runs, so adding an agent means re-recording the recordings.
 
 **Add a recorded example:** see "Adding a recorded example" in `CLAUDE.md`.
 
