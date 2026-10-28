@@ -5,6 +5,8 @@ import IdeaForm from "./stage/IdeaForm";
 import type { FeatureSpec } from "@/lib/spec";
 import OutputPanel from "./stage/OutputPanel";
 import PlayerControls from "./stage/PlayerControls";
+import EvidenceCard from "./stage/EvidenceCard";
+import { runEvidence } from "@/lib/evidence";
 import { useLiveAvailability, useMediaQuery, useOnceInView, usePlayback } from "./stage/hooks";
 import { useLiveRun } from "./stage/useLiveRun";
 import PipelineSvg from "./PipelineSvg";
@@ -125,6 +127,7 @@ export default function Stage() {
   const modeCopy = mode ? (mode === "replay" && run?.source === "live-run" && !live ? LIVE_REPLAY_COPY : MODE_COPY[mode]) : null;
   const reason = live?.reason;
   const atEnd = run !== null && t >= run.total - 1;
+  const evidence = useMemo(() => (run && atEnd ? runEvidence(run) : null), [run, atEnd]);
 
   const byId = Object.fromEntries(frames.map((f) => [f.agent, f])) as Record<AgentName, AgentFrame>;
   const active = frames.filter((f) => f.status === "active");
@@ -218,6 +221,7 @@ export default function Stage() {
               <p className="fine">It is a draft on a throwaway sample app, and no human has reviewed it.</p>
             </div>
           )}
+          {evidence && <EvidenceCard evidence={evidence} prNumber={run.pr?.number} />}
         </div>
       )}
     </section>

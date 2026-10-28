@@ -801,6 +801,65 @@ main,
   font-weight: 400;
   color: var(--on-iron-muted);
 }
+.evidence {
+  display: grid;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--iron-line);
+}
+.evidence h3 {
+  font-size: 1rem;
+}
+.evidence dl {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+.evidence dt {
+  font-size: 0.8rem;
+  color: var(--on-iron-muted);
+}
+.evidence dd {
+  margin: 2px 0 0;
+  font-variant-numeric: tabular-nums;
+}
+.evidence ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+}
+.evidence code {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.85rem;
+}
+.evidence figure {
+  margin: 0;
+  max-width: 320px;
+}
+.evidence img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid var(--iron-line);
+  background: #fff;
+}
+.evidence figcaption {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: var(--on-iron-muted);
+}
+.evidence .fine {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--on-iron-muted);
+}
+.evidence .fine a {
+  color: inherit;
+}
 .clock {
   font-variant-numeric: tabular-nums;
 }
