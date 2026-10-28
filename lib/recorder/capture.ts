@@ -46,6 +46,9 @@ export async function captureRun(
   if (events.some((e) => e.event.type === "error")) {
     throw new Error("The run emitted an error event; recording refused.");
   }
+  if (events.some((e) => e.event.type === "pr")) {
+    throw new Error("The run opened a pull request; recording refused.");
+  }
   const finish = events.find((e) => e.event.type === "finish")?.event;
   if (!finish || finish.type !== "finish") throw new Error("The run has no finish event.");
 

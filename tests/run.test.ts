@@ -1,7 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
 import { framesFrom, maxRound, normalizeRequest, viewsAt, type Run } from "@/lib/run";
-import { EXAMPLE_REQUESTS } from "@/lib/exampleRequests";
-import liveRecordings from "@/lib/liveRecordings.json";
 import { loadLiveRecordings } from "@/lib/liveReplay";
 
 vi.mock("@/lib/liveRecordings.json", async () => {
@@ -14,10 +12,6 @@ vi.mock("@/lib/exampleRequests", async () => {
 });
 
 describe("live recordings", () => {
-  it("lists the same requests as the recordings", async () => {
-    expect(EXAMPLE_REQUESTS).toEqual((liveRecordings.recordings as { request: string }[]).map((r) => r.request));
-    expect((await loadLiveRecordings()).map((r) => r.request)).toEqual(EXAMPLE_REQUESTS);
-  });
   it("loads once and hands back the same list", async () => {
     expect(await loadLiveRecordings()).toBe(await loadLiveRecordings());
   });

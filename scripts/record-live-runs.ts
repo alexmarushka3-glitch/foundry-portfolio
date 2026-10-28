@@ -15,6 +15,8 @@ import { assertRecordingSize, captureRun } from "../lib/recorder/capture";
 for (const file of [".env.local", ".env.sandbox.local", ".env.eval.local"]) {
   if (existsSync(file)) Object.assign(process.env, parseEnv(readFileSync(file, "utf8")));
 }
+// Recordings never open a pull request: drop any GitHub App settings the env files carry.
+for (const key of Object.keys(process.env)) if (key.startsWith("GITHUB_APP_")) delete process.env[key];
 process.env.FOUNDRY_LIVE = "on";
 
 const OUT_DIR = "recordings-src/live";

@@ -37,7 +37,17 @@ export function findLiveRecording(recs: LiveRecording[], request: string): LiveR
 let loaded: Promise<LiveRecording[]> | null = null;
 
 /** Loads the recordings on demand, so their size never lands in the first page load. */
-export function loadLiveRecordings(): Promise<LiveRecording[]> {
-  loaded ??= import("./liveRecordings.json").then((m) => m.default.recordings as unknown as LiveRecording[]);
+export function loadLiveRecordings(
+  loader: () => Promise<LiveRecording[]> = () =>
+    import("./liveRecordings.json").then((m) => m.default.recordings as unknown as LiveRecording[]),
+): Promise<LiveRecording[]> {
+  if (!loaded) {
+    const attempt = loader();
+    loaded = attempt;
+    // A failed load must not be remembered, or every later call would fail too.
+    attempt.catch(() => {
+      if (loaded === attempt) loaded = null;
+    });
+  }
   return loaded;
 }

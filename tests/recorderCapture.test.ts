@@ -35,6 +35,15 @@ describe("captureRun", () => {
     expect(typeof rec.recordedAt).toBe("string");
   });
 
+  it("rejects a recording that contains a pull request", async () => {
+    await expect(
+      captureRun("s", "r", async (emit) => {
+        await good(emit);
+        emit({ type: "pr", url: "https://example.com/pr/1", number: 1 });
+      }),
+    ).rejects.toThrow(/pull request/);
+  });
+
   it("rejects when there is no finish event", async () => {
     await expect(
       captureRun("s", "r", async (emit) => {
