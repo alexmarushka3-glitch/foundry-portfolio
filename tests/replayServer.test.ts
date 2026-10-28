@@ -23,4 +23,13 @@ describe("replayOnServer", () => {
     expect(events.some((e) => e.type === "pr")).toBe(false);
     expect(events.at(-1)?.type).toBe("finish");
   });
+
+  it("never emits a usage event, so a replay adds no spend", async () => {
+    const rec = fixtureRecording();
+    expect(rec.events.some((e) => e.event.type === "usage")).toBe(true);
+    const events: FoundryEvent[] = [];
+    await replayOnServer(rec, (e) => events.push(e), 0);
+    expect(events.some((e) => e.type === "usage")).toBe(false);
+    expect(events.at(-1)?.type).toBe("finish");
+  });
 });

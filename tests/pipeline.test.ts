@@ -87,7 +87,8 @@ describe("recorded examples", () => {
     const events = await run(FIXTURE_REQUEST, { client });
     expect(of(events, "mode")[0]).toMatchObject({ mode: "replay" });
     expect(of(events, "mode")).toHaveLength(1);
-    expect(events.slice(1)).toEqual(fixtureRecording().events.map((e) => e.event).filter((e) => e.type !== "mode"));
+    expect(events.slice(1)).toEqual(fixtureRecording().events.map((e) => e.event).filter((e) => e.type !== "mode" && e.type !== "usage"));
+    expect(of(events, "usage")).toHaveLength(0); // recorded spend is not new spend
     expect(of(events, "tool").length).toBeGreaterThan(0);
     expect(of(events, "finish")[0]).toMatchObject({ rounds: 1, approved: true });
     expect(client.messages.stream).not.toHaveBeenCalled();

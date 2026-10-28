@@ -26,7 +26,8 @@ export async function replayOnServer(rec: LiveRecording, emit: Emit, pace = 1, s
   emit({ type: "mode", mode: "replay" });
   for (const { at, event } of rec.events) {
     if (signal?.aborted) return;
-    if (event.type === "mode" || event.type === "pr") continue; // the replay announces itself and never opens a pull request
+    // The replay announces itself, opens no pull request and spends nothing, so recorded usage is not re-emitted.
+    if (event.type === "mode" || event.type === "pr" || event.type === "usage") continue;
     const wait = at * pace - (Date.now() - t0);
     if (pace > 0 && wait > 0) await abortableSleep(wait, signal);
     if (signal?.aborted) return;
