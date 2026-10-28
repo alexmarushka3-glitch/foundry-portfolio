@@ -54,15 +54,15 @@ export default function Home() {
         <section id="dashboard" className="section" aria-labelledby="dashboard-title">
           <h2 id="dashboard-title">Watching the factory run</h2>
           <p className="lede">
-            Every request built in the form is logged with its mode, result, time and cost. This is the dashboard I use to watch usage and pause live
-            runs. The numbers below are made up for this page. The real one sits behind a login.
+            Every request built in the form is logged with its mode, result, time and cost. I use this dashboard to watch usage and to pause live
+            runs. The numbers below are made up for this page. The real one is behind a login.
           </p>
           <DashboardSection />
         </section>
 
         <section id="reality" className="section" aria-labelledby="reality-title">
           <h2 id="reality-title">Scope and limits</h2>
-          <p className="lede">What runs for real, what is simulated, and where the limits are.</p>
+          <p className="lede">What runs for real, what is simulated, and what the limits are.</p>
           <div className="reality">
             {REALITY.map((col) => (
               <div key={col.heading} className={`reality-col ${col.tone}`}>

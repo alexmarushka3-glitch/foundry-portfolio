@@ -16,7 +16,7 @@ export type ValueType = (typeof VALUE_TYPES)[number];
 
 export type FeatureSpec = {
   kind: Kind;
-  /** Two to thirty characters: letters, numbers, spaces and hyphens. */
+  /** Two to a hundred characters: letters, numbers, spaces and hyphens. */
   name: string;
   /** Only used by the "field" kind. */
   valueType?: ValueType;
@@ -25,7 +25,7 @@ export type FeatureSpec = {
 };
 
 export const NAME_MIN = 2;
-export const NAME_MAX = 30;
+export const NAME_MAX = 100;
 
 const NAME_PATTERN = /^[A-Za-z0-9][A-Za-z0-9 -]*$/;
 
