@@ -20,7 +20,7 @@ A portfolio site whose centerpiece is Foundry, an eight-agent software factory. 
 The checks are real and the work can be sent back. In a live run the sample app's own unit tests run in an isolated sandbox, a real headless browser runs a Playwright test, and the result decides the gate regardless of what the agents say; a failing check sends the work back for another round. (Alex named these two as what sets Foundry apart. Openness about limits is a standing project rule, see Constraints, but he did not pick it as the differentiator.)
 
 ## Operating Context
-- Live site: https://foundry-portfolio.vercel.app. Code: https://github.com/alexmarushka3-glitch/foundry-portfolio. Sample repo the agents change: https://github.com/alexmarushka3-glitch/taskly-sample.
+- Live site: https://alexmarushka.vercel.app. Code: https://github.com/alexmarushka3-glitch/foundry-portfolio. Sample repo the agents change: https://github.com/alexmarushka3-glitch/taskly-sample.
 - Three modes, always labelled on the page: replay (three recorded runs), live (real Claude models, tools, sandbox, browser, draft pull request) and simulated (scripted text).
 - A live run takes about 55 to 90 seconds and costs about 18 to 31 cents. Limits: 1 live run per visitor per hour and 8 per day for the site; the Anthropic credit is capped at $10. Hosting is Vercel Hobby.
 - Draft pull requests are closed automatically after about a day.

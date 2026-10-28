@@ -1,6 +1,6 @@
 # Foundry Portfolio
 
-Portfolio site with a live demo of Foundry, an eight-agent software factory. Visitors give a rough idea for a small task-tracker app and watch agents turn it into a pull request draft checked by other agents. Live at https://foundry-portfolio.vercel.app.
+Portfolio site with a live demo of Foundry, an eight-agent software factory. Visitors give a rough idea for a small task-tracker app and watch agents turn it into a pull request draft checked by other agents. Live at https://alexmarushka.vercel.app.
 
 ## Workflow
 

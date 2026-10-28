@@ -61,7 +61,7 @@ export function formatPullRequest(releaseText: string, request: string): { title
     "---",
     `Request: ${clean(request).slice(0, 200)}`,
     "",
-    "Opened automatically by [Foundry](https://foundry-portfolio.vercel.app) for a visitor. The code was written by AI agents. Its unit tests and a browser test ran in an isolated sandbox. **No human has reviewed it.** It is a draft on a throwaway sample app and is closed automatically after about a day.",
+    "Opened automatically by [Foundry](https://alexmarushka.vercel.app) for a visitor. The code was written by AI agents. Its unit tests and a browser test ran in an isolated sandbox. **No human has reviewed it.** It is a draft on a throwaway sample app and is closed automatically after about a day.",
   ]
     .filter((l) => l !== undefined)
     .join("\n");

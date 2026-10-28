@@ -2,7 +2,7 @@
 
 A personal portfolio site with a live demo of **Foundry**, a multi-agent software factory. Visitors give a rough feature idea for a small task-tracker app and watch eight agents turn it into a pull request draft checked by other agents.
 
-Live site: https://foundry-portfolio.vercel.app
+Live site: https://alexmarushka.vercel.app (the old address, https://foundry-portfolio.vercel.app, still works)
 
 ## The pipeline
 
