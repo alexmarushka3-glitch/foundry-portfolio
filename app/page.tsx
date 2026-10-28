@@ -94,6 +94,16 @@ export default function Home() {
                   </p>
                 )}
                 <p className="tags">{p.tags.join(", ")}</p>
+                {p.images && (
+                  <figure className="project-shots">
+                    {p.images.map((img) => (
+                      <a key={img.src} href={img.src} target="_blank" rel="noreferrer">
+                        <img src={img.src} alt={img.alt} width={1800} height={990} loading="lazy" />
+                      </a>
+                    ))}
+                    {p.note && <figcaption>{p.note}</figcaption>}
+                  </figure>
+                )}
               </li>
             ))}
           </ul>
