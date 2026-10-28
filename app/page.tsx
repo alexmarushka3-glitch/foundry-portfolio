@@ -20,7 +20,6 @@ export default function Home() {
         </a>
         <nav aria-label="Sections">
           <a href="#demo">Demo</a>
-          <a href="#dashboard">Dashboard</a>
           <a href="#reality">Scope</a>
           <a href="#projects">Projects</a>
           <a href="#about">About</a>
@@ -44,21 +43,12 @@ export default function Home() {
             </a>
           </div>
           <p className="byline">
-            {profile.name}, student at the University of Chicago.{" "}
+            {profile.name}, student at the University of Chicago. Recruiting for consulting and tech roles.{" "}
             <ContactLinks label="Email" />
           </p>
         </section>
 
         <Stage />
-
-        <section id="dashboard" className="section" aria-labelledby="dashboard-title">
-          <h2 id="dashboard-title">Watching the factory run</h2>
-          <p className="lede">
-            Every request built in the form is logged with its mode, result, time and cost. I use this dashboard to watch usage and to pause live
-            runs. The numbers below are made up for this page. The real one is behind a login.
-          </p>
-          <DashboardSection />
-        </section>
 
         <section id="reality" className="section" aria-labelledby="reality-title">
           <h2 id="reality-title">Scope and limits</h2>
@@ -78,6 +68,15 @@ export default function Home() {
           <EvalCard runs={evalResults.runs} />
         </section>
 
+        <section id="dashboard" className="section" aria-labelledby="dashboard-title">
+          <h2 id="dashboard-title">Watching the factory run</h2>
+          <p className="lede">
+            Every request built in the form is logged with its mode, result, time and cost. I use this dashboard to watch usage and to pause live
+            runs. <strong>The numbers below are made up</strong> to show the layout. They are not real usage. The real one is behind a login.
+          </p>
+          <DashboardSection />
+        </section>
+
         <section id="projects" className="section" aria-labelledby="projects-title">
           <h2 id="projects-title">Projects</h2>
           <ul className="projects">
@@ -85,6 +84,15 @@ export default function Home() {
               <li key={p.name}>
                 <h3>{p.name}</h3>
                 <p>{p.blurb}</p>
+                {p.links && (
+                  <p className="project-links">
+                    {p.links.map((l) => (
+                      <a key={l.href} href={l.href} target="_blank" rel="noreferrer">
+                        {l.label}
+                      </a>
+                    ))}
+                  </p>
+                )}
                 <p className="tags">{p.tags.join(", ")}</p>
               </li>
             ))}

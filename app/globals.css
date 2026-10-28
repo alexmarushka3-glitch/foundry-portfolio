@@ -334,6 +334,8 @@ main,
   align-items: center;
   gap: 8px;
   min-height: 44px;
+  padding-inline: 6px;
+  cursor: pointer;
   font-size: 0.9rem;
   color: var(--on-iron);
 }
@@ -905,6 +907,16 @@ main,
 }
 .projects .tags {
   font-size: 0.875rem;
+}
+.projects .project-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+}
+.projects .project-links a {
+  display: inline-block;
+  padding: 6px 0;
+  color: var(--ink);
 }
 
 .about {

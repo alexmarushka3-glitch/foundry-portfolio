@@ -32,15 +32,16 @@ describe("Home page", () => {
     expect(marks.length).toBeGreaterThanOrEqual(2);
   });
 
-  it("names the site in the nav and links the sections in page order, with the dashboard before Scope and limits", () => {
+  it("names the site in the nav and links the sections in page order, with the made-up dashboard after Scope and limits and out of the nav", () => {
     render(<Home />);
     const nav = within(screen.getByRole("navigation", { name: "Sections" }));
-    expect(nav.getAllByRole("link").map((a) => a.textContent)).toEqual(["Demo", "Dashboard", "Scope", "Projects", "About"]);
+    expect(nav.getAllByRole("link").map((a) => a.textContent)).toEqual(["Demo", "Scope", "Projects", "About"]);
     expect(screen.getByRole("link", { name: "Foundry" }).getAttribute("href")).toBe("#top");
 
     const ids = [...document.querySelectorAll("main > section")].map((s) => s.id);
-    expect(ids.indexOf("demo")).toBeLessThan(ids.indexOf("dashboard"));
-    expect(ids.indexOf("dashboard")).toBeLessThan(ids.indexOf("reality"));
+    expect(ids.indexOf("demo")).toBeLessThan(ids.indexOf("reality"));
+    expect(ids.indexOf("reality")).toBeLessThan(ids.indexOf("dashboard"));
+    expect(ids.indexOf("dashboard")).toBeLessThan(ids.indexOf("projects"));
   });
 
   it("has no link to the admin demo page, and every nav link points at a real section", () => {

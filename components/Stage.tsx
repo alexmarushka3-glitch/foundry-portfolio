@@ -50,6 +50,7 @@ export default function Stage() {
   const { t, playing, speed, setPlaying, setSpeed, seek } = usePlayback(run?.total ?? 0);
 
   const sectionRef = useRef<HTMLElement>(null);
+  const pipelineRef = useRef<HTMLDivElement>(null);
   const touchedRef = useRef(false);
 
   const showFinished = useCallback(
@@ -100,7 +101,7 @@ export default function Stage() {
 
   /* One orchestrated moment: when the stage scrolls into view, the first example plays once. */
   useOnceInView(
-    sectionRef,
+    narrow ? pipelineRef : sectionRef,
     () => {
       const first = EXAMPLE_REQUESTS[0];
       if (!first) return;
@@ -150,14 +151,16 @@ export default function Stage() {
 
       <IdeaForm onSubmit={go} busy={busy} activeExample={run?.request} liveAvailable={liveAvailable} />
 
-      <PipelineSvg
-        frames={frames}
-        layout={narrow ? "narrow" : "wide"}
-        selected={selected}
-        onSelect={(a) => setSelected((cur) => (cur === a ? null : a))}
-        sentBack={maxRound(views) > 1}
-      />
-      <p className="pipeline-note">{profile.how}</p>
+      <div ref={pipelineRef}>
+        <PipelineSvg
+          frames={frames}
+          layout={narrow ? "narrow" : "wide"}
+          selected={selected}
+          onSelect={(a) => setSelected((cur) => (cur === a ? null : a))}
+          sentBack={maxRound(views) > 1}
+        />
+      </div>
+      <p className="pipeline-note">{profile.how} Click any agent to see its work.</p>
 
       <p className="sr-only" aria-live="polite">
         {announce}
