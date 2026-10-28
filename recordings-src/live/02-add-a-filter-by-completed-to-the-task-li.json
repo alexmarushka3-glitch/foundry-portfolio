@@ -1,0 +1,6007 @@
+{
+  "slug": "02-add-a-filter-by-completed-to-the-task-li",
+  "request": "Add a filter by \"completed\" to the task list.",
+  "recordedAt": "2026-10-28T14:59:17.433Z",
+  "events": [
+    {
+      "at": 748,
+      "event": {
+        "type": "mode",
+        "mode": "live"
+      }
+    },
+    {
+      "at": 748,
+      "event": {
+        "type": "start",
+        "agent": "researcher",
+        "round": 1,
+        "model": "claude-haiku-5-5"
+      }
+    },
+    {
+      "at": 1668,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "I'll start by"
+      }
+    },
+    {
+      "at": 1678,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " listing the top level of"
+      }
+    },
+    {
+      "at": 1833,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " the app"
+      }
+    },
+    {
+      "at": 1833,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "."
+      }
+    },
+    {
+      "at": 1970,
+      "event": {
+        "type": "usage",
+        "agent": "researcher",
+        "round": 1,
+        "inputTokens": 844,
+        "outputTokens": 109,
+        "costUsd": 0.00013890000000000002
+      }
+    },
+    {
+      "at": 1970,
+      "event": {
+        "type": "tool",
+        "agent": "researcher",
+        "round": 1,
+        "label": "list_dir .",
+        "ok": true
+      }
+    },
+    {
+      "at": 1971,
+      "event": {
+        "type": "tool",
+        "agent": "researcher",
+        "round": 1,
+        "label": "grep completed",
+        "ok": true
+      }
+    },
+    {
+      "at": 1971,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "\n"
+      }
+    },
+    {
+      "at": 2631,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "No matches for \"completed\","
+      }
+    },
+    {
+      "at": 2646,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " so I'll look"
+      }
+    },
+    {
+      "at": 2896,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " at the source"
+      }
+    },
+    {
+      "at": 2896,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": ","
+      }
+    },
+    {
+      "at": 2896,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " public page"
+      }
+    },
+    {
+      "at": 2896,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": ", and tests directly"
+      }
+    },
+    {
+      "at": 2896,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "."
+      }
+    },
+    {
+      "at": 3104,
+      "event": {
+        "type": "usage",
+        "agent": "researcher",
+        "round": 1,
+        "inputTokens": 1050,
+        "outputTokens": 166,
+        "costUsd": 0.000188
+      }
+    },
+    {
+      "at": 3104,
+      "event": {
+        "type": "tool",
+        "agent": "researcher",
+        "round": 1,
+        "label": "list_dir src",
+        "ok": true
+      }
+    },
+    {
+      "at": 3104,
+      "event": {
+        "type": "tool",
+        "agent": "researcher",
+        "round": 1,
+        "label": "list_dir public",
+        "ok": true
+      }
+    },
+    {
+      "at": 3104,
+      "event": {
+        "type": "tool",
+        "agent": "researcher",
+        "round": 1,
+        "label": "list_dir tests",
+        "ok": true
+      }
+    },
+    {
+      "at": 3105,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "\n"
+      }
+    },
+    {
+      "at": 4363,
+      "event": {
+        "type": "usage",
+        "agent": "researcher",
+        "round": 1,
+        "inputTokens": 1327,
+        "outputTokens": 198,
+        "costUsd": 0.00023170000000000002
+      }
+    },
+    {
+      "at": 4363,
+      "event": {
+        "type": "tool",
+        "agent": "researcher",
+        "round": 1,
+        "label": "read_file src/db.js",
+        "ok": true
+      }
+    },
+    {
+      "at": 4363,
+      "event": {
+        "type": "tool",
+        "agent": "researcher",
+        "round": 1,
+        "label": "read_file src/app.js",
+        "ok": true
+      }
+    },
+    {
+      "at": 4363,
+      "event": {
+        "type": "tool",
+        "agent": "researcher",
+        "round": 1,
+        "label": "read_file public/app.js",
+        "ok": true
+      }
+    },
+    {
+      "at": 4363,
+      "event": {
+        "type": "tool",
+        "agent": "researcher",
+        "round": 1,
+        "label": "read_file tests/api.test.js",
+        "ok": true
+      }
+    },
+    {
+      "at": 5356,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "-"
+      }
+    },
+    {
+      "at": 5356,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " **"
+      }
+    },
+    {
+      "at": 5436,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "src"
+      }
+    },
+    {
+      "at": 5436,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "/db.js**: `"
+      }
+    },
+    {
+      "at": 5436,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "tasks` table ("
+      }
+    },
+    {
+      "at": 5436,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "`id`, `title`,"
+      }
+    },
+    {
+      "at": 5436,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " `done IN"
+      }
+    },
+    {
+      "at": 5436,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "TEGER 0/1"
+      }
+    },
+    {
+      "at": 5436,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "`, `created_at`);"
+      }
+    },
+    {
+      "at": 5463,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " `listTasks("
+      }
+    },
+    {
+      "at": 5478,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "db)` returns all r"
+      }
+    },
+    {
+      "at": 5497,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ows with no filter par"
+      }
+    },
+    {
+      "at": 5519,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ameter. The \"completed\""
+      }
+    },
+    {
+      "at": 5548,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " state is st"
+      }
+    },
+    {
+      "at": 5643,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ored as `done`,"
+      }
+    },
+    {
+      "at": 5643,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " not `"
+      }
+    },
+    {
+      "at": 5643,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "completed`,"
+      }
+    },
+    {
+      "at": 5643,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " which is why gr"
+      }
+    },
+    {
+      "at": 5643,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ep"
+      }
+    },
+    {
+      "at": 5663,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " for \"completed\" found"
+      }
+    },
+    {
+      "at": 5681,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " nothing.\n- **src"
+      }
+    },
+    {
+      "at": 5704,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "/app.js**: `G"
+      }
+    },
+    {
+      "at": 5725,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ET /api/tasks`"
+      }
+    },
+    {
+      "at": 5743,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " (line cal"
+      }
+    },
+    {
+      "at": 5762,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ling `listTasks(db"
+      }
+    },
+    {
+      "at": 5785,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": ")`"
+      }
+    },
+    {
+      "at": 5832,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " with no query hand"
+      }
+    },
+    {
+      "at": 5832,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ling),"
+      }
+    },
+    {
+      "at": 5846,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " `PATCH /api/"
+      }
+    },
+    {
+      "at": 5867,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "tasks/:id` for"
+      }
+    },
+    {
+      "at": 5886,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " to"
+      }
+    },
+    {
+      "at": 5911,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ggling `done`, pl"
+      }
+    },
+    {
+      "at": 5927,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "us POST and"
+      }
+    },
+    {
+      "at": 5947,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " DELETE rout"
+      }
+    },
+    {
+      "at": 5968,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "es.\n- **public"
+      }
+    },
+    {
+      "at": 5992,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "/app.js**: `"
+      }
+    },
+    {
+      "at": 6010,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ref"
+      }
+    },
+    {
+      "at": 6028,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "resh()` f"
+      }
+    },
+    {
+      "at": 6049,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "etches `/api/tas"
+      }
+    },
+    {
+      "at": 6072,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ks` and"
+      }
+    },
+    {
+      "at": 6092,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " `"
+      }
+    },
+    {
+      "at": 6118,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "render()` buil"
+      }
+    },
+    {
+      "at": 6132,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ds `"
+      }
+    },
+    {
+      "at": 6152,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "<li>` r"
+      }
+    },
+    {
+      "at": 6171,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ows with a checkbox ("
+      }
+    },
+    {
+      "at": 6193,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "`aria-label \""
+      }
+    },
+    {
+      "at": 6212,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "Done: …"
+      }
+    },
+    {
+      "at": 6234,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "\"`)"
+      }
+    },
+    {
+      "at": 6256,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " that P"
+      }
+    },
+    {
+      "at": 6275,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ATCHes `done`;"
+      }
+    },
+    {
+      "at": 6294,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " there is no filter control"
+      }
+    },
+    {
+      "at": 6313,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " or fil"
+      }
+    },
+    {
+      "at": 6341,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ter state in the"
+      }
+    },
+    {
+      "at": 6356,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " page, and `public"
+      }
+    },
+    {
+      "at": 6378,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "/index.html` ("
+      }
+    },
+    {
+      "at": 6396,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "not read"
+      }
+    },
+    {
+      "at": 6420,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": ") would"
+      }
+    },
+    {
+      "at": 6437,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " hold the mark"
+      }
+    },
+    {
+      "at": 6460,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "up for"
+      }
+    },
+    {
+      "at": 6482,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " any"
+      }
+    },
+    {
+      "at": 6498,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " new"
+      }
+    },
+    {
+      "at": 6519,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " control.\n- **tests/"
+      }
+    },
+    {
+      "at": 6539,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "api.test.js**: node"
+      }
+    },
+    {
+      "at": 6560,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": ":"
+      }
+    },
+    {
+      "at": 6584,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "test su"
+      }
+    },
+    {
+      "at": 6604,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ite using"
+      }
+    },
+    {
+      "at": 6626,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " `createApp(openDb"
+      }
+    },
+    {
+      "at": 6642,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "())` on"
+      }
+    },
+    {
+      "at": 6662,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " an in-memory D"
+      }
+    },
+    {
+      "at": 6684,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "B; covers create/list/"
+      }
+    },
+    {
+      "at": 6704,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "update/delete,"
+      }
+    },
+    {
+      "at": 6722,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " empty-title 400, and"
+      }
+    },
+    {
+      "at": 6745,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " 404s"
+      }
+    },
+    {
+      "at": 6766,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": ","
+      }
+    },
+    {
+      "at": 6785,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " but n"
+      }
+    },
+    {
+      "at": 6812,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "othing on"
+      }
+    },
+    {
+      "at": 6828,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " query"
+      }
+    },
+    {
+      "at": 6843,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " parameters or filtering."
+      }
+    },
+    {
+      "at": 6868,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "\n- **e2e/"
+      }
+    },
+    {
+      "at": 6886,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " and playwright.config.js"
+      }
+    },
+    {
+      "at": 6907,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "**"
+      }
+    },
+    {
+      "at": 6937,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " exist at top"
+      }
+    },
+    {
+      "at": 6947,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " level (not in"
+      }
+    },
+    {
+      "at": 6966,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "spected)"
+      }
+    },
+    {
+      "at": 6987,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " and"
+      }
+    },
+    {
+      "at": 7010,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " may cover the"
+      }
+    },
+    {
+      "at": 7032,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " UI.\n\nGaps"
+      }
+    },
+    {
+      "at": 7051,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": ": no exist"
+      }
+    },
+    {
+      "at": 7071,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ing filter or"
+      }
+    },
+    {
+      "at": 7092,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " query-parameter hand"
+      }
+    },
+    {
+      "at": 7122,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ling an"
+      }
+    },
+    {
+      "at": 7138,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ywhere, `"
+      }
+    },
+    {
+      "at": 7150,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "public/index.html` and"
+      }
+    },
+    {
+      "at": 7176,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " `public/style.css` were"
+      }
+    },
+    {
+      "at": 7191,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " not read, and"
+      }
+    },
+    {
+      "at": 7214,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " the e"
+      }
+    },
+    {
+      "at": 7243,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "2e tests were"
+      }
+    },
+    {
+      "at": 7260,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": " not exam"
+      }
+    },
+    {
+      "at": 7261,
+      "event": {
+        "type": "token",
+        "agent": "researcher",
+        "round": 1,
+        "text": "ined."
+      }
+    },
+    {
+      "at": 7271,
+      "event": {
+        "type": "usage",
+        "agent": "researcher",
+        "round": 1,
+        "inputTokens": 4114,
+        "outputTokens": 450,
+        "costUsd": 0.0006364000000000001
+      }
+    },
+    {
+      "at": 7271,
+      "event": {
+        "type": "done",
+        "agent": "researcher",
+        "round": 1,
+        "ms": 6523
+      }
+    },
+    {
+      "at": 7271,
+      "event": {
+        "type": "start",
+        "agent": "story",
+        "round": 1,
+        "model": "claude-sonnet-5-5"
+      }
+    },
+    {
+      "at": 7981,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "**User story**"
+      }
+    },
+    {
+      "at": 8425,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "\n\nAs a user with"
+      }
+    },
+    {
+      "at": 8425,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " a long task"
+      }
+    },
+    {
+      "at": 8425,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " list, I want to fil"
+      }
+    },
+    {
+      "at": 8425,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ter the task"
+      }
+    },
+    {
+      "at": 8425,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " list by"
+      }
+    },
+    {
+      "at": 8425,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " completed status"
+      }
+    },
+    {
+      "at": 8426,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " so that I can foc"
+      }
+    },
+    {
+      "at": 8426,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "us on fin"
+      }
+    },
+    {
+      "at": 8426,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ished or"
+      }
+    },
+    {
+      "at": 8426,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " un"
+      }
+    },
+    {
+      "at": 8426,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "finished tasks without sc"
+      }
+    },
+    {
+      "at": 8426,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "an"
+      }
+    },
+    {
+      "at": 8734,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ning every"
+      }
+    },
+    {
+      "at": 8734,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " row.\n\n**Accept"
+      }
+    },
+    {
+      "at": 8734,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ance criteria**\n\n1."
+      }
+    },
+    {
+      "at": 8734,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " `GET /api/tas"
+      }
+    },
+    {
+      "at": 8734,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ks?done"
+      }
+    },
+    {
+      "at": 8734,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "=1"
+      }
+    },
+    {
+      "at": 8734,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "` returns only tasks wh"
+      }
+    },
+    {
+      "at": 8734,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ose `done` value"
+      }
+    },
+    {
+      "at": 8734,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " is 1, `GET /"
+      }
+    },
+    {
+      "at": 8734,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "api/tasks?done="
+      }
+    },
+    {
+      "at": 8754,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "0` returns only tasks"
+      }
+    },
+    {
+      "at": 8780,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " wh"
+      }
+    },
+    {
+      "at": 9144,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ose `done` value is 0"
+      }
+    },
+    {
+      "at": 9144,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": ", and `GET /api/"
+      }
+    },
+    {
+      "at": 9144,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "tasks` with no par"
+      }
+    },
+    {
+      "at": 9144,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ameter still"
+      }
+    },
+    {
+      "at": 9144,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " returns all tasks (exist"
+      }
+    },
+    {
+      "at": 9144,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ing behavior unchanged"
+      }
+    },
+    {
+      "at": 9144,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": ").\n2. `"
+      }
+    },
+    {
+      "at": 9144,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "GET /api/tasks"
+      }
+    },
+    {
+      "at": 9145,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "` with an invalid `"
+      }
+    },
+    {
+      "at": 9145,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "done` value (an"
+      }
+    },
+    {
+      "at": 9148,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ything other than `0` or `"
+      }
+    },
+    {
+      "at": 9183,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "1`,"
+      }
+    },
+    {
+      "at": 9437,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " e.g. `done=ban"
+      }
+    },
+    {
+      "at": 9437,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ana`) responds with H"
+      }
+    },
+    {
+      "at": 9437,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "TTP 400 "
+      }
+    },
+    {
+      "at": 9437,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "and does"
+      }
+    },
+    {
+      "at": 9437,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " not return a"
+      }
+    },
+    {
+      "at": 9437,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " task list.\n3. The page"
+      }
+    },
+    {
+      "at": 9437,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " has a filter control with"
+      }
+    },
+    {
+      "at": 9451,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " three options (All, Completed"
+      }
+    },
+    {
+      "at": 9483,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": ", Active"
+      }
+    },
+    {
+      "at": 9526,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": ");"
+      }
+    },
+    {
+      "at": 9559,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " selecting one re"
+      }
+    },
+    {
+      "at": 9585,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "-renders the list"
+      }
+    },
+    {
+      "at": 9811,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " to show only the mat"
+      }
+    },
+    {
+      "at": 9811,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ching tasks, and"
+      }
+    },
+    {
+      "at": 9811,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " All"
+      }
+    },
+    {
+      "at": 9811,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " is"
+      }
+    },
+    {
+      "at": 9811,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " sel"
+      }
+    },
+    {
+      "at": 9811,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ected on init"
+      }
+    },
+    {
+      "at": 9814,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ial page"
+      }
+    },
+    {
+      "at": 9849,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " load.\n4. With"
+      }
+    },
+    {
+      "at": 9882,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " a"
+      }
+    },
+    {
+      "at": 9915,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " filter active, toggling a"
+      }
+    },
+    {
+      "at": 9950,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " task's checkbox ke"
+      }
+    },
+    {
+      "at": 9984,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "eps the list"
+      }
+    },
+    {
+      "at": 10212,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " consistent with the sel"
+      }
+    },
+    {
+      "at": 10212,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ected filter (e.g."
+      }
+    },
+    {
+      "at": 10212,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " chec"
+      }
+    },
+    {
+      "at": 10212,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "king a"
+      }
+    },
+    {
+      "at": 10212,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " task while"
+      }
+    },
+    {
+      "at": 10212,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " vi"
+      }
+    },
+    {
+      "at": 10230,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ewing"
+      }
+    },
+    {
+      "at": 10260,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " Active removes it from view"
+      }
+    },
+    {
+      "at": 10285,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "), and the filt"
+      }
+    },
+    {
+      "at": 10313,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ered view"
+      }
+    },
+    {
+      "at": 10353,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " is preserved after"
+      }
+    },
+    {
+      "at": 10381,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": " ad"
+      }
+    },
+    {
+      "at": 10782,
+      "event": {
+        "type": "token",
+        "agent": "story",
+        "round": 1,
+        "text": "ding or deleting a task."
+      }
+    },
+    {
+      "at": 10783,
+      "event": {
+        "type": "usage",
+        "agent": "story",
+        "round": 1,
+        "inputTokens": 643,
+        "outputTokens": 352,
+        "costUsd": 0.004806
+      }
+    },
+    {
+      "at": 10783,
+      "event": {
+        "type": "done",
+        "agent": "story",
+        "round": 1,
+        "ms": 3512
+      }
+    },
+    {
+      "at": 10783,
+      "event": {
+        "type": "start",
+        "agent": "pm",
+        "round": 1,
+        "model": "claude-sonnet-5-5"
+      }
+    },
+    {
+      "at": 11607,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "**Data**"
+      }
+    },
+    {
+      "at": 11955,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "\nNo schema change. The"
+      }
+    },
+    {
+      "at": 11955,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " existing `t"
+      }
+    },
+    {
+      "at": 11955,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "asks.done INTEG"
+      }
+    },
+    {
+      "at": 11955,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ER` ("
+      }
+    },
+    {
+      "at": 11955,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "0/1) column in `src"
+      }
+    },
+    {
+      "at": 11955,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "/db.js` is enough"
+      }
+    },
+    {
+      "at": 11955,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": ". Extend `listTas"
+      }
+    },
+    {
+      "at": 11955,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ks(db)"
+      }
+    },
+    {
+      "at": 11955,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "` to take"
+      }
+    },
+    {
+      "at": 11955,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " an optional `done` arg"
+      }
+    },
+    {
+      "at": 11955,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ument and"
+      }
+    },
+    {
+      "at": 11986,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " add `WHERE done"
+      }
+    },
+    {
+      "at": 12299,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " = ?` only"
+      }
+    },
+    {
+      "at": 12299,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " when it is provided.\n\n**"
+      }
+    },
+    {
+      "at": 12299,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "API**\n`"
+      }
+    },
+    {
+      "at": 12299,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "GET /api/tasks"
+      }
+    },
+    {
+      "at": 12299,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "` in `src/app.js"
+      }
+    },
+    {
+      "at": 12299,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "` reads `req.query."
+      }
+    },
+    {
+      "at": 12299,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "done`. Abs"
+      }
+    },
+    {
+      "at": 12299,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ent retur"
+      }
+    },
+    {
+      "at": 12299,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ns all"
+      }
+    },
+    {
+      "at": 12318,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " tasks (unchanged"
+      }
+    },
+    {
+      "at": 12351,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "), `\"0\"` or `"
+      }
+    },
+    {
+      "at": 12386,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "\"1\"` returns the mat"
+      }
+    },
+    {
+      "at": 12729,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ching t"
+      }
+    },
+    {
+      "at": 12729,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "asks as the"
+      }
+    },
+    {
+      "at": 12729,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " same JSON array of"
+      }
+    },
+    {
+      "at": 12729,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " `"
+      }
+    },
+    {
+      "at": 12729,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "{id, title, done, created"
+      }
+    },
+    {
+      "at": 12729,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "_at}`, and any other"
+      }
+    },
+    {
+      "at": 12729,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " value (e.g. `ban"
+      }
+    },
+    {
+      "at": 12729,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ana`,"
+      }
+    },
+    {
+      "at": 12729,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " empty string)"
+      }
+    },
+    {
+      "at": 12729,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " returns "
+      }
+    },
+    {
+      "at": 12749,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "400 `{error"
+      }
+    },
+    {
+      "at": 12782,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": ": \"done"
+      }
+    },
+    {
+      "at": 13137,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " must be 0 or 1"
+      }
+    },
+    {
+      "at": 13137,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "\"}` with no list"
+      }
+    },
+    {
+      "at": 13137,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": ". PO"
+      }
+    },
+    {
+      "at": 13137,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ST, PATCH, and"
+      }
+    },
+    {
+      "at": 13137,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " DELETE are"
+      }
+    },
+    {
+      "at": 13137,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " unt"
+      }
+    },
+    {
+      "at": 13137,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ouched.\n\n**UI**"
+      }
+    },
+    {
+      "at": 13137,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "\nAdd a three-option control"
+      }
+    },
+    {
+      "at": 13137,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " (All /"
+      }
+    },
+    {
+      "at": 13162,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " Completed / Active) in"
+      }
+    },
+    {
+      "at": 13182,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " `public/index.html`"
+      }
+    },
+    {
+      "at": 13424,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": ", styled in `public/style"
+      }
+    },
+    {
+      "at": 13424,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": ".css`, with a"
+      }
+    },
+    {
+      "at": 13425,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " `"
+      }
+    },
+    {
+      "at": 13425,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "curr"
+      }
+    },
+    {
+      "at": 13425,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "entFilter` state in"
+      }
+    },
+    {
+      "at": 13425,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " `public/app.js` that"
+      }
+    },
+    {
+      "at": 13425,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " defaults to All."
+      }
+    },
+    {
+      "at": 13453,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " `refresh()` app"
+      }
+    },
+    {
+      "at": 13481,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ends `?done=1"
+      }
+    },
+    {
+      "at": 13518,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "` for Completed or"
+      }
+    },
+    {
+      "at": 13550,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " `?done=0` for"
+      }
+    },
+    {
+      "at": 13582,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " Active and om"
+      }
+    },
+    {
+      "at": 13855,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "its the param for All. Because"
+      }
+    },
+    {
+      "at": 13855,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " the"
+      }
+    },
+    {
+      "at": 13855,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " PATCH, add"
+      }
+    },
+    {
+      "at": 13855,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": ", and delete handlers all"
+      }
+    },
+    {
+      "at": 13855,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " call `refresh()`,"
+      }
+    },
+    {
+      "at": 13855,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " the"
+      }
+    },
+    {
+      "at": 13855,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " active"
+      }
+    },
+    {
+      "at": 13855,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " filter pers"
+      }
+    },
+    {
+      "at": 13882,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ists and a to"
+      }
+    },
+    {
+      "at": 13914,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ggled task dr"
+      }
+    },
+    {
+      "at": 13950,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ops out of view when"
+      }
+    },
+    {
+      "at": 13985,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " it no"
+      }
+    },
+    {
+      "at": 14266,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " longer matches. Sel"
+      }
+    },
+    {
+      "at": 14266,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ec"
+      }
+    },
+    {
+      "at": 14266,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ting an"
+      }
+    },
+    {
+      "at": 14266,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " option s"
+      }
+    },
+    {
+      "at": 14266,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ets the filter and calls `"
+      }
+    },
+    {
+      "at": 14267,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "refresh()`. An emp"
+      }
+    },
+    {
+      "at": 14267,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ty fil"
+      }
+    },
+    {
+      "at": 14267,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "tered result renders an"
+      }
+    },
+    {
+      "at": 14284,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " empty list, with"
+      }
+    },
+    {
+      "at": 14315,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " an opt"
+      }
+    },
+    {
+      "at": 14350,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ional \""
+      }
+    },
+    {
+      "at": 14381,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "No tasks\" message."
+      }
+    },
+    {
+      "at": 14561,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "\n\n**Tests**\nIn"
+      }
+    },
+    {
+      "at": 14561,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " `tests/api.test."
+      }
+    },
+    {
+      "at": 14561,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "js`, cover `done="
+      }
+    },
+    {
+      "at": 14561,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "1`"
+      }
+    },
+    {
+      "at": 14561,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": ", `done=0`, no"
+      }
+    },
+    {
+      "at": 14580,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " param"
+      }
+    },
+    {
+      "at": 14613,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " (all returned), and"
+      }
+    },
+    {
+      "at": 14646,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " invalid values (`ban"
+      }
+    },
+    {
+      "at": 14682,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ana`, `2`, emp"
+      }
+    },
+    {
+      "at": 14713,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ty) returning 400."
+      }
+    },
+    {
+      "at": 14782,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " Add an e2e case in"
+      }
+    },
+    {
+      "at": 14813,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " `e2e/` (not"
+      }
+    },
+    {
+      "at": 14981,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " y"
+      }
+    },
+    {
+      "at": 14981,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "et inspected, so"
+      }
+    },
+    {
+      "at": 14981,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " check the"
+      }
+    },
+    {
+      "at": 14981,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " existing sp"
+      }
+    },
+    {
+      "at": 14981,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ec first): filter def"
+      }
+    },
+    {
+      "at": 15014,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "aults to All"
+      }
+    },
+    {
+      "at": 15045,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": ","
+      }
+    },
+    {
+      "at": 15078,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " Active h"
+      }
+    },
+    {
+      "at": 15112,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": "ides a task"
+      }
+    },
+    {
+      "at": 15147,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " once it"
+      }
+    },
+    {
+      "at": 15182,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " is checked, and the"
+      }
+    },
+    {
+      "at": 15215,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " filter persists after add"
+      }
+    },
+    {
+      "at": 15246,
+      "event": {
+        "type": "token",
+        "agent": "pm",
+        "round": 1,
+        "text": " and delete."
+      }
+    },
+    {
+      "at": 15274,
+      "event": {
+        "type": "usage",
+        "agent": "pm",
+        "round": 1,
+        "inputTokens": 955,
+        "outputTokens": 564,
+        "costUsd": 0.00755
+      }
+    },
+    {
+      "at": 15274,
+      "event": {
+        "type": "done",
+        "agent": "pm",
+        "round": 1,
+        "ms": 4491
+      }
+    },
+    {
+      "at": 15274,
+      "event": {
+        "type": "start",
+        "agent": "backend",
+        "round": 1,
+        "model": "claude-sonnet-5-5"
+      }
+    },
+    {
+      "at": 15274,
+      "event": {
+        "type": "start",
+        "agent": "frontend",
+        "round": 1,
+        "model": "claude-sonnet-5-5"
+      }
+    },
+    {
+      "at": 16587,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "I"
+      }
+    },
+    {
+      "at": 16603,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "'ll start by reading the exist"
+      }
+    },
+    {
+      "at": 16642,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "ing page files."
+      }
+    },
+    {
+      "at": 16715,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "Let me read"
+      }
+    },
+    {
+      "at": 16757,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " the files first"
+      }
+    },
+    {
+      "at": 16810,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "."
+      }
+    },
+    {
+      "at": 17272,
+      "event": {
+        "type": "usage",
+        "agent": "frontend",
+        "round": 1,
+        "inputTokens": 1578,
+        "outputTokens": 161,
+        "costUsd": 0.004766
+      }
+    },
+    {
+      "at": 17272,
+      "event": {
+        "type": "tool",
+        "agent": "frontend",
+        "round": 1,
+        "label": "read_file public/index.html",
+        "ok": true
+      }
+    },
+    {
+      "at": 17272,
+      "event": {
+        "type": "tool",
+        "agent": "frontend",
+        "round": 1,
+        "label": "read_file public/app.js",
+        "ok": true
+      }
+    },
+    {
+      "at": 17272,
+      "event": {
+        "type": "tool",
+        "agent": "frontend",
+        "round": 1,
+        "label": "read_file public/style.css",
+        "ok": true
+      }
+    },
+    {
+      "at": 17273,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "\n"
+      }
+    },
+    {
+      "at": 17463,
+      "event": {
+        "type": "usage",
+        "agent": "backend",
+        "round": 1,
+        "inputTokens": 1577,
+        "outputTokens": 159,
+        "costUsd": 0.004744
+      }
+    },
+    {
+      "at": 17463,
+      "event": {
+        "type": "tool",
+        "agent": "backend",
+        "round": 1,
+        "label": "read_file src/db.js",
+        "ok": true
+      }
+    },
+    {
+      "at": 17463,
+      "event": {
+        "type": "tool",
+        "agent": "backend",
+        "round": 1,
+        "label": "read_file src/app.js",
+        "ok": true
+      }
+    },
+    {
+      "at": 17463,
+      "event": {
+        "type": "tool",
+        "agent": "backend",
+        "round": 1,
+        "label": "read_file tests/api.test.js",
+        "ok": true
+      }
+    },
+    {
+      "at": 17463,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "\n"
+      }
+    },
+    {
+      "at": 18770,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "Now"
+      }
+    },
+    {
+      "at": 18770,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " I'll write the three"
+      }
+    },
+    {
+      "at": 18770,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " files."
+      }
+    },
+    {
+      "at": 19350,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "One"
+      }
+    },
+    {
+      "at": 19350,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " th"
+      }
+    },
+    {
+      "at": 19350,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "ing to hand"
+      }
+    },
+    {
+      "at": 19350,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "le: `?"
+      }
+    },
+    {
+      "at": 19350,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "done=` ("
+      }
+    },
+    {
+      "at": 19350,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "empty string) must"
+      }
+    },
+    {
+      "at": 19350,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " be a"
+      }
+    },
+    {
+      "at": 19350,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " 400, and"
+      }
+    },
+    {
+      "at": 19350,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " a repeated param"
+      }
+    },
+    {
+      "at": 19350,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " g"
+      }
+    },
+    {
+      "at": 19350,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "ives an array, which"
+      }
+    },
+    {
+      "at": 19350,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " is also invalid."
+      }
+    },
+    {
+      "at": 27478,
+      "event": {
+        "type": "usage",
+        "agent": "frontend",
+        "round": 1,
+        "inputTokens": 2992,
+        "outputTokens": 2054,
+        "costUsd": 0.026524
+      }
+    },
+    {
+      "at": 27478,
+      "event": {
+        "type": "tool",
+        "agent": "frontend",
+        "round": 1,
+        "label": "write_file public/index.html",
+        "ok": true
+      }
+    },
+    {
+      "at": 27478,
+      "event": {
+        "type": "tool",
+        "agent": "frontend",
+        "round": 1,
+        "label": "write_file public/app.js",
+        "ok": true
+      }
+    },
+    {
+      "at": 27478,
+      "event": {
+        "type": "tool",
+        "agent": "frontend",
+        "round": 1,
+        "label": "write_file public/style.css",
+        "ok": true
+      }
+    },
+    {
+      "at": 27478,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "\n"
+      }
+    },
+    {
+      "at": 28629,
+      "event": {
+        "type": "usage",
+        "agent": "frontend",
+        "round": 1,
+        "inputTokens": 5174,
+        "outputTokens": 27,
+        "costUsd": 0.010618
+      }
+    },
+    {
+      "at": 31384,
+      "event": {
+        "type": "usage",
+        "agent": "backend",
+        "round": 1,
+        "inputTokens": 3655,
+        "outputTokens": 2835,
+        "costUsd": 0.03566
+      }
+    },
+    {
+      "at": 31384,
+      "event": {
+        "type": "tool",
+        "agent": "backend",
+        "round": 1,
+        "label": "write_file src/db.js",
+        "ok": true
+      }
+    },
+    {
+      "at": 31384,
+      "event": {
+        "type": "tool",
+        "agent": "backend",
+        "round": 1,
+        "label": "write_file src/app.js",
+        "ok": true
+      }
+    },
+    {
+      "at": 31384,
+      "event": {
+        "type": "tool",
+        "agent": "backend",
+        "round": 1,
+        "label": "write_file tests/api.test.js",
+        "ok": true
+      }
+    },
+    {
+      "at": 31384,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "\n"
+      }
+    },
+    {
+      "at": 32288,
+      "event": {
+        "type": "tool",
+        "agent": "frontend",
+        "round": 1,
+        "label": "npm test: 4 passed, 0 failed",
+        "ok": true
+      }
+    },
+    {
+      "at": 32902,
+      "event": {
+        "type": "usage",
+        "agent": "backend",
+        "round": 1,
+        "inputTokens": 6622,
+        "outputTokens": 27,
+        "costUsd": 0.013514
+      }
+    },
+    {
+      "at": 35368,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "I added an All / Completed"
+      }
+    },
+    {
+      "at": 35368,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " / Active filter to the page"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": ", def"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "aulting to All. The exist"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "ing 4 API"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " tests pass, but n"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "othing tests the filter it"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "self. I"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " did not run"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " the page"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " in a"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " browser, and I did"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " not add the"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " `e2e/` case"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " or the"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " new `tests/api.test"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": ".js` cases the"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " blueprint asks for."
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "\n\nThe filter l"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "ives in `public/app"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": ".js` and requ"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "ests `/"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "api/tasks?done="
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "1` or `?done=0"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "` for"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " Completed and"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " Active, with"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " no par"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "ameter for All. It persists"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " after you"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " check"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": ", add or"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " delete a task. The empty"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " list"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " sh"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "ows \"No tasks\" under"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " a filter and"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " \"No tasks yet.\""
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " under"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " All. I also added"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " an error message line"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": ", so"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " failed requests show a"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " message instead of fail"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "ing silently. `public"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "/index.html` and `public"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "/style.css` car"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "ry the new buttons and their"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " styling.\n\nUntil the back"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "end change"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " from"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " the blueprint (the"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " opt"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "ional `done` argument in `"
+      }
+    },
+    {
+      "at": 35373,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "listTasks` and the "
+      }
+    },
+    {
+      "at": 35374,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "400 on"
+      }
+    },
+    {
+      "at": 35374,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " b"
+      }
+    },
+    {
+      "at": 35374,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "ad values) lands, Complet"
+      }
+    },
+    {
+      "at": 35374,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": "ed and Active will"
+      }
+    },
+    {
+      "at": 35374,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " still return every"
+      }
+    },
+    {
+      "at": 35374,
+      "event": {
+        "type": "token",
+        "agent": "frontend",
+        "round": 1,
+        "text": " task."
+      }
+    },
+    {
+      "at": 35377,
+      "event": {
+        "type": "usage",
+        "agent": "frontend",
+        "round": 1,
+        "inputTokens": 5441,
+        "outputTokens": 297,
+        "costUsd": 0.013852
+      }
+    },
+    {
+      "at": 35377,
+      "event": {
+        "type": "done",
+        "agent": "frontend",
+        "round": 1,
+        "ms": 20103
+      }
+    },
+    {
+      "at": 36898,
+      "event": {
+        "type": "tool",
+        "agent": "backend",
+        "round": 1,
+        "label": "npm test: 10 passed, 0 failed",
+        "ok": true
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "I"
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " added the"
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " `done` filter to `G"
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "ET /api/tasks`"
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": ", and the full"
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " su"
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "ite passes (10 tests"
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": ")."
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "\n\n-"
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " **"
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "`src/db.js`:"
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "** `listTasks(db"
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": ", done)` ad"
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "ds `WHERE done ="
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " ?` only when `done`"
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " is given.\n- **`src"
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "/app.js`:** the"
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " route returns all tasks with"
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " no param"
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": ", fil"
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "ters on"
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " `\"0\"`"
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " or `\"1\"`, and"
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " returns 400 `{error"
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": ": \"done must be 0 "
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "or 1\"}` for an"
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "ything else, including an"
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " empty value"
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": ".\n- **`tests/"
+      }
+    },
+    {
+      "at": 39970,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "api.test.js`:**"
+      }
+    },
+    {
+      "at": 39972,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " new"
+      }
+    },
+    {
+      "at": 39972,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " cases for `done=1`"
+      }
+    },
+    {
+      "at": 39972,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": ", `done=0`, no"
+      }
+    },
+    {
+      "at": 39972,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " param, and the three invalid"
+      }
+    },
+    {
+      "at": 39972,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " values (`banana`, `"
+      }
+    },
+    {
+      "at": 39972,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "2`, empty).\n\nI"
+      }
+    },
+    {
+      "at": 39972,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " did not add the UI control"
+      }
+    },
+    {
+      "at": 39972,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " or"
+      }
+    },
+    {
+      "at": 39972,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " the e2e case, since the"
+      }
+    },
+    {
+      "at": 39972,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " task said"
+      }
+    },
+    {
+      "at": 39972,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " not"
+      }
+    },
+    {
+      "at": 39972,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " to touch `public/`"
+      }
+    },
+    {
+      "at": 39972,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " and I"
+      }
+    },
+    {
+      "at": 39972,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " never looked in"
+      }
+    },
+    {
+      "at": 39972,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " `e2e/`."
+      }
+    },
+    {
+      "at": 39972,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " Those par"
+      }
+    },
+    {
+      "at": 39972,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": "ts of the blueprint are"
+      }
+    },
+    {
+      "at": 39972,
+      "event": {
+        "type": "token",
+        "agent": "backend",
+        "round": 1,
+        "text": " still open."
+      }
+    },
+    {
+      "at": 39973,
+      "event": {
+        "type": "usage",
+        "agent": "backend",
+        "round": 1,
+        "inputTokens": 7066,
+        "outputTokens": 260,
+        "costUsd": 0.016732
+      }
+    },
+    {
+      "at": 39973,
+      "event": {
+        "type": "done",
+        "agent": "backend",
+        "round": 1,
+        "ms": 24699
+      }
+    },
+    {
+      "at": 39973,
+      "event": {
+        "type": "start",
+        "agent": "e2e",
+        "round": 1,
+        "model": "claude-sonnet-5-5"
+      }
+    },
+    {
+      "at": 43347,
+      "event": {
+        "type": "tool",
+        "agent": "e2e",
+        "round": 1,
+        "label": "npm test: 10 passed, 0 failed",
+        "ok": true
+      }
+    },
+    {
+      "at": 44684,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "I"
+      }
+    },
+    {
+      "at": 44684,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "'ll read the page"
+      }
+    },
+    {
+      "at": 44694,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " first so"
+      }
+    },
+    {
+      "at": 44728,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " my selectors match"
+      }
+    },
+    {
+      "at": 44762,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " the real"
+      }
+    },
+    {
+      "at": 44798,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " mark"
+      }
+    },
+    {
+      "at": 44834,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "up."
+      }
+    },
+    {
+      "at": 45091,
+      "event": {
+        "type": "usage",
+        "agent": "e2e",
+        "round": 1,
+        "inputTokens": 7083,
+        "outputTokens": 70,
+        "costUsd": 0.014866
+      }
+    },
+    {
+      "at": 45091,
+      "event": {
+        "type": "tool",
+        "agent": "e2e",
+        "round": 1,
+        "label": "read_file public/index.html",
+        "ok": true
+      }
+    },
+    {
+      "at": 45091,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "\n"
+      }
+    },
+    {
+      "at": 50839,
+      "event": {
+        "type": "usage",
+        "agent": "e2e",
+        "round": 1,
+        "inputTokens": 7565,
+        "outputTokens": 1034,
+        "costUsd": 0.02547
+      }
+    },
+    {
+      "at": 61077,
+      "event": {
+        "type": "shot",
+        "agent": "e2e",
+        "round": 1,
+        "label": "add complete and delete a task",
+        "png": "iVBORw0KGgoAAAANSUhEUgAAAoAAAAHgCAIAAAC6s0uzAAAQAElEQVR4nOzdB1RU19qA4WPvvcXeuyJWROyJomLBrrErWK4tKvbYkihgTUxiV4xdExE1xRi7RsSIjV9NFAvEGgv2jvyfzr0nk6EE7418IO9zs1hz9pwpcNfyZe89MyR/+OCOAQAA4lZSAwAAxDkCDACAAgIMAIACAgwAgAICDACAAgIMAIACAgwAgAICDACAAgIMAIACAgwAgAICDACAAgIMAIACAgwAgAICDACAAgIMAIACAgwAgAICDACAAgIMAIACAgwAgAICDACAAgIMAIACAgwAgAICDACAAgIMAIACAgwAgAICDACAAgIMAIACAgwAgAICDACAAgIMAIACAgwAgAICDACAAgIMAIACAgwAgAICDACAAgIMAIACAgwAgAICDACAAgIMAIACAgwAgAICDACAAgIMAIACAgwAgAICDACAAgIMAIACAgwAgAICDACAAgIMAIACAgwAgAICDACAAgIMAIACAgwAgAICDACAAgIMAIACAgwAgAICDACAAgIMAIACAgwAgAICDACAAgIMAIACAgwAgAICbOuLL+eUKFna/G///v2xv+2Xc+Za39bf398AACAqBBgAAAUEGAAABfEiwMuWLbes2b7fqbMBAEAikNyIB7b8+KMBAEBioh/gK1euHDoUaAAAkJjoB/jb774zAABIZDQD/OjRo0WLlyxZ4mOOyFRYdoLNQxeXJrNmzrC5yd69+44ePRYSKv/7/feLv+fKlatIkcLFihZt2tSlZMmS0T3W6dNnZKf55KmTN27cunnzRsaMGbJly5Y9e/bq1au3aN4sd+7cRqxt2rTZY/gI87BgwQKrVq7MkSN7dOffuhVWp269J0+emCM7d2zLmzevzWnbtm3/V/8B5qGDQ7Xly74yAABvKbUAnz9/vlv3XlevXon9TUaMGCW7xY8fP7a5H7F9+475CxbWdKoxZcon77zzl5q+ePFi/PgJ677+xnrw5k3J8C2p8v79/rNnfz5iuEf37t1i8RSMPXv3jRo9xjzMmjXLooULY6iv5Zz33nv3u+++N0e2bv2pR4/uNqft2LHT+tClSRMDAPD2UnsVtGz9vlZ9hXTOpr429v28f9TosREREdaDUzy9bOpr4/nz5wUK5Ddi4cTJk4MGDZbzLYdp06ZdMH+e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"
+      }
+    },
+    {
+      "at": 61077,
+      "event": {
+        "type": "shot",
+        "agent": "e2e",
+        "round": 1,
+        "label": "feature filter flow",
+        "png": "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AAAoQAADAKAAAQwAgAIEMAAAChDAAAAoQAADAKAAAQwAgAIEMAAAChDAAAAoQAADAKAAAQwAgAIEMAAAChDAAAAoQAADAKAAAQwAgAIEMAAAChDAAAAoQAADAKAAAQwAgAIEMAAAChDAAAAoQAADAKAAAQwAgAIEMAAAChDAAAAoQAADAKAAAQwAgAIEMAAAChDAAAAoQAADAKAAAQwAgAIEMAAAChDAAAAoQAADAKAAAQwAgAIEMAAAChDAAAAoQAADAKAAAQwAgAIEMAAAChDAAAAoQAADAKAAAQwAgAIEMAAAChDAAAAoQAADAKAAAQwAgAIEMAAAChDAAAAoQAADAKAAAQwAgAIEMAAAChDAAAAoQAADAKAAAQwAgAIEMAAAChDAAAAoQAADAKAAAQwAgAIEMAAAChDAAAAoQAADAKAAAQwAgAIEMAAAChDAAAAoQAADAKAAAQwAgAIEMAAAChDAAAAoQAADAKAAAQwAgAIEMAAAChDAAAAoQAADAKAAAQwAgAIEMAAAChDAAAAoQAADAKAAAQwAgAIEMAAAChDAAAAoQAADAKAAAQwAgAIEMAAAChDAAAAoQAADAKAAAQwAgAIEMAAAChDAAAAoQAADAKAAAQwAgAIEMAAAChDAAAAoQAADAKAAAQwAgAIEMAAAChDAAAAoQAADAKAAAQwAgAIEMAAAChDAAAAoQAADAKAAAQwAgAIEMAAAChDAAAAoQAADAKAAAQwAgAIEMAAAChDAAAAoQAADAKAAAQwAgAIEMAAAChDAAAAo8H8AAAD//z5Q0HIAAAAGSURBVAMAO/bRhSXwmF0AAAAASUVORK5CYII="
+      }
+    },
+    {
+      "at": 61077,
+      "event": {
+        "type": "tool",
+        "agent": "e2e",
+        "round": 1,
+        "label": "real browser: 2 passed, 0 failed",
+        "ok": true
+      }
+    },
+    {
+      "at": 63426,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "E2E: PASS"
+      }
+    },
+    {
+      "at": 63426,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "\n- The browser test and"
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " the app's smoke test both"
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " passed (2 of"
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " 2),"
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " and the"
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " 10 unit tests pass"
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "ed.\n- All"
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " is selected on first"
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " load."
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "\n- Complet"
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "ed shows only the chec"
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "ked task, and Active shows"
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " only the unchecked one."
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "\n- Checking a task while"
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " on"
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " Active removes it from the list"
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": ".\n- Adding and"
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " deleting a task while"
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " on Active k"
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "ept the Active filter sel"
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "ected.\n- `GET /"
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "api/tasks?done="
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "banana` returned"
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " 400, and `?"
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "done=1` returned only t"
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "asks with `done`"
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": " equ"
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "token",
+        "agent": "e2e",
+        "round": 1,
+        "text": "al to 1."
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "usage",
+        "agent": "e2e",
+        "round": 1,
+        "inputTokens": 8723,
+        "outputTokens": 169,
+        "costUsd": 0.019136
+      }
+    },
+    {
+      "at": 63427,
+      "event": {
+        "type": "done",
+        "agent": "e2e",
+        "round": 1,
+        "ms": 23454
+      }
+    },
+    {
+      "at": 63428,
+      "event": {
+        "type": "verdict",
+        "gate": "e2e",
+        "round": 1,
+        "approved": true
+      }
+    },
+    {
+      "at": 63428,
+      "event": {
+        "type": "start",
+        "agent": "validator",
+        "round": 1,
+        "model": "claude-sonnet-5-5"
+      }
+    },
+    {
+      "at": 65284,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "VERDICT: APP"
+      }
+    },
+    {
+      "at": 65300,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "ROVE"
+      }
+    },
+    {
+      "at": 65690,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "\n- AC1: `"
+      }
+    },
+    {
+      "at": 65690,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "list"
+      }
+    },
+    {
+      "at": 65690,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "Tasks` filters by `"
+      }
+    },
+    {
+      "at": 65690,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "done` when"
+      }
+    },
+    {
+      "at": 65690,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " it"
+      }
+    },
+    {
+      "at": 65690,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " is "
+      }
+    },
+    {
+      "at": 65690,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "0 or 1 "
+      }
+    },
+    {
+      "at": 65690,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "and returns ever"
+      }
+    },
+    {
+      "at": 65690,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "ything with no param"
+      }
+    },
+    {
+      "at": 65690,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "; the API tests for"
+      }
+    },
+    {
+      "at": 65690,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " done=1,"
+      }
+    },
+    {
+      "at": 65690,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " done=0 and no param"
+      }
+    },
+    {
+      "at": 65801,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " p"
+      }
+    },
+    {
+      "at": 65801,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "ass, and exist"
+      }
+    },
+    {
+      "at": 65801,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "ing behavior is unchan"
+      }
+    },
+    {
+      "at": 65815,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "ged.\n- AC2:"
+      }
+    },
+    {
+      "at": 65850,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " An"
+      }
+    },
+    {
+      "at": 65897,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "ything other than the"
+      }
+    },
+    {
+      "at": 65920,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " exact strings \"0\" or"
+      }
+    },
+    {
+      "at": 65952,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " \"1\" returns 400 "
+      }
+    },
+    {
+      "at": 65985,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "with an"
+      }
+    },
+    {
+      "at": 66018,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " error body and"
+      }
+    },
+    {
+      "at": 66047,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " no list"
+      }
+    },
+    {
+      "at": 66087,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": ". Tests c"
+      }
+    },
+    {
+      "at": 66145,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "over \"banana\", \"2\""
+      }
+    },
+    {
+      "at": 66149,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " and \"\" ("
+      }
+    },
+    {
+      "at": 66182,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "empty string also "
+      }
+    },
+    {
+      "at": 66214,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "400, which"
+      }
+    },
+    {
+      "at": 66255,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " is acceptable). An array"
+      }
+    },
+    {
+      "at": 66306,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "-valued param"
+      }
+    },
+    {
+      "at": 66316,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " (`"
+      }
+    },
+    {
+      "at": 66369,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "done=1&done=0"
+      }
+    },
+    {
+      "at": 66399,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "`) f"
+      }
+    },
+    {
+      "at": 66421,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "ails the str"
+      }
+    },
+    {
+      "at": 66450,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "ict string"
+      }
+    },
+    {
+      "at": 66480,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " comparison and also"
+      }
+    },
+    {
+      "at": 66513,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " g"
+      }
+    },
+    {
+      "at": 66549,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "ets 400."
+      }
+    },
+    {
+      "at": 66581,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "\n- AC3 "
+      }
+    },
+    {
+      "at": 66614,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "and AC4: The three"
+      }
+    },
+    {
+      "at": 66647,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "-button"
+      }
+    },
+    {
+      "at": 66683,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " filter has"
+      }
+    },
+    {
+      "at": 66712,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " All p"
+      }
+    },
+    {
+      "at": 66746,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "ressed on"
+      }
+    },
+    {
+      "at": 66778,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " load"
+      }
+    },
+    {
+      "at": 66813,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "."
+      }
+    },
+    {
+      "at": 66847,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " `"
+      }
+    },
+    {
+      "at": 66876,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "refresh()` always"
+      }
+    },
+    {
+      "at": 66925,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " re-queries with `"
+      }
+    },
+    {
+      "at": 66949,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "currentFilter`, so"
+      }
+    },
+    {
+      "at": 66981,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " toggling"
+      }
+    },
+    {
+      "at": 67015,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": ", adding and deleting pre"
+      }
+    },
+    {
+      "at": 67047,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "serve the filt"
+      }
+    },
+    {
+      "at": 67085,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "ered view. The E2E run"
+      }
+    },
+    {
+      "at": 67120,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " confirmed that"
+      }
+    },
+    {
+      "at": 67146,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " chec"
+      }
+    },
+    {
+      "at": 67179,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "king a task on Active removes"
+      }
+    },
+    {
+      "at": 67212,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " it and"
+      }
+    },
+    {
+      "at": 67249,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " that add/delete keep"
+      }
+    },
+    {
+      "at": 67279,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " Active selected.\n- Security"
+      }
+    },
+    {
+      "at": 67316,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "/data safety: The"
+      }
+    },
+    {
+      "at": 67347,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " query is"
+      }
+    },
+    {
+      "at": 67380,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " parameterized, `"
+      }
+    },
+    {
+      "at": 67417,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "done"
+      }
+    },
+    {
+      "at": 67449,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "` is validated before"
+      }
+    },
+    {
+      "at": 67478,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " use"
+      }
+    },
+    {
+      "at": 67510,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": ", and the U"
+      }
+    },
+    {
+      "at": 67548,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "I renders via"
+      }
+    },
+    {
+      "at": 67594,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " `textContent`, so there"
+      }
+    },
+    {
+      "at": 67632,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " is no inj"
+      }
+    },
+    {
+      "at": 67648,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "ection or XSS ris"
+      }
+    },
+    {
+      "at": 67682,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "k. Minor note"
+      }
+    },
+    {
+      "at": 67731,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": ": the empty-state text"
+      }
+    },
+    {
+      "at": 67770,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": " \"No tasks\" for fil"
+      }
+    },
+    {
+      "at": 67820,
+      "event": {
+        "type": "token",
+        "agent": "validator",
+        "round": 1,
+        "text": "tered views is fine."
+      }
+    },
+    {
+      "at": 67822,
+      "event": {
+        "type": "usage",
+        "agent": "validator",
+        "round": 1,
+        "inputTokens": 5730,
+        "outputTokens": 356,
+        "costUsd": 0.01502
+      }
+    },
+    {
+      "at": 67822,
+      "event": {
+        "type": "done",
+        "agent": "validator",
+        "round": 1,
+        "ms": 4394
+      }
+    },
+    {
+      "at": 67822,
+      "event": {
+        "type": "verdict",
+        "gate": "validator",
+        "round": 1,
+        "approved": true
+      }
+    },
+    {
+      "at": 67822,
+      "event": {
+        "type": "start",
+        "agent": "release",
+        "round": 1,
+        "model": "claude-haiku-5-5"
+      }
+    },
+    {
+      "at": 68438,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "Add complet"
+      }
+    },
+    {
+      "at": 68644,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "ed/"
+      }
+    },
+    {
+      "at": 68644,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "active filter to the"
+      }
+    },
+    {
+      "at": 68644,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " task list"
+      }
+    },
+    {
+      "at": 68644,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "\n\n-"
+      }
+    },
+    {
+      "at": 68644,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " Data: No"
+      }
+    },
+    {
+      "at": 68644,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " schema change; `listTas"
+      }
+    },
+    {
+      "at": 68644,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "ks(db, done)` tak"
+      }
+    },
+    {
+      "at": 68645,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "es an optional `done` and"
+      }
+    },
+    {
+      "at": 68645,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " adds `WHERE done"
+      }
+    },
+    {
+      "at": 68646,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " = ?` only when provided"
+      }
+    },
+    {
+      "at": 68666,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": ".\n- API: `GET"
+      }
+    },
+    {
+      "at": 68684,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " /api/tasks` acc"
+      }
+    },
+    {
+      "at": 68735,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "epts `?"
+      }
+    },
+    {
+      "at": 68735,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "done=0|1`"
+      }
+    },
+    {
+      "at": 68743,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " to return"
+      }
+    },
+    {
+      "at": 68767,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " matching tasks, omits"
+      }
+    },
+    {
+      "at": 68807,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " the param for all, and returns"
+      }
+    },
+    {
+      "at": 68807,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " 400 `"
+      }
+    },
+    {
+      "at": 68831,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "{"
+      }
+    },
+    {
+      "at": 68849,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "error: \"done must be 0"
+      }
+    },
+    {
+      "at": 68867,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " or 1\"}` for"
+      }
+    },
+    {
+      "at": 68887,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " any other value; POST, P"
+      }
+    },
+    {
+      "at": 68909,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "ATCH, and DELET"
+      }
+    },
+    {
+      "at": 68931,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "E are unchanged."
+      }
+    },
+    {
+      "at": 68951,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "\n- UI:"
+      }
+    },
+    {
+      "at": 68970,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " Adds an All / Completed"
+      }
+    },
+    {
+      "at": 68990,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " / Active fil"
+      }
+    },
+    {
+      "at": 69015,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "ter control with"
+      }
+    },
+    {
+      "at": 69032,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " `currentFilter` state"
+      }
+    },
+    {
+      "at": 69053,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " (default All) that `refres"
+      }
+    },
+    {
+      "at": 69073,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "h()` appl"
+      }
+    },
+    {
+      "at": 69096,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "ies,"
+      }
+    },
+    {
+      "at": 69111,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " so the"
+      }
+    },
+    {
+      "at": 69133,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " fil"
+      }
+    },
+    {
+      "at": 69153,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "ter persists across"
+      }
+    },
+    {
+      "at": 69178,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " add,"
+      }
+    },
+    {
+      "at": 69247,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " toggle, and delete;"
+      }
+    },
+    {
+      "at": 69247,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " tests"
+      }
+    },
+    {
+      "at": 69247,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " cover the API"
+      }
+    },
+    {
+      "at": 69254,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " filter values"
+      }
+    },
+    {
+      "at": 69274,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " and inv"
+      }
+    },
+    {
+      "at": 69299,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "alid input"
+      }
+    },
+    {
+      "at": 69314,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": ", plus an e2e case"
+      }
+    },
+    {
+      "at": 69346,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " for the default"
+      }
+    },
+    {
+      "at": 69373,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": ","
+      }
+    },
+    {
+      "at": 69396,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " Active hiding a"
+      }
+    },
+    {
+      "at": 69444,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": " checked task, and persistence"
+      }
+    },
+    {
+      "at": 69465,
+      "event": {
+        "type": "token",
+        "agent": "release",
+        "round": 1,
+        "text": "."
+      }
+    },
+    {
+      "at": 69466,
+      "event": {
+        "type": "usage",
+        "agent": "release",
+        "round": 1,
+        "inputTokens": 5141,
+        "outputTokens": 249,
+        "costUsd": 0.0006386
+      }
+    },
+    {
+      "at": 69466,
+      "event": {
+        "type": "done",
+        "agent": "release",
+        "round": 1,
+        "ms": 1644
+      }
+    },
+    {
+      "at": 69466,
+      "event": {
+        "type": "finish",
+        "ms": 69466,
+        "rounds": 1,
+        "approved": true,
+        "costUsd": 0.21509159999999997
+      }
+    }
+  ],
+  "approved": true,
+  "rounds": 1,
+  "totalMs": 69466,
+  "costUsd": 0.21509159999999997
+}
