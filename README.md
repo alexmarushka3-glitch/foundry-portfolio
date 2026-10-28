@@ -10,7 +10,7 @@ Live site: https://foundry-portfolio.vercel.app
 2. **Story Writer** turns the rough idea into a user story with acceptance criteria.
 3. **Project Manager** writes the technical blueprint: data, API and UI.
 4. **Backend** and **Frontend** engineers work in parallel.
-5. **E2E Verifier** walks full user flows instead of running unit tests.
+5. **E2E Verifier** writes a Playwright test for a user flow. In a live run a real headless Chromium runs it against the sample app in a sandbox, next to the app's own unit tests. In the simulation it is an agent reasoning through the flow.
 6. **Validator** audits the result against the story's acceptance criteria.
 7. **Release** writes the pull request description.
 
@@ -78,11 +78,11 @@ An empty or invalid number falls back to its default, so `FOUNDRY_LIVE_PER_HOUR=
 
 ## Live runs and cost
 
-Live runs use Haiku 5.5 for the researcher and release agent, and Sonnet 5.5 for the rest, with thinking switched off and short outputs. Prices come from the Claude API reference. In two test runs the cost was about 5.5 cents (one round, 27 seconds) and 10 cents (two rounds, 42 seconds). The page shows the estimate for each run. Safeguards:
+Live runs use Haiku 5.5 for the researcher and release agent, and Sonnet 5.5 for the rest, with thinking switched off and short outputs. Prices come from the Claude API reference. A live run costs roughly $0.10 to $0.30 and takes about a minute. The page shows the estimate for each run. Safeguards:
 
 - A run stops if it passes a $0.25 spending cap.
 - A run stops, and stops spending, when the visitor closes the page.
-- Best-effort limits per visitor and per day. Serverless hosting keeps these counters per instance, so they are a brake and not a hard cap.
+- Limits per visitor and per day. They are shared across instances in Upstash Redis when `KV_REST_API_URL` and `KV_REST_API_TOKEN` are set, and kept per instance in memory otherwise, so without Redis they are a brake and not a hard cap.
 - The hard cap is the spend limit set in the Anthropic console. Set one.
 - Input is limited to 200 characters. `FOUNDRY_LIVE=off`, or **Pause live runs** in the admin dashboard, turns live runs off at any time.
 
@@ -92,7 +92,7 @@ Live runs use Haiku 5.5 for the researcher and release agent, and Sonnet 5.5 for
 - **Admin session:** the cookie is HttpOnly, Secure and SameSite=Strict, and holds a signed expiry the server checks, so a copied cookie stops working after 8 hours. State-changing admin requests that a browser says came from another site are refused (`blockCrossSite`). Login is limited to five tries per address per 15 minutes, and the token comparison is constant-time.
 - **Inputs:** request bodies are capped at 4 KB (`readJsonBody`). The run form is validated against fixed choices and rebuilt server-side, so visitor text never reaches a prompt. The agents' file writes are allowlisted, and the sandbox runs their code with the network off.
 - **Secrets:** only `.env.example` is committed. The GitHub App key, the API key and the admin token live in Vercel. The cron route does not exist without `CRON_SECRET`.
-- **Known, not fixed:** `npm audit` reports 6 advisories in build-time and CLI dependencies (`zod` inside `@vercel/sandbox`, `postcss` inside `next`). Neither handles visitor input, and the only fixes are major version changes. Live-run limits are per server instance, so the $10 API credit cap is the real spending limit.
+- **Known, not fixed:** `npm audit` reports 6 advisories in build-time and CLI dependencies (`zod` inside `@vercel/sandbox`, `postcss` inside `next`). Neither handles visitor input, and the only fixes are major version changes. Without Redis, live-run limits are per server instance, so the spend limit set in the Anthropic console is the real cap.
 - Reviewed against the VibeSec checklist on Oct 26 and 27, 2026.
 
 ## Admin dashboard
@@ -105,7 +105,7 @@ Set `ADMIN_TOKEN` and open `/admin`. Without a token the page and its API return
 - **Filters:** time range, mode, result, and a search over idea text and visitor id.
 - **Actions:** pause or resume live runs, reset visitor limits, clear the log, export the filtered runs as CSV.
 
-The run log is in memory on one server instance (the last 500 runs) and resets on a restart or cold start. It only sees runs that reach the API; recorded examples replay in the visitor's browser and are not counted. It stores a short hash of each visitor's address, never the address. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how to back it with a database.
+The run log is in Upstash Redis when `KV_REST_API_URL` and `KV_REST_API_TOKEN` are set. Otherwise it is in memory on one server instance (the last 500 runs) and resets on a restart or cold start. It only sees runs that reach the API; recorded examples replay in the visitor's browser and are not counted. It stores a short hash of each visitor's address, never the address. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how to back it with a database.
 
 ### Public sample-data demo
 
