@@ -137,6 +137,7 @@ describe("closeStale", () => {
           { number: 1, created_at: hours(30), head: { ref: `${BRANCH_PREFIX}old` } },
           { number: 2, created_at: hours(2), head: { ref: `${BRANCH_PREFIX}new` } },
           { number: 3, created_at: hours(99), head: { ref: "someone-elses-branch" } },
+          { number: 4, created_at: hours(99), head: { ref: `${BRANCH_PREFIX}kept` }, labels: [{ name: "keep-open" }] },
         ];
       return method === "DELETE" ? undefined : {};
     });

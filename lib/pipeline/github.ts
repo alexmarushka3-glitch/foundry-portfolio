@@ -22,6 +22,8 @@ export const BRANCH_PREFIX = "foundry/";
 /** No new pull request while this many are open. A guard against spam and runaway runs. */
 export const MAX_OPEN_PULLS = 12;
 export const STALE_AFTER_MS = 24 * 3600_000;
+/** A pull request with this label is never closed by the cleanup. Added by hand, to keep one example open. */
+export const KEEP_OPEN_LABEL = "keep-open";
 
 const API = "https://api.github.com";
 const REPO = snapshot.repo;
@@ -131,7 +133,7 @@ export function createGithubClient(opts: { env?: NodeJS.ProcessEnv; fetch?: Fetc
 
     async closeStale(maxAgeMs) {
       const auth = `Bearer ${await installationToken()}`;
-      const open = await call<Array<{ number: number; created_at: string; head: { ref: string } }>>(
+      const open = await call<Array<{ number: number; created_at: string; head: { ref: string }; labels?: Array<{ name: string }> }>>(
         "GET",
         `/repos/${REPO}/pulls?state=open&per_page=100`,
         auth,
@@ -139,6 +141,7 @@ export function createGithubClient(opts: { env?: NodeJS.ProcessEnv; fetch?: Fetc
       let closed = 0;
       for (const pr of open) {
         if (!pr.head.ref.startsWith(BRANCH_PREFIX)) continue;
+        if (pr.labels?.some((l) => l.name === KEEP_OPEN_LABEL)) continue;
         if (now() - Date.parse(pr.created_at) < maxAgeMs) continue;
         await call("PATCH", `/repos/${REPO}/pulls/${pr.number}`, auth, { state: "closed" });
         await call("DELETE", `/repos/${REPO}/git/refs/heads/${pr.head.ref}`, auth).catch(() => {});
