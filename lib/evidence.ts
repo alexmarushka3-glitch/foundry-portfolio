@@ -39,7 +39,8 @@ export function runEvidence(run: Run): Evidence | null {
       const write = WRITE.exec(line);
       if (write && !files.includes(write[1])) files.push(write[1]);
     }
-    if (step.agent === "e2e" && step.shots?.length) shot = step.shots[0];
+    // The last picture is the browser test of the new feature itself; the first is the basic add-and-delete check.
+    if (step.agent === "e2e" && step.shots?.length) shot = step.shots[step.shots.length - 1];
   }
 
   if (!unit && !browser && files.length === 0 && !shot) return null;

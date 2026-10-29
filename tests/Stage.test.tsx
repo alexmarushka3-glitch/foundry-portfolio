@@ -154,4 +154,26 @@ describe("the request form", () => {
     expect(screen.queryByText(/at least two characters/)).toBeNull();
     expect(screen.getByText(/The agents will get:/)).toBeTruthy();
   });
+
+  it("asks once before a live run, because it costs money and opens a public pull request", async () => {
+    const fetchMock = vi.fn(async (_url: string, init?: RequestInit) =>
+      init?.method === "POST" ? ndjson(simulatedRun) : Response.json({ live: true }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const posts = () => fetchMock.mock.calls.filter(([, init]) => init?.method === "POST").length;
+    render(<Stage />);
+    expect(await screen.findByText(/runs live on real Claude models/)).toBeTruthy();
+
+    typeIdea("nickname");
+    expect(screen.getByText(/opens a public draft pull request with your request/)).toBeTruthy();
+    expect(posts()).toBe(0);
+
+    // changing the request asks again
+    fireEvent.change(screen.getByLabelText(/field name/i), { target: { value: "nickname2" } });
+    expect(screen.getByRole("button", { name: "Run" })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Run" }));
+    fireEvent.click(screen.getByRole("button", { name: "Run live" }));
+    await waitFor(() => expect(posts()).toBe(1));
+  });
 });

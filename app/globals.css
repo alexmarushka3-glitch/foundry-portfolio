@@ -30,7 +30,7 @@
 }
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 72px;
+  scroll-padding-top: 84px;
 }
 body {
   margin: 0;
@@ -164,6 +164,33 @@ main,
 /* ---------- hero ---------- */
 .hero {
   padding: 56px 0 36px;
+}
+.hero-shot {
+  display: none;
+}
+/* Wide screens: a still of a finished run fills the right half of the first screen. */
+@media (min-width: 1100px) {
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    column-gap: 56px;
+    align-items: start;
+  }
+  .hero > * {
+    grid-column: 1;
+  }
+  .hero > .hero-shot {
+    display: block;
+    grid-column: 2;
+    grid-row: 1 / span 6;
+    align-self: center;
+  }
+  .hero-shot img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 16px;
+  }
 }
 .lockup {
   display: flex;
@@ -427,6 +454,9 @@ main,
 }
 .idea-error {
   color: var(--brick-lit);
+}
+.idea-confirm {
+  color: var(--amber);
 }
 .examples {
   display: flex;
@@ -838,7 +868,6 @@ main,
 }
 .evidence dd {
   margin: 2px 0 0;
-  font-variant-numeric: tabular-nums;
 }
 .evidence ul {
   list-style: none;
@@ -916,6 +945,21 @@ main,
 .eval-card p {
   margin: 10px 0 0;
 }
+.eval-more {
+  margin-top: 10px;
+}
+.eval-more summary {
+  cursor: pointer;
+  padding: 4px 0;
+  text-decoration: underline dotted var(--line);
+  text-underline-offset: 4px;
+}
+.eval-more summary:hover {
+  text-decoration: underline solid;
+}
+.eval-more ul {
+  margin: 6px 0 0;
+}
 .reality-col.working {
   border-top-color: var(--verdigris);
 }
@@ -963,12 +1007,33 @@ main,
 .reality-col summary::-webkit-details-marker {
   display: none;
 }
+/* A dotted underline and a chevron say "this opens", on touch screens too. */
+.reality-col summary {
+  text-decoration: underline dotted var(--line);
+  text-underline-offset: 4px;
+}
+.reality-col summary::after {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-left: 8px;
+  vertical-align: 0.15em;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  opacity: 0.6;
+  transform: rotate(45deg);
+  transition: transform 160ms var(--ease-out);
+}
+.reality-col details[open] summary::after {
+  transform: translateY(2px) rotate(-135deg);
+}
 .reality-col summary:hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  text-decoration: underline solid;
 }
 .reality-col details[open] summary {
   font-weight: 600;
+  text-decoration: none;
 }
 .reality-col details p {
   margin: 8px 0 4px;
@@ -1075,6 +1140,15 @@ main,
   font-size: 0.9rem;
   border-top: 1px solid var(--line);
 }
+.footer p {
+  margin: 0;
+}
+.footer .contact {
+  margin-top: 10px;
+}
+.footer .contact a {
+  color: var(--ink);
+}
 
 /* On phones and tablets the drawing is tall, so put the text being written above it. */
 @media (max-width: 900px) {
@@ -1161,7 +1235,8 @@ main,
   }
   .btn,
   .idea select,
-  .idea input {
+  .idea input,
+  .reality-col summary::after {
     transition: none;
   }
   .edge-fill,

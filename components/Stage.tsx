@@ -85,11 +85,22 @@ export default function Stage() {
     [cancelLive, resetView, seek, setPlaying],
   );
 
+  /** On a phone the drawing sits above the form, so a run started from the form would play off screen. */
+  const showPipeline = useCallback(() => {
+    const el = pipelineRef.current;
+    if (!narrow || !el) return;
+    const box = el.getBoundingClientRect();
+    if (box.top >= 0 && box.bottom <= window.innerHeight) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+  }, [narrow]);
+
   const go = useCallback(
     (request: string, spec?: FeatureSpec) => {
       const q = request.trim();
       if (!q || busy) return;
       touchedRef.current = true;
+      showPipeline();
       void (async () => {
         if (!spec && (await startReplay(q))) return;
         setRun(null);
@@ -98,7 +109,7 @@ export default function Stage() {
         void startLive(q, spec);
       })();
     },
-    [busy, resetView, setPlaying, startLive, startReplay],
+    [busy, resetView, setPlaying, showPipeline, startLive, startReplay],
   );
 
   /* One orchestrated moment: when the stage scrolls into view, the first example plays once. */

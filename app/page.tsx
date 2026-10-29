@@ -6,6 +6,10 @@ import evalResults from "@/lib/eval/results.json";
 import Stage from "@/components/Stage";
 import { profile } from "@/lib/profile";
 import { REALITY } from "@/lib/reality";
+import type { Metadata } from "next";
+
+// The old foundry-portfolio address serves the same page; this names the one search engines should keep.
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default function Home() {
   return (
@@ -44,6 +48,16 @@ export default function Home() {
             <a className="btn btn-ghost" href="#reality">
               Scope and limits
             </a>
+          </div>
+          <div className="hero-shot">
+            {/* Hidden under 1100px; a lazy image that isn't shown is never downloaded. */}
+            <img
+              src="/foundry-pipeline.png"
+              alt="The eight agents in a finished replay of a recorded live run, every step checked off."
+              width={700}
+              height={1080}
+              loading="lazy"
+            />
           </div>
           <p className="byline">
             {profile.name}, Business Economics student at the University of Chicago, class of 2029. Recruiting for consulting and tech
@@ -109,7 +123,7 @@ export default function Home() {
                       <a key={img.src} href={img.src} target="_blank" rel="noreferrer">
                         <picture>
                           {img.animated && <source media="(prefers-reduced-motion: no-preference)" srcSet={img.animated} />}
-                          <img src={img.src} alt={img.alt} width={1800} height={990} loading="lazy" />
+                          <img src={img.src} alt={img.alt} width={img.width ?? 1800} height={img.height ?? 990} loading="lazy" />
                         </picture>
                       </a>
                     ))}
@@ -146,7 +160,15 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="footer">Built with Claude Code. The agents run on Claude models.</footer>
+      <footer className="footer">
+        <p>Built with Claude Code. The agents run on Claude models.</p>
+        <p className="contact">
+          <ContactLinks label="Email" />{" "}
+          <a href="https://github.com/alexmarushka3-glitch/foundry-portfolio" target="_blank" rel="noreferrer">
+            Site code
+          </a>
+        </p>
+      </footer>
     </>
   );
 }

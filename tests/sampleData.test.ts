@@ -49,6 +49,13 @@ describe("sample data", () => {
     const o = sampleOverview(NOW);
     expect(o.recorded).toHaveLength(3);
     expect(o.server.limits.usedToday).toBeLessThanOrEqual(o.server.limits.perDay);
+    // made up, but within the site's real limits and timings, so it can't contradict the rest of the page
+    expect(o.server.limits).toMatchObject({ perHour: 1, perDay: 8 });
+    const live = o.runs.filter((r) => r.mode === "live" && r.status === "approved");
+    const avg = live.reduce((t, r) => t + r.ms, 0) / live.length;
+    expect(avg).toBeGreaterThan(50_000);
+    expect(avg).toBeLessThan(100_000);
+    expect(live.every((r) => r.costUsd >= 0.15 && r.costUsd <= 0.25)).toBe(true);
     expect(o.server.liveEnabled).toBe(true);
   });
 });

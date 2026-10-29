@@ -16,8 +16,8 @@ const GEOMETRY: Record<Layout, { viewBox: string; w: number; h: number; pos: Rec
     w: 122,
     h: 58,
     pos: {
-      researcher: { x: 70, y: 125 },
-      story: { x: 205, y: 125 },
+      researcher: { x: 65, y: 125 },
+      story: { x: 200, y: 125 },
       pm: { x: 340, y: 125 },
       backend: { x: 490, y: 68 },
       frontend: { x: 490, y: 182 },
@@ -43,6 +43,12 @@ const GEOMETRY: Record<Layout, { viewBox: string; w: number; h: number; pos: Rec
   },
 };
 
+/** Box width. In the wide layout "Project Manager" needs a wider box than the rest, or its label touches the edge. */
+function nodeWidth(layout: Layout, agent: AgentName): number {
+  const g = GEOMETRY[layout];
+  return layout === "wide" && agent === "pm" ? g.w + 14 : g.w;
+}
+
 const EDGES: [AgentName, AgentName][] = [
   ["researcher", "story"],
   ["story", "pm"],
@@ -59,8 +65,8 @@ function edgePath(layout: Layout, a: AgentName, b: AgentName): string {
   const p = g.pos[a];
   const q = g.pos[b];
   if (layout === "wide") {
-    const x1 = p.x + g.w / 2;
-    const x2 = q.x - g.w / 2;
+    const x1 = p.x + nodeWidth(layout, a) / 2;
+    const x2 = q.x - nodeWidth(layout, b) / 2;
     const xm = (x1 + x2) / 2;
     return `M${x1} ${p.y} C${xm} ${p.y} ${xm} ${q.y} ${x2} ${q.y}`;
   }
@@ -122,11 +128,12 @@ export default function PipelineSvg({
         const p = g.pos[f.agent];
         const info = AGENT_BY_ID[f.agent];
         const failed = f.status === "done" && f.passed === false;
+        const w = nodeWidth(layout, f.agent);
         return (
           <g
             key={f.agent}
             className={`node ${f.status}${failed ? " failed" : ""}${selected === f.agent ? " selected" : ""}`}
-            transform={`translate(${p.x - g.w / 2} ${p.y - g.h / 2})`}
+            transform={`translate(${p.x - w / 2} ${p.y - g.h / 2})`}
             role="button"
             tabIndex={0}
             aria-pressed={selected === f.agent}
@@ -134,8 +141,8 @@ export default function PipelineSvg({
             onClick={() => onSelect(f.agent)}
             onKeyDown={(e) => onKey(e, f.agent)}
           >
-            <rect className="node-ring" x={-4} y={-4} width={g.w + 8} height={g.h + 8} rx={14} />
-            <rect className="node-bg" width={g.w} height={g.h} rx={10} />
+            <rect className="node-ring" x={-4} y={-4} width={w + 8} height={g.h + 8} rx={14} />
+            <rect className="node-bg" width={w} height={g.h} rx={10} />
             <text className="node-label" x={14} y={g.h / 2 - 3}>
               {info.label}
             </text>
@@ -144,7 +151,7 @@ export default function PipelineSvg({
               {f.round > 1 ? `, round ${f.round}` : ""}
             </text>
             {f.status === "done" && (
-              <g className="node-mark" transform={`translate(${g.w - 25} ${g.h - 27})`}>
+              <g className="node-mark" transform={`translate(${w - 25} ${g.h - 27})`}>
                 {failed ? <path d="M3 3 L13 13 M13 3 L3 13" /> : <path d="M2 8.5 L6.5 13 L14 3.5" />}
               </g>
             )}

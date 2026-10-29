@@ -26,6 +26,13 @@ describe("runEvidence", () => {
     });
   });
 
+  it("shows the browser test's last picture, the one of the new feature", () => {
+    const basic = { label: "add complete and delete a task", png: "AAAA" };
+    const feature = { label: "feature filter flow", png: "BBBB" };
+    const ev = runEvidence(run({}, [step("e2e", "› real browser: 2 passed, 0 failed\n", [basic, feature])]));
+    expect(ev?.shot).toEqual(feature);
+  });
+
   it("gives a replay of a real live run the same evidence", () => {
     const ev = runEvidence(run({ mode: "replay", source: "live-run" }, [step("e2e", "› real browser: 2 passed, 0 failed\n")]));
     expect(ev?.browser).toBe("2 passed, 0 failed");
