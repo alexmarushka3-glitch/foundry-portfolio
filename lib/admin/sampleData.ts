@@ -25,17 +25,23 @@ const IDEAS = [
   "Group tasks by project",
 ];
 
-/** Rough time each agent takes, in ms, from the real recorded runs. */
+/** Rough time each agent takes, in ms: the average of the three recorded live runs, rounded. */
 const AGENT_BASE_MS: Record<AgentName, number> = {
-  researcher: 1100,
-  story: 900,
-  pm: 1500,
-  backend: 3600,
-  frontend: 4200,
-  e2e: 2300,
-  validator: 1800,
-  release: 900,
+  researcher: 5300,
+  story: 3600,
+  pm: 5400,
+  backend: 27300,
+  frontend: 17800,
+  e2e: 22300,
+  validator: 3600,
+  release: 2100,
 };
+
+/** The site's default live limits (lib/server/state.ts), so the sample doesn't show more than the real site allows. */
+const SAMPLE_LIMITS = { perHour: 1, perDay: 8 };
+
+/** The scripted simulation finishes in a few seconds, not a minute. */
+const SIMULATED_SPEED = 0.08;
 
 /** A small seeded random number generator (mulberry32), so the sample is repeatable. */
 function rng(seed: number) {
@@ -65,10 +71,13 @@ export function sampleRuns(now: number, seed = 7): RunRecord[] {
   const rand = rng(seed);
   const runs: RunRecord[] = [];
   const COUNT = 70;
+  let liveToday = 0;
   for (let i = 0; i < COUNT; i++) {
     // Bias toward recent: the first dozen fall in the last day, a few in the last hour.
     const age = i < 4 ? rand() * HOUR : i < 22 ? rand() * 24 * HOUR : rand() * 7 * 24 * HOUR;
-    const mode = pick<Mode>(rand, [["live", 45], ["simulated", 45], ["replay", 10]]);
+    let mode = pick<Mode>(rand, [["live", 45], ["simulated", 45], ["replay", 10]]);
+    // Past the daily limit, a request falls back to the simulation, as it does on the site.
+    if (mode === "live" && age < 24 * HOUR && ++liveToday > SAMPLE_LIMITS.perDay) mode = "simulated";
     const status = pick<RunStatus>(rand, [["approved", 70], ["not-approved", 9], ["error", 8], ["cancelled", 13]]);
     const rounds = status === "error" || status === "cancelled" ? 0 : rand() < 0.3 ? 2 : 1;
     const agentMs: Partial<Record<AgentName, number>> = {};
@@ -78,15 +87,15 @@ export function sampleRuns(now: number, seed = 7): RunRecord[] {
       (Object.keys(AGENT_BASE_MS) as AgentName[]).slice(0, cut).forEach((agent) => {
         const factor = 0.7 + rand() * 0.7;
         const rep = rounds === 2 && ["backend", "frontend", "e2e", "validator"].includes(agent) ? 2 : 1;
-        agentMs[agent] = Math.round(AGENT_BASE_MS[agent] * factor * rep * (mode === "simulated" ? 0.4 : 1));
+        agentMs[agent] = Math.round(AGENT_BASE_MS[agent] * factor * rep * (mode === "simulated" ? SIMULATED_SPEED : 1));
         ms += agentMs[agent]!;
       });
       ms = Math.round(ms * 0.82); // backend and frontend overlap
     } else {
-      ms = Math.round(800 + rand() * 4000);
+      ms = Math.round(5000 + rand() * 40_000);
     }
     const live = mode === "live";
-    const costUsd = live && status !== "error" ? +(0.035 + rand() * 0.04 + (rounds === 2 ? 0.04 : 0)).toFixed(4) : 0;
+    const costUsd = live && status !== "error" ? +(0.17 + rand() * 0.05 + (rounds === 2 ? 0.03 : 0)).toFixed(4) : 0;
     runs.push({
       id: `sample-run-${String(i).padStart(2, "0")}`,
       at: Math.round(now - age),
@@ -120,7 +129,7 @@ export function sampleOverview(now: number = Date.now(), seed = 7): AdminOvervie
       livePaused: false,
       liveEnabled: true,
       models: { smart: "claude-sonnet-5-5", build: "claude-sonnet-5-5", fast: "claude-haiku-5-5" },
-      limits: { perHour: 3, perDay: 40, usedToday, dayResetsAt: now + 9 * HOUR, visitorsTracked: 5 },
+      limits: { ...SAMPLE_LIMITS, usedToday, dayResetsAt: now + 9 * HOUR, visitorsTracked: 5 },
     },
     recorded: recordedExamples(),
   };

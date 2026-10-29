@@ -37,7 +37,7 @@ export default function EvidenceCard({ evidence, prNumber }: { evidence: Evidenc
         <figure>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={`data:image/png;base64,${evidence.shot.png}`} alt={`Real browser picture: ${evidence.shot.label}`} loading="lazy" />
-          <figcaption>From the real browser: {evidence.shot.label}</figcaption>
+          <figcaption>From the real browser, at the end of its test: {evidence.shot.label}</figcaption>
         </figure>
       )}
       <p className="fine">

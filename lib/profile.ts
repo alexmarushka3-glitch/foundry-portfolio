@@ -1,5 +1,8 @@
 // Single source of truth for the portfolio copy. Edit this file to update the site.
 
+/** A project picture. `animated` plays only when the visitor allows motion; the size defaults to 1800 by 990. */
+type ProjectImage = { src: string; alt: string; animated?: string; width?: number; height?: number };
+
 export const profile = {
   siteUrl: "https://alexmarushka.vercel.app",
   name: "Alex Marushka",
@@ -57,6 +60,13 @@ export const profile = {
         { label: "Sample app the agents change", href: "https://github.com/alexmarushka3-glitch/taskly-sample" },
         { label: "A real draft pull request from a live run (#8)", href: "https://github.com/alexmarushka3-glitch/taskly-sample/pull/8" },
       ],
+      note: "The demo on this page at the end of a replay of a recorded live run (the estimate field example).",
+      images: <ProjectImage[]>[
+        {
+          src: "/projects/foundry-replay.png",
+          alt: "The Foundry demo after a replay of a recorded live run: all eight agents checked off, passed both checks in one round, 8 unit tests and 2 browser tests passed, and a picture from the real browser of the new estimate field.",
+        },
+      ],
     },
     {
       name: "Personal AI workflow",
@@ -66,7 +76,7 @@ export const profile = {
       /** Private: never link it. The image is a recreation with made-up courses and dates. */
       private: true,
       note: "Personal tool, private. The image recreates it with sample data.",
-      images: [
+      images: <ProjectImage[]>[
         {
           src: "/projects/personal-ai-workflow-sample.png",
           /** Same sample data, animated. Shown only when the visitor allows motion. */
@@ -83,7 +93,7 @@ export const profile = {
       /** Private: it holds my real schedule. Never link it. The image is a recreation with made-up tasks. */
       private: true,
       note: "Personal tool, private. The image recreates it with sample data.",
-      images: [
+      images: <ProjectImage[]>[
         {
           src: "/projects/second-brain-sample.png",
           /** Same sample data, animated. Shown only when the visitor allows motion. */

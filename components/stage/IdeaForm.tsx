@@ -21,6 +21,8 @@ export default function IdeaForm({ onSubmit, busy, activeExample, liveAvailable 
   const [valueType, setValueType] = useState<ValueType>("date");
   const [required, setRequired] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // A live run spends real money and opens a public pull request, so the first press asks and the second runs.
+  const [confirming, setConfirming] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
 
   const kindInfo = KINDS.find((k) => k.id === kind)!;
@@ -47,13 +49,25 @@ export default function IdeaForm({ onSubmit, busy, activeExample, liveAvailable 
           return;
         }
         setError(null);
+        if (liveAvailable && !confirming) {
+          setConfirming(true);
+          return;
+        }
+        setConfirming(false);
         onSubmit(buildRequest(checked.spec), checked.spec);
       }}
     >
       <div className="idea-fields">
         <label className="idea-field">
           What to add
-          <select value={kind} onChange={(e) => setKind(e.target.value as Kind)} disabled={busy}>
+          <select
+            value={kind}
+            onChange={(e) => {
+              setKind(e.target.value as Kind);
+              setConfirming(false);
+            }}
+            disabled={busy}
+          >
             {KINDS.map((k) => (
               <option key={k.id} value={k.id}>
                 {k.label}
@@ -74,6 +88,7 @@ export default function IdeaForm({ onSubmit, busy, activeExample, liveAvailable 
             onChange={(e) => {
               setName(e.target.value);
               setError(null);
+              setConfirming(false);
             }}
             placeholder={`For example, ${kindInfo.example}`}
             disabled={busy}
@@ -83,7 +98,14 @@ export default function IdeaForm({ onSubmit, busy, activeExample, liveAvailable 
           <>
             <label className="idea-field">
               Type
-              <select value={valueType} onChange={(e) => setValueType(e.target.value as ValueType)} disabled={busy}>
+              <select
+                value={valueType}
+                onChange={(e) => {
+                  setValueType(e.target.value as ValueType);
+                  setConfirming(false);
+                }}
+                disabled={busy}
+              >
                 {VALUE_TYPES.map((v) => (
                   <option key={v} value={v}>
                     {v}
@@ -92,18 +114,27 @@ export default function IdeaForm({ onSubmit, busy, activeExample, liveAvailable 
               </select>
             </label>
             <label className="idea-check">
-              <input type="checkbox" checked={required} onChange={(e) => setRequired(e.target.checked)} disabled={busy} />
+              <input type="checkbox" checked={required} onChange={(e) => {
+                  setRequired(e.target.checked);
+                  setConfirming(false);
+                }}
+                disabled={busy}
+              />
               Required
             </label>
           </>
         )}
         <button className="run" type="submit" disabled={busy}>
-          {busy ? "Running…" : "Run"}
+          {busy ? "Running…" : confirming ? "Run live" : "Run"}
         </button>
       </div>
       <p id="idea-preview" className="idea-preview" aria-live="polite">
         {error ? (
           <span className="idea-error">{error}</span>
+        ) : confirming ? (
+          <span className="idea-confirm">
+            This calls real Claude models and opens a public draft pull request with your request. Press Run live to start.
+          </span>
         ) : preview ? (
           `The agents will get: ${preview}`
         ) : (

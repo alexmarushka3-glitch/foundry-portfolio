@@ -59,4 +59,11 @@ describe("Home page", () => {
       expect(container.querySelector(`#${id}`), `section #${id}`).toBeTruthy();
     }
   });
+
+  it("repeats the contact links in the footer", () => {
+    const { container } = render(<Home />);
+    const footer = container.querySelector("footer")!;
+    expect(footer.querySelector(`a[href='mailto:${profile.email}']`)).toBeTruthy();
+    expect(footer.querySelector("a[href='/Alex-Marushka-Resume.pdf']")).toBeTruthy();
+  });
 });

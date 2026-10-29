@@ -22,19 +22,24 @@ export default function EvalCard({ runs }: { runs: EvalRun[] }) {
         not finish, for example because of an API error, are not counted.
       </p>
       {notClean.length > 0 && (
-        <ul>
-          {notClean.map((r, i) => (
-            <li key={`${r.request ?? "run"}-${i}`}>
-              {r.request ?? "A request"} (
-              {r.approved
-                ? "approved after a second round"
-                : r.rounds > 1
-                  ? "not approved after a second round"
-                  : "not approved: the first round failed and the run hit its time limit before a second round"}
-              )
-            </li>
-          ))}
-        </ul>
+        <details className="eval-more">
+          <summary>
+            Which {notClean.length === 1 ? "run was" : `${notClean.length} runs were`} sent back or not approved
+          </summary>
+          <ul>
+            {notClean.map((r, i) => (
+              <li key={`${r.request ?? "run"}-${i}`}>
+                {r.request ?? "A request"} (
+                {r.approved
+                  ? "approved after a second round"
+                  : r.rounds > 1
+                    ? "not approved after a second round"
+                    : "not approved: the first round failed and the run hit its time limit before a second round"}
+                )
+              </li>
+            ))}
+          </ul>
+        </details>
       )}
       <p>
         On average a run cost ${s.avgCostUsd?.toFixed(2)} and took {Math.round((s.avgMs ?? 0) / 1000)} s, counting runs that were not approved. The
