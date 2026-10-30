@@ -6,6 +6,7 @@ import type { FeatureSpec } from "@/lib/spec";
 import OutputPanel from "./stage/OutputPanel";
 import PlayerControls from "./stage/PlayerControls";
 import EvidenceCard from "./stage/EvidenceCard";
+import AppPreview from "./stage/AppPreview";
 import { runEvidence } from "@/lib/evidence";
 import { useLiveAvailability, useMediaQuery, useOnceInView, usePlayback } from "./stage/hooks";
 import { useLiveRun } from "./stage/useLiveRun";
@@ -232,6 +233,7 @@ export default function Stage() {
             </div>
           )}
           {evidence && <EvidenceCard evidence={evidence} prNumber={run.pr?.number} />}
+          {run.files && run.approved && <AppPreview files={run.files} />}
         </div>
       )}
     </section>

@@ -53,11 +53,12 @@ Rule of thumb: `lib/` files marked "browser safe" import nothing from `lib/serve
    
    The order is fixed: researcher, story, PM, then up to two rounds of (backend and frontend in parallel, E2E verifier, validator), then release. If E2E fails, or the validator says REVISE, round two starts with that feedback. Verdicts are read by `verdicts.ts`.
 4. Back in the browser, `useLiveRun` feeds each line to `applyEvent` (batched to one render per frame). When `finish` arrives, `toRun` makes a scrubbable `Run`, and the same player used for replays takes over.
+   A live run that passed both checks also sends a `files` event (the changed files) just before `finish`. The finished run then shows `components/stage/AppPreview.tsx`: "Download the code" zips the sample repo plus those files in the browser (`lib/zip.ts`), and "Try the app" opens `public/preview/frame.html` in a sandboxed iframe. `public/preview/runner.js` loads the app's real `src/*.js` as blob modules with stand-ins for Express, `node:sqlite` (on sql.js, vendored in `public/vendor/`), `node:url` and `node:path`, starts `src/server.js`, routes the page's `fetch` calls to it, and shows `public/index.html`. The frame's own CSP (`previewHeaders` in `lib/securityHeaders.ts`) allows no network.
 5. When the response ends, the route adds the finished record to `RunLog` (status `cancelled` if the visitor left first).
 
 ### The event stream
 
-`FoundryEvent` in `lib/types.ts` is the contract between server and page: `mode`, `start`, `token`, `done`, `usage`, `verdict`, `finish`, `error`. Add a field there first and TypeScript will point at every place that needs updating.
+`FoundryEvent` in `lib/types.ts` is the contract between server and page: `mode`, `start`, `token`, `tool`, `shot`, `done`, `usage`, `verdict`, `pr`, `files`, `finish`, `error`. Add a field there first and TypeScript will point at every place that needs updating.
 
 ### Cancellation and spending
 

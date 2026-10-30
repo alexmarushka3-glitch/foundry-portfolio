@@ -4,7 +4,7 @@ import { POST as actions } from "@/app/api/admin/actions/route";
 import { POST as login } from "@/app/api/admin/login/route";
 import { ADMIN_SESSION_SECONDS, blockCrossSite, sessionValid, sessionValue } from "@/lib/server/adminAuth";
 import { MAX_BODY_BYTES, readJsonBody } from "@/lib/server/runApi";
-import { CONTENT_SECURITY_POLICY, securityHeaders } from "@/lib/securityHeaders";
+import { CONTENT_SECURITY_POLICY, PREVIEW_CONTENT_SECURITY_POLICY, previewHeaders, securityHeaders } from "@/lib/securityHeaders";
 
 const TOKEN = "correct horse battery staple";
 beforeEach(() => {
@@ -117,5 +117,15 @@ describe("security headers", () => {
   it("leaves the policy out in development, where Next needs eval and websockets", () => {
     expect(map(true)["Content-Security-Policy"]).toBeUndefined();
     expect(map(true)["X-Content-Type-Options"]).toBe("nosniff");
+  });
+
+  it("lets the app preview frame run the app's code and SQLite, but reach no network and be framed only by this site", () => {
+    expect(PREVIEW_CONTENT_SECURITY_POLICY).toContain("default-src 'none'");
+    expect(PREVIEW_CONTENT_SECURITY_POLICY).toContain("connect-src 'none'");
+    expect(PREVIEW_CONTENT_SECURITY_POLICY).toContain("frame-ancestors 'self'");
+    expect(PREVIEW_CONTENT_SECURITY_POLICY).toContain("'wasm-unsafe-eval'");
+    expect(PREVIEW_CONTENT_SECURITY_POLICY).not.toMatch(/'unsafe-eval'|https?:\/\/|\*/);
+    const h = Object.fromEntries(previewHeaders().map((x) => [x.key, x.value]));
+    expect(h["X-Frame-Options"]).toBe("SAMEORIGIN");
   });
 });

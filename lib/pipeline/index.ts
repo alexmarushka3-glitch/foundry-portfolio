@@ -186,5 +186,7 @@ export async function runPipeline(request: string, emit: Emit, opts: RunOptions 
   } else if (github && !approved) {
     emit({ type: "tool", agent: "release", round: roundsRun, label: "no pull request opened: the run did not pass both checks", ok: false });
   }
+  // The finished app's changed files, so the visitor can try it and download it. Only real, approved work.
+  if (live && approved && Object.keys(workspace.changes()).length > 0) emit({ type: "files", files: workspace.changes() });
   emit({ type: "finish", ms: Date.now() - t0, rounds: roundsRun, approved, costUsd: live ? ctx.spend.usd : undefined });
 }

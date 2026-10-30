@@ -284,6 +284,17 @@ describe("opening the pull request", () => {
     expect(events.findIndex((e) => e.type === "pr")).toBeLessThan(events.findIndex((e) => e.type === "finish"));
   });
 
+  it("hands the page the approved app's changed files, before the finish", async () => {
+    const events = await runWith(undefined);
+    expect(events.find((e) => e.type === "files")).toEqual({ type: "files", files: { "src/db.js": "// new\n" } });
+    expect(events.findIndex((e) => e.type === "files")).toBeLessThan(events.findIndex((e) => e.type === "finish"));
+  });
+
+  it("hands over no files when the run was not approved", async () => {
+    const events = await runWith(undefined, false);
+    expect(events.some((e) => e.type === "files")).toBe(false);
+  });
+
   it("opens nothing when the run did not pass both checks", async () => {
     const github = { openPullRequest: vi.fn(), closeStale: vi.fn() };
     const events = await runWith(github, false);

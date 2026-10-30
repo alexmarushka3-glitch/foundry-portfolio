@@ -55,6 +55,13 @@ describe("toRun", () => {
     expect(toRun(errored, 100)).toBeNull();
   });
 
+  it("carries an approved run's files onto the run", () => {
+    const files = { "src/db.js": "x" };
+    const run = toRun(play([...finished.slice(0, -1), [{ type: "files", files }, 58], finished.at(-1)!]), 100)!;
+    expect(run.files).toEqual(files);
+    expect(toRun(play(finished), 100)!.files).toBeUndefined();
+  });
+
   it("hides the cost of a simulation", () => {
     const sim = play([[{ type: "mode", mode: "simulated" }, 0], ...finished.slice(1)]);
     expect(toRun(sim, 100)!.costUsd).toBeUndefined();

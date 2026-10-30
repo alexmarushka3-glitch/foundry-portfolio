@@ -106,6 +106,29 @@ describe("Stage", () => {
     expect(screen.getByLabelText("Scrub through the run")).toBeTruthy();
   });
 
+  it("offers the finished app (try it, download it) after an approved live run, and not after a simulation", async () => {
+    mockApi(() =>
+      ndjson([
+        { type: "mode", mode: "live" },
+        { type: "start", agent: "researcher", round: 1, model: "m" },
+        { type: "done", agent: "researcher", round: 1, ms: 20 },
+        { type: "files", files: { "src/db.js": "// changed" } },
+        { type: "finish", ms: 100, rounds: 1, approved: true },
+      ]),
+    );
+    render(<Stage />);
+    typeIdea("nickname");
+    expect(await screen.findByRole("button", { name: "Try the app" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Download the code (.zip)" })).toBeTruthy();
+    cleanup();
+
+    mockApi(() => ndjson(simulatedRun));
+    render(<Stage />);
+    typeIdea("nickname");
+    expect(await screen.findByText(/This was scripted text/)).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Try the app" })).toBeNull();
+  });
+
   it("shows the server's error and lets the visitor try again (the Run button must not stay stuck)", async () => {
     mockApi(() => ndjson([{ type: "mode", mode: "live" }, { type: "error", message: "The run stopped before it finished." }]));
     render(<Stage />);

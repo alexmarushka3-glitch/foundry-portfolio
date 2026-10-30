@@ -32,3 +32,27 @@ export function securityHeaders(dev: boolean): Header[] {
     { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
   ];
 }
+
+/**
+ * The frame that runs the finished sample app (public/preview/). The page frames it (sandboxed, so it has no access to
+ * the site). Its scripts are the app's own files as blob: modules, and SQLite needs WebAssembly. It may connect nowhere.
+ */
+export const PREVIEW_CONTENT_SECURITY_POLICY = [
+  "default-src 'none'",
+  "script-src 'self' blob: 'unsafe-inline' 'wasm-unsafe-eval'",
+  "style-src 'unsafe-inline'",
+  "img-src data: blob:",
+  "connect-src 'none'",
+  "base-uri 'none'",
+  "form-action 'none'",
+  "frame-ancestors 'self'",
+].join("; ");
+
+export function previewHeaders(): Header[] {
+  return [
+    { key: "Content-Security-Policy", value: PREVIEW_CONTENT_SECURITY_POLICY },
+    { key: "X-Content-Type-Options", value: "nosniff" },
+    { key: "X-Frame-Options", value: "SAMEORIGIN" },
+    { key: "Referrer-Policy", value: "no-referrer" },
+  ];
+}
