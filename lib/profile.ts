@@ -9,12 +9,12 @@ export const profile = {
   /** The big title at the top of the page. */
   headline: "Foundry",
   /** The one line under the title: what it does, in plain verbs. */
-  tagline: "I built eight AI agents that plan, build, test and write up a code change.",
+  tagline: "A demo: eight AI agents work as a team to add a feature to an app.",
   /** The paragraph under it. Keep it honest: a draft pull request checked by other agents, on a small sample app. */
   intro:
-    "Foundry is a pipeline of eight AI agents. Choose a change to a small task-tracker app. A live run can end in a draft pull request, checked by other agents and by real tests.",
+    "Pick an example and watch them plan, build and test a change to a small task-tracker app (a practice to-do list) in about a minute. A live run ends in a draft pull request, a proposed code change, checked by other agents and by real tests.",
   /** Who does what, shown as the caption under the pipeline drawing. */
-  how: "One agent reads the code and two plan the change. Two build it side by side. Two check the result: one with a real browser test, one by auditing the files and the test results. They can send it back. The last agent writes up the pull request.",
+  how: "One agent reads the code, two plan, two build, two check the work (and can send it back), and one writes it up.",
   /** The one-line version, used for the page description in search results and link previews. */
   title: "Student at the University of Chicago",
   pitch:
@@ -27,7 +27,7 @@ export const profile = {
   ],
   about: [
     "I'm a student at the University of Chicago. I wanted to find out how much of software work a team of AI agents can take on, and how you tell whether the result is any good. Foundry is where I've gotten so far.",
-    "I built it with Claude Code. One agent reads the code. Two more write the story and the plan, two build in parallel, and two check the result before a pull request is written. It is still rough. The sample app is small, and the three examples are replays of real live runs, each recorded once, with no pull request opened. In a live run, the verifier writes a test that a real headless browser runs. If the browser can't start, the run says so.",
+    "I built it with Claude Code. It is a demo, not a product: the app the agents change is a small practice one, and the three examples are recordings of real runs.",
     "I'm recruiting for consulting and tech roles. I like projects where I can say what the thing does, how well it works and what it costs.",
   ],
   /** "What building it taught me": each item is a decision made in the code, stated as it is. Keep it factual. */
@@ -53,7 +53,7 @@ export const profile = {
     {
       name: "Foundry: multi-agent software factory",
       blurb:
-        "Eight agents turn a specific request into a draft pull request, checked by other agents and by real tests. They are a read-only researcher, a story writer, a project manager, backend and frontend engineers who work in parallel, an end-to-end verifier, a validator and a release agent. On this page you can watch it work. The three examples replay real live runs, sped up. A request built in the form runs live on Claude models when live mode is on, and ends in a real draft pull request on a sample repo. No human reviews that pull request.",
+        "Eight AI agents turn a small request into a draft pull request, checked by other agents and by real tests. The examples replay real runs, sped up. A request you build runs live and opens a real draft pull request on a sample app. No human reviews it.",
       tags: ["Claude API", "TypeScript", "Next.js", "Streaming", "Multi-agent"],
       links: [
         { label: "View the code", href: "https://github.com/alexmarushka3-glitch/foundry-portfolio" },

@@ -14,8 +14,9 @@ export const REALITY: { tone: RealityTone; heading: string; items: string[]; sho
       "The sample app's own tests run on those files in an isolated sandbox with no network. If they fail, the work goes back for another round, whatever the agents say about it.",
       "The E2E Verifier writes a Playwright test and a headless Chromium runs it against the app in the sandbox. The browser's result decides the gate, and its screenshots appear in the verifier's panel. If the browser can't start, the panel says so and the verifier reads the code instead.",
       "A live run that passes both checks opens a draft pull request on the public taskly-sample repository. These drafts are closed automatically after about a day.",
+      "After a live run that passes both checks, and in the three examples, you can try the finished to-do app on the page and download its code as a .zip. The app runs in a sealed frame in your browser, offline, with an empty list that isn't saved.",
       "Requests built in the form run on live Claude models while live mode is on. The badge on the stage always shows which mode ran.",
-      "The three examples replay real live runs, played back faster than they ran. Each request was recorded once and kept as it came out. Each includes the sample app's real unit tests and a real headless Chromium test in the sandbox, with screenshots from that browser. All three passed both of the pipeline's checks in the first round, in 67 to 75 seconds, for $0.19 to $0.22.",
+      "The three examples replay real live runs, played back faster than they ran. They were recorded again on Oct 30, 2026 so they include the finished app, one run per request, each kept as it came out. Each includes the sample app's real unit tests and a real headless Chromium test in the sandbox, with screenshots from that browser. All three passed both of the pipeline's checks in the first round, in 67 to 125 seconds, for $0.19 to $0.28. In the estimate field run the browser test failed once, and the verifier's second try passed within that round.",
     ],
     short: [
       "Eight Claude agents, each building on the previous agent's real output.",
@@ -23,8 +24,9 @@ export const REALITY: { tone: RealityTone; heading: string; items: string[]; sho
       "The sample app's own tests run in an isolated sandbox, and a failure sends the work back.",
       "A real headless browser runs a test the E2E Verifier writes, and its result decides the gate.",
       "A live run that passes both checks opens a draft pull request on taskly-sample.",
+      "After an approved live run, and in the examples, you can try the finished app and download its code.",
       "Requests built in the form run live while live mode is on, and a badge shows which mode ran.",
-      "The three examples replay real live runs: 67 to 75 seconds, $0.19 to $0.22, approved in round one.",
+      "The three examples replay real live runs: 67 to 125 seconds, $0.19 to $0.28, approved in round one.",
     ],
   },
   {
@@ -45,6 +47,7 @@ export const REALITY: { tone: RealityTone; heading: string; items: string[]; sho
     items: [
       "The simulation never runs any code. In a live run, and so in the recordings of live runs, the sample app starts only inside the sandbox, for its tests and one browser test.",
       "In the simulation, the E2E Verifier is an agent reasoning through user flows. It does not drive a browser.",
+      "The app you try on the page runs its real server code in your browser, on small stand-ins for Express and for SQLite (sql.js, SQLite compiled to WebAssembly). It is close to running it with Node, not identical. A simulation has no app to try.",
       "The sample app is a real repository, but a small one, about 240 lines. The results say little about large codebases.",
       "None of the three recordings includes a send-back round. All three were approved in round one. Live runs are sometimes sent back, and the simulation always shows a send-back.",
       "No human reviews the pull requests, and the recordings and the simulation open none. Three recorded runs make a demo, not a success rate.",
@@ -53,6 +56,7 @@ export const REALITY: { tone: RealityTone; heading: string; items: string[]; sho
     short: [
       "The simulation never runs any code.",
       "In the simulation, the E2E Verifier is an agent reasoning through flows, not a browser.",
+      "The app you try on the page runs on stand-ins for Express and SQLite, so it can differ slightly from Node.",
       "The sample app is small, about 240 lines.",
       "None of the three recordings includes a send-back round.",
       "No human reviews the pull requests, and three recorded runs are a demo, not a success rate.",

@@ -6,6 +6,7 @@ import type { FeatureSpec } from "@/lib/spec";
 import OutputPanel from "./stage/OutputPanel";
 import PlayerControls from "./stage/PlayerControls";
 import EvidenceCard from "./stage/EvidenceCard";
+import AppPreview from "./stage/AppPreview";
 import { runEvidence } from "@/lib/evidence";
 import { useLiveAvailability, useMediaQuery, useOnceInView, usePlayback } from "./stage/hooks";
 import { useLiveRun } from "./stage/useLiveRun";
@@ -36,7 +37,7 @@ const MODE_COPY: Record<Mode, { label: string; detail: string }> = {
 const LIVE_REPLAY_COPY = {
   label: "Replay of a real live run",
   detail:
-    "Genuine output of a live run on Claude models, with the sample app's real tests and a real browser test in a sandbox, played back faster than it ran. This recording opened no pull request.",
+    "A recording of a real run, sped up: real AI output, real tests and a real browser test. This recording opened no pull request.",
 };
 
 /**
@@ -153,7 +154,7 @@ export default function Stage() {
   return (
     <section ref={sectionRef} className="stage" id="demo" aria-labelledby="stage-title">
       <div className="stage-head">
-        <h2 id="stage-title">Watch eight agents build a feature</h2>
+        <h2 id="stage-title">Try the demo</h2>
         {modeCopy && (
           <p className={`badge ${mode}`} role="status">
             <span className="dot" aria-hidden="true" />
@@ -232,6 +233,7 @@ export default function Stage() {
             </div>
           )}
           {evidence && <EvidenceCard evidence={evidence} prNumber={run.pr?.number} />}
+          {run.files && run.approved && <AppPreview files={run.files} />}
         </div>
       )}
     </section>

@@ -13,6 +13,8 @@ export type LiveState = {
   steps: LiveStep[];
   costUsd: number;
   pr?: { url: string; number: number };
+  /** The approved run's changed files, path -> content. */
+  files?: Record<string, string>;
   /** Set when the server sent its closing "finish" event. */
   result?: { approved: boolean; rounds: number; realMs: number };
   /** Set when the server sent an "error" event. */
@@ -62,6 +64,8 @@ export function applyEvent(state: LiveState, e: FoundryEvent, at: number): LiveS
       return { ...state, steps: state.steps.map((s) => (sameStep(s, e.gate, e.round) ? { ...s, passed: e.approved } : s)) };
     case "pr":
       return { ...state, pr: { url: e.url, number: e.number } };
+    case "files":
+      return { ...state, files: e.files };
     case "finish":
       return { ...state, result: { approved: e.approved, rounds: e.rounds, realMs: e.ms } };
     case "error":
@@ -96,5 +100,6 @@ export function toRun(state: LiveState, now: number): Run | null {
     realMs: state.result.realMs,
     costUsd: mode === "live" ? state.costUsd : undefined,
     pr: state.pr,
+    files: state.files,
   };
 }

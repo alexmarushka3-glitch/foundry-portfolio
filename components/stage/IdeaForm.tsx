@@ -33,8 +33,8 @@ export default function IdeaForm({ onSubmit, busy, activeExample, liveAvailable 
     liveAvailable === null
       ? ""
       : liveAvailable
-        ? "The examples replay real live runs. Anything you build here runs live on real Claude models. A live run that passes both checks opens a public draft pull request that includes your request."
-        : "The examples replay real live runs. Anything you build here runs a labelled simulation.";
+        ? "The examples are recordings of real runs. Anything you build here runs live on real AI models, and if it passes, it posts a public draft pull request with your request."
+        : "The examples are recordings of real runs. Anything you build here runs a labelled simulation.";
 
   return (
     <form

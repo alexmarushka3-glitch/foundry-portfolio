@@ -90,7 +90,7 @@ describe("Stage", () => {
   it("lists the examples as replays of real live runs", async () => {
     mockApi(() => ndjson([]));
     render(<Stage />);
-    expect(await screen.findByText(/The examples replay real live runs/)).toBeTruthy();
+    expect(await screen.findByText(/The examples are recordings of real runs/)).toBeTruthy();
   });
 
   it("sends a typed idea to the server, labels it Simulated, and ends with a plain summary", async () => {
@@ -104,6 +104,29 @@ describe("Stage", () => {
     expect(JSON.parse(String(post[1]!.body))).toEqual({ spec: { kind: "field", name: "nickname", valueType: "date", required: false } });
     // the finished run can be scrubbed
     expect(screen.getByLabelText("Scrub through the run")).toBeTruthy();
+  });
+
+  it("offers the finished app (try it, download it) after an approved live run, and not after a simulation", async () => {
+    mockApi(() =>
+      ndjson([
+        { type: "mode", mode: "live" },
+        { type: "start", agent: "researcher", round: 1, model: "m" },
+        { type: "done", agent: "researcher", round: 1, ms: 20 },
+        { type: "files", files: { "src/db.js": "// changed" } },
+        { type: "finish", ms: 100, rounds: 1, approved: true },
+      ]),
+    );
+    render(<Stage />);
+    typeIdea("nickname");
+    expect(await screen.findByRole("button", { name: "Try the app" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Download the code (.zip)" })).toBeTruthy();
+    cleanup();
+
+    mockApi(() => ndjson(simulatedRun));
+    render(<Stage />);
+    typeIdea("nickname");
+    expect(await screen.findByText(/This was scripted text/)).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Try the app" })).toBeNull();
   });
 
   it("shows the server's error and lets the visitor try again (the Run button must not stay stuck)", async () => {
@@ -162,7 +185,7 @@ describe("the request form", () => {
     vi.stubGlobal("fetch", fetchMock);
     const posts = () => fetchMock.mock.calls.filter(([, init]) => init?.method === "POST").length;
     render(<Stage />);
-    expect(await screen.findByText(/runs live on real Claude models/)).toBeTruthy();
+    expect(await screen.findByText(/runs live on real AI models/)).toBeTruthy();
 
     typeIdea("nickname");
     expect(screen.getByText(/opens a public draft pull request with your request/)).toBeTruthy();

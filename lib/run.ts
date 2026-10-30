@@ -36,6 +36,8 @@ export type Run = {
   costUsd?: number;
   /** The real draft pull request a live run opened, when it did. */
   pr?: { url: string; number: number };
+  /** The changed files of an approved live run (or a replay of one), path -> content. */
+  files?: Record<string, string>;
   /** Set on a replay of a recorded live run (real model output, played back faster). */
   source?: "live-run";
 };

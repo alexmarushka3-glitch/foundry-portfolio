@@ -42,7 +42,7 @@ Undecided: a custom domain; a measured success rate; whether to keep the run log
 Name: Foundry. Mark: the F with an amber dot (components/Logo.tsx, app/icon.svg). Written voice is short and plain.
 
 ## Evidence on Hand
-- Three recordings of real live runs (recordings-src/live/), one per request, each recorded once and kept as it came out. All approved by the pipeline's checks on round 1, 67 to 75 seconds, $0.19 to $0.22 each. They ran the real unit tests and the real headless Chromium test in a sandbox. No pull request was opened and no human reviewed them.
+- Three recordings of real live runs (recordings-src/live/), one per request, recorded again on Oct 30, 2026 (so they include the finished app's files) and kept as they came out. All approved by the pipeline's checks on round 1, 67 to 125 seconds, $0.19 to $0.28 each. They ran the real unit tests and the real headless Chromium test in a sandbox. No pull request was opened and no human reviewed them.
 - Several live runs on the deployed site, including draft pull requests on taskly-sample (for example #5). Some runs were sent back or not approved.
 - No testimonials, customers, benchmarks or success rate exist. Do not invent any. No human reviews the pull requests.
 
