@@ -39,7 +39,7 @@ describe("page copy", () => {
     expect(copy).not.toMatch(/older text-only/i);
     expect(working).toMatch(/real live runs/i);
     expect(working).toMatch(/faster than they ran/i);
-    expect(working).toMatch(/recorded once/i);
+    expect(working).toMatch(/one run per request, each kept as it came out/i);
     expect(profile.pitch).not.toMatch(/earlier version/i);
   });
 

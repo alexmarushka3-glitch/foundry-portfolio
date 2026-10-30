@@ -208,7 +208,7 @@ export default function AdminView({ admin, sample = false, embedded = false, aut
           {!embedded && (
             <section className="card" aria-labelledby="recorded-title">
               <h2 id="recorded-title">Recorded examples</h2>
-              <p className="muted">The three real live runs the site replays, each recorded once. They are fixed, so replaying them costs nothing.</p>
+              <p className="muted">The three real live runs the site replays, each kept as it came out. They are fixed, so replaying them costs nothing.</p>
               <div className="table-wrap" tabIndex={0} role="region" aria-label="Recorded examples">
                 <table className="runs">
                   <thead>
