@@ -90,7 +90,7 @@ describe("Stage", () => {
   it("lists the examples as replays of real live runs", async () => {
     mockApi(() => ndjson([]));
     render(<Stage />);
-    expect(await screen.findByText(/The examples replay real live runs/)).toBeTruthy();
+    expect(await screen.findByText(/The examples are recordings of real runs/)).toBeTruthy();
   });
 
   it("sends a typed idea to the server, labels it Simulated, and ends with a plain summary", async () => {
@@ -162,7 +162,7 @@ describe("the request form", () => {
     vi.stubGlobal("fetch", fetchMock);
     const posts = () => fetchMock.mock.calls.filter(([, init]) => init?.method === "POST").length;
     render(<Stage />);
-    expect(await screen.findByText(/runs live on real Claude models/)).toBeTruthy();
+    expect(await screen.findByText(/runs live on real AI models/)).toBeTruthy();
 
     typeIdea("nickname");
     expect(screen.getByText(/opens a public draft pull request with your request/)).toBeTruthy();
