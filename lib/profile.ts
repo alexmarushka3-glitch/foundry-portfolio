@@ -1,8 +1,5 @@
 // Single source of truth for the portfolio copy. Edit this file to update the site.
 
-/** A project picture. `animated` plays only when the visitor allows motion; the size defaults to 1800 by 990. */
-type ProjectImage = { src: string; alt: string; animated?: string; width?: number; height?: number };
-
 export const profile = {
   siteUrl: "https://alexmarushka.vercel.app",
   name: "Alex Marushka",
@@ -47,60 +44,6 @@ export const profile = {
     {
       title: "Settings can fail a run quietly",
       body: "In my first live tests the answers were cut off at the output limit and the browser step failed. I raised the limits and loosened that prompt. The models also need thinking switched off and effort set low, or the thinking uses up the short output limit.",
-    },
-  ],
-  projects: [
-    {
-      name: "Foundry: multi-agent software factory",
-      blurb:
-        "Eight AI agents turn a small request into a draft pull request, checked by other agents and by real tests. The examples replay real runs, sped up. A request you build runs live and opens a real draft pull request on a sample app. No human reviews it.",
-      tags: ["Claude API", "TypeScript", "Next.js", "Streaming", "Multi-agent"],
-      links: [
-        { label: "View the code", href: "https://github.com/alexmarushka3-glitch/foundry-portfolio" },
-        { label: "Sample app the agents change", href: "https://github.com/alexmarushka3-glitch/taskly-sample" },
-        { label: "A real draft pull request from a live run (#8)", href: "https://github.com/alexmarushka3-glitch/taskly-sample/pull/8" },
-      ],
-      note: "The demo on this page at the end of a replay of a recorded live run (the estimate field example).",
-      images: <ProjectImage[]>[
-        {
-          src: "/projects/foundry-replay.png",
-          alt: "The Foundry demo after a replay of a recorded live run: all eight agents checked off, passed both checks in one round, 8 unit tests and 2 browser tests passed, and a picture from the real browser of the new estimate field.",
-        },
-      ],
-    },
-    {
-      name: "Personal AI workflow",
-      blurb:
-        "Custom Claude Code skills I wrote for my own use: a Canvas deadline checker, a writing chain that drafts in my voice and then runs cleanup passes, a LinkedIn networking tracker, a skill bus that passes one skill's output to the next, and a skill publisher that syncs my skills to claude.ai.",
-      tags: ["Claude Code", "Skills", "Automation"],
-      /** Private: never link it. The image is a recreation with made-up courses and dates. */
-      private: true,
-      note: "Personal tool, private. The image recreates it with sample data.",
-      images: <ProjectImage[]>[
-        {
-          src: "/projects/personal-ai-workflow-sample.png",
-          /** Same sample data, animated. Shown only when the visitor allows motion. */
-          animated: "/projects/personal-ai-workflow-sample.gif",
-          alt: "A Claude Code session with sample data: the Canvas checker lists five made-up assignments due in the next two weeks and one missing one, then a tutor skill turns the calculus dates into a three-day study plan.",
-        },
-      ],
-    },
-    {
-      name: "Second Brain",
-      blurb:
-        "One Claude doc that holds my projects, tasks, schedule and docs, plus an Obsidian vault for notes. A daily check refreshes the doc from Canvas, Google Calendar and Google Drive, and any Claude session can read or update it.",
-      tags: ["Obsidian", "Claude Docs", "Workflow design"],
-      /** Private: it holds my real schedule. Never link it. The image is a recreation with made-up tasks. */
-      private: true,
-      note: "Personal tool, private. The image recreates it with sample data.",
-      images: <ProjectImage[]>[
-        {
-          src: "/projects/second-brain-sample.png",
-          /** Same sample data, animated. Shown only when the visitor allows motion. */
-          animated: "/projects/second-brain-sample.gif",
-          alt: "The Second Brain doc with sample data: a task table with made-up classes, due dates and statuses, a projects table, and a this-week list.",
-        },
-      ],
     },
   ],
 };

@@ -25,7 +25,6 @@ export default function Home() {
         <nav aria-label="Sections">
           <a href="#demo">Demo</a>
           <a href="#reality">Scope</a>
-          <a href="#projects">Projects</a>
           <a href="#about">About</a>
         </nav>
         <a className="nav-resume" href="/Alex-Marushka-Resume.pdf" target="_blank" rel="noreferrer">
@@ -98,41 +97,6 @@ export default function Home() {
             runs. <strong>The numbers below are made up</strong> to show the layout. They are not real usage. The real one is behind a login.
           </p>
           <DashboardSection />
-        </section>
-
-        <section id="projects" className="section" aria-labelledby="projects-title">
-          <h2 id="projects-title">Projects</h2>
-          <ul className="projects">
-            {profile.projects.map((p) => (
-              <li key={p.name}>
-                <h3>{p.name}</h3>
-                <p>{p.blurb}</p>
-                {p.links && (
-                  <p className="project-links">
-                    {p.links.map((l) => (
-                      <a key={l.href} href={l.href} target="_blank" rel="noreferrer">
-                        {l.label}
-                      </a>
-                    ))}
-                  </p>
-                )}
-                <p className="tags">{p.tags.join(", ")}</p>
-                {p.images && (
-                  <figure className="project-shots">
-                    {p.images.map((img) => (
-                      <a key={img.src} href={img.src} target="_blank" rel="noreferrer">
-                        <picture>
-                          {img.animated && <source media="(prefers-reduced-motion: no-preference)" srcSet={img.animated} />}
-                          <img src={img.src} alt={img.alt} width={img.width ?? 1800} height={img.height ?? 990} loading="lazy" />
-                        </picture>
-                      </a>
-                    ))}
-                    {p.note && <figcaption>{p.note}</figcaption>}
-                  </figure>
-                )}
-              </li>
-            ))}
-          </ul>
         </section>
 
         <section id="lessons" className="section" aria-labelledby="lessons-title">

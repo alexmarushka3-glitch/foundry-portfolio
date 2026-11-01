@@ -5,7 +5,7 @@ import { REALITY } from "@/lib/reality";
 // The site's honesty rules (CLAUDE.md), enforced on the page copy so a rewrite can't quietly break them.
 
 const allCopy = () =>
-  [profile.headline, profile.tagline, profile.intro, profile.how, profile.pitch, ...profile.about, ...profile.lessons.flatMap((l) => [l.title, l.body]), ...profile.projects.flatMap((p) => [p.name, p.blurb]), ...REALITY.flatMap((c) => c.items)].join("\n");
+  [profile.headline, profile.tagline, profile.intro, profile.how, profile.pitch, ...profile.about, ...profile.lessons.flatMap((l) => [l.title, l.body]), ...REALITY.flatMap((c) => c.items)].join("\n");
 
 describe("page copy", () => {
   it("never calls the output a reviewed pull request, or says anything passed review", () => {
@@ -71,18 +71,4 @@ describe("page copy", () => {
     expect(profile.siteUrl).toMatch(/^https:\/\//);
   });
 
-  it("keeps the private projects unlinked and says their images use sample data", () => {
-    const priv = profile.projects.filter((p) => "private" in p && p.private);
-    expect(priv.length).toBe(2);
-    for (const p of priv) {
-      expect("links" in p && p.links).toBeFalsy();
-      expect(p.note).toMatch(/private/i);
-      expect(p.note).toMatch(/sample data/i);
-      expect(JSON.stringify(p)).not.toMatch(/claude\.ai\/artifact|docs\.google|drive\.google|canvas\.uchicago/i);
-      for (const img of p.images ?? []) {
-        expect(img.alt).toMatch(/sample data/i);
-        if (img.animated) expect(img.animated).toMatch(/-sample\.gif$/);
-      }
-    }
-  });
 });
