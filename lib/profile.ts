@@ -6,16 +6,15 @@ export const profile = {
   /** The big title at the top of the page. */
   headline: "Foundry",
   /** The one line under the title: what it does, in plain verbs. */
-  tagline: "A demo: eight AI agents work as a team to add a feature to an app.",
-  /** The paragraph under it. Keep it honest: a draft pull request checked by other agents, on a small sample app. */
+  tagline: "Describe a small app. Eight AI agents build it, test it, and hand it to you.",
+  /** The paragraph under it. Keep it honest: small one-page apps, checked by real tests, no human review. */
   intro:
-    "Pick an example and watch them plan, build and test a change to a small task-tracker app (a practice to-do list) in about a minute. A live run ends in a draft pull request, a proposed code change, checked by other agents and by real tests.",
+    "Type an idea like \"a tip calculator\" and watch them plan, write and test it in a couple of minutes. Then use the app right on the page, or save it as one file that opens in any browser.",
   /** Who does what, shown as the caption under the pipeline drawing. */
-  how: "One agent reads the code, two plan, two build, two check the work (and can send it back), and one writes it up.",
+  how: "One agent reads the starter kit, two plan, two build, two check the work (and can send it back), and one writes it up.",
   /** The one-line version, used for the page description in search results and link previews. */
   title: "Student at the University of Chicago",
-  pitch:
-    "I build teams of AI agents. Give them a specific change and they produce a draft pull request, checked by other agents and by real tests.",
+  pitch: "Describe a small app and eight AI agents build it, test it in a real browser, and hand it to you as one file.",
   email: "alex.marushka3@gmail.com",
   links: [
     { label: "Resume", href: "/Alex-Marushka-Resume.pdf" },
@@ -23,27 +22,23 @@ export const profile = {
     { label: "LinkedIn", href: "https://www.linkedin.com/in/alex-marushka-4bb1113b9/" },
   ],
   about: [
-    "I'm a student at the University of Chicago. I wanted to find out how much of software work a team of AI agents can take on, and how you tell whether the result is any good. Foundry is where I've gotten so far.",
-    "I built it with Claude Code. It is a demo, not a product: the app the agents change is a small practice one, and the three examples are recordings of real runs.",
-    "I'm recruiting for consulting and tech roles. I like projects where I can say what the thing does, how well it works and what it costs.",
+    "I'm a Business Economics student at the University of Chicago. I built Foundry with Claude Code to see how much of a software job a team of AI agents can do on its own, and how to check their work.",
+    "The apps are small on purpose: one page, no accounts, no internet. That keeps them safe to run and quick to build.",
+    "I'm recruiting for consulting and tech roles.",
   ],
   /** "What building it taught me": each item is a decision made in the code, stated as it is. Keep it factual. */
   lessons: [
     {
-      title: "Let the checks decide, not the agents",
-      body: "An agent's own report can't tell you whether the work is done. The sample app's tests and a real browser test decide, and a failing result sends the work back whatever the agents say about it.",
+      title: "Let the tests decide, not the agents",
+      body: "An agent saying it's done proves nothing. Real unit tests and a real browser test decide, and a failure sends the work back.",
     },
     {
-      title: "Put a limit on the loop",
-      body: "A send-back gets one extra round at most, and only if the run is still under 75 seconds. A run also stops at a $0.25 spending cap, and there are per-visitor and daily limits. One of the 23 measured runs failed its first round and hit the time limit before a second, so it ended unapproved. I would rather show that than hide it.",
+      title: "Put limits on everything",
+      body: "One send-back at most, a $0.60 spending cap per run, and limits per visitor and per day.",
     },
     {
       title: "Keep the agents in a box",
-      body: "They work on an in-memory copy of a small repository, can only write to allowed folders, and have no shell. The sample app's code runs only in an isolated sandbox with the network off.",
-    },
-    {
-      title: "Settings can fail a run quietly",
-      body: "In my first live tests the answers were cut off at the output limit and the browser step failed. I raised the limits and loosened that prompt. The models also need thinking switched off and effort set low, or the thinking uses up the short output limit.",
+      body: "No shell, no internet, and each agent may write only its own files. The app's code runs only in a sealed sandbox, and on this page in a sealed frame.",
     },
   ],
 };

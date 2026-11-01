@@ -3,7 +3,7 @@ import type { Run, Shot } from "./run";
 // What a finished real run left behind, read from the tool lines in the agents' output. Browser and server safe.
 
 export type Evidence = {
-  /** The sample app's own tests, as the sandbox reported them, for example "8 passed, 0 failed". */
+  /** The app's unit tests, as the sandbox reported them, for example "8 passed, 0 failed". */
   unit: string | null;
   /** The real browser test, for example "2 passed, 0 failed". */
   browser: string | null;
@@ -39,7 +39,7 @@ export function runEvidence(run: Run): Evidence | null {
       const write = WRITE.exec(line);
       if (write && !files.includes(write[1])) files.push(write[1]);
     }
-    // The last picture is the browser test of the new feature itself; the first is the basic add-and-delete check.
+    // The last picture is from the agent's own browser test; the first is the basic page check.
     if (step.agent === "e2e" && step.shots?.length) shot = step.shots[step.shots.length - 1];
   }
 

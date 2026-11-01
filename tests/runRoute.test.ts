@@ -17,8 +17,8 @@ vi.mock("@/lib/liveRecordings.json", async () => {
 import { GET, POST } from "@/app/api/run/route";
 import { serverState } from "@/lib/server/state";
 
-const fieldSpec = (name: string) => ({ spec: { kind: "field", name, valueType: "text" } });
-const NICK = fieldSpec("nickname");
+const idea = (text: string) => ({ idea: text });
+const NICK = idea("A tip calculator for friends");
 
 const post = (body: unknown, headers: Record<string, string> = {}) =>
   POST(
@@ -56,7 +56,7 @@ describe("GET /api/run", () => {
 
 describe("POST /api/run validation", () => {
   it("rejects bad JSON, empty ideas and long ideas with a 400 and a message", async () => {
-    for (const body of ["{nope", {}, { request: "   " }, { request: "x".repeat(201) }, { request: "free text that is not an example" }, { spec: { kind: "nope", name: "x" } }, { spec: { kind: "field", name: "bad;name", valueType: "text" } }]) {
+    for (const body of ["{nope", {}, { request: "   " }, { request: "x".repeat(201) }, { request: "free text that is not an example" }, { idea: "hi" }, { idea: "x".repeat(161) }, { idea: "A login page that saves passwords" }]) {
       const res = await post(body);
       expect(res.status).toBe(400);
       expect((await res.json()).error).toBeTruthy();
@@ -76,7 +76,7 @@ describe("POST /api/run streaming", () => {
     const res = await post(NICK, { "x-forwarded-for": "203.0.113.9" });
     await res.text();
     const [logged] = await serverState().runLog.list();
-    expect(logged).toMatchObject({ request: 'Add a "nickname" field to tasks (type: text, optional).', mode: "simulated", status: "approved", rounds: 1 });
+    expect(logged).toMatchObject({ request: "A tip calculator for friends", mode: "simulated", status: "approved", rounds: 1 });
     expect(logged.visitor).toHaveLength(8);
     expect(JSON.stringify(logged)).not.toContain("203.0.113.9");
   });
@@ -99,12 +99,12 @@ describe("POST /api/run limits", () => {
     pipeline.live = true;
     process.env.FOUNDRY_LIVE_PER_HOUR = "1";
     const headers = { "x-forwarded-for": "198.51.100.7" };
-    await (await post(fieldSpec("idea one"), headers)).text();
+    await (await post(idea("A habit tracker one"), headers)).text();
     expect(optionsOf().allowLive).toBe(true);
-    await (await post(fieldSpec("idea two"), headers)).text();
+    await (await post(idea("A habit tracker two"), headers)).text();
     expect(optionsOf()).toMatchObject({ allowLive: false, reason: expect.stringMatching(/1 live runs this hour/) });
     // a different visitor still gets a live run
-    await (await post(fieldSpec("idea three"), { "x-forwarded-for": "198.51.100.8" })).text();
+    await (await post(idea("A habit tracker three"), { "x-forwarded-for": "198.51.100.8" })).text();
     expect(optionsOf().allowLive).toBe(true);
   });
 

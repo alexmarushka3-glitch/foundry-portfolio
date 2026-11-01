@@ -32,7 +32,7 @@ export const MAX_TOOL_TURNS = 8;
 export const MAX_ROUNDS = 2;
 
 /** Never start a second round if the first one already ran this long. */
-export const ROUND_TIME_BUDGET_MS = 75_000;
+export const ROUND_TIME_BUDGET_MS = 100_000;
 
 /**
  * Live runs need a key on the server. They can be switched off with FOUNDRY_LIVE=off,

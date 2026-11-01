@@ -32,7 +32,7 @@ describe("Home page", () => {
     expect(marks.length).toBeGreaterThanOrEqual(2);
   });
 
-  it("names the site in the nav and links the sections in page order, with the made-up dashboard after Scope and limits and out of the nav", () => {
+  it("names the site in the nav and links the sections in page order, with no projects or made-up dashboard on the home page", () => {
     render(<Home />);
     const nav = within(screen.getByRole("navigation", { name: "Sections" }));
     expect(nav.getAllByRole("link").map((a) => a.textContent)).toEqual(["Demo", "Scope", "About"]);
@@ -40,8 +40,9 @@ describe("Home page", () => {
 
     const ids = [...document.querySelectorAll("main > section")].map((s) => s.id);
     expect(ids.indexOf("demo")).toBeLessThan(ids.indexOf("reality"));
-    expect(ids.indexOf("reality")).toBeLessThan(ids.indexOf("dashboard"));
+    expect(ids.indexOf("reality")).toBeLessThan(ids.indexOf("about"));
     expect(ids).not.toContain("projects");
+    expect(ids).not.toContain("dashboard");
   });
 
   it("links the resume PDF from the header, outside the section links", () => {

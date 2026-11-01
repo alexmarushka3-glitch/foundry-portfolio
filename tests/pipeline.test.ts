@@ -97,7 +97,7 @@ describe("recorded examples", () => {
 
 describe("live runs", () => {
   const passing = (system: string) =>
-    system.includes("E2E Verifier") ? "E2E: PASS\nok" : system.includes("Validator") ? "VERDICT: APPROVE\n- ok" : "text";
+    system.includes("Browser Tester") ? "E2E: PASS\nok" : system.includes("Validator") ? "VERDICT: APPROVE\n- ok" : "text";
 
   it("track tokens and cost per agent and report the total", async () => {
     const { client } = fakeClient(passing);
@@ -113,7 +113,7 @@ describe("live runs", () => {
   it("send work back when the validator says REVISE, then finish in round two", async () => {
     let validatorCalls = 0;
     const { client } = fakeClient((system) => {
-      if (system.includes("E2E Verifier")) return "E2E: PASS";
+      if (system.includes("Browser Tester")) return "E2E: PASS";
       if (system.includes("Validator")) return ++validatorCalls === 1 ? "VERDICT: REVISE\n- fix it" : "VERDICT: APPROVE";
       return "text";
     });
@@ -123,14 +123,14 @@ describe("live runs", () => {
   });
 
   it("stop after two rounds without approval, and report that honestly", async () => {
-    const { client } = fakeClient((system) => (system.includes("E2E Verifier") ? "E2E: FAIL" : "text"));
+    const { client } = fakeClient((system) => (system.includes("Browser Tester") ? "E2E: FAIL" : "text"));
     const events = await run("Add a nickname", { client });
     expect(of(events, "finish")[0]).toMatchObject({ rounds: 2, approved: false });
     expect(of(events, "verdict").some((v) => v.gate === "validator")).toBe(false);
   });
 
   it("report the rounds that actually ran when the time budget cuts the second round", async () => {
-    const { client } = fakeClient((system) => (system.includes("E2E Verifier") ? "E2E: FAIL" : "text"));
+    const { client } = fakeClient((system) => (system.includes("Browser Tester") ? "E2E: FAIL" : "text"));
     let clock = 1_000;
     vi.spyOn(Date, "now").mockImplementation(() => clock);
     const events: FoundryEvent[] = [];
@@ -138,7 +138,7 @@ describe("live runs", () => {
       "Add a nickname",
       (e) => {
         events.push(e);
-        if (e.type === "verdict") clock += 80_000; // the first round took 80 seconds
+        if (e.type === "verdict") clock += 120_000; // the first round took two minutes
       },
       { pace: 0, client },
     );

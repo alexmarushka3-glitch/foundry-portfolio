@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { EVAL_REQUESTS, MAX_EVAL_RUNS, UPPER_COST_PER_RUN_USD, planBatch } from "@/lib/eval/plan";
-import { validateSpec, buildRequest } from "@/lib/spec";
+import { validateIdea } from "@/lib/spec";
 
 describe("planBatch", () => {
   it("cycles through the fixed requests so every kind of change is tried", () => {
@@ -22,9 +22,7 @@ describe("planBatch", () => {
     expect(() => planBatch(n)).toThrow(/whole number/);
   });
 
-  it("uses only requests the form itself could build, so the test matches what visitors can do", () => {
-    for (const r of EVAL_REQUESTS) expect(typeof r).toBe("string");
-    const spec = validateSpec({ kind: "sort", name: "created date" });
-    expect(spec.ok && EVAL_REQUESTS.includes(buildRequest(spec.spec))).toBe(true);
+  it("uses only ideas a visitor could type, so the test matches what visitors can do", () => {
+    for (const r of EVAL_REQUESTS) expect(validateIdea(r)).toEqual({ ok: true, idea: r });
   });
 });

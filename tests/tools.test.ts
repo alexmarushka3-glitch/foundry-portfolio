@@ -3,40 +3,40 @@ import { AGENT_TOOLS, runTool } from "@/lib/pipeline/tools";
 import { MAX_FILE_BYTES, MAX_WRITES, createWorkspace } from "@/lib/pipeline/workspace";
 
 describe("workspace", () => {
-  it("lists, reads and searches the bundled sample app", () => {
+  it("lists, reads and searches the starter kit", () => {
     const ws = createWorkspace();
-    expect(ws.listDir(".")).toEqual(expect.arrayContaining(["src/", "public/", "tests/", "package.json"]));
-    expect(ws.listDir("src")).toEqual(expect.arrayContaining(["app.js", "db.js"]));
-    expect(ws.read("src/db.js")).toContain("CREATE TABLE");
-    expect(ws.read("./src/db.js")).toBe(ws.read("src/db.js"));
-    expect(ws.grep("created_at").some((l) => l.startsWith("src/db.js:"))).toBe(true);
-    expect(ws.source.commit).toMatch(/^[0-9a-f]{40}$/);
+    expect(ws.listDir(".")).toEqual(expect.arrayContaining(["README.md", "index.html", "app.js", "ui.js", "style.css", "tests/", "package.json"]));
+    expect(ws.listDir("tests")).toEqual(["app.test.js"]);
+    expect(ws.read("app.js")).toContain("function saveData");
+    expect(ws.read("./app.js")).toBe(ws.read("app.js"));
+    expect(ws.grep("STORAGE_KEY").some((l) => l.startsWith("app.js:"))).toBe(true);
+    expect(ws.source).toEqual({ repo: "foundry starter kit", commit: "v1" });
   });
 
   it("refuses paths that escape the app and files that do not exist", () => {
     const ws = createWorkspace();
-    for (const p of ["../package.json", "src/../../.env.local", "/etc/passwd", "src//db.js", ""]) expect(ws.read(p)).toBeNull();
+    for (const p of ["../package.json", "tests/../../.env.local", "/etc/passwd", "tests//app.test.js", ""]) expect(ws.read(p)).toBeNull();
     expect(ws.read("nope.txt")).toBeNull();
   });
 
   it("keeps writes in an overlay and leaves the bundled files alone", () => {
     const a = createWorkspace();
-    a.write("src/new.js", "export const x = 1;\n");
-    expect(a.read("src/new.js")).toContain("x = 1");
-    expect(a.changes()).toEqual({ "src/new.js": "export const x = 1;\n" });
+    a.write("tests/new.test.js", "const x = 1;\n");
+    expect(a.read("tests/new.test.js")).toContain("x = 1");
+    expect(a.changes()).toEqual({ "tests/new.test.js": "const x = 1;\n" });
     // a second workspace (the next run) starts clean
-    expect(createWorkspace().read("src/new.js")).toBeNull();
+    expect(createWorkspace().read("tests/new.test.js")).toBeNull();
   });
 
-  it("only allows writes to source, page and test files, within size and count limits", () => {
+  it("only allows writes to the app's own files and tests, within size and count limits", () => {
     const ws = createWorkspace();
-    for (const p of ["package.json", ".github/workflows/x.yml", "src/../package.json", "node_modules/x.js", "src/x.sh", "README.md", "../x.js"]) {
+    for (const p of ["package.json", ".github/workflows/x.yml", "tests/../package.json", "node_modules/x.js", "app.sh", "README.md", "../x.js", "src/app.js", "other.js"]) {
       expect(() => ws.write(p, "x")).toThrow(/Not allowed/);
     }
-    expect(() => ws.write("src/big.js", "x".repeat(MAX_FILE_BYTES + 1))).toThrow(/too large/);
-    for (let i = 0; i < MAX_WRITES; i++) ws.write(`src/f${i}.js`, "x");
-    expect(() => ws.write("src/one-more.js", "x")).toThrow(/Too many/);
-    ws.write("src/f0.js", "y"); // rewriting a file already written is fine
+    expect(() => ws.write("app.js", "x".repeat(MAX_FILE_BYTES + 1))).toThrow(/too large/);
+    for (let i = 0; i < MAX_WRITES; i++) ws.write(`tests/f${i}.test.js`, "x");
+    expect(() => ws.write("tests/one-more.test.js", "x")).toThrow(/Too many/);
+    ws.write("tests/f0.test.js", "y"); // rewriting a file already written is fine
   });
 });
 
@@ -45,7 +45,7 @@ describe("runTool", () => {
     const names = AGENT_TOOLS.researcher!.map((t) => t.name);
     expect(names).toEqual(["list_dir", "read_file", "grep"]);
     const ws = createWorkspace();
-    const r = runTool(ws, "researcher", "write_file", { path: "src/x.js", content: "x" });
+    const r = runTool(ws, "researcher", "write_file", { path: "app.js", content: "x" });
     expect(r.ok).toBe(false);
     expect(ws.changes()).toEqual({});
   });
@@ -54,17 +54,19 @@ describe("runTool", () => {
     for (const a of ["story", "pm", "validator", "release"] as const) expect(AGENT_TOOLS[a]).toBeUndefined();
     // the verifier can read the files and run a browser test, but never write
     expect(AGENT_TOOLS.e2e!.map((t) => t.name)).toEqual(["read_file", "grep", "run_browser_test"]);
-    expect(runTool(createWorkspace(), "e2e", "write_file", { path: "src/db.js", content: "x" }).ok).toBe(false);
-    expect(runTool(createWorkspace(), "validator", "read_file", { path: "src/db.js" }).ok).toBe(false);
+    expect(runTool(createWorkspace(), "e2e", "write_file", { path: "app.js", content: "x" }).ok).toBe(false);
+    expect(runTool(createWorkspace(), "validator", "read_file", { path: "app.js" }).ok).toBe(false);
   });
 
-  it("keeps each engineer to their own folders", () => {
+  it("keeps each engineer to their own files", () => {
     const ws = createWorkspace();
-    expect(runTool(ws, "backend", "write_file", { path: "src/db.js", content: "// b" }).ok).toBe(true);
-    expect(runTool(ws, "backend", "write_file", { path: "public/app.js", content: "// b" }).ok).toBe(false);
-    expect(runTool(ws, "frontend", "write_file", { path: "public/app.js", content: "// f" }).ok).toBe(true);
-    expect(runTool(ws, "frontend", "write_file", { path: "src/db.js", content: "// f" }).ok).toBe(false);
-    expect(Object.keys(ws.changes()).sort()).toEqual(["public/app.js", "src/db.js"]);
+    expect(runTool(ws, "backend", "write_file", { path: "app.js", content: "// b" }).ok).toBe(true);
+    expect(runTool(ws, "backend", "write_file", { path: "tests/app.test.js", content: "// b" }).ok).toBe(true);
+    expect(runTool(ws, "backend", "write_file", { path: "ui.js", content: "// b" }).ok).toBe(false);
+    for (const p of ["index.html", "style.css", "ui.js"]) expect(runTool(ws, "frontend", "write_file", { path: p, content: "// f" }).ok).toBe(true);
+    expect(runTool(ws, "frontend", "write_file", { path: "app.js", content: "// f" }).ok).toBe(false);
+    expect(runTool(ws, "frontend", "write_file", { path: "tests/x.test.js", content: "// f" }).ok).toBe(false);
+    expect(Object.keys(ws.changes()).sort()).toEqual(["app.js", "index.html", "style.css", "tests/app.test.js", "ui.js"]);
   });
 
   it("turns bad calls into errors the agent can read, and never throws", () => {
@@ -78,7 +80,7 @@ describe("runTool", () => {
 
   it("trims long file contents in results", () => {
     const ws = createWorkspace();
-    ws.write("src/long.js", "a".repeat(7_000));
-    expect(runTool(ws, "backend", "read_file", { path: "src/long.js" }).text.length).toBeLessThanOrEqual(6_000);
+    ws.write("app.js", "a".repeat(7_000));
+    expect(runTool(ws, "backend", "read_file", { path: "app.js" }).text.length).toBeLessThanOrEqual(6_000);
   });
 });

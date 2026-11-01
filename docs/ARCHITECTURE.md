@@ -30,11 +30,14 @@ lib/                     Everything that isn't React or HTTP.
   pipeline/              The eight agents. Server only.
   server/                Server state: rate limits, run log, admin auth, env parsing. Server only.
   admin/                 Dashboard maths (aggregate.ts), the stats payload (overview.ts), action names.
+  starter.ts             The starter kit every run begins from, and which files each engineer may write.
+  bundle.ts              Inlines the app's files into one self-contained .html file (preview, save, browser test).
+  spec.ts                validateIdea: checks the visitor's idea (length, words, no login or payment apps).
   liveRecordings.json    GENERATED from recordings-src/live/ (npm run recordings:live). Never hand-edit.
   exampleRequests.ts     GENERATED with it: the three example requests.
 
 tests/                   Vitest. One file per area; see "Tests" below.
-recordings-src/live/     The three real recorded live runs (full event streams). archive-text-only/ holds the old text-only recordings, kept for history.
+recordings-src/live/     The three real recorded live runs (full event streams). archive-taskly/ (the old to-do-app runs) and archive-text-only/ are kept for history.
 scripts/                 record-live-runs.ts, build-live-recordings.mjs.
 ```
 
@@ -44,16 +47,16 @@ Rule of thumb: `lib/` files marked "browser safe" import nothing from `lib/serve
 
 1. The browser decides what to do (`components/Stage.tsx`, `go()`).
    - The idea matches a recording (`findLiveRecording`): play it in the browser with `buildLiveReplayRun` and `viewsAt`. No network.
-   - Otherwise: `useLiveRun` POSTs `{ request }` to `/api/run`.
-2. `app/api/run/route.ts` validates the request (`parseRequest`: a `spec` from `lib/spec.ts` is rebuilt into one sentence server-side; plain text is accepted only for the recorded examples), checks the per-visitor and daily brake (`LiveLimiter`) for requests built in the form, and starts `runPipeline` inside a `ReadableStream`. Each event goes to two places: the response (one JSON object per line) and a `RunRecorder` that will become the admin log entry.
+   - Otherwise: `useLiveRun` POSTs `{ idea }` to `/api/run`.
+2. `app/api/run/route.ts` validates the request (`parseRequest`: an `idea` is checked with `validateIdea`; a plain `request` is accepted only for the recorded examples), checks the per-visitor and daily brake (`LiveLimiter`) for typed ideas, and starts `runPipeline` inside a `ReadableStream`. Each event goes to two places: the response (one JSON object per line) and a `RunRecorder` that will become the admin log entry.
 3. `lib/pipeline/index.ts` `runPipeline`:
    - recorded idea: `replayOnServer` (kept for API clients);
-   - live allowed and a key is set: a one-token preflight, then real model calls. The E2E step starts by running the real tests (`sandbox.ts`: clone `taskly-sample` at the pinned commit, `npm ci`, network off, copy in the agents' files, `npm test`); a failing suite fails the gate. Backend and Frontend can also call `run_tests` (twice each). If the sandbox is unavailable the run goes on and the agents are told the tests did not run. When `FOUNDRY_SANDBOX_SNAPSHOT` is set, the E2E Verifier also gets `run_browser_test` (three calls): it submits a Playwright spec, `sandbox.ts` runs it plus the repo's smoke test in headless Chromium against `npm start` inside a network-off sandbox, and returns the real result and PNGs (`shot` events, shown in its panel). No browser run, or a failing one, fails the gate; a browser that cannot start does not block. After the Release agent, a run that passed both checks and wrote files opens a draft pull request through `github.ts` (branch `foundry/<id>` from the pinned commit, files committed with the Git Data API) and sends a `pr` event; failures are logged and the run still finishes. A new `Workspace` (`workspace.ts`) is made for the run. The Researcher and the two engineers get tools (`tools.ts`) and `agentRunner.ts` loops until they stop calling tools; each call is sent as a `tool` event. The checking agents are given the files the engineers wrote;
+   - live allowed and a key is set: a one-token preflight, then real model calls. A new `Workspace` (`workspace.ts`) holds the starter kit (`lib/starter.ts`) with the agents' writes in an overlay. The Researcher, the Logic and Interface engineers and the Browser Tester get tools (`tools.ts`) and `agentRunner.ts` loops until they stop calling tools; each call is sent as a `tool` event. If the Story Writer answers `REFUSE: <reason>`, the run stops with that reason before anything is built. The Browser Tester step starts by running the real unit tests (`sandbox.ts`: a sandbox from `FOUNDRY_SANDBOX_SNAPSHOT`, network off, old project files cleared, the app written in, `npm test`); a failing suite fails the gate. The Logic engineer can also call `run_tests` (twice). With a snapshot the Browser Tester gets `run_browser_test` (three calls): it submits a Playwright spec, and `sandbox.ts` serves the bundled single file (`bundleApp`) with a tiny Node server and runs a smoke test (an h1, no errors) plus that spec in headless Chromium, returning the real result and PNGs (`shot` events). A failing browser run fails the gate; a browser that cannot start does not block. The checking agents are given the app's files;
    - otherwise: scripted text from `simulate.ts`.
    
-   The order is fixed: researcher, story, PM, then up to two rounds of (backend and frontend in parallel, E2E verifier, validator), then release. If E2E fails, or the validator says REVISE, round two starts with that feedback. Verdicts are read by `verdicts.ts`.
+   The order is fixed: researcher, story, PM, then up to two rounds of (Logic and Interface in parallel, Browser Tester, Validator), then Release. If the browser check fails, or the validator says REVISE, round two starts with that feedback. Verdicts are read by `verdicts.ts`.
 4. Back in the browser, `useLiveRun` feeds each line to `applyEvent` (batched to one render per frame). When `finish` arrives, `toRun` makes a scrubbable `Run`, and the same player used for replays takes over.
-   A live run that passed both checks also sends a `files` event (the changed files) just before `finish`. The finished run then shows `components/stage/AppPreview.tsx`: "Download the code" zips the sample repo plus those files in the browser (`lib/zip.ts`), and "Try the app" opens `public/preview/frame.html` in a sandboxed iframe. `public/preview/runner.js` loads the app's real `src/*.js` as blob modules with stand-ins for Express, `node:sqlite` (on sql.js, vendored in `public/vendor/`), `node:url` and `node:path`, starts `src/server.js`, routes the page's `fetch` calls to it, and shows `public/index.html`. The frame's own CSP (`previewHeaders` in `lib/securityHeaders.ts`) allows no network.
+   A live run that passed both checks also sends a `files` event (the files the agents wrote) just before `finish`. The finished run then shows `components/stage/AppPreview.tsx`: the bundled app opens right away in `public/preview/frame.html`, a sandboxed iframe (opaque origin), where `public/preview/runner.js` adds an in-memory localStorage and writes the app into the frame. The frame's own CSP (`previewHeaders` in `lib/securityHeaders.ts`) allows no network. "Save the app" downloads the same bundle, which uses the browser's real storage.
 5. When the response ends, the route adds the finished record to `RunLog` (status `cancelled` if the visitor left first).
 
 ### The event stream
@@ -62,7 +65,7 @@ Rule of thumb: `lib/` files marked "browser safe" import nothing from `lib/serve
 
 ### Cancellation and spending
 
-The route aborts an `AbortController` when the visitor disconnects. The signal reaches the SDK request and the simulation loop, so a live run stops spending. A run also stops by itself past `MAX_RUN_COST_USD` ($0.60), caps each agent at `MAX_TOOL_TURNS` model calls, and never starts round two after `ROUND_TIME_BUDGET_MS` (75 s). These live in `lib/pipeline/config.ts`.
+The route aborts an `AbortController` when the visitor disconnects. The signal reaches the SDK request and the simulation loop, so a live run stops spending. A run also stops by itself past `MAX_RUN_COST_USD` ($0.60), caps each agent at `MAX_TOOL_TURNS` model calls, and never starts round two after `ROUND_TIME_BUDGET_MS` (100 s). These live in `lib/pipeline/config.ts`.
 
 ## Server state
 
@@ -73,8 +76,8 @@ The route aborts an `AbortController` when the visitor disconnects. The signal r
 - **Gate:** `ADMIN_TOKEN`. Unset means `/admin` and `/api/admin/*` return 404. Set means a sign-in form; the token is compared in constant time, attempts are limited to five per address per 15 minutes, and the session is an HTTP-only, SameSite=Strict cookie holding an HMAC derived from the token (changing the token signs everyone out).
 - **Data:** `GET /api/admin/stats` returns recent runs, server settings and the recorded examples. The page filters, sorts, paginates and charts in the browser with the pure functions in `lib/admin/aggregate.ts`, so every number is unit tested.
 - **Actions:** `POST /api/admin/actions` with `pause-live`, `resume-live`, `reset-limits` or `clear-log`. Each returns the fresh overview.
-- **Two front doors, one view:** `components/admin/AdminView.tsx` draws the dashboard from an `AdminData` object (`useAdminData.ts`) and does not know where it came from. `AdminDashboard` feeds it from the server (`/admin`, signed in). `DemoDashboard` feeds it from `useDemoData.ts` and `lib/admin/sampleData.ts` (`/admin-demo`, and a compact `embedded` version in the home page's "Watching the factory run" section, loaded lazily by `DashboardSection`; public, made-up data, no network). Anything shown on `/admin-demo` must stay clearly labelled as sample data.
-- **Privacy:** the log stores a short hash of the visitor address, never the address. It stores the request sentence built from the visitor's choices.
+- **Two front doors, one view:** `components/admin/AdminView.tsx` draws the dashboard from an `AdminData` object (`useAdminData.ts`) and does not know where it came from. `AdminDashboard` feeds it from the server (`/admin`, signed in). `DemoDashboard` feeds it from `useDemoData.ts` and `lib/admin/sampleData.ts` (`/admin-demo`; public, made-up data, no network). Anything shown on `/admin-demo` must stay clearly labelled as sample data.
+- **Privacy:** the log stores a short hash of the visitor address, never the address. It stores the visitor's idea as typed (after cleaning).
 
 ## Honesty constraints that shape the code
 
@@ -90,7 +93,9 @@ The route aborts an `AbortController` when the visitor disconnects. The signal r
 | --- | --- |
 | `pipeline.test.ts` | Simulated, replayed and live runs (with a fake model client): rounds, verdicts, cost, spending cap, preflight fallback, refusal, time budget, cancellation. |
 | `runRoute.test.ts` | The run API: validation, NDJSON streaming, limits, logging, error hiding, disconnect handling. |
-| `Stage.test.tsx` | The critical page flows in jsdom: replay, built request, server error, dropped connection, rejected request. |
+| `Stage.test.tsx` | The critical page flows in jsdom: replay, typed idea, the finished app and save button, server error, dropped connection, rejected request. |
+| `bundle.test.ts` | The one-file bundle (inlining, escaping, file name), the starter kit's write rules, and its real `npm test`. |
+| `tools.test.ts`, `toolLoop.test.ts` | The workspace, each agent's tools and write rules, the tool loop, real test and browser runners (faked), refusals and the `files` event. |
 | `admin.test.ts` | Sign-in, lockout, cookie, every admin route and action. |
 | `sampleData.test.ts`, `DemoDashboard.test.tsx` | The sample data is repeatable, labelled and complete; the public demo makes no requests and its controls work on screen only. |
 | `aggregate.test.ts`, `runLog.test.ts`, `runStore.test.ts` | Dashboard maths, the run log, and its memory/Redis stores. |

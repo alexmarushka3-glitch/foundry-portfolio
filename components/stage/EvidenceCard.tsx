@@ -1,14 +1,14 @@
 import type { Evidence } from "@/lib/evidence";
 
 /** What a real run left behind: test results, the files written and one picture from the real browser. */
-export default function EvidenceCard({ evidence, prNumber }: { evidence: Evidence; prNumber?: number }) {
+export default function EvidenceCard({ evidence }: { evidence: Evidence }) {
   return (
-    <section className="evidence" aria-label="What the real run produced">
-      <h3>What the real run produced</h3>
+    <section className="evidence" aria-label="How it was checked">
+      <h3>How it was checked</h3>
       <dl>
         {evidence.unit && (
           <div>
-            <dt>Sample app&apos;s unit tests</dt>
+            <dt>Unit tests</dt>
             <dd>{evidence.unit}</dd>
           </div>
         )}
@@ -40,18 +40,7 @@ export default function EvidenceCard({ evidence, prNumber }: { evidence: Evidenc
           <figcaption>From the real browser, at the end of its test: {evidence.shot.label}</figcaption>
         </figure>
       )}
-      <p className="fine">
-        Click any agent in the drawing to see its work.
-        {prNumber === undefined && (
-          <>
-            {" "}
-            <a href="https://github.com/alexmarushka3-glitch/taskly-sample/pull/8" target="_blank" rel="noreferrer">
-              A real draft pull request from a live run
-            </a>
-            .
-          </>
-        )}
-      </p>
+      <p className="fine">Click any agent in the drawing to see its work.</p>
     </section>
   );
 }
