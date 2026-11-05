@@ -62,6 +62,8 @@ export default function AppPreview({ files, howTo = [] }: { files: Record<string
         className="app-frame"
         title={`${title}, running in your browser`}
         sandbox="allow-scripts allow-forms allow-modals"
+        // Lets a "Copy" button in the app work; the frame can still only write to the clipboard on a click.
+        allow="clipboard-write"
         src="/preview/frame.html"
       />
       <p className="fine" aria-live="polite">
