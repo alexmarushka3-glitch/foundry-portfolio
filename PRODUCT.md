@@ -22,7 +22,7 @@ The checks are real and the work can be sent back. In a live run the app's unit 
 ## Operating Context
 - Live site: https://alexmarushka.vercel.app. Code: https://github.com/alexmarushka3-glitch/foundry-portfolio.
 - Three modes, always labelled on the page: replay (three recorded runs), live (real Claude models, tools, sandbox, browser, the finished app) and simulated (scripted text).
-- A live run takes a couple of minutes (cap $0.60). Limits: 1 live run per visitor per hour and 8 per day for the site; the Anthropic credit is capped at $10. Hosting is Vercel Hobby.
+- A live run takes a couple of minutes (cap $0.60). Limits: 2 live runs per visitor per hour and 12 per day for the site; the Anthropic credit is capped at $10. Hosting is Vercel Hobby.
 - A public sample-data dashboard is at /admin-demo (not on the home page); every number on it is made up and says so. The real admin dashboard is behind a login.
 
 ## Capabilities and Constraints
