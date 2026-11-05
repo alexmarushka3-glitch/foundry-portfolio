@@ -6,7 +6,7 @@ import { appFileName, appTitle, bundleApp } from "@/lib/bundle";
 // The finished app from a real run, as one self-contained .html file. It opens right here in a sandboxed, offline frame
 // (public/preview/), and visitors can save the same file to keep and open later.
 
-export default function AppPreview({ files }: { files: Record<string, string> }) {
+export default function AppPreview({ files, howTo = [] }: { files: Record<string, string>; howTo?: string[] }) {
   const html = useMemo(() => bundleApp(files), [files]);
   const title = useMemo(() => appTitle(html), [html]);
   const [status, setStatus] = useState<"starting" | "ready" | "failed">("starting");
@@ -45,6 +45,16 @@ export default function AppPreview({ files }: { files: Record<string, string> })
         <button type="button" className="btn btn-primary" onClick={save}>
           Save the app
         </button>
+      </div>
+      <div className="app-next">
+        <h4>What to do now</h4>
+        <ol>
+          {(howTo.length ? howTo : ["Fill in the boxes and press the buttons, like you would in any app."]).map((h) => (
+            <li key={h}>{h}</li>
+          ))}
+          <li>Like it? Press Save the app to keep it on your device.</li>
+        </ol>
+        {howTo.length > 0 && <p className="fine">These steps were written by the Release agent for this app.</p>}
       </div>
       <iframe
         key={html}
