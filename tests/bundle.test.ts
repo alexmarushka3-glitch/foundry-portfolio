@@ -1,4 +1,4 @@
-import { execFileSync } from "node:child_process";
+import { execSync } from "node:child_process";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -52,7 +52,8 @@ describe("the starter kit", () => {
         mkdirSync(dirname(join(dir, p)), { recursive: true });
         writeFileSync(join(dir, p), c);
       }
-      const out = execFileSync("npm", ["test"], { cwd: dir, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+      // Through the shell, so it also finds npm.cmd on Windows.
+      const out = execSync("npm test", { cwd: dir, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
       expect(summarizeTestOutput(out, 0)).toBe("npm test: 1 passed, 0 failed");
     } finally {
       rmSync(dir, { recursive: true, force: true });
