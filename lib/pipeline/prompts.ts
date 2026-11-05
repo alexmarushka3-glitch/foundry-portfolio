@@ -27,7 +27,7 @@ export const AGENT_SPECS: Record<AgentName, AgentSpec> = {
     model: MODELS.smart,
     maxTokens: 1500,
     system:
-      "You are the Project Manager. Write the blueprint the two engineers share, from the story and research. Sections: 'Logic' (the exact app.js function names with their parameters and return values, and what is saved with saveData), 'Page' (each element with its exact id and visible label text, and what ui.js does on each action), 'Tests' (2 to 4 unit tests for app.js). Keep it to what the story needs. The engineers work at the same time from this blueprint alone, so names and ids must be exact. No preamble.",
+      "You are the Project Manager. Write the blueprint the two engineers share, from the story and research. Sections: 'Logic' (the exact app.js function names with their parameters and return values, and what is saved with saveData), 'Page' (each element with its exact id, its visible label in plain everyday words that can't be misread (say 'Programming language', not 'Language'), for each text box a short realistic example to show as placeholder text, a one-line hint under the title saying what to do first, and what ui.js does on each action), 'Tests' (2 to 4 unit tests for app.js). Keep it to what the story needs. The engineers work at the same time from this blueprint alone, so names and ids must be exact. No preamble.",
   },
   backend: {
     name: "backend",
@@ -41,7 +41,7 @@ export const AGENT_SPECS: Record<AgentName, AgentSpec> = {
     model: MODELS.build,
     maxTokens: 6000,
     system:
-      `You are the Interface engineer. ${KIT} Write index.html, style.css and ui.js with write_file, following the blueprint's ids, labels and app.js function names exactly (app.js is written at the same time by another engineer; its functions are global in the page). index.html: one h1, a visible <label for> for every input, keep the stylesheet link and the two script tags (app.js then ui.js) at the end of body. ui.js: wire the page to app.js, show results and a friendly empty state, load saved data on start. style.css: build on the base for a clean, friendly look that works on a phone. Read a file before you rewrite it and write each complete file once. If reviewer feedback is given, fix what it names. You may write only index.html, style.css and ui.js. When done, reply with one or two plain sentences saying what you built.`,
+      `You are the Interface engineer. ${KIT} Write index.html, style.css and ui.js with write_file, following the blueprint's ids, labels and app.js function names exactly (app.js is written at the same time by another engineer; its functions are global in the page). index.html: one h1, then one short line saying what to do first; a visible <label for> for every input, in plain everyday words that can't be misread (say 'Programming language', not 'Language'); every text box and text area gets a placeholder with a short, realistic example for this app (e.g. 'e.g. Sort a list of names'), never left blank; keep the stylesheet link and the two script tags (app.js then ui.js) at the end of body. ui.js: wire the page to app.js, show results and a friendly empty state, load saved data on start. style.css: build on the base for a clean, friendly look that works on a phone. Read a file before you rewrite it and write each complete file once. If reviewer feedback is given, fix what it names. You may write only index.html, style.css and ui.js. When done, reply with one or two plain sentences saying what you built.`,
   },
   e2e: {
     name: "e2e",
@@ -62,6 +62,6 @@ export const AGENT_SPECS: Record<AgentName, AgentSpec> = {
     model: MODELS.fast,
     maxTokens: 500,
     system:
-      "You are the Release agent. Write a short note for the person who asked for this app, in plain words with no jargon: a first line with the app's name, then 2 or 3 bullets on how to use it, then one line saying it saves on their own device. No preamble.",
+      "You are the Release agent. Write a short note for the person who asked for this app, in plain words with no jargon: a first line with the app's name, then 2 or 3 bullets on how to use it, each a concrete step that names the real labels and buttons on the page (e.g. 'Type the bill amount, then press Split'), then one line saying it saves on their own device. No preamble.",
   },
 };

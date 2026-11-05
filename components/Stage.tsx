@@ -6,6 +6,7 @@ import OutputPanel from "./stage/OutputPanel";
 import PlayerControls from "./stage/PlayerControls";
 import EvidenceCard from "./stage/EvidenceCard";
 import AppPreview from "./stage/AppPreview";
+import { howToUse } from "@/lib/howTo";
 import { runEvidence } from "@/lib/evidence";
 import { useLiveAvailability, useMediaQuery, useOnceInView, usePlayback } from "./stage/hooks";
 import { useLiveRun } from "./stage/useLiveRun";
@@ -223,7 +224,7 @@ export default function Stage() {
       {run && atEnd && (
         <div className="summary">
           <p>{runSummary(run)}</p>
-          {run.files && run.approved && <AppPreview files={run.files} />}
+          {run.files && run.approved && <AppPreview files={run.files} howTo={howToUse(run)} />}
           {evidence && <EvidenceCard evidence={evidence} />}
         </div>
       )}
