@@ -12,13 +12,13 @@ export const REALITY: { tone: RealityTone; heading: string; items: string[]; sho
       "Your idea goes to eight Claude agents in turn. Each one works from the previous one's actual output, and every file it reads or writes is shown.",
       "The app's unit tests and a browser test the agents write run in a real headless Chrome, in an isolated sandbox with no internet. If either fails, the work goes back for one more round.",
       "When both pass, the app appears on the page. You can use it there or save it as one .html file that works offline.",
-      "The three examples are recordings of real live runs, recorded once each and kept as they came out, played back faster.",
+      "The three examples are recordings of real live runs, recorded once each on Nov 5, 2026 and kept as they came out, played back faster. All three passed both checks in the first round, in 54 to 60 seconds, for $0.15 to $0.17 each.",
     ],
     short: [
       "Eight Claude agents build your idea, each from the last one's real output.",
       "Real unit tests and a real browser test check the app, and a failure sends it back.",
       "If it passes, you can use the app here or save it as one file.",
-      "The examples are recordings of real runs, played back.",
+      "The examples are recordings of real runs: about a minute and under 20 cents each.",
     ],
   },
   {
