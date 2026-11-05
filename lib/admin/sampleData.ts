@@ -38,7 +38,7 @@ const AGENT_BASE_MS: Record<AgentName, number> = {
 };
 
 /** The site's default live limits (lib/server/state.ts), so the sample doesn't show more than the real site allows. */
-const SAMPLE_LIMITS = { perHour: 1, perDay: 8 };
+const SAMPLE_LIMITS = { perHour: 2, perNetworkHour: 6, perDay: 12 };
 
 /** The scripted simulation finishes in a few seconds, not a minute. */
 const SIMULATED_SPEED = 0.08;

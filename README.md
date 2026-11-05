@@ -68,7 +68,8 @@ Copy `.env.example` to `.env.local`. Nothing is required.
 | --- | --- | --- |
 | `ANTHROPIC_API_KEY` | none | Turns on live runs for built requests. Never commit it. |
 | `FOUNDRY_LIVE` | `on` | `off` turns live runs off even with a key. |
-| `FOUNDRY_LIVE_PER_HOUR` | `2` | Live runs per visitor per hour. |
+| `FOUNDRY_LIVE_PER_HOUR` | `2` | Live runs per browser per hour (a random id in an HttpOnly cookie, used only for this limit). |
+| `FOUNDRY_LIVE_PER_NETWORK_HOUR` | `6` | Live runs per network (IP address) per hour, shared by every browser on it, so people on one Wi-Fi each get their own runs without cookie-clearing giving endless ones. |
 | `FOUNDRY_LIVE_PER_DAY` | `12` | Live runs per day for the whole site. |
 | `FOUNDRY_SANDBOX_SNAPSHOT` | none | Id of the prepared sandbox snapshot (repo, dependencies, Chromium). Without it the real browser step is skipped and unit tests use a slower plain clone. Build one with `scripts/build-sandbox-snapshot.mjs`. |
 | `GITHUB_APP_ID`, `GITHUB_APP_INSTALLATION_ID`, `GITHUB_APP_PRIVATE_KEY` | none | The GitHub App the daily cron uses to close old draft pull requests on taskly-sample (runs open none now). The key is the .pem text or its base64. |
@@ -84,7 +85,7 @@ Live runs use Haiku 5.5 for the researcher and release agent, and Sonnet 5.5 for
 
 - A run stops if it passes a $0.60 spending cap.
 - A run stops, and stops spending, when the visitor closes the page.
-- Limits per visitor and per day. They are shared across instances in Upstash Redis when `KV_REST_API_URL` and `KV_REST_API_TOKEN` are set, and kept per instance in memory otherwise, so without Redis they are a brake and not a hard cap.
+- Limits per browser, per network and per day. They are shared across instances in Upstash Redis when `KV_REST_API_URL` and `KV_REST_API_TOKEN` are set, and kept per instance in memory otherwise, so without Redis they are a brake and not a hard cap.
 - The hard cap is the spend limit set in the Anthropic console. Set one.
 - Ideas are limited to 160 characters, and ideas asking for logins or payment details are turned down before any agent runs. `FOUNDRY_LIVE=off`, or **Pause live runs** in the admin dashboard, turns live runs off at any time.
 

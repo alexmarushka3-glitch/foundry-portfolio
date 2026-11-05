@@ -42,15 +42,33 @@ export class SlidingWindowLimiter {
   }
 }
 
-export type LiveLimits = { perHour: number; perDay: number };
+export type LiveLimits = {
+  /** Live runs per browser per hour. */
+  perHour: number;
+  /** Live runs per day for the whole site. */
+  perDay: number;
+  /** Live runs per network (IP address) per hour, shared by every browser on it. Never below perHour. */
+  perNetworkHour?: number;
+};
+
+export const networkLimit = (l: LiveLimits) => Math.max(l.perHour, l.perNetworkHour ?? l.perHour);
+export const browserUsedUp = (l: LiveLimits) => `You've used ${l.perHour} live runs this hour, so this one is a simulation.`;
+export const networkUsedUp = (l: LiveLimits) =>
+  `Your network (for example a shared Wi-Fi) has used its ${networkLimit(l)} live runs this hour, so this one is a simulation.`;
+export const dayUsedUp = "Today's live runs are used up, so this one is a simulation.";
+
+/** The key a browser is counted under: its cookie id, or its address when it sent none. */
+export const browserKey = (visitor: string, browser?: string) => (browser ? `b:${browser}` : `a:${visitor}`);
 
 /**
- * The brake on live (paid) runs: a few per visitor per hour, and a daily total for the whole site.
+ * The brake on live (paid) runs: a few per browser per hour, a few more per network per hour (so people on one
+ * Wi-Fi each get their own, but clearing cookies doesn't give endless runs), and a daily total for the whole site.
  * On serverless hosting each instance keeps its own counters, so this is a brake and not a hard cap.
  * The hard cap is the spend limit in the Anthropic console.
  */
 export class LiveLimiter {
-  private perVisitor: SlidingWindowLimiter;
+  private perBrowser: SlidingWindowLimiter;
+  private perNetwork: SlidingWindowLimiter;
   private dayStart: number;
   private dayCount = 0;
 
@@ -58,27 +76,31 @@ export class LiveLimiter {
     public limits: LiveLimits,
     private now: () => number = Date.now,
   ) {
-    this.perVisitor = new SlidingWindowLimiter(limits.perHour, 3_600_000, now);
+    this.perBrowser = new SlidingWindowLimiter(limits.perHour, 3_600_000, now);
+    this.perNetwork = new SlidingWindowLimiter(networkLimit(limits), 3_600_000, now);
     this.dayStart = now();
   }
 
   /** Returns null when the run may go live, or the reason it can't (shown to the visitor). */
-  check(visitor: string): string | null {
+  check(visitor: string, browser?: string): string | null {
     const now = this.now();
     if (now - this.dayStart > 86_400_000) {
       this.dayStart = now;
       this.dayCount = 0;
     }
-    if (this.dayCount >= this.limits.perDay) return "Today's live runs are used up, so this one is a simulation.";
-    if (!this.perVisitor.hit(visitor)) {
-      return `You've used ${this.limits.perHour} live runs this hour, so this one is a simulation.`;
-    }
+    if (this.dayCount >= this.limits.perDay) return dayUsedUp;
+    const key = browserKey(visitor, browser);
+    if (this.perBrowser.used(key) >= this.limits.perHour) return browserUsedUp(this.limits);
+    if (this.perNetwork.used(visitor) >= networkLimit(this.limits)) return networkUsedUp(this.limits);
+    this.perBrowser.hit(key);
+    this.perNetwork.hit(visitor);
     this.dayCount += 1;
     return null;
   }
 
   reset(): void {
-    this.perVisitor.reset();
+    this.perBrowser.reset();
+    this.perNetwork.reset();
     this.dayStart = this.now();
     this.dayCount = 0;
   }
@@ -86,10 +108,11 @@ export class LiveLimiter {
   snapshot() {
     return {
       perHour: this.limits.perHour,
+      perNetworkHour: networkLimit(this.limits),
       perDay: this.limits.perDay,
       usedToday: this.dayCount,
       dayResetsAt: this.dayStart + 86_400_000,
-      visitorsTracked: this.perVisitor.keys,
+      visitorsTracked: this.perBrowser.keys,
     };
   }
 }

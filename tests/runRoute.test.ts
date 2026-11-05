@@ -95,10 +95,12 @@ describe("POST /api/run streaming", () => {
 describe("POST /api/run limits", () => {
   const optionsOf = () => pipeline.runPipeline.mock.calls.at(-1)![2] as { allowLive: boolean; reason?: string };
 
+  const browser = (id: string) => `foundry_b=${id.padEnd(20, "0")}`;
+
   it("counts only typed ideas against the visitor limit, and falls back to simulation with a reason", async () => {
     pipeline.live = true;
     process.env.FOUNDRY_LIVE_PER_HOUR = "1";
-    const headers = { "x-forwarded-for": "198.51.100.7" };
+    const headers = { "x-forwarded-for": "198.51.100.7", cookie: browser("alice") };
     await (await post(idea("A habit tracker one"), headers)).text();
     expect(optionsOf().allowLive).toBe(true);
     await (await post(idea("A habit tracker two"), headers)).text();
@@ -106,6 +108,28 @@ describe("POST /api/run limits", () => {
     // a different visitor still gets a live run
     await (await post(idea("A habit tracker three"), { "x-forwarded-for": "198.51.100.8" })).text();
     expect(optionsOf().allowLive).toBe(true);
+  });
+
+  it("gives each browser on a shared network its own runs, up to the network's hourly cap", async () => {
+    pipeline.live = true;
+    process.env.FOUNDRY_LIVE_PER_HOUR = "1";
+    process.env.FOUNDRY_LIVE_PER_NETWORK_HOUR = "2";
+    const wifi = "203.0.113.50";
+    await (await post(idea("Idea one"), { "x-forwarded-for": wifi, cookie: browser("bob") })).text();
+    expect(optionsOf().allowLive).toBe(true);
+    await (await post(idea("Idea two"), { "x-forwarded-for": wifi, cookie: browser("carol") })).text();
+    expect(optionsOf().allowLive).toBe(true);
+    await (await post(idea("Idea three"), { "x-forwarded-for": wifi, cookie: browser("dave") })).text();
+    expect(optionsOf()).toMatchObject({ allowLive: false, reason: expect.stringMatching(/network.*2 live runs this hour/) });
+  });
+
+  it("gives a browser without an id a cookie, and keeps one it already has", async () => {
+    const fresh = await post(idea("Cookie one"), { "x-forwarded-for": "198.51.100.9" });
+    await fresh.text();
+    expect(fresh.headers.get("set-cookie")).toMatch(/^foundry_b=[A-Za-z0-9-]{16,64}; Path=\/api;.*HttpOnly/);
+    const known = await post(idea("Cookie two"), { "x-forwarded-for": "198.51.100.9", cookie: browser("erin") });
+    await known.text();
+    expect(known.headers.get("set-cookie")).toBeNull();
   });
 
   it("does not count recorded examples", async () => {
