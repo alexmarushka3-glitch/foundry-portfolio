@@ -1,13 +1,14 @@
 import { Sandbox } from "@vercel/sandbox";
+import { appFiles, bundleApp } from "../bundle";
 import snapshot from "../tasklySnapshot.json";
 
-// Runs the sample app's real checks on the agents' files, in a Vercel Sandbox (a throwaway microVM):
-//   - its unit tests (npm test), and
-//   - a real headless Chromium driving the running app (Playwright).
-// Each call gets a fresh sandbox, started from a prepared snapshot (the repo at the pinned commit, with
-// dependencies and Chromium installed) when FOUNDRY_SANDBOX_SNAPSHOT is set, else from a plain clone.
-// The network is off before any agent-written file is copied in, so the code under test cannot call out or
-// reach anything, and no secret is ever placed inside. The sandbox is stopped when the call ends.
+// Runs the app's real checks on the agents' files, in a Vercel Sandbox (a throwaway microVM):
+//   - its unit tests (npm test: node --test on app.js), and
+//   - a real headless Chromium driving the finished single-file app (Playwright).
+// Each call gets a fresh sandbox, started from a prepared snapshot (a Node project with Playwright and Chromium
+// installed; it was built from the taskly-sample repo, whose files are cleared first) when FOUNDRY_SANDBOX_SNAPSHOT
+// is set, else from a plain clone. The network is off before any agent-written file is copied in, so the code under
+// test cannot call out or reach anything, and no secret is ever placed inside. The sandbox is stopped when the call ends.
 
 export type TestReport = {
   /** False when the sandbox itself could not start or finish, so there is no result at all. */
@@ -24,10 +25,10 @@ export type BrowserShot = { label: string; /** PNG, base64. */ png: string };
 
 export type BrowserReport = TestReport & { shots: BrowserShot[] };
 
-/** Run the tests with these files (path -> content) written over the clean repo. */
+/** Run the app's unit tests with these changed files (path -> content) on top of the starter kit. */
 export type TestRunner = (files: Record<string, string>, signal?: AbortSignal) => Promise<TestReport>;
 
-/** Run a Playwright spec (the E2E agent's) plus the repo's own e2e tests in a real browser, against the app started in the sandbox. */
+/** Run a Playwright spec (the E2E agent's) plus the smoke test in a real browser, against the bundled app served in the sandbox. */
 export type BrowserRunner = (files: Record<string, string>, spec: string, signal?: AbortSignal) => Promise<BrowserReport>;
 
 export const TEST_TIMEOUT_MS = 90_000;
@@ -36,12 +37,40 @@ export const MAX_SPEC_BYTES = 8_000;
 export const MAX_SHOTS = 4;
 const MAX_SHOT_BYTES = 150_000;
 const OUTPUT_TAIL = 2_500;
-// Sorts after smoke.spec.js, so the repo's own smoke test (which expects an empty list) runs first.
-const SPEC_PATH = "e2e/zz-feature.spec.js";
-const RUN_CONFIG = "playwright.run.config.js";
+// Sorts after smoke.spec.mjs, so the smoke test runs first.
+const SPEC_PATH = "e2e/zz-feature.spec.mjs";
+const RUN_CONFIG = "playwright.run.config.mjs";
+/** The snapshot's own project files, removed before the app's files go in. */
+const CLEAR = "rm -rf src public tests e2e site playwright.config.js README.md";
+
+// Not agent-controlled: a tiny static server for the bundled app, and a smoke test that it loads cleanly.
+export const SERVE_SOURCE = `const http = require("node:http");
+const fs = require("node:fs");
+const page = fs.readFileSync(__dirname + "/site/index.html");
+http
+  .createServer((req, res) => {
+    if (req.url === "/" || req.url.startsWith("/?") || req.url === "/index.html") {
+      res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      return res.end(page);
+    }
+    res.writeHead(req.url === "/favicon.ico" ? 204 : 404);
+    res.end();
+  })
+  .listen(3000, "127.0.0.1");
+`;
+export const SMOKE_SOURCE = `import { test, expect } from "@playwright/test";
+test("the app loads with a heading and no errors", async ({ page }) => {
+  const errors = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
+  await page.goto("/");
+  await expect(page.locator("h1").first()).toBeVisible();
+  expect(errors).toEqual([]);
+});
+`;
 
 // Not agent-controlled: where Playwright looks, how it starts the app, and that it takes a picture of each test.
-const RUN_CONFIG_SOURCE = `import { defineConfig } from "@playwright/test";
+export const RUN_CONFIG_SOURCE = `import { defineConfig } from "@playwright/test";
 export default defineConfig({
   testDir: "e2e",
   outputDir: "/tmp/pw-out",
@@ -50,7 +79,7 @@ export default defineConfig({
   workers: 1,
   reporter: "list",
   use: { baseURL: "http://127.0.0.1:3000", screenshot: "on", viewport: { width: 640, height: 480 } },
-  webServer: { command: "npm start", url: "http://127.0.0.1:3000", reuseExistingServer: false, timeout: 15000 },
+  webServer: { command: "node serve.cjs", url: "http://127.0.0.1:3000", reuseExistingServer: false, timeout: 15000 },
 });
 `;
 
@@ -58,8 +87,8 @@ const tail = (s: string) => (s.length > OUTPUT_TAIL ? `…${s.slice(-OUTPUT_TAIL
 
 /** Pull the counts out of `node --test` output. */
 export function summarizeTestOutput(out: string, exitCode: number): string {
-  const pass = /^ℹ pass (\d+)/m.exec(out)?.[1];
-  const fail = /^ℹ fail (\d+)/m.exec(out)?.[1];
+  const pass = /^(?:ℹ|#) pass (\d+)/m.exec(out)?.[1];
+  const fail = /^(?:ℹ|#) fail (\d+)/m.exec(out)?.[1];
   if (pass !== undefined && fail !== undefined) return `npm test: ${pass} passed, ${fail} failed`;
   return exitCode === 0 ? "npm test passed" : "npm test failed";
 }
@@ -112,6 +141,12 @@ class InstallFailed extends Error {
 
 const toFiles = (files: Record<string, string>) => Object.entries(files).map(([path, content]) => ({ path, content: Buffer.from(content) }));
 
+/** Clear the snapshot's own project files, then write the app (the starter kit with the agents' changes) and any extras. */
+async function writeApp(sandbox: Sandbox, changes: Record<string, string>, extra: Record<string, string>, signal?: AbortSignal) {
+  await sandbox.runCommand("bash", ["-lc", CLEAR], { signal });
+  await sandbox.writeFiles(toFiles({ ...appFiles(changes), ...extra }), { signal });
+}
+
 /** Shared wrapper: start, run `work`, enforce the hard timeout, always stop the sandbox. */
 async function withSandbox<R extends TestReport>(
   signal: AbortSignal | undefined,
@@ -152,7 +187,7 @@ export function createSandboxTestRunner(): TestRunner {
       TEST_TIMEOUT_MS,
       () => ({ ran: false, ok: false, summary: "Tests could not run (sandbox unavailable)", output: "", ms: 0 }),
       async (sandbox, _snap, elapsed) => {
-        if (Object.keys(files).length) await sandbox.writeFiles(toFiles(files), { signal });
+        await writeApp(sandbox, files, {}, signal);
         const test = await sandbox.runCommand("npm", ["test"], { signal });
         const out = (await test.stdout()) + (await test.stderr());
         return { ran: true, ok: test.exitCode === 0, summary: summarizeTestOutput(out, test.exitCode), output: tail(out), ms: elapsed() };
@@ -173,9 +208,17 @@ export function createSandboxBrowserRunner(): BrowserRunner {
       () => none("Real browser could not run (sandbox unavailable)"),
       async (sandbox, fromSnapshot, elapsed) => {
         if (!fromSnapshot) return none("Real browser unavailable (snapshot could not be used)");
-        await sandbox.writeFiles(
-          [...toFiles(files), { path: SPEC_PATH, content: Buffer.from(spec) }, { path: RUN_CONFIG, content: Buffer.from(RUN_CONFIG_SOURCE) }],
-          { signal },
+        await writeApp(
+          sandbox,
+          files,
+          {
+            "site/index.html": bundleApp(files),
+            "serve.cjs": SERVE_SOURCE,
+            "e2e/smoke.spec.mjs": SMOKE_SOURCE,
+            [SPEC_PATH]: spec,
+            [RUN_CONFIG]: RUN_CONFIG_SOURCE,
+          },
+          signal,
         );
         const run = await sandbox.runCommand("bash", ["-lc", `set -o pipefail; timeout 70 npx playwright test -c ${RUN_CONFIG} 2>&1 | tail -c 6000`], { signal });
         const out = await run.stdout();

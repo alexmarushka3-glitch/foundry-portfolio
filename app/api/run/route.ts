@@ -7,7 +7,7 @@ import { serverState } from "@/lib/server/state";
 import type { FoundryEvent } from "@/lib/types";
 
 export const runtime = "nodejs";
-export const maxDuration = 200; // live runs with tools take 55 to 70 seconds; a second round adds about as much
+export const maxDuration = 300; // a live run takes about 1 to 2 minutes; a second round adds about as much
 
 /** Tells the page whether requests built in the form can run live. */
 export async function GET() {

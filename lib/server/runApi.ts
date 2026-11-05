@@ -2,25 +2,25 @@
 
 import { MAX_INPUT } from "../limits";
 import { findServerRecording } from "./liveRecordings";
-import { buildRequest, validateSpec } from "../spec";
+import { validateIdea } from "../spec";
 
 type Parsed = { ok: true; request: string } | { ok: false; error: string };
 
 /**
- * Turn the browser's body into the request the agents get. A `spec` (fixed choices) is validated and rebuilt into
- * a sentence here, so raw visitor text never reaches a prompt. A plain `request` is only accepted if it is one of
+ * Turn the browser's body into the request the agents get. An `idea` (the visitor's own sentence) is cleaned and
+ * checked here; the agents are told it is data, not instructions. A plain `request` is only accepted if it is one of
  * the recorded examples, which replay for free.
  */
 export function parseRequest(body: unknown): Parsed {
-  const b = (body ?? {}) as { request?: unknown; spec?: unknown };
-  if (b.spec !== undefined) {
-    const checked = validateSpec(b.spec);
-    return checked.ok ? { ok: true, request: buildRequest(checked.spec) } : checked;
+  const b = (body ?? {}) as { request?: unknown; idea?: unknown };
+  if (b.idea !== undefined) {
+    const checked = validateIdea(b.idea);
+    return checked.ok ? { ok: true, request: checked.idea } : checked;
   }
   const raw = typeof b.request === "string" ? b.request.replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim() : "";
-  if (!raw) return { ok: false, error: "Pick what you want built first." };
+  if (!raw) return { ok: false, error: "Describe an app first, or pick an example." };
   if (raw.length > MAX_INPUT) return { ok: false, error: `Keep it under ${MAX_INPUT} characters.` };
-  if (!findServerRecording(raw)) return { ok: false, error: "Pick a feature type and a name, or choose one of the examples." };
+  if (!findServerRecording(raw)) return { ok: false, error: "Describe an app in the box, or pick one of the examples." };
   return { ok: true, request: raw };
 }
 

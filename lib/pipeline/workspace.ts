@@ -1,14 +1,14 @@
-import snapshot from "../tasklySnapshot.json";
+import { INTERFACE_FILES, LOGIC_FILES, STARTER_FILES } from "../starter";
 
-// The agents' view of the sample app. For now it is an in-memory copy of the taskly-sample repo
-// (lib/tasklySnapshot.json) with an overlay for the files the engineers write. Nothing touches disk, and
-// no agent ever gets a shell, so a run cannot reach anything but this copy. A later stage swaps the
-// implementation for a real sandbox without changing the tools.
+// The agents' view of the app they are building: the starter kit (lib/starter.ts) with an overlay for the files
+// the engineers write. Nothing touches disk, and no agent ever gets a shell, so a run cannot reach anything but
+// this copy.
 
-export const MAX_FILE_BYTES = 8_000;
-export const MAX_WRITES = 12;
-/** Where engineers may write. Everything else, including package.json and config, is off limits. */
-export const WRITABLE = [/^src\/[\w./-]+\.js$/, /^public\/[\w./-]+\.(js|css|html)$/, /^tests\/[\w./-]+\.js$/];
+export const MAX_FILE_BYTES = 16_000;
+export const MAX_WRITES = 10;
+/** Where engineers may write. Everything else, including package.json and the README, is off limits. */
+export const WRITABLE = [LOGIC_FILES, INTERFACE_FILES];
+export const STARTER_SOURCE = { repo: "foundry starter kit", commit: "v1" };
 
 export interface Workspace {
   /** Repository name and commit the copy was taken from. */
@@ -26,12 +26,12 @@ const norm = (p: string) => p.replace(/\\/g, "/").replace(/^\.?\/+/, "").replace
 const safe = (p: string) => !p.split("/").some((part) => part === ".." || part === "") && !p.includes("\0");
 
 export function createWorkspace(): Workspace {
-  const base: Record<string, string> = snapshot.files;
+  const base: Record<string, string> = STARTER_FILES;
   const overlay = new Map<string, string>();
   const all = () => ({ ...base, ...Object.fromEntries(overlay) });
 
   return {
-    source: { repo: snapshot.repo, commit: snapshot.commit },
+    source: STARTER_SOURCE,
 
     listDir(dir) {
       const d = norm(dir);
@@ -70,7 +70,7 @@ export function createWorkspace(): Workspace {
     write(path, content) {
       const p = norm(path);
       if (!safe(p) || !WRITABLE.some((re) => re.test(p))) {
-        throw new Error(`Not allowed to write ${p || "(empty path)"}. Allowed: src/*.js, public/*.js|css|html, tests/*.js.`);
+        throw new Error(`Not allowed to write ${p || "(empty path)"}. Allowed: app.js, tests/*.test.js, index.html, style.css, ui.js.`);
       }
       if (Buffer.byteLength(content) > MAX_FILE_BYTES) throw new Error(`File too large (limit ${MAX_FILE_BYTES} bytes).`);
       if (!overlay.has(p) && overlay.size >= MAX_WRITES) throw new Error(`Too many files written (limit ${MAX_WRITES}).`);

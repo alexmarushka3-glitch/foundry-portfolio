@@ -1,35 +1,35 @@
 [
   {
-    "request": "Add a \"estimate\" field to tasks (type: number, optional).",
+    "request": "A tip calculator that splits the bill between friends",
     "rounds": 1,
     "approved": true,
-    "totalMs": 124769,
+    "totalMs": 60036,
     "models": [
       "claude-haiku-5-5",
       "claude-sonnet-5-5"
     ],
-    "costUsd": 0.2759619
+    "costUsd": 0.1650762
   },
   {
-    "request": "Add a filter by \"completed\" to the task list.",
+    "request": "A habit tracker where I check off habits each day and see my streak",
     "rounds": 1,
     "approved": true,
-    "totalMs": 66986,
+    "totalMs": 54388,
     "models": [
       "claude-haiku-5-5",
       "claude-sonnet-5-5"
     ],
-    "costUsd": 0.2165706
+    "costUsd": 0.15615389999999998
   },
   {
-    "request": "Add a sort option by \"created date\" to the task list.",
+    "request": "Flashcards for studying: add cards, flip them, and shuffle",
     "rounds": 1,
     "approved": true,
-    "totalMs": 68311,
+    "totalMs": 58075,
     "models": [
       "claude-haiku-5-5",
       "claude-sonnet-5-5"
     ],
-    "costUsd": 0.1936836
+    "costUsd": 0.15299669999999999
   }
 ]

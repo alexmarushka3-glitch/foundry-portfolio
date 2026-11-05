@@ -1,6 +1,6 @@
 import type { AgentName } from "../types";
 
-// Scripted output so the demo works with no API key. Round 1 fails an E2E flow so
+// Scripted output so the demo works with no API key. Round 1 fails a browser flow so
 // visitors see work get sent back, then round 2 passes and the Validator approves.
 // This is labelled "Simulated" everywhere it is shown. It is never presented as model output.
 
@@ -12,73 +12,51 @@ export function simulate(agent: AgentName, round: number, request: string): stri
   switch (agent) {
     case "researcher":
       return lines(
-        "- src/db.js: schema has a single tasks table (id, title, done, created_at)",
-        "- src/app.js: GET, POST, PATCH and DELETE /api/tasks, title checked on POST only",
-        "- public/app.js: renders title, checkbox and a Delete button",
-        "- tests/api.test.js: API tests; e2e/smoke.spec.js: one browser test",
-        `Gaps: nothing yet supports "${topic}".`,
+        "- index.html: a page with one h1; loads style.css, app.js and ui.js",
+        "- app.js: loadData and saveData keep data in the browser's storage",
+        "- style.css: a clean base for inputs, buttons and cards",
+        "- tests/app.test.js: one unit test, run with node --test",
+        `Needs: inputs, a results area and saved data for "${topic}".`,
       );
     case "story":
       return lines(
-        `As a taskly user, I want to ${topic.charAt(0).toLowerCase()}${topic.slice(1)} so that I can manage my work faster.`,
-        "1. The change works for new and existing tasks.",
-        "2. Invalid input is rejected with a clear error.",
-        "3. The list updates without a page reload.",
+        `As a visitor, I want ${topic.charAt(0).toLowerCase()}${topic.slice(1)} so that I can use it on my own device.`,
+        "1. I can enter what the app needs and see the result straight away.",
+        "2. Bad or empty input shows a friendly message.",
+        "3. My data is still there when I open the app again.",
       );
     case "pm":
       return lines(
-        "Data: schema change adds one nullable column to tasks; existing rows unaffected.",
-        "API: extend POST and PATCH /api/tasks to accept the field; validate type and length.",
-        "UI: update public/app.js to show and edit the field; add empty and error states.",
+        "Logic: app.js gets the calculation and list functions, saved with saveData.",
+        "Page: a labelled input per value, an Add button, a results list with an empty state.",
+        "Tests: the calculation, bad input, and saving and loading.",
       );
     case "backend":
       return firstRound
-        ? lines(
-            "```sql",
-            "ALTER TABLE tasks ADD COLUMN extra TEXT;",
-            "```",
-            "```ts",
-            "const { title, extra } = req.body;",
-            "db.insert('tasks', { title, extra, done: 0, created_at: now() });",
-            "```",
-            "Notes: migration and route updated; PATCH not yet validated.",
-          )
+        ? lines("```js", "function addItem(items, text) { return [...items, { text }]; }", "```", "Notes: added the list logic; empty text not handled yet.")
         : lines(
-            "```sql",
-            "ALTER TABLE tasks ADD COLUMN extra TEXT;",
+            "```js",
+            "function addItem(items, text) {",
+            "  if (!text.trim()) throw new Error('Type something first.');",
+            "  return [...items, { text: text.trim() }];",
+            "}",
             "```",
-            "```ts",
-            "if (extra !== undefined && typeof extra !== 'string') return res.status(400).json({ error: 'invalid' });",
-            "db.update('tasks', req.params.id, { extra });",
-            "```",
-            "Notes: added validation on PATCH after the failed flow.",
+            "Notes: empty input now rejected, as the failed flow asked.",
           );
     case "frontend":
       return firstRound
-        ? lines("```tsx", "<li key={t.id}>{t.title} <span>{t.extra}</span></li>", "```", "Notes: shows the field; editing comes next.")
-        : lines(
-            "```tsx",
-            "<li key={t.id}>{t.title}",
-            "  <input value={t.extra ?? ''} onChange={e => save(t.id, e.target.value)} />",
-            "  {error && <p role='alert'>{error}</p>}",
-            "</li>",
-            "```",
-            "Notes: added inline editing plus an error state.",
-          );
+        ? lines("```html", '<label for="item">New item</label><input id="item" /><button id="add">Add</button>', "```", "Notes: page wired up; no error message yet.")
+        : lines("```html", '<p id="error" role="alert"></p>', "```", "Notes: shows the error message from app.js.");
     case "e2e":
       return lines(
         firstRound ? "E2E: FAIL" : "E2E: PASS",
-        "Flow 1, create task with the new field: PASS",
-        "Flow 2, view list after reload: PASS",
-        `Flow 3, edit the field on an existing task: ${firstRound ? "FAIL (no edit control in the UI)" : "PASS"}`,
+        "Flow 1, add an item and see it listed: PASS",
+        "Flow 2, reload and the item is still there: PASS",
+        `Flow 3, press Add with nothing typed: ${firstRound ? "FAIL (no message shown)" : "PASS"}`,
       );
     case "validator":
-      return lines(
-        "VERDICT: APPROVE",
-        "- Criteria 1 to 3 met; E2E flows all pass.",
-        "- Input validated server side; migration is additive and safe.",
-      );
+      return lines("VERDICT: APPROVE", "- Criteria 1 to 3 met; flows all pass.", "- No network requests; data stays in the browser.");
     case "release":
-      return `Add: ${topic}\n- Data: additive migration, no downtime\n- API: validated POST and PATCH changes\n- UI: inline editing with error state; E2E flows pass`;
+      return lines(`${topic}`, "- Type in the box and press Add.", "- Bad input shows a message instead of breaking.", "It saves on your own device.");
   }
 }

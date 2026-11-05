@@ -1,19 +1,15 @@
-import { buildRequest, type FeatureSpec } from "../spec";
-
-/** Four requests the form can build, one per kind of change. Batches cycle through them in order. */
-const SPECS: FeatureSpec[] = [
-  { kind: "field", name: "estimate", valueType: "number", required: false },
-  { kind: "filter", name: "completed" },
-  { kind: "sort", name: "created date" },
-  { kind: "bulk", name: "mark all done" },
+/** Four app ideas, the kind a visitor types. Batches cycle through them in order. The first three are the recorded examples. */
+export const EVAL_REQUESTS: string[] = [
+  "A tip calculator that splits the bill between friends",
+  "A habit tracker where I check off habits each day and see my streak",
+  "Flashcards for studying: add cards, flip them, and shuffle",
+  "A countdown timer for workouts with rounds and rest",
 ];
-
-export const EVAL_REQUESTS: string[] = SPECS.map(buildRequest);
 
 export const MAX_EVAL_RUNS = 20;
 
-/** The top of the observed range for one live run ($0.18 to $0.31), rounded up. */
-export const UPPER_COST_PER_RUN_USD = 0.35;
+/** A safe upper bound for one live run of the app builder, used for the spend cap. */
+export const UPPER_COST_PER_RUN_USD = 0.45;
 
 export function planBatch(runs: number): { requests: string[]; maxCostUsd: number } {
   if (!Number.isInteger(runs) || runs < 1) throw new Error("Runs must be a whole number of at least 1.");

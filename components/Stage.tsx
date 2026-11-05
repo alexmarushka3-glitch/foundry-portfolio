@@ -2,7 +2,6 @@
 
 import { useCallback, useMemo, useRef, useState } from "react";
 import IdeaForm from "./stage/IdeaForm";
-import type { FeatureSpec } from "@/lib/spec";
 import OutputPanel from "./stage/OutputPanel";
 import PlayerControls from "./stage/PlayerControls";
 import EvidenceCard from "./stage/EvidenceCard";
@@ -37,7 +36,7 @@ const MODE_COPY: Record<Mode, { label: string; detail: string }> = {
 const LIVE_REPLAY_COPY = {
   label: "Replay of a real live run",
   detail:
-    "A recording of a real run, sped up: real AI output, real tests and a real browser test. This recording opened no pull request.",
+    "A recording of a real run, sped up: real AI output, real tests and a real browser test.",
 };
 
 /**
@@ -97,17 +96,17 @@ export default function Stage() {
   }, [narrow]);
 
   const go = useCallback(
-    (request: string, spec?: FeatureSpec) => {
+    (request: string, typed?: boolean) => {
       const q = request.trim();
       if (!q || busy) return;
       touchedRef.current = true;
       showPipeline();
       void (async () => {
-        if (!spec && (await startReplay(q))) return;
+        if (!typed && (await startReplay(q))) return;
         setRun(null);
         setPlaying(false);
         resetView();
-        void startLive(q, spec);
+        void startLive(q, typed);
       })();
     },
     [busy, resetView, setPlaying, showPipeline, startLive, startReplay],
@@ -154,7 +153,7 @@ export default function Stage() {
   return (
     <section ref={sectionRef} className="stage" id="demo" aria-labelledby="stage-title">
       <div className="stage-head">
-        <h2 id="stage-title">Try the demo</h2>
+        <h2 id="stage-title">Build an app</h2>
         {modeCopy && (
           <p className={`badge ${mode}`} role="status">
             <span className="dot" aria-hidden="true" />
@@ -165,7 +164,7 @@ export default function Stage() {
 
       <IdeaForm onSubmit={go} busy={busy} activeExample={run?.request} liveAvailable={liveAvailable} />
 
-      <div ref={pipelineRef}>
+      <div ref={pipelineRef} className="pipeline-wrap">
         <PipelineSvg
           frames={frames}
           layout={narrow ? "narrow" : "wide"}
@@ -194,7 +193,7 @@ export default function Stage() {
 
       <div className="panels">
         {focus.length === 0 ? (
-          <p className="empty">Pick an example above, or build your own request. The agents will build it while you watch.</p>
+          <p className="empty">Pick an example or describe your own app. You can watch the agents work.</p>
         ) : (
           focus.map((f) => <OutputPanel key={f.agent} frame={f} />)
         )}
@@ -224,16 +223,8 @@ export default function Stage() {
       {run && atEnd && (
         <div className="summary">
           <p>{runSummary(run)}</p>
-          {run.pr && (
-            <div className="summary-pr">
-              <a className="btn btn-primary" href={run.pr.url} target="_blank" rel="noreferrer">
-                See the draft pull request on GitHub (#{run.pr.number})
-              </a>
-              <p className="fine">It is a draft on a throwaway sample app, and no human has reviewed it.</p>
-            </div>
-          )}
-          {evidence && <EvidenceCard evidence={evidence} prNumber={run.pr?.number} />}
           {run.files && run.approved && <AppPreview files={run.files} />}
+          {evidence && <EvidenceCard evidence={evidence} />}
         </div>
       )}
     </section>

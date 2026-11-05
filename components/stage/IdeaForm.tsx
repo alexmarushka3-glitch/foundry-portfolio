@@ -2,11 +2,11 @@
 
 import { useRef, useState } from "react";
 import { EXAMPLE_REQUESTS } from "@/lib/exampleRequests";
-import { KINDS, NAME_MAX, VALUE_TYPES, buildRequest, validateSpec, type FeatureSpec, type Kind, type ValueType } from "@/lib/spec";
+import { IDEA_MAX, validateIdea } from "@/lib/spec";
 
 type Props = {
-  /** `spec` is set for a request built from the fields; a recorded example sends only its text. */
-  onSubmit: (request: string, spec?: FeatureSpec) => void;
+  /** `typed` is true for the visitor's own idea; a recorded example sends only its text. */
+  onSubmit: (request: string, typed?: boolean) => void;
   busy: boolean;
   /** The example whose replay is on screen, if any. */
   activeExample?: string;
@@ -14,27 +14,18 @@ type Props = {
   liveAvailable: boolean | null;
 };
 
-/** The request fields, the recorded examples, and a line saying what a built request will do. */
+/** The recorded examples, then a box for the visitor's own idea. */
 export default function IdeaForm({ onSubmit, busy, activeExample, liveAvailable }: Props) {
-  const [kind, setKind] = useState<Kind>("field");
-  const [name, setName] = useState("");
-  const [valueType, setValueType] = useState<ValueType>("date");
-  const [required, setRequired] = useState(false);
+  const [idea, setIdea] = useState("");
   const [error, setError] = useState<string | null>(null);
-  // A live run spends real money and opens a public pull request, so the first press asks and the second runs.
-  const [confirming, setConfirming] = useState(false);
-  const nameRef = useRef<HTMLInputElement>(null);
-
-  const kindInfo = KINDS.find((k) => k.id === kind)!;
-  const checked = validateSpec({ kind, name, valueType, required });
-  const preview = checked.ok ? buildRequest(checked.spec) : "";
+  const box = useRef<HTMLTextAreaElement>(null);
 
   const hint =
     liveAvailable === null
       ? ""
       : liveAvailable
-        ? "The examples are recordings of real runs. Anything you build here runs live on real AI models, and if it passes, it posts a public draft pull request with your request."
-        : "The examples are recordings of real runs. Anything you build here runs a labelled simulation.";
+        ? "Your idea runs live on real AI models and takes about two minutes."
+        : "Live runs are off right now, so your idea runs a labelled simulation and no app is built.";
 
   return (
     <form
@@ -42,106 +33,19 @@ export default function IdeaForm({ onSubmit, busy, activeExample, liveAvailable 
       onSubmit={(e) => {
         e.preventDefault();
         if (busy) return;
-        // Not ready: say why next to the field and put the cursor there, instead of a dead button.
+        const checked = validateIdea(idea);
+        // Not ready: say why next to the box and put the cursor there, instead of a dead button.
         if (!checked.ok) {
           setError(checked.error);
-          nameRef.current?.focus();
+          box.current?.focus();
           return;
         }
         setError(null);
-        if (liveAvailable && !confirming) {
-          setConfirming(true);
-          return;
-        }
-        setConfirming(false);
-        onSubmit(buildRequest(checked.spec), checked.spec);
+        onSubmit(checked.idea, true);
       }}
     >
-      <div className="idea-fields">
-        <label className="idea-field">
-          What to add
-          <select
-            value={kind}
-            onChange={(e) => {
-              setKind(e.target.value as Kind);
-              setConfirming(false);
-            }}
-            disabled={busy}
-          >
-            {KINDS.map((k) => (
-              <option key={k.id} value={k.id}>
-                {k.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="idea-field idea-name">
-          {kindInfo.nameLabel}
-          <input
-            ref={nameRef}
-            name="name"
-            aria-invalid={error ? true : undefined}
-            aria-describedby="idea-preview"
-            autoComplete="off"
-            value={name}
-            maxLength={NAME_MAX}
-            onChange={(e) => {
-              setName(e.target.value);
-              setError(null);
-              setConfirming(false);
-            }}
-            placeholder={`For example, ${kindInfo.example}`}
-            disabled={busy}
-          />
-        </label>
-        {kind === "field" && (
-          <>
-            <label className="idea-field">
-              Type
-              <select
-                value={valueType}
-                onChange={(e) => {
-                  setValueType(e.target.value as ValueType);
-                  setConfirming(false);
-                }}
-                disabled={busy}
-              >
-                {VALUE_TYPES.map((v) => (
-                  <option key={v} value={v}>
-                    {v}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="idea-check">
-              <input type="checkbox" checked={required} onChange={(e) => {
-                  setRequired(e.target.checked);
-                  setConfirming(false);
-                }}
-                disabled={busy}
-              />
-              Required
-            </label>
-          </>
-        )}
-        <button className="run" type="submit" disabled={busy}>
-          {busy ? "Running…" : confirming ? "Run live" : "Run"}
-        </button>
-      </div>
-      <p id="idea-preview" className="idea-preview" aria-live="polite">
-        {error ? (
-          <span className="idea-error">{error}</span>
-        ) : confirming ? (
-          <span className="idea-confirm">
-            This calls real Claude models and opens a public draft pull request with your request. Press Run live to start.
-          </span>
-        ) : preview ? (
-          `The agents will get: ${preview}`
-        ) : (
-          "Fill in a name and the agents get one clear sentence to build from."
-        )}
-      </p>
-      <div className="examples" role="group" aria-label="Recorded examples">
+      <p className="idea-step">Watch an example (recorded earlier, free):</p>
+      <div className="examples" role="group" aria-label="Examples">
         {EXAMPLE_REQUESTS.map((ex) => (
           <button
             key={ex}
@@ -155,7 +59,41 @@ export default function IdeaForm({ onSubmit, busy, activeExample, liveAvailable 
           </button>
         ))}
       </div>
-      <p className="hint">{hint}</p>
+
+      <label className="idea-step" htmlFor="idea-box">
+        Or describe your own app:
+      </label>
+      <div className="idea-row">
+        <textarea
+          id="idea-box"
+          ref={box}
+          name="idea"
+          rows={2}
+          maxLength={IDEA_MAX}
+          autoComplete="off"
+          value={idea}
+          aria-invalid={error ? true : undefined}
+          aria-describedby="idea-note"
+          placeholder="For example, a packing list for trips that I can check off…"
+          disabled={busy}
+          onChange={(e) => {
+            setIdea(e.target.value);
+            setError(null);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              e.currentTarget.form?.requestSubmit();
+            }
+          }}
+        />
+        <button className="run" type="submit" disabled={busy}>
+          {busy ? "Building…" : "Build it"}
+        </button>
+      </div>
+      <p id="idea-note" className="idea-preview" aria-live="polite">
+        {error ? <span className="idea-error">{error}</span> : hint}
+      </p>
     </form>
   );
 }

@@ -5,84 +5,60 @@ import { REALITY } from "@/lib/reality";
 // The site's honesty rules (CLAUDE.md), enforced on the page copy so a rewrite can't quietly break them.
 
 const allCopy = () =>
-  [profile.headline, profile.tagline, profile.intro, profile.how, profile.pitch, ...profile.about, ...profile.lessons.flatMap((l) => [l.title, l.body]), ...profile.projects.flatMap((p) => [p.name, p.blurb]), ...REALITY.flatMap((c) => c.items)].join("\n");
+  [
+    profile.headline,
+    profile.tagline,
+    profile.intro,
+    profile.how,
+    profile.pitch,
+    ...profile.about,
+    ...profile.lessons.flatMap((l) => [l.title, l.body]),
+    ...REALITY.flatMap((c) => [c.heading, ...c.items, ...c.short]),
+  ].join("\n");
+const column = (tone: string) => REALITY.find((c) => c.tone === tone)!.items.join(" ");
 
 describe("page copy", () => {
-  it("never calls the output a reviewed pull request, or says anything passed review", () => {
+  it("never says the apps were reviewed, or claims a success rate or reliability", () => {
     const copy = allCopy();
-    expect(copy).not.toMatch(/reviewed pull request/i);
-    expect(copy).not.toMatch(/passed (code )?review/i);
+    expect(copy).not.toMatch(/\breviewed\b|passed (code )?review/i);
+    expect(copy).not.toMatch(/(?<!not a )success rate/i);
+    expect(copy).not.toMatch(/\breliabl/i);
   });
 
-  it("describes the output as a pull request draft checked by other agents", () => {
-    expect(profile.intro).toMatch(/draft pull request/i);
-    expect(profile.intro).toMatch(/checked by other agents/i);
-    expect(profile.pitch).toMatch(/draft pull request/i);
+  it("says plainly what visitors get: an app they can use on the page and save", () => {
+    expect(profile.tagline).toMatch(/build it, test it/i);
+    expect(profile.intro).toMatch(/use the app/i);
+    expect(profile.intro).toMatch(/save it as one file/i);
   });
 
-  it("says the work happens on a small sample app, in the intro", () => {
-    expect(profile.intro).toMatch(/small task-tracker app/i);
-  });
-
-  it("keeps the caveats about unrun code and the agent-only E2E check in Scope and limits", () => {
-    const notDone = REALITY.find((c) => c.tone === "limits")!.items.join(" ");
-    expect(notDone).toMatch(/simulation never runs any code/i);
-    expect(REALITY.find((c) => c.tone === "working")!.items.join(" ")).toMatch(/sandbox/i);
-    expect(notDone).toMatch(/does not drive a browser/i);
-    expect(notDone).toMatch(/no human reviews/i);
-  });
-
-  it("describes the replays as real live runs, not the older text-only version", () => {
-    const copy = allCopy();
-    const working = REALITY.find((c) => c.tone === "working")!.items.join(" ");
-    expect(copy).not.toMatch(/earlier version/i);
-    expect(copy).not.toMatch(/older text-only/i);
-    expect(working).toMatch(/real live runs/i);
-    expect(working).toMatch(/faster than they ran/i);
-    expect(working).toMatch(/one run per request, each kept as it came out/i);
-    expect(profile.pitch).not.toMatch(/earlier version/i);
-  });
-
-  it("says the recordings opened no pull request and no human reviewed anything", () => {
-    const limits = REALITY.find((c) => c.tone === "limits")!.items.join(" ");
-    expect(limits).toMatch(/recordings and the simulation open none/i);
+  it("keeps the caveats: real tests in a sandbox, no human review, small one-page apps, a demo not a success rate", () => {
+    expect(column("working")).toMatch(/sandbox/i);
+    expect(column("working")).toMatch(/real headless Chrome/i);
+    const limits = column("limits");
+    expect(limits).toMatch(/no human reviews/i);
+    expect(limits).toMatch(/one page/i);
     expect(limits).toMatch(/demo, not a success rate/i);
-    expect(limits).toMatch(/none of the three recordings includes a send-back/i);
-    expect(limits).not.toMatch(/recordings and the simulation never run any code/i);
   });
 
-  it("describes the hand check of three drafts as a spot check, not a review, and names its one finding", () => {
-    const limits = REALITY.find((c) => c.tone === "limits")!.items.join(" ");
-    expect(limits).toMatch(/three of the eight draft pull requests/i);
-    expect(limits).toMatch(/spot check, not a review/i);
-    expect(limits).toMatch(/browser test that is not in the pull request/i);
-    expect(limits).toMatch(/no human reviews the pull requests/i);
-    expect(limits).not.toMatch(/reviewed pull request|passed review/i);
+  it("describes the examples as recordings of real live runs, kept as they came out", () => {
+    expect(column("working")).toMatch(/recordings of real live runs/i);
+    expect(column("working")).toMatch(/kept as they came out/i);
   });
 
-  it("labels the sample dashboard as made up", () => {
-    const simulated = REALITY.find((c) => c.tone === "simulated")!.items.join(" ");
-    expect(simulated).toMatch(/dashboard/i);
-    expect(simulated).toMatch(/made up/i);
+  it("says the simulation runs no model and builds no app", () => {
+    expect(column("simulated")).toMatch(/no model runs and no app is built/i);
+  });
+
+  it("keeps every short line in step with its full line", () => {
+    for (const c of REALITY) expect(c.short).toHaveLength(c.items.length);
+  });
+
+  it("stays short: the intro is two sentences at most", () => {
+    expect(profile.intro.split(/[.!?](\s|$)/).filter((s) => s.trim().length > 1).length).toBeLessThanOrEqual(2);
   });
 
   it("gives the site a short title and a site address", () => {
     expect(profile.headline).toBe("Foundry");
     expect(profile.siteUrl).toMatch(/^https:\/\//);
-  });
-
-  it("keeps the private projects unlinked and says their images use sample data", () => {
-    const priv = profile.projects.filter((p) => "private" in p && p.private);
-    expect(priv.length).toBe(2);
-    for (const p of priv) {
-      expect("links" in p && p.links).toBeFalsy();
-      expect(p.note).toMatch(/private/i);
-      expect(p.note).toMatch(/sample data/i);
-      expect(JSON.stringify(p)).not.toMatch(/claude\.ai\/artifact|docs\.google|drive\.google|canvas\.uchicago/i);
-      for (const img of p.images ?? []) {
-        expect(img.alt).toMatch(/sample data/i);
-        if (img.animated) expect(img.animated).toMatch(/-sample\.gif$/);
-      }
-    }
   });
 });

@@ -1,3 +1,4 @@
+import { INTERFACE_FILES, LOGIC_FILES } from "../starter";
 import type { AgentName } from "../types";
 import type { Workspace } from "./workspace";
 
@@ -12,13 +13,13 @@ export type ToolDef = {
 
 const LIST_DIR: ToolDef = {
   name: "list_dir",
-  description: "List the files and folders in a directory of the sample app. Use '.' for the top level.",
-  input_schema: { type: "object", properties: { path: { type: "string", description: "Directory path, for example 'src'." } }, required: ["path"] },
+  description: "List the files and folders in a directory of the app. Use '.' for the top level.",
+  input_schema: { type: "object", properties: { path: { type: "string", description: "Directory path, for example 'tests'." } }, required: ["path"] },
 };
 const READ_FILE: ToolDef = {
   name: "read_file",
-  description: "Read one file from the sample app, including changes already written in this run.",
-  input_schema: { type: "object", properties: { path: { type: "string", description: "File path, for example 'src/app.js'." } }, required: ["path"] },
+  description: "Read one file of the app, including changes already written in this run.",
+  input_schema: { type: "object", properties: { path: { type: "string", description: "File path, for example 'app.js'." } }, required: ["path"] },
 };
 const GREP: ToolDef = {
   name: "grep",
@@ -28,11 +29,11 @@ const GREP: ToolDef = {
 const WRITE_FILE: ToolDef = {
   name: "write_file",
   description:
-    "Create or replace one whole file. Allowed: src/*.js, public/*.js, public/*.css, public/*.html, tests/*.js. Send the complete new file content.",
+    "Create or replace one whole file. You may write only your own files (named in your instructions). Send the complete new file content.",
   input_schema: {
     type: "object",
     properties: {
-      path: { type: "string", description: "File path, for example 'src/db.js'." },
+      path: { type: "string", description: "File path, for example 'app.js'." },
       content: { type: "string", description: "The complete file content." },
     },
     required: ["path", "content"],
@@ -43,7 +44,7 @@ const WRITE_FILE: ToolDef = {
 export const RUN_TESTS_TOOL: ToolDef = {
   name: "run_tests",
   description:
-    "Run the sample app's real test suite (npm test) in an isolated sandbox on the files written so far, and read the result. Use it after writing files; fix what fails. Limited to two calls.",
+    "Run the app's real unit tests (npm test: node --test tests/) in an isolated sandbox on the files written so far, and read the result. Use it after writing files; fix what fails. Limited to two calls.",
   input_schema: { type: "object", properties: {}, required: [] },
 };
 
@@ -51,7 +52,7 @@ export const RUN_TESTS_TOOL: ToolDef = {
 export const RUN_BROWSER_TEST_TOOL: ToolDef = {
   name: "run_browser_test",
   description:
-    "Run a Playwright test file in a real headless Chromium against the app, started fresh in an isolated sandbox with the changed files in place. The app's own smoke test runs too. Send the complete test file as `spec` (it is saved as e2e/zz-feature.spec.js and runs after the app's own smoke test, which leaves the task list empty; all tests share one running app and database, so use unique task titles and clean up. It imports { test, expect } from '@playwright/test', and uses relative URLs like page.goto('/')). Returns the real pass or fail result and picture(s) of the page. Limited to three calls.",
+    "Run a Playwright test file in a real headless Chromium against the finished app: the app's files are put together into the one .html file people will use, and served at '/' in an isolated sandbox. A smoke test (the page loads with an h1 and no errors) runs too. Send the complete test file as `spec` (an ES module: import { test, expect } from '@playwright/test'; use page.goto('/')). Each test starts with empty storage. Returns the real pass or fail result and picture(s) of the page. Limited to three calls.",
   input_schema: {
     type: "object",
     properties: { spec: { type: "string", description: "The complete Playwright test file." } },
@@ -62,7 +63,7 @@ export const RUN_BROWSER_TEST_TOOL: ToolDef = {
 export const AGENT_TOOLS: Partial<Record<AgentName, ToolDef[]>> = {
   researcher: [LIST_DIR, READ_FILE, GREP],
   backend: [READ_FILE, GREP, WRITE_FILE, RUN_TESTS_TOOL],
-  frontend: [READ_FILE, GREP, WRITE_FILE, RUN_TESTS_TOOL],
+  frontend: [READ_FILE, GREP, WRITE_FILE],
   e2e: [READ_FILE, GREP, RUN_BROWSER_TEST_TOOL],
 };
 
@@ -80,8 +81,8 @@ export const MAX_BROWSER_RUNS = 3;
 
 /** Turns on the writes each engineer is meant to make, so the backend cannot rewrite the page and the reverse. */
 const OWN_PATHS: Partial<Record<AgentName, RegExp>> = {
-  backend: /^(src|tests)\//,
-  frontend: /^public\//,
+  backend: LOGIC_FILES,
+  frontend: INTERFACE_FILES,
 };
 
 export const MAX_TOOL_RESULT = 6_000;

@@ -1,20 +1,20 @@
 # Foundry Portfolio
 
-A personal portfolio site with a live demo of **Foundry**, a multi-agent software factory. Visitors give a rough feature idea for a small task-tracker app and watch eight agents turn it into a pull request draft checked by other agents.
+A personal portfolio site built around **Foundry**, an eight-agent app builder. Visitors type an idea for a small one-page app and watch eight agents plan, build and test it. Then they use the app on the page or save it as one .html file.
 
 Live site: https://alexmarushka.vercel.app (the old address, https://foundry-portfolio.vercel.app, still works)
 
 ## The pipeline
 
-1. **Researcher** explores the sample codebase with read-only tools (`list_dir`, `read_file`, `grep`) on an in-memory copy of the `taskly-sample` repo.
-2. **Story Writer** turns the rough idea into a user story with acceptance criteria.
-3. **Project Manager** writes the technical blueprint: data, API and UI.
-4. **Backend** and **Frontend** engineers work in parallel.
-5. **E2E Verifier** writes a Playwright test for a user flow. In a live run a real headless Chromium runs it against the sample app in a sandbox, next to the app's own unit tests. In the simulation it is an agent reasoning through the flow.
-6. **Validator** audits the result against the story's acceptance criteria.
-7. **Release** writes the pull request description.
+1. **Researcher** reads the starter kit (`lib/starter.ts`) with read-only tools (`list_dir`, `read_file`, `grep`).
+2. **Story Writer** turns the idea into a user story with acceptance criteria, or refuses it (`REFUSE: ...`) if it is harmful, collects logins or payment details, or needs the internet.
+3. **Project Manager** writes the blueprint: function names, element ids and labels, tests.
+4. **Logic** (`app.js` and unit tests) and **Interface** (`index.html`, `style.css`, `ui.js`) engineers work in parallel.
+5. **Browser Tester** writes a Playwright test. In a live run a real headless Chromium runs it against the bundled app in a sandbox, after the app's unit tests. In the simulation it is an agent reasoning through the flow.
+6. **Validator** checks the result against the story and for network use.
+7. **Release** writes a short how-to note for the visitor.
 
-If the E2E Verifier or the Validator rejects the work, it goes back to Backend and Frontend for a second round. All three recorded runs passed on the first round, so no recording has used the send-back. Live runs can: in testing, one live run was sent back by the Validator and passed on the second round. The simulated mode always shows it.
+If the Browser Tester or the Validator rejects the work, it goes back to the engineers for one more round. The simulated mode always shows a send-back.
 
 ## The stage
 
@@ -25,16 +25,18 @@ The page's centerpiece is a drawing of the pipeline. The active agent glows, fin
 | Mode | When | What visitors see |
 | --- | --- | --- |
 | Replay | One of the three example requests | Genuine Claude output from a real run, played back faster than it ran. Runs in the browser, free, scrubbable. |
-| Live | Any request built in the form, when `ANTHROPIC_API_KEY` is set | Each agent calls a real Claude model. The page shows an estimated cost when the run ends. |
-| Simulated | Any request built in the form, with no key, over the limits, or while live runs are paused | Scripted text, labelled as such. |
+| Live | A typed idea, when `ANTHROPIC_API_KEY` is set | Each agent calls a real Claude model. If both checks pass, the finished app appears on the page with a save button. |
+| Simulated | A typed idea with no key, over the limits, or while live runs are paused | Scripted text, labelled as such. No app is built. |
 
 The page labels the mode on every run.
 
 ## What is real and what is not
 
-- The three recorded examples are real live runs, recorded with `scripts/record-live-runs.ts` (last on Oct 30, 2026, to include the finished app) and kept as they came out (`recordings-src/live/`, collected into `lib/liveRecordings.json` by `npm run recordings:live`). The site replays them faster than they ran. All three were approved on the first round, include the sample app's real tests and a real browser test, and opened no pull request.
-- The agents work on an in-memory copy of a small real repo, [taskly-sample](https://github.com/alexmarushka3-glitch/taskly-sample) (`lib/tasklySnapshot.json`, rebuilt with `node scripts/build-snapshot.mjs`). The engineers write real files into the copy with a `write_file` tool. In a live run, the sample app's real tests (`npm test`) then run on those files in a Vercel Sandbox (`lib/pipeline/sandbox.ts`) with the network off; a failing suite fails the E2E gate.
-- In a live run the E2E Verifier writes a Playwright test and a real headless Chromium runs it against the app started in the sandbox (needs `FOUNDRY_SANDBOX_SNAPSHOT`, see below); pictures show in its panel and the real result decides the gate. In the simulation it is an agent reasoning through flows. A live run that passes both checks then opens a real draft pull request on taskly-sample through a GitHub App (`lib/pipeline/github.ts`); a daily Vercel cron (`/api/cron/close-stale-prs`) closes them after a day.
+- The three recorded examples are real live runs, recorded with `scripts/record-live-runs.ts` and kept as they came out (`recordings-src/live/`, collected into `lib/liveRecordings.json` by `npm run recordings:live`). The site replays them faster than they ran, and each ends with its finished app.
+- The agents work on an in-memory copy of the starter kit (`lib/pipeline/workspace.ts`), each allowed to write only its own files. In a live run the app's unit tests (`npm test`, `node --test`) run in a Vercel Sandbox (`lib/pipeline/sandbox.ts`) with the network off; a failing suite fails the gate.
+- With `FOUNDRY_SANDBOX_SNAPSHOT` set, the files are bundled into one .html file (`lib/bundle.ts`) and a real headless Chromium runs a smoke test and the Browser Tester's test against it in the sandbox; pictures show in its panel and the real result decides the gate.
+- The finished app runs on the page in a sandboxed iframe with no network (`public/preview/`) and an in-memory storage stand-in, so nothing is kept there. The saved file is the same bundle and uses the browser's own storage.
+- No human reviews the apps. Runs no longer open pull requests; the old GitHub App code (`lib/pipeline/github.ts`) is only used by a daily cron that closes old drafts on taskly-sample.
 
 ## Getting started
 
@@ -45,7 +47,7 @@ npm install
 npm run dev        # http://localhost:3000
 ```
 
-With no configuration the site works: the examples replay and requests built in the form run the labelled simulation.
+With no configuration the site works: the examples replay and typed ideas run the labelled simulation.
 
 | Command | What it does |
 | --- | --- |
@@ -69,7 +71,7 @@ Copy `.env.example` to `.env.local`. Nothing is required.
 | `FOUNDRY_LIVE_PER_HOUR` | `1` | Live runs per visitor per hour. |
 | `FOUNDRY_LIVE_PER_DAY` | `8` | Live runs per day for the whole site. |
 | `FOUNDRY_SANDBOX_SNAPSHOT` | none | Id of the prepared sandbox snapshot (repo, dependencies, Chromium). Without it the real browser step is skipped and unit tests use a slower plain clone. Build one with `scripts/build-sandbox-snapshot.mjs`. |
-| `GITHUB_APP_ID`, `GITHUB_APP_INSTALLATION_ID`, `GITHUB_APP_PRIVATE_KEY` | none | The GitHub App that opens draft pull requests on taskly-sample. Without them no PR is opened. The key is the .pem text or its base64. |
+| `GITHUB_APP_ID`, `GITHUB_APP_INSTALLATION_ID`, `GITHUB_APP_PRIVATE_KEY` | none | The GitHub App the daily cron uses to close old draft pull requests on taskly-sample (runs open none now). The key is the .pem text or its base64. |
 | `CRON_SECRET` | none | Lets Vercel Cron call `/api/cron/close-stale-prs` to close pull requests older than a day. Without it that route returns 404. |
 | `FOUNDRY_MODEL_SMART` / `_BUILD` / `_FAST` | Sonnet 5.5 / Sonnet 5.5 / Haiku 5.5 | Models for each tier. |
 | `ADMIN_TOKEN` | none | Turns on the admin dashboard. Use a long random value. |
@@ -78,19 +80,19 @@ An empty or invalid number falls back to its default, so `FOUNDRY_LIVE_PER_HOUR=
 
 ## Live runs and cost
 
-Live runs use Haiku 5.5 for the researcher and release agent, and Sonnet 5.5 for the rest, with thinking switched off and short outputs. Prices come from the Claude API reference. A live run costs roughly $0.10 to $0.30 and takes about a minute. The page shows the estimate for each run. Safeguards:
+Live runs use Haiku 5.5 for the researcher and release agent, and Sonnet 5.5 for the rest, with thinking switched off and short outputs. Prices come from the Claude API reference. A live run takes a couple of minutes. The page shows the estimated cost of each run. Safeguards:
 
-- A run stops if it passes a $0.25 spending cap.
+- A run stops if it passes a $0.60 spending cap.
 - A run stops, and stops spending, when the visitor closes the page.
 - Limits per visitor and per day. They are shared across instances in Upstash Redis when `KV_REST_API_URL` and `KV_REST_API_TOKEN` are set, and kept per instance in memory otherwise, so without Redis they are a brake and not a hard cap.
 - The hard cap is the spend limit set in the Anthropic console. Set one.
-- Input is limited to 200 characters. `FOUNDRY_LIVE=off`, or **Pause live runs** in the admin dashboard, turns live runs off at any time.
+- Ideas are limited to 160 characters, and ideas asking for logins or payment details are turned down before any agent runs. `FOUNDRY_LIVE=off`, or **Pause live runs** in the admin dashboard, turns live runs off at any time.
 
 ## Security
 
 - **Headers:** every response carries a Content-Security-Policy limited to the site itself (no framing, no plugins, no other origins), `X-Content-Type-Options`, `X-Frame-Options`, a referrer policy, a permissions policy and a cross-origin opener policy (`lib/securityHeaders.ts`, wired in `next.config.ts`). The policy is left out in development. Admin pages and `/api/admin/*` are never cached.
 - **Admin session:** the cookie is HttpOnly, Secure and SameSite=Strict, and holds a signed expiry the server checks, so a copied cookie stops working after 8 hours. State-changing admin requests that a browser says came from another site are refused (`blockCrossSite`). Login is limited to five tries per address per 15 minutes, and the token comparison is constant-time.
-- **Inputs:** request bodies are capped at 4 KB (`readJsonBody`). The run form is validated against fixed choices and rebuilt server-side, so visitor text never reaches a prompt. The agents' file writes are allowlisted, and the sandbox runs their code with the network off.
+- **Inputs:** request bodies are capped at 4 KB (`readJsonBody`). The visitor's idea is cleaned and checked (`validateIdea`), and the agents are told it is data, not instructions. The agents' file writes are allowlisted, the sandbox runs their code with the network off, and the finished app runs in a sandboxed frame whose CSP allows no network (`previewHeaders`).
 - **Secrets:** only `.env.example` is committed. The GitHub App key, the API key and the admin token live in Vercel. The cron route does not exist without `CRON_SECRET`.
 - **Known, not fixed:** `npm audit` reports 6 advisories in build-time and CLI dependencies (`zod` inside `@vercel/sandbox`, `postcss` inside `next`). Neither handles visitor input, and the only fixes are major version changes. Without Redis, live-run limits are per server instance, so the spend limit set in the Anthropic console is the real cap.
 - Reviewed against the VibeSec checklist on Oct 26 and 27, 2026.
@@ -109,7 +111,7 @@ The run log is in Upstash Redis when `KV_REST_API_URL` and `KV_REST_API_TOKEN` a
 
 ### Public sample-data demo
 
-`/admin-demo` is a public, read-only copy of the dashboard for visitors and recruiters. It needs no token, makes no requests to the server, and runs on **made-up** data generated in the browser (`lib/admin/sampleData.ts`). A banner at the top says so, every visitor id starts with `sample-`, and the buttons only change what is on that visitor's screen. The only real data on it is the table of the three recorded examples. A compact version of the same sample dashboard is also on the home page, between the demo and "Scope and limits" (`components/admin/DashboardSection.tsx`). It loads after the page does, so it stays out of the first load.
+`/admin-demo` is a public, read-only copy of the dashboard for visitors and recruiters. It needs no token, makes no requests to the server, and runs on **made-up** data generated in the browser (`lib/admin/sampleData.ts`). A banner at the top says so, every visitor id starts with `sample-`, and the buttons only change what is on that visitor's screen. The only real data on it is the table of the three recorded examples.
 
 ## Project structure
 

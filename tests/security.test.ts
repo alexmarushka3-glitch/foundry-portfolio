@@ -119,12 +119,11 @@ describe("security headers", () => {
     expect(map(true)["X-Content-Type-Options"]).toBe("nosniff");
   });
 
-  it("lets the app preview frame run the app's code and SQLite, but reach no network and be framed only by this site", () => {
+  it("lets the app preview frame run the app's inline code, but reach no network and be framed only by this site", () => {
     expect(PREVIEW_CONTENT_SECURITY_POLICY).toContain("default-src 'none'");
     expect(PREVIEW_CONTENT_SECURITY_POLICY).toContain("connect-src 'none'");
     expect(PREVIEW_CONTENT_SECURITY_POLICY).toContain("frame-ancestors 'self'");
-    expect(PREVIEW_CONTENT_SECURITY_POLICY).toContain("'wasm-unsafe-eval'");
-    expect(PREVIEW_CONTENT_SECURITY_POLICY).not.toMatch(/'unsafe-eval'|https?:\/\/|\*/);
+    expect(PREVIEW_CONTENT_SECURITY_POLICY).not.toMatch(/'unsafe-eval'|wasm|blob:\s*'|https?:\/\/|\*/);
     const h = Object.fromEntries(previewHeaders().map((x) => [x.key, x.value]));
     expect(h["X-Frame-Options"]).toBe("SAMEORIGIN");
   });

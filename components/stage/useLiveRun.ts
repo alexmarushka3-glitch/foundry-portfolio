@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { applyEvent, startLive, toRun, type LiveState } from "@/lib/liveRun";
 import { readEvents } from "@/lib/ndjson";
 import type { Run } from "@/lib/run";
-import type { FeatureSpec } from "@/lib/spec";
 
 /**
  * Starts a request built in the form on the server and follows its stream. While it runs, `live` holds the steps so far
@@ -26,7 +25,7 @@ export function useLiveRun(onComplete: (run: Run) => void) {
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
-  const start = useCallback(async (request: string, spec?: FeatureSpec) => {
+  const start = useCallback(async (request: string, typed?: boolean) => {
     abortRef.current?.abort();
     const ctrl = new AbortController();
     abortRef.current = ctrl;
@@ -50,7 +49,7 @@ export function useLiveRun(onComplete: (run: Run) => void) {
       const res = await fetch("/api/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(spec ? { spec } : { request }),
+        body: JSON.stringify(typed ? { idea: request } : { request }),
         signal: ctrl.signal,
       });
       if (!res.ok || !res.body) {
