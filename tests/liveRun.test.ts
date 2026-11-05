@@ -48,6 +48,14 @@ describe("toRun", () => {
     expect(run.approved).toBe(false);
   });
 
+  it("keeps the reason a run was simulated, so the finished run can still show it", () => {
+    const why = "You've used 2 live runs this hour, so this one is a simulation.";
+    const simulated = finished.map(([e, at]) => [e.type === "mode" ? { type: "mode", mode: "simulated", reason: why } : e, at]) as typeof finished;
+    const run = toRun(play(simulated), 100)!;
+    expect(run.mode).toBe("simulated");
+    expect(run.reason).toBe(why);
+  });
+
   it("returns nothing when the stream ended without a finish event", () => {
     expect(toRun(play(finished.slice(0, 5)), 100)).toBeNull();
     const errored = play([[{ type: "error", message: "boom" }, 1]]);

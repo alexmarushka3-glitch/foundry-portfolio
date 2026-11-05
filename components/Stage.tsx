@@ -136,7 +136,7 @@ export default function Stage() {
   const frames = useMemo(() => framesFrom(views), [views]);
   const mode: Mode | null = live ? live.mode : (run?.mode ?? null);
   const modeCopy = mode ? (mode === "replay" && run?.source === "live-run" && !live ? LIVE_REPLAY_COPY : MODE_COPY[mode]) : null;
-  const reason = live?.reason;
+  const reason = live ? live.reason : run?.reason;
   const atEnd = run !== null && t >= run.total - 1;
   const evidence = useMemo(() => (run && atEnd ? runEvidence(run) : null), [run, atEnd]);
 
