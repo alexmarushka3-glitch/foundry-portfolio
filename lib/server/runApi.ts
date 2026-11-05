@@ -44,6 +44,24 @@ export async function readJsonBody(req: Request, max = MAX_BODY_BYTES): Promise<
 }
 
 /** Who is asking, for the per-visitor limit. Behind Vercel the first forwarded address is the visitor's. */
+const BROWSER_COOKIE = "foundry_b";
+const BROWSER_ID = /^[A-Za-z0-9-]{16,64}$/;
+
+/**
+ * The random id this browser keeps in a cookie, so people sharing one Wi-Fi (one address) each get their own
+ * hourly live runs. It identifies nothing but the browser and is used only for the limits. `setCookie` is the
+ * header to send when the browser had no valid id yet.
+ */
+export function browserId(headers: Headers): { id: string; setCookie?: string } {
+  const sent = (headers.get("cookie") ?? "")
+    .split(";")
+    .map((c) => c.trim().split("="))
+    .find(([k]) => k === BROWSER_COOKIE)?.[1];
+  if (sent && BROWSER_ID.test(sent)) return { id: sent };
+  const id = crypto.randomUUID();
+  return { id, setCookie: `${BROWSER_COOKIE}=${id}; Path=/api; Max-Age=31536000; HttpOnly; Secure; SameSite=Lax` };
+}
+
 export function visitorAddress(headers: Headers): string {
   return headers.get("x-forwarded-for")?.split(",")[0]?.trim() || headers.get("x-real-ip")?.trim() || "unknown";
 }

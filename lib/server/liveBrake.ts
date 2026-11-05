@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { LiveLimiter, type LiveLimits } from "./rateLimit";
+import { LiveLimiter, browserKey, browserUsedUp, dayUsedUp, networkLimit, networkUsedUp, type LiveLimits } from "./rateLimit";
 import { upstashConfig, upstashPipeline, type UpstashConfig } from "./upstash";
 
 // The brake on live (paid) runs. Memory alone is per server instance and resets on a cold start. With an
@@ -7,6 +7,7 @@ import { upstashConfig, upstashPipeline, type UpstashConfig } from "./upstash";
 
 export type LiveBrakeSnapshot = {
   perHour: number;
+  perNetworkHour: number;
   perDay: number;
   usedToday: number;
   dayResetsAt: number;
@@ -15,15 +16,15 @@ export type LiveBrakeSnapshot = {
 
 export interface LiveBrake {
   /** Returns null when the run may go live, or the reason it can't (shown to the visitor). */
-  check(visitor: string): Promise<string | null>;
+  check(visitor: string, browser?: string): Promise<string | null>;
   reset(): Promise<void>;
   snapshot(): Promise<LiveBrakeSnapshot>;
 }
 
 export class MemoryLiveBrake implements LiveBrake {
   constructor(private limiter: LiveLimiter) {}
-  async check(visitor: string) {
-    return this.limiter.check(visitor);
+  async check(visitor: string, browser?: string) {
+    return this.limiter.check(visitor, browser);
   }
   async reset() {
     this.limiter.reset();
@@ -35,12 +36,11 @@ export class MemoryLiveBrake implements LiveBrake {
 
 const DAY_MS = 86_400_000;
 const PREFIX = "foundry:live:";
-const dayUsedUp = "Today's live runs are used up, so this one is a simulation.";
 
 /**
- * Counts in Redis. Visitors get a count per hour, the whole site gets a count per UTC day (fixed windows,
- * so a visitor can get a few more runs across an hour boundary; it is still a brake, not a hard cap).
- * The visitor address is hashed before it is stored. A refused run is not counted.
+ * Counts in Redis. Each browser and each network get a count per hour, the whole site gets a count per UTC day
+ * (fixed windows, so a visitor can get a few more runs across an hour boundary; it is still a brake, not a hard cap).
+ * The address and browser id are hashed before they are stored. A refused run is not counted.
  */
 export class RedisLiveBrake implements LiveBrake {
   constructor(
@@ -53,22 +53,29 @@ export class RedisLiveBrake implements LiveBrake {
     return `${PREFIX}d:${new Date(this.now()).toISOString().slice(0, 10)}`;
   }
 
-  async check(visitor: string): Promise<string | null> {
-    const hour = `${PREFIX}h:${createHash("sha256").update(visitor).digest("hex").slice(0, 16)}`;
+  async check(visitor: string, browser?: string): Promise<string | null> {
+    const hash = (v: string) => createHash("sha256").update(v).digest("hex").slice(0, 16);
+    const mine = `${PREFIX}b:${hash(browserKey(visitor, browser))}`;
+    const net = `${PREFIX}n:${hash(visitor)}`;
     const day = this.dayKey();
-    const [h, d] = await upstashPipeline(this.config, [
-      ["INCR", hour],
+    const [b, n, d] = await upstashPipeline(this.config, [
+      ["INCR", mine],
+      ["INCR", net],
       ["INCR", day],
-      ["EXPIRE", hour, 3600, "NX"],
+      ["EXPIRE", mine, 3600, "NX"],
+      ["EXPIRE", net, 3600, "NX"],
       ["EXPIRE", day, 172_800, "NX"],
     ]);
-    const tooManyToday = Number(d) > this.limits.perDay;
-    const tooManyThisHour = Number(h) > this.limits.perHour;
-    if (tooManyToday || tooManyThisHour) {
-      await upstashPipeline(this.config, [["DECR", hour], ["DECR", day]]);
-      return tooManyToday ? dayUsedUp : `You've used ${this.limits.perHour} live runs this hour, so this one is a simulation.`;
-    }
-    return null;
+    const reason =
+      Number(d) > this.limits.perDay
+        ? dayUsedUp
+        : Number(b) > this.limits.perHour
+          ? browserUsedUp(this.limits)
+          : Number(n) > networkLimit(this.limits)
+            ? networkUsedUp(this.limits)
+            : null;
+    if (reason) await upstashPipeline(this.config, [["DECR", mine], ["DECR", net], ["DECR", day]]);
+    return reason;
   }
 
   private async keys(match: string): Promise<string[]> {
@@ -89,10 +96,11 @@ export class RedisLiveBrake implements LiveBrake {
   }
 
   async snapshot(): Promise<LiveBrakeSnapshot> {
-    const [[used], visitors] = await Promise.all([upstashPipeline(this.config, [["GET", this.dayKey()]]), this.keys(`${PREFIX}h:*`)]);
+    const [[used], visitors] = await Promise.all([upstashPipeline(this.config, [["GET", this.dayKey()]]), this.keys(`${PREFIX}b:*`)]);
     const midnight = Math.floor(this.now() / DAY_MS) * DAY_MS + DAY_MS;
     return {
       perHour: this.limits.perHour,
+      perNetworkHour: networkLimit(this.limits),
       perDay: this.limits.perDay,
       usedToday: Number(used) || 0,
       dayResetsAt: midnight,
@@ -121,8 +129,8 @@ export class FallbackLiveBrake implements LiveBrake {
     }
   }
 
-  check(visitor: string) {
-    return this.either("check", (b) => b.check(visitor));
+  check(visitor: string, browser?: string) {
+    return this.either("check", (b) => b.check(visitor, browser));
   }
   async reset() {
     await this.memory.reset();

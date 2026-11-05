@@ -54,6 +54,17 @@ describe("RedisLiveBrake", () => {
     expect(await brake.check("other")).toBeNull();
   });
 
+  it("gives each browser on one network its own runs, up to the network cap", async () => {
+    const { config } = fakeUpstash();
+    const brake = new RedisLiveBrake({ perHour: 1, perNetworkHour: 2, perDay: 100 }, config, () => T);
+    expect(await brake.check("wifi", "b1")).toBeNull();
+    expect(await brake.check("wifi", "b1")).toMatch(/1 live runs this hour/);
+    expect(await brake.check("wifi", "b2")).toBeNull();
+    expect(await brake.check("wifi", "b3")).toMatch(/network.*2 live runs/);
+    expect(await brake.check("elsewhere", "b3")).toBeNull();
+    expect((await brake.snapshot()).usedToday).toBe(3);
+  });
+
   it("stops everyone at the daily total", async () => {
     const { config } = fakeUpstash();
     const brake = new RedisLiveBrake({ perHour: 99, perDay: 2 }, config, () => T);
@@ -102,6 +113,25 @@ describe("RedisLiveBrake", () => {
     await brake.reset();
     expect(data.size).toBe(0);
     expect((await brake.snapshot()).usedToday).toBe(0);
+  });
+});
+
+describe("LiveLimiter (memory)", () => {
+  it("gives each browser on one network its own runs, up to the network cap, and never counts a refused run", () => {
+    const l = new LiveLimiter({ perHour: 1, perNetworkHour: 2, perDay: 100 });
+    expect(l.check("wifi", "b1")).toBeNull();
+    expect(l.check("wifi", "b1")).toMatch(/1 live runs this hour/);
+    expect(l.check("wifi", "b2")).toBeNull();
+    expect(l.check("wifi", "b3")).toMatch(/network.*2 live runs/);
+    expect(l.check("elsewhere", "b3")).toBeNull();
+    expect(l.snapshot()).toMatchObject({ usedToday: 3, perNetworkHour: 2 });
+  });
+
+  it("counts a browser without an id by its address, and never lets the network cap fall below perHour", () => {
+    const l = new LiveLimiter({ perHour: 3, perNetworkHour: 1, perDay: 100 });
+    expect(l.snapshot().perNetworkHour).toBe(3);
+    for (let i = 0; i < 3; i++) expect(l.check("a")).toBeNull();
+    expect(l.check("a")).toMatch(/3 live runs this hour/);
   });
 });
 

@@ -2,7 +2,7 @@ import { encodeEvent } from "@/lib/ndjson";
 import { liveEnabled, runPipeline } from "@/lib/pipeline";
 import { findServerRecording } from "@/lib/server/liveRecordings";
 import { createRecorder, hashVisitor } from "@/lib/server/runLog";
-import { logRunFailure, parseRequest, readJsonBody, visitorAddress, visitorMessage } from "@/lib/server/runApi";
+import { browserId, logRunFailure, parseRequest, readJsonBody, visitorAddress, visitorMessage } from "@/lib/server/runApi";
 import { serverState } from "@/lib/server/state";
 import type { FoundryEvent } from "@/lib/types";
 
@@ -23,12 +23,13 @@ export async function POST(req: Request) {
 
   const state = serverState();
   const address = visitorAddress(req.headers);
+  const browser = browserId(req.headers);
 
   // Recorded examples never cost anything, so only other requests count against the limits.
   let allowLive = true;
   let reason: string | undefined;
   if (liveEnabled() && !findServerRecording(request)) {
-    reason = (await state.liveLimiter.check(address)) ?? undefined;
+    reason = (await state.liveLimiter.check(address, browser.id)) ?? undefined;
     allowLive = !reason;
   }
 
@@ -66,6 +67,10 @@ export async function POST(req: Request) {
   });
 
   return new Response(stream, {
-    headers: { "Content-Type": "application/x-ndjson; charset=utf-8", "Cache-Control": "no-store" },
+    headers: {
+      "Content-Type": "application/x-ndjson; charset=utf-8",
+      "Cache-Control": "no-store",
+      ...(browser.setCookie ? { "Set-Cookie": browser.setCookie } : {}),
+    },
   });
 }

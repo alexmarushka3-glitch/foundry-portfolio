@@ -30,6 +30,8 @@ export function serverState(): ServerState {
     liveLimiter: createLiveBrake({
       // A live run with tools costs roughly 20 cents, so these keep a bad day to a couple of dollars.
       perHour: envInt("FOUNDRY_LIVE_PER_HOUR", 2),
+      // People on one Wi-Fi share an address; each browser gets its own perHour, up to this many for the network.
+      perNetworkHour: envInt("FOUNDRY_LIVE_PER_NETWORK_HOUR", 6),
       perDay: envInt("FOUNDRY_LIVE_PER_DAY", 12),
     }),
     loginLimiter: new SlidingWindowLimiter(5, 15 * 60_000),

@@ -63,7 +63,7 @@ export default function ControlPanel({ server, pending, onAct, onExport, exportC
         <div className="meter-fill" style={{ width: `${dayShare * 100}%` }} />
       </div>
       <p className="meter-note">
-        {limits.usedToday} of {limits.perDay} live runs used today. {limits.perHour} per visitor per hour.
+        {limits.usedToday} of {limits.perDay} live runs used today. {limits.perHour} per browser and {limits.perNetworkHour} per network per hour.
       </p>
 
       <div className="actions">
