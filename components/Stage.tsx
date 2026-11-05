@@ -73,9 +73,11 @@ export default function Stage() {
 
   /** Play a recorded example in the browser. Resolves false if the request isn't a recorded one. */
   const startReplay = useCallback(
-    async (request: string) => {
+    async (request: string, onlyIfUntouched = false) => {
       const rec = await loadLiveRecording(request);
       if (!rec) return false;
+      // The autoplay loads in the background; if the visitor started something meanwhile, leave their run alone.
+      if (onlyIfUntouched && touchedRef.current) return true;
       cancelLive();
       resetView();
       setRun(buildLiveReplayRun(rec));
@@ -125,7 +127,7 @@ export default function Stage() {
           if (rec) showFinished(buildLiveReplayRun(rec));
         });
       } else {
-        void startReplay(first);
+        void startReplay(first, true);
       }
     },
     () => !touchedRef.current,

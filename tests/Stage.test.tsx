@@ -7,11 +7,19 @@ import type { FoundryEvent } from "@/lib/types";
 import { FIXTURE_REQUEST, fixtureRecording } from "./fixtures/liveRecording";
 
 vi.mock("@/lib/liveRecordings.json", () => ({ default: { recordings: [] } }));
+/** Set `hold` to a promise to make recordings load slowly, the way a real fetch does. */
+const loading = vi.hoisted(() => ({ hold: null as Promise<void> | null }));
 vi.mock("@/lib/liveReplay", async (orig) => {
   const mod = await orig<typeof import("@/lib/liveReplay")>();
   const { fixtureRecording } = await import("./fixtures/liveRecording");
   const rec = fixtureRecording();
-  return { ...mod, loadLiveRecording: async (request: string) => mod.findLiveRecording([rec], request) };
+  return {
+    ...mod,
+    loadLiveRecording: async (request: string) => {
+      if (loading.hold) await loading.hold;
+      return mod.findLiveRecording([rec], request);
+    },
+  };
 });
 vi.mock("@/lib/exampleRequests", () => ({ EXAMPLE_REQUESTS: ["Let users set a due date on tasks"] }));
 
@@ -28,6 +36,7 @@ beforeEach(() => {
   );
 });
 afterEach(() => {
+  loading.hold = null;
   cleanup();
   vi.unstubAllGlobals();
 });
@@ -86,6 +95,25 @@ describe("Stage", () => {
     render(<Stage />);
     expect(await screen.findByText("Run finished.")).toBeTruthy();
     expect(screen.getByText("Replay of a real live run")).toBeTruthy();
+  });
+
+  it("does not let the autoplay example take over when the visitor typed an idea while it was loading", async () => {
+    class IO {
+      constructor(private cb: (e: unknown[]) => void) {}
+      observe() {
+        this.cb([{ isIntersecting: true, intersectionRatio: 1, intersectionRect: { height: 9999 } }]);
+      }
+      disconnect() {}
+    }
+    vi.stubGlobal("IntersectionObserver", IO);
+    let release!: () => void;
+    loading.hold = new Promise<void>((r) => (release = r));
+    mockApi(() => ndjson(simulatedRun));
+    render(<Stage />);
+    typeIdea();
+    release();
+    expect(await screen.findByText(/This was scripted text, so no model ran/)).toBeTruthy();
+    expect(screen.queryByText("Replay of a real live run")).toBeNull();
   });
 
   it("offers the examples as free recordings, before the box for the visitor's own idea", async () => {
