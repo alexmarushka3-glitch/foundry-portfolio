@@ -68,8 +68,8 @@ Copy `.env.example` to `.env.local`. Nothing is required.
 | --- | --- | --- |
 | `ANTHROPIC_API_KEY` | none | Turns on live runs for built requests. Never commit it. |
 | `FOUNDRY_LIVE` | `on` | `off` turns live runs off even with a key. |
-| `FOUNDRY_LIVE_PER_HOUR` | `1` | Live runs per visitor per hour. |
-| `FOUNDRY_LIVE_PER_DAY` | `8` | Live runs per day for the whole site. |
+| `FOUNDRY_LIVE_PER_HOUR` | `2` | Live runs per visitor per hour. |
+| `FOUNDRY_LIVE_PER_DAY` | `12` | Live runs per day for the whole site. |
 | `FOUNDRY_SANDBOX_SNAPSHOT` | none | Id of the prepared sandbox snapshot (repo, dependencies, Chromium). Without it the real browser step is skipped and unit tests use a slower plain clone. Build one with `scripts/build-sandbox-snapshot.mjs`. |
 | `GITHUB_APP_ID`, `GITHUB_APP_INSTALLATION_ID`, `GITHUB_APP_PRIVATE_KEY` | none | The GitHub App the daily cron uses to close old draft pull requests on taskly-sample (runs open none now). The key is the .pem text or its base64. |
 | `CRON_SECRET` | none | Lets Vercel Cron call `/api/cron/close-stale-prs` to close pull requests older than a day. Without it that route returns 404. |
