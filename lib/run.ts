@@ -38,6 +38,8 @@ export type Run = {
   pr?: { url: string; number: number };
   /** The changed files of an approved live run (or a replay of one), path -> content. */
   files?: Record<string, string>;
+  /** Why a typed idea ran as a simulation (for example the hourly limit), shown with the mode. */
+  reason?: string;
   /** Set on a replay of a recorded live run (real model output, played back faster). */
   source?: "live-run";
 };

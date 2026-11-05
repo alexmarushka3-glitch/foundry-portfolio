@@ -101,5 +101,6 @@ export function toRun(state: LiveState, now: number): Run | null {
     costUsd: mode === "live" ? state.costUsd : undefined,
     pr: state.pr,
     files: state.files,
+    reason: state.reason,
   };
 }
