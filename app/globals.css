@@ -1139,7 +1139,7 @@ main,
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 0 0 10px;
+  margin: 14px 0 10px;
   padding: 8px 12px;
   border: 1px solid var(--amber);
   border-radius: 10px;
@@ -1155,7 +1155,7 @@ main,
   flex: none;
 }
 #demo-drawing {
-  scroll-margin-top: 48px;
+  scroll-margin-top: 48px; /* room for the now-strip, which sticks just above it */
 }
 
 /* On phones and tablets the drawing is tall, so put the text being written above it. */
@@ -1174,11 +1174,11 @@ main,
   .error {
     order: 2;
   }
-  .now-strip,
   .panels,
   .follow {
     order: 3;
   }
+  .now-strip,
   .pipeline-wrap,
   .pipeline-note {
     order: 4;
