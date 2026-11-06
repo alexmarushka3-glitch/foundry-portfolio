@@ -36,11 +36,11 @@ export default function EvidenceCard({ evidence }: { evidence: Evidence }) {
       {evidence.shot && (
         <figure>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={`data:image/png;base64,${evidence.shot.png}`} alt={`Real browser picture: ${evidence.shot.label}`} loading="lazy" />
+          <img src={`data:image/png;base64,${evidence.shot.png}`} alt={`Real browser picture: ${evidence.shot.label}`} width={640} height={480} loading="lazy" />
           <figcaption>From the real browser, at the end of its test: {evidence.shot.label}</figcaption>
         </figure>
       )}
-      <p className="fine">Click any agent in the drawing to see its work.</p>
+      <p className="fine">Select any agent in the drawing to see its work.</p>
     </section>
   );
 }

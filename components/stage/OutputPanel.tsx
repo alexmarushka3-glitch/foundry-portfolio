@@ -46,7 +46,7 @@ export default function OutputPanel({ frame }: { frame: AgentFrame }) {
           {frame.shots.map((s, i) => (
             // eslint-disable-next-line @next/next/no-img-element
             <figure key={i}>
-              <img src={`data:image/png;base64,${s.png}`} alt={s.label} loading="lazy" />
+              <img src={`data:image/png;base64,${s.png}`} alt={s.label} width={640} height={480} loading="lazy" />
               <figcaption>{s.label}</figcaption>
             </figure>
           ))}
