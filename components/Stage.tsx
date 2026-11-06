@@ -167,6 +167,17 @@ export default function Stage() {
 
       <IdeaForm onSubmit={go} busy={busy} activeExample={run?.request} liveAvailable={liveAvailable} />
 
+      {narrow && active.length > 0 && (
+        // On a phone the drawing and the panel above it don't fit on one screen; this keeps who is working in view.
+        // It sits between the panel and the drawing, so it only sticks once the panel (which names the same agent) has
+        // scrolled away and never covers the panel's title.
+        // Screen readers already hear it from the live region above, so it is hidden from them.
+        <p className="now-strip" aria-hidden="true">
+          <span className="dot" />
+          {announce}
+        </p>
+      )}
+
       <div ref={pipelineRef} className="pipeline-wrap" id="demo-drawing">
         <PipelineSvg
           frames={frames}
@@ -191,15 +202,6 @@ export default function Stage() {
       {error && (
         <p className="error" role="alert">
           {error}
-        </p>
-      )}
-
-      {narrow && active.length > 0 && (
-        // On a phone the drawing and the panel above it don't fit on one screen; this keeps who is working in view.
-        // Screen readers already hear it from the live region above, so it is hidden from them.
-        <p className="now-strip" aria-hidden="true">
-          <span className="dot" />
-          {announce}
         </p>
       )}
 

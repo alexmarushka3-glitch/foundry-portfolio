@@ -37,7 +37,7 @@ export const profile = {
     },
     {
       term: "What I built",
-      text: "Eight Claude agents in a row: one reads the starter kit, two plan, two build, two test and one writes it up. Real tests, not the agents, decide whether an app passes.",
+      text: "Eight Claude agents in a pipeline: one reads the starter kit, two plan, two build, two test and one writes it up. Real tests, not the agents, decide whether an app passes.",
     },
     {
       term: "What happened",
@@ -56,7 +56,7 @@ export const profile = {
     },
     {
       title: "Put limits on everything",
-      body: "One send-back at most, a $0.60 spending cap per run, and limits per visitor and per day.",
+      body: "One send-back at most, a $0.60 spending cap per run, and limits per browser, per network and per day.",
     },
     {
       title: "Keep the agents in a box",
