@@ -25,9 +25,9 @@ export const REALITY: { tone: RealityTone; heading: string; items: string[]; sho
     tone: "simulated",
     heading: "Simulated",
     items: [
-      "If live mode is off or today's limit is reached, your idea gets scripted text instead. The badge says Simulated, no model runs and no app is built.",
+      "If live mode is off or a limit is reached (per browser, per network or per day), your idea gets scripted text instead. The badge says Simulated, no model runs and no app is built.",
     ],
-    short: ["Over the limit, you see scripted text, labelled Simulated, and no app."],
+    short: ["Over a limit, you see scripted text, labelled Simulated, and no app."],
   },
   {
     tone: "limits",

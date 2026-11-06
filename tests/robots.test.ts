@@ -8,9 +8,10 @@ describe("robots and sitemap", () => {
     const r = robots();
     expect(r.rules).toMatchObject({ allow: "/", disallow: "/api/" });
     expect(r.sitemap).toBe(`${profile.siteUrl}/sitemap.xml`);
+    expect(r.host).toBeUndefined(); // not a standard robots.txt line
   });
 
-  it("lists the public pages on the site's own address", () => {
-    expect(sitemap().map((e) => e.url)).toEqual([profile.siteUrl, `${profile.siteUrl}/admin-demo`]);
+  it("lists only the home page: /admin-demo is made-up data and shouldn't be offered to search", () => {
+    expect(sitemap().map((e) => e.url)).toEqual([profile.siteUrl]);
   });
 });

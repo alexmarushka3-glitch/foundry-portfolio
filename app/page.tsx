@@ -1,4 +1,5 @@
 import ContactLinks from "@/components/ContactLinks";
+import DemoLink from "@/components/DemoLink";
 import Logo from "@/components/Logo";
 import Stage from "@/components/Stage";
 import { profile } from "@/lib/profile";
@@ -38,9 +39,7 @@ export default function Home() {
           <p className="hero-tagline">{profile.tagline}</p>
           <p className="hero-lede">{profile.intro}</p>
           <div className="hero-actions">
-            <a className="btn btn-primary" href="#demo">
-              Build an app
-            </a>
+            <DemoLink className="btn btn-primary">Build an app</DemoLink>
             <a className="btn btn-ghost" href="#reality">
               Scope and limits
             </a>

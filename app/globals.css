@@ -1100,6 +1100,33 @@ main,
   color: var(--ink);
 }
 
+/* Phones only (rendered below 900px): a slim bar under the nav that names the agent at work. */
+.now-strip {
+  position: sticky;
+  top: var(--nav-h, 76px);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--amber);
+  border-radius: 10px;
+  background: var(--iron-2);
+  color: var(--on-iron);
+  font-size: 0.9rem;
+}
+.now-strip .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--amber);
+  flex: none;
+}
+#demo-drawing {
+  scroll-margin-top: 48px;
+}
+
 /* On phones and tablets the drawing is tall, so put the text being written above it. */
 @media (max-width: 900px) {
   .stage {
@@ -1116,6 +1143,7 @@ main,
   .error {
     order: 2;
   }
+  .now-strip,
   .panels,
   .follow {
     order: 3;

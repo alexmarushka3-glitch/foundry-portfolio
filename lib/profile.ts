@@ -9,7 +9,7 @@ export const profile = {
   tagline: "Describe a small app. Eight AI agents build it, test it, and hand it to you.",
   /** The paragraph under it. Keep it honest: small one-page apps, checked by real tests, no human review. */
   intro:
-    "Type an idea like \"a tip calculator\" and watch them plan, write and test it in a couple of minutes. Then use the app right on the page, or save it as one file that opens in any browser.",
+    "Type an idea like “a tip calculator” and watch them plan, write and test it in about a minute. Then use the app right on the page, or save it as one file that opens in any browser.",
   /** Who does what, shown as the caption under the pipeline drawing. */
   how: "One agent reads the starter kit, two plan, two build, two check the work (and can send it back), and one writes it up.",
   /** The one-line version, used for the page description in search results and link previews. */
