@@ -22,6 +22,7 @@ export default function Home() {
         </a>
         <nav aria-label="Sections">
           <a href="#demo">Demo</a>
+          <a href="#project">Project</a>
           <a href="#reality">Scope</a>
           <a href="#about">About</a>
         </nav>
@@ -53,6 +54,27 @@ export default function Home() {
 
         <Stage />
 
+        <section id="project" className="section" aria-labelledby="project-title">
+          <h2 id="project-title">The project in short</h2>
+          <dl className="case">
+            {profile.caseStudy.map((row) => (
+              <div key={row.term}>
+                <dt>{row.term}</dt>
+                <dd>{row.text}</dd>
+              </div>
+            ))}
+          </dl>
+          <h3 className="case-sub">Decisions that mattered</h3>
+          <ul className="lessons">
+            {profile.lessons.map((l) => (
+              <li key={l.title}>
+                <h4>{l.title}</h4>
+                <p>{l.body}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+
         <section id="reality" className="section" aria-labelledby="reality-title">
           <h2 id="reality-title">Scope and limits</h2>
           <p className="lede">Select any line for the detail.</p>
@@ -73,18 +95,6 @@ export default function Home() {
               </div>
             ))}
           </div>
-        </section>
-
-        <section id="lessons" className="section" aria-labelledby="lessons-title">
-          <h2 id="lessons-title">What building it taught me</h2>
-          <ul className="lessons">
-            {profile.lessons.map((l) => (
-              <li key={l.title}>
-                <h3>{l.title}</h3>
-                <p>{l.body}</p>
-              </li>
-            ))}
-          </ul>
         </section>
 
         <section id="about" className="section" aria-labelledby="about-title">

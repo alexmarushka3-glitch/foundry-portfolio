@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { profile } from "@/lib/profile";
 import { REALITY } from "@/lib/reality";
+import liveRecordings from "@/lib/liveRecordings.json";
 
 // The site's honesty rules (CLAUDE.md), enforced on the page copy so a rewrite can't quietly break them.
 
@@ -13,6 +14,7 @@ const allCopy = () =>
     profile.pitch,
     ...profile.about,
     ...profile.lessons.flatMap((l) => [l.title, l.body]),
+    ...profile.caseStudy.flatMap((r) => [r.term, r.text]),
     ...REALITY.flatMap((c) => [c.heading, ...c.items, ...c.short]),
   ].join("\n");
 const column = (tone: string) => REALITY.find((c) => c.tone === tone)!.items.join(" ");
@@ -60,5 +62,17 @@ describe("page copy", () => {
   it("gives the site a short title and a site address", () => {
     expect(profile.headline).toBe("Foundry");
     expect(profile.siteUrl).toMatch(/^https:\/\//);
+  });
+
+  it("gives recruiters a case study whose numbers match the shipped recordings", () => {
+    const recs = (liveRecordings as { recordings: { totalMs: number; costUsd: number; approved: boolean; rounds: number }[] }).recordings;
+    const secs = recs.map((r) => Math.round(r.totalMs / 1000));
+    const cents = recs.map((r) => Math.round(r.costUsd * 100));
+    const happened = profile.caseStudy.find((r) => r.term === "What happened")!.text;
+    expect(happened).toContain(`The ${recs.length} recorded examples`);
+    expect(happened).toContain(`${Math.min(...secs)} to ${Math.max(...secs)} seconds`);
+    expect(happened).toContain(`${Math.min(...cents)} to ${Math.max(...cents)} cents`);
+    expect(recs.every((r) => r.approved && r.rounds === 1)).toBe(true); // "passed both checks on the first round"
+    expect(happened).toMatch(/demo, not a success rate/);
   });
 });

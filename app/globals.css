@@ -86,7 +86,8 @@ h2 {
 }
 h1,
 h2,
-h3 {
+h3,
+h4 {
   margin: 0;
   font-weight: 600;
   letter-spacing: -0.015em;
@@ -1058,8 +1059,38 @@ main,
   gap: 6px;
   max-width: 78ch;
 }
-.lessons h3 {
+.lessons h4 {
+  font-size: 1.1rem;
+}
+
+/* The project in short: term on the left, text on the right; stacked on phones. */
+.case {
+  margin: 20px 0 0;
+  display: grid;
+  max-width: 78ch;
+}
+.case > div {
+  display: grid;
+  grid-template-columns: 11rem 1fr;
+  gap: 4px 24px;
+  padding: 16px 0;
+  border-top: 1px solid var(--line);
+}
+.case dt {
+  font-weight: 600;
+}
+.case dd {
+  margin: 0;
+  color: var(--muted);
+}
+.case-sub {
+  margin: 36px 0 0;
   font-size: 1.15rem;
+}
+@media (max-width: 640px) {
+  .case > div {
+    grid-template-columns: 1fr;
+  }
 }
 .lessons p {
   margin: 0;

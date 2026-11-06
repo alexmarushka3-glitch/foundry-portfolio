@@ -26,7 +26,29 @@ export const profile = {
     "The apps are small on purpose: one page, no accounts, no internet. That keeps them safe to run and quick to build.",
     "I'm recruiting for consulting and tech roles.",
   ],
-  /** "What building it taught me": each item is a decision made in the code, stated as it is. Keep it factual. */
+  /**
+   * "The project in short": the case study for recruiters who skim. The numbers come from the three recordings in
+   * recordings-src/live/ (tests/copy.test.ts checks them against lib/liveRecordings.json). Keep it factual.
+   */
+  caseStudy: [
+    {
+      term: "The question",
+      text: "Can a team of AI agents build a small app that works, and how do you know without checking each one by hand?",
+    },
+    {
+      term: "What I built",
+      text: "Eight Claude agents in a row: one reads the starter kit, two plan, two build, two test and one writes it up. Real tests, not the agents, decide whether an app passes.",
+    },
+    {
+      term: "What happened",
+      text: "The 3 recorded examples took 54 to 60 seconds, cost 15 to 17 cents each, and passed both checks on the first round. Three runs are a demo, not a success rate.",
+    },
+    {
+      term: "My part",
+      text: "I designed and built it on my own with Claude Code: the agent roles, the tests, the spending limits and this site.",
+    },
+  ],
+  /** "Decisions that mattered", under the case study: each item is a decision made in the code, stated as it is. */
   lessons: [
     {
       title: "Let the tests decide, not the agents",

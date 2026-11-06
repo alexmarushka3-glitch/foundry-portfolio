@@ -35,11 +35,12 @@ describe("Home page", () => {
   it("names the site in the nav and links the sections in page order, with no projects or made-up dashboard on the home page", () => {
     render(<Home />);
     const nav = within(screen.getByRole("navigation", { name: "Sections" }));
-    expect(nav.getAllByRole("link").map((a) => a.textContent)).toEqual(["Demo", "Scope", "About"]);
+    expect(nav.getAllByRole("link").map((a) => a.textContent)).toEqual(["Demo", "Project", "Scope", "About"]);
     expect(screen.getByRole("link", { name: "Foundry" }).getAttribute("href")).toBe("#top");
 
     const ids = [...document.querySelectorAll("main > section")].map((s) => s.id);
-    expect(ids.indexOf("demo")).toBeLessThan(ids.indexOf("reality"));
+    expect(ids.indexOf("demo")).toBeLessThan(ids.indexOf("project"));
+    expect(ids.indexOf("project")).toBeLessThan(ids.indexOf("reality"));
     expect(ids.indexOf("reality")).toBeLessThan(ids.indexOf("about"));
     expect(ids).not.toContain("projects");
     expect(ids).not.toContain("dashboard");
@@ -66,5 +67,13 @@ describe("Home page", () => {
     const footer = container.querySelector("footer")!;
     expect(footer.querySelector(`a[href='mailto:${profile.email}']`)).toBeTruthy();
     expect(footer.querySelector("a[href='/Alex-Marushka-Resume.pdf']")).toBeTruthy();
+  });
+
+  it("has a short case study for recruiters, with the decisions under it", () => {
+    render(<Home />);
+    const section = within(document.getElementById("project")!);
+    expect(section.getByRole("heading", { name: "The project in short" })).toBeTruthy();
+    for (const term of ["The question", "What I built", "What happened", "My part"]) expect(section.getByText(term)).toBeTruthy();
+    expect(section.getByRole("heading", { name: "Decisions that mattered" })).toBeTruthy();
   });
 });
