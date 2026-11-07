@@ -115,7 +115,7 @@ A calm, cool-grey page with one dark console set into it. The page explains; the
 The system is flat and tonal. Depth comes from the contrast between the paper page and the iron console, and from lighter fills inside the console, not from shadows. Motion answers an action or marks one finished moment; it never decorates.
 
 **Key Characteristics:**
-- Light page, one dark stage; the stage is the artifact and the page recedes.
+- Light page by default, with a dark theme (header toggle, follows the system until chosen); either way one dark stage, raised from the page. The stage is the artifact and the page recedes.
 - One accent, used for actions and focus only.
 - Flat surfaces, thin outlines, tonal layering.
 - Large confident display type, quiet body text, monospace only for machine output and numbers.

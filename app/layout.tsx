@@ -12,11 +12,22 @@ export const metadata: Metadata = {
   description: profile.pitch,
 };
 
-export const viewport: Viewport = { themeColor: "#EEF0F0" };
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#EEF0F0" },
+    { media: "(prefers-color-scheme: dark)", color: "#12161A" },
+  ],
+};
+
+// Runs before first paint so a saved or system dark theme never flashes light.
+const THEME_SCRIPT = `try{var t=localStorage.getItem("theme");if(t!=="light"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}document.documentElement.dataset.theme=t}catch(e){}`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
+    <html lang="en" className={`${sans.variable} ${mono.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body>
         {children}
         {/* Vercel Web Analytics: page views only, no cookies. The script is served from this site (/_vercel/insights),

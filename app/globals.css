@@ -25,6 +25,19 @@
   --wrap: 1120px;
 }
 
+/* Dark theme: same cool blue-gray hue and amber accent; the stage stays a raised slate panel on the darker page. */
+:root[data-theme="dark"] {
+  --paper: #12161a;
+  --ink: #e6ebee;
+  --muted: #9aa6b0; /* 7:1 on paper */
+  --line: #2c353d;
+  --ghost-line: #6f7c87; /* 3.9:1 on paper */
+  --iron-2: #2a333b;
+  --iron-line: #3f4a55;
+  --verdigris: #5bbfb0;
+  --brick: #e0806a;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -43,6 +56,9 @@ body {
 }
 html {
   color-scheme: light;
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
 }
 a {
   color: inherit;
@@ -133,6 +149,49 @@ h4 {
 }
 .nav nav {
   margin-left: auto;
+}
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 28px;
+  padding: 0;
+  position: relative;
+  border: 1px solid var(--ghost-line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+.theme-toggle .knob {
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper);
+  transition: transform 0.2s var(--ease-out);
+}
+.theme-toggle[aria-checked="true"] .knob {
+  transform: translateX(24px);
+}
+.theme-toggle svg {
+  width: 12px;
+  height: 12px;
+}
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle .knob {
+    transition: none;
+  }
 }
 .nav-resume {
   padding: 6px 14px;

@@ -2,6 +2,7 @@ import ContactLinks from "@/components/ContactLinks";
 import DemoLink from "@/components/DemoLink";
 import Logo from "@/components/Logo";
 import Stage from "@/components/Stage";
+import ThemeToggle from "@/components/ThemeToggle";
 import { profile } from "@/lib/profile";
 import { REALITY } from "@/lib/reality";
 import type { Metadata } from "next";
@@ -29,6 +30,7 @@ export default function Home() {
         <a className="nav-resume" href="/Alex-Marushka-Resume.pdf" target="_blank" rel="noreferrer">
           Resume
         </a>
+        <ThemeToggle />
       </header>
 
       <main id="top">

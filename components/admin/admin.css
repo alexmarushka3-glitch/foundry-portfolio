@@ -6,6 +6,10 @@
   padding: 24px 0 64px;
   font-size: 0.95rem;
 }
+:root[data-theme="dark"] .admin {
+  --card: #1a2025;
+  --soft: #161b20;
+}
 .admin * {
   min-width: 0;
 }
@@ -539,6 +543,9 @@ table.runs {
   background: #fff7e8;
   color: var(--ink);
   font-size: 0.92rem;
+}
+:root[data-theme="dark"] .sample-banner {
+  background: #2a2216;
 }
 .sample-banner a {
   font-weight: 600;
