@@ -164,6 +164,12 @@ h4 {
   color: var(--ink);
   cursor: pointer;
 }
+/* Invisible padding: the visible switch stays 28px tall, the tap area is 44px (9px past the padding edge is 8px past the border). */
+.theme-toggle::after {
+  content: "";
+  position: absolute;
+  inset: -9px 0;
+}
 .theme-toggle .knob {
   position: absolute;
   left: 3px;
