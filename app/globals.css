@@ -204,6 +204,10 @@ h4 {
   white-space: nowrap;
 }
 @media (hover: hover) and (pointer: fine) {
+  .theme-toggle:hover {
+    border-color: var(--ink);
+    background: color-mix(in srgb, var(--ink) 8%, transparent);
+  }
   .nav nav a:hover {
     color: var(--ink);
     text-decoration: underline;
