@@ -210,7 +210,7 @@ Rounded rectangles in the pipeline drawing, each with a name and a status line. 
 A 12px-radius card with a faint verdigris tint, a plain result sentence and, after a live run, an amber button to the draft pull request. It rises into place once when the run finishes.
 
 ### Navigation
-A sticky bar over Cool Paper with the logo and name on the left and five text links on the right, Slate Muted by default and Ink on hover. Links have at least a 40px tap height. On phones the links drop to a full-width second row.
+A sticky bar over Cool Paper with the logo and name on the left and four text links (Demo, Project, Scope, About) on the right, then the Resume pill and the theme toggle. Links are Slate Muted by default and Ink on hover. Links have at least a 40px tap height. On phones the links drop to a full-width second row.
 
 ## Do's and Don'ts
 
