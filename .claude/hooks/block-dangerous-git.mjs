@@ -36,7 +36,9 @@ function block(command, label, why) {
 // Strips quotes, and closing brackets or backticks left over from (git ...) or $(git ...).
 const unquote = (s) => s.replace(/^["']+|["')`]+$/g, '');
 // "git", "git.exe", a full path to git, or git glued to ( $( or a backtick.
-const isGitWord = (w) => /(^|[\/\\(`$])git(\.exe)?$/i.test(w);
+// Also tried with backslashes removed, so g\it is read as git.
+const isGitWord = (w) =>
+  /(^|[\/\\(`$])git(\.exe)?$/i.test(w) || /(^|[\/(`$])git(\.exe)?$/i.test(w.replace(/\\/g, ''));
 
 // Finds the git subcommand and its arguments in one command segment, or null if no git.
 function parseGit(segment) {
@@ -48,7 +50,13 @@ function parseGit(segment) {
     i += GLOBAL_WITH_VALUE.has(words[i]) ? 2 : 1;
   }
   if (i >= words.length) return null;
-  return { sub: words[i], args: words.slice(i + 1) };
+  // Quotes and backslashes inside the subcommand and its flags are dropped ("re"set, re\set).
+  const clean = (w) => w.replace(/[\\"']/g, '');
+  return {
+    sub: clean(words[i]),
+    args: words.slice(i + 1).map(clean),
+    plain: i === at + 1, // no global options (-C, -c, ...) between git and the subcommand
+  };
 }
 
 // Flags in an argument list: short letters from clusters like -fd, and long names.
@@ -71,6 +79,9 @@ function destructiveProblem(segment) {
   const force = letters.has('f') || longs.has('--force');
   if (sub === 'reset' && longs.has('--hard')) return 'git reset --hard';
   if (sub === 'clean' && force) return 'git clean -f';
+  if (sub === 'switch' && (force || longs.has('--discard-changes') || letters.has('C'))) {
+    return 'git switch -f / -C';
+  }
   if (sub === 'branch') {
     if (letters.has('D')) return 'git branch -D';
     if ((letters.has('d') || longs.has('--delete')) && force) return 'git branch -d -f';
@@ -79,7 +90,10 @@ function destructiveProblem(segment) {
   if (sub === 'checkout' || sub === 'restore') {
     const wholeTree = args.some((a) => a === '.' || a === './' || a === ':/' || a === ':/.');
     const stagedOnly =
-      sub === 'restore' && longs.has('--staged') && !longs.has('--worktree') && !letters.has('W');
+      sub === 'restore' &&
+      (longs.has('--staged') || letters.has('S')) &&
+      !longs.has('--worktree') &&
+      !letters.has('W');
     if (wholeTree && !stagedOnly) return `git ${sub} .`;
     if (sub === 'checkout' && force) return 'git checkout -f';
   }
@@ -103,11 +117,23 @@ function currentSetting(args, cwd) {
 // Returns a reason if this command segment is a push that must be blocked, else null.
 function pushProblem(segment, cwd) {
   const mentionsPush = /\bpush\b/i.test(segment);
-  // "git" as its own word (so .github and github.com are not mistaken for it), or a variable or
-  // backtick that could hide it.
+  // "git" as its own word (so .github and github.com are not mistaken for it), also after
+  // quotes and backslashes are removed (g\it, "g"it), or a variable or backtick that could hide it.
   const mentionsGit =
-    /\bgit(\.exe)?\b/i.test(segment) || /\$[A-Za-z_{(]/.test(segment) || /`/.test(segment);
+    /\bgit(\.exe)?\b/i.test(segment.replace(/[\\"']/g, '')) ||
+    /\$[A-Za-z_{(]/.test(segment) ||
+    /`/.test(segment);
   if (!mentionsPush || !mentionsGit) return null; // not a push
+  // A commit or a stash push only has the word "push" in its message or name. Anything else
+  // (rebase --exec, submodule foreach, -c core.pager=...) could run a real push, so those stay blocked.
+  const parsed = parseGit(segment);
+  if (
+    parsed?.plain &&
+    (parsed.sub === 'commit' || (parsed.sub === 'stash' && parsed.args[0] === 'push')) &&
+    !/[$`]/.test(segment)
+  ) {
+    return null;
+  }
   const m = segment.match(ALLOWED_PUSH);
   if (!m) {
     return 'only "git push [-u] <remote> <branch>" is allowed, with a plain branch name';
@@ -121,9 +147,12 @@ function pushProblem(segment, cwd) {
     return 'bad branch name';
   }
   // Plain branch names only: no refs/... (tags, Gerrit refs/for/main) and no origin/main style.
-  if (/^(refs|origin|upstream|remotes)\//i.test(branch)) return `unusual ref name ${branch}`;
+  // heads/main also resolves to refs/heads/main, and feature/main is not worth the risk.
+  if (/^(refs|heads|origin|upstream|remotes)\//i.test(branch)) return `unusual ref name ${branch}`;
   const name = branch.toLowerCase();
-  if (PROTECTED_BRANCHES.has(name) || name === 'head') return `pushes ${branch}`;
+  if (name === 'head' || name.split('/').some((part) => PROTECTED_BRANCHES.has(part))) {
+    return `pushes ${branch}`;
+  }
   if (currentSetting([`remote.${remote}.push`], cwd)) {
     return `remote.${remote}.push is set in git config, which could send this to another branch`;
   }
@@ -154,15 +183,19 @@ process.stdin.on('end', () => {
 
   if (/\bgit\b.*\balias\./.test(text)) block(command, 'git alias', 'could hide a push');
   // git run through a variable: g=git; $g push ...  /  $g reset --hard
-  if (/=\s*["']?git(\.exe)?["']?(\s|;|&|\||$)/.test(text)) {
+  if (/(^|[\s;&|(])[A-Za-z_]\w*=\s*["']?git(\.exe)?["']?(\s|;|&|\||$)/.test(text)) {
     block(command, 'git hidden behind a variable');
   }
 
   // A cd or pushd in the same command changes which repo a later push goes to, and the config
   // check below only sees the starting folder. So a push after a cd is blocked.
-  const hasPush = text.split(/[;&|\n]+/).some((s) => pushProblem(s, cwd) !== null || ALLOWED_PUSH.test(s));
-  if (hasPush && /(^|[;&|\n(]\s*)(cd|pushd)\b/.test(text)) {
+  const hasPush = text.split(/[;&|\n]+/).some((s) => ALLOWED_PUSH.test(s));
+  if (hasPush && /(^|[;&|\n({]|\b(?:then|do)\b)\s*(cd|pushd)\b/.test(text)) {
     block(command, 'git push', 'cd or pushd in the same command');
+  }
+  // GIT_DIR=..., GIT_CONFIG_*=... and similar can point git at another repo or config.
+  if (hasPush && /\bGIT_[A-Z_]+=/.test(text)) {
+    block(command, 'git push', 'a GIT_* environment variable in the same command');
   }
 
   // Check each command in a chain (; & | && || newline) on its own.
