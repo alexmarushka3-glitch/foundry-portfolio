@@ -8,7 +8,7 @@ import {
   networkUsedUp,
   type LiveLimits,
 } from "./rateLimit";
-import { upstashConfig, upstashPipeline, type UpstashConfig } from "./upstash";
+import { upstashConfig, upstashPipeline, upstashTransaction, type UpstashConfig } from "./upstash";
 
 // The brake on live (paid) runs. Memory alone is per server instance and resets on a cold start. With an
 // Upstash Redis database connected, the counts are shared by every instance and survive restarts.
@@ -66,7 +66,7 @@ export class RedisLiveBrake implements LiveBrake {
     const mine = `${PREFIX}b:${hash(browserKey(visitor, browser))}`;
     const net = `${PREFIX}n:${hash(visitor)}`;
     const day = this.dayKey();
-    const [b, n, d] = await upstashPipeline(this.config, [
+    const [b, n, d] = await upstashTransaction(this.config, [
       ["INCR", mine],
       ["INCR", net],
       ["INCR", day],
@@ -83,7 +83,7 @@ export class RedisLiveBrake implements LiveBrake {
             ? networkUsedUp(this.limits)
             : null;
     if (reason)
-      await upstashPipeline(this.config, [
+      await upstashTransaction(this.config, [
         ["DECR", mine],
         ["DECR", net],
         ["DECR", day],

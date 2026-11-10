@@ -65,7 +65,7 @@ export const RUN_TESTS_TOOL: ToolDef = {
   input_schema: { type: "object", properties: {}, required: [] },
 };
 
-/** The E2E Verifier's way into a real browser: it submits a Playwright test file and gets the real result back. */
+/** The Browser Tester's way into a real browser: it submits a Playwright test file and gets the real result back. */
 export const RUN_BROWSER_TEST_TOOL: ToolDef = {
   name: "run_browser_test",
   description:
@@ -103,7 +103,7 @@ export function toolsFor(
 /** How many times one agent may run the tests in one round. */
 export const MAX_TEST_RUNS = 2;
 
-/** How many times the E2E Verifier may run its browser test in one round. */
+/** How many times the Browser Tester may run its browser test in one round. */
 export const MAX_BROWSER_RUNS = 3;
 
 /** Turns on the writes each engineer is meant to make, so the backend cannot rewrite the page and the reverse. */

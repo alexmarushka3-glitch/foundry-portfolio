@@ -65,7 +65,7 @@ function describeTests(t: TestReport | undefined): string {
 function describeBrowser(b: { runs: number; last?: BrowserReport } | undefined): string {
   if (!b) return "Browser run: not available in this run.";
   if (b.runs === 0 || !b.last)
-    return "Browser run: the E2E Verifier never ran the real browser test.";
+    return "Browser run: the Browser Tester never ran the real browser test.";
   if (!b.last.ran)
     return "Browser run: the real browser could not start, so there is no browser result.";
   return `Browser run (real Chromium, in a sandbox): ${b.last.summary}\n${b.last.output}`;

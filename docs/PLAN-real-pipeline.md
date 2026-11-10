@@ -1,5 +1,7 @@
 # Plan: make Foundry real
 
+> Historical (Oct 2026). Kept as written. Since then the "E2E Verifier" is called the Browser Tester, and runs no longer open pull requests. See `CLAUDE.md` for the current design.
+
 Goal: close the four honesty gaps in the site copy. Today the agents get a vague idea, work on pasted text with no tools, never run their code, and the E2E step is an agent. After this plan: a specific request, tool-using agents, code that runs, a real browser, and a real GitHub pull request.
 
 **Status (Oct 26, 2026): stages 0 to 6 are built and live.** What turned out differently from the plan below:
