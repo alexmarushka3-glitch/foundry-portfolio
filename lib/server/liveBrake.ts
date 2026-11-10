@@ -1,5 +1,13 @@
 import { createHash } from "node:crypto";
-import { LiveLimiter, browserKey, browserUsedUp, dayUsedUp, networkLimit, networkUsedUp, type LiveLimits } from "./rateLimit";
+import {
+  LiveLimiter,
+  browserKey,
+  browserUsedUp,
+  dayUsedUp,
+  networkLimit,
+  networkUsedUp,
+  type LiveLimits,
+} from "./rateLimit";
 import { upstashConfig, upstashPipeline, type UpstashConfig } from "./upstash";
 
 // The brake on live (paid) runs. Memory alone is per server instance and resets on a cold start. With an
@@ -74,7 +82,12 @@ export class RedisLiveBrake implements LiveBrake {
           : Number(n) > networkLimit(this.limits)
             ? networkUsedUp(this.limits)
             : null;
-    if (reason) await upstashPipeline(this.config, [["DECR", mine], ["DECR", net], ["DECR", day]]);
+    if (reason)
+      await upstashPipeline(this.config, [
+        ["DECR", mine],
+        ["DECR", net],
+        ["DECR", day],
+      ]);
     return reason;
   }
 
@@ -82,7 +95,9 @@ export class RedisLiveBrake implements LiveBrake {
     const found: string[] = [];
     let cursor = "0";
     do {
-      const [reply] = await upstashPipeline(this.config, [["SCAN", cursor, "MATCH", match, "COUNT", 200]]);
+      const [reply] = await upstashPipeline(this.config, [
+        ["SCAN", cursor, "MATCH", match, "COUNT", 200],
+      ]);
       const [next, batch] = reply as [string, string[]];
       cursor = String(next);
       found.push(...batch);
@@ -96,7 +111,10 @@ export class RedisLiveBrake implements LiveBrake {
   }
 
   async snapshot(): Promise<LiveBrakeSnapshot> {
-    const [[used], visitors] = await Promise.all([upstashPipeline(this.config, [["GET", this.dayKey()]]), this.keys(`${PREFIX}b:*`)]);
+    const [[used], visitors] = await Promise.all([
+      upstashPipeline(this.config, [["GET", this.dayKey()]]),
+      this.keys(`${PREFIX}b:*`),
+    ]);
     const midnight = Math.floor(this.now() / DAY_MS) * DAY_MS + DAY_MS;
     return {
       perHour: this.limits.perHour,
@@ -124,7 +142,9 @@ export class FallbackLiveBrake implements LiveBrake {
     try {
       return await run(this.primary);
     } catch (err) {
-      this.warn(`live brake: ${what} failed, using this instance's counters (${err instanceof Error ? err.message : "unknown"})`);
+      this.warn(
+        `live brake: ${what} failed, using this instance's counters (${err instanceof Error ? err.message : "unknown"})`,
+      );
       return run(this.memory);
     }
   }
@@ -142,7 +162,10 @@ export class FallbackLiveBrake implements LiveBrake {
 }
 
 /** Redis (with the memory fallback) when the Upstash REST variables are set, memory otherwise. */
-export function createLiveBrake(limits: LiveLimits, env: Record<string, string | undefined> = process.env): LiveBrake {
+export function createLiveBrake(
+  limits: LiveLimits,
+  env: Record<string, string | undefined> = process.env,
+): LiveBrake {
   const memory = new MemoryLiveBrake(new LiveLimiter(limits));
   const config = upstashConfig(env);
   return config ? new FallbackLiveBrake(new RedisLiveBrake(limits, config), memory) : memory;

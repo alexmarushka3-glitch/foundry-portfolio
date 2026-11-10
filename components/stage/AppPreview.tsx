@@ -6,7 +6,13 @@ import { appFileName, appTitle, bundleApp } from "@/lib/bundle";
 // The finished app from a real run, as one self-contained .html file. It opens right here in a sandboxed, offline frame
 // (public/preview/), and visitors can save the same file to keep and open later.
 
-export default function AppPreview({ files, howTo = [] }: { files: Record<string, string>; howTo?: string[] }) {
+export default function AppPreview({
+  files,
+  howTo = [],
+}: {
+  files: Record<string, string>;
+  howTo?: string[];
+}) {
   const html = useMemo(() => bundleApp(files), [files]);
   const title = useMemo(() => appTitle(html), [html]);
   const [status, setStatus] = useState<"starting" | "ready" | "failed">("starting");
@@ -18,7 +24,8 @@ export default function AppPreview({ files, howTo = [] }: { files: Record<string
     setProblem("");
     const onMessage = (e: MessageEvent) => {
       if (e.source !== frame.current?.contentWindow || !e.data) return;
-      if (e.data.type === "preview-loaded") frame.current?.contentWindow?.postMessage({ type: "preview-start", html }, "*");
+      if (e.data.type === "preview-loaded")
+        frame.current?.contentWindow?.postMessage({ type: "preview-start", html }, "*");
       else if (e.data.type === "preview-ready") setStatus((s) => (s === "failed" ? s : "ready"));
       else if (e.data.type === "preview-error") {
         setStatus("failed");
@@ -49,12 +56,17 @@ export default function AppPreview({ files, howTo = [] }: { files: Record<string
       <div className="app-next">
         <h4>What to do now</h4>
         <ol>
-          {(howTo.length ? howTo : ["Fill in the boxes and press the buttons, like you would in any app."]).map((h) => (
+          {(howTo.length
+            ? howTo
+            : ["Fill in the boxes and press the buttons, like you would in any app."]
+          ).map((h) => (
             <li key={h}>{h}</li>
           ))}
           <li>Like it? Press Save the app to keep it on your device.</li>
         </ol>
-        {howTo.length > 0 && <p className="fine">These steps were written by the Release agent for this app.</p>}
+        {howTo.length > 0 && (
+          <p className="fine">These steps were written by the Release agent for this app.</p>
+        )}
       </div>
       <iframe
         key={html}
@@ -67,9 +79,11 @@ export default function AppPreview({ files, howTo = [] }: { files: Record<string
         src="/preview/frame.html"
       />
       <p className="fine" aria-live="polite">
-        {status === "failed" && <span className="error-inline">The app hit an error: {problem} </span>}
-        Use it here (nothing is kept), or save it: one file that opens in any browser, works offline and remembers your data
-        on your device.
+        {status === "failed" && (
+          <span className="error-inline">The app hit an error: {problem} </span>
+        )}
+        Use it here (nothing is kept), or save it: one file that opens in any browser, works offline
+        and remembers your data on your device.
       </p>
     </section>
   );

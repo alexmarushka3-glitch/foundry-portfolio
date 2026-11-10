@@ -1,4 +1,10 @@
-import { adminEnabled, blockCrossSite, sessionCookie, sessionValue, tokenMatches } from "@/lib/server/adminAuth";
+import {
+  adminEnabled,
+  blockCrossSite,
+  sessionCookie,
+  sessionValue,
+  tokenMatches,
+} from "@/lib/server/adminAuth";
 import { readJsonBody, visitorAddress } from "@/lib/server/runApi";
 import { serverState } from "@/lib/server/state";
 
@@ -11,7 +17,10 @@ export async function POST(req: Request) {
 
   // Slow down guessing: five tries per address per 15 minutes.
   if (!serverState().loginLimiter.hit(visitorAddress(req.headers))) {
-    return Response.json({ error: "Too many attempts. Try again in a few minutes." }, { status: 429 });
+    return Response.json(
+      { error: "Too many attempts. Try again in a few minutes." },
+      { status: 429 },
+    );
   }
 
   const read = await readJsonBody(req);
@@ -22,5 +31,8 @@ export async function POST(req: Request) {
   if (!token || !session || !tokenMatches(token)) {
     return Response.json({ error: "That token isn't right." }, { status: 401 });
   }
-  return Response.json({ ok: true }, { headers: { "Set-Cookie": sessionCookie(session), "Cache-Control": "no-store" } });
+  return Response.json(
+    { ok: true },
+    { headers: { "Set-Cookie": sessionCookie(session), "Cache-Control": "no-store" } },
+  );
 }

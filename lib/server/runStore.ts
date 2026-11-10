@@ -76,7 +76,10 @@ export class RedisRunStore implements RunStore {
   }
 
   async clear(): Promise<number> {
-    const [count] = await this.pipeline([["LLEN", KEY], ["DEL", KEY]]);
+    const [count] = await this.pipeline([
+      ["LLEN", KEY],
+      ["DEL", KEY],
+    ]);
     return Number(count) || 0;
   }
 }
@@ -110,7 +113,9 @@ export class FallbackRunStore implements RunStore {
     try {
       await this.primary.add(record);
     } catch (err) {
-      this.warn(`run log: could not save to the database (${err instanceof Error ? err.message : "unknown"})`);
+      this.warn(
+        `run log: could not save to the database (${err instanceof Error ? err.message : "unknown"})`,
+      );
     }
   }
 
@@ -118,7 +123,9 @@ export class FallbackRunStore implements RunStore {
     try {
       return await this.primary.list();
     } catch (err) {
-      this.warn(`run log: could not read the database, showing this instance's runs (${err instanceof Error ? err.message : "unknown"})`);
+      this.warn(
+        `run log: could not read the database, showing this instance's runs (${err instanceof Error ? err.message : "unknown"})`,
+      );
       return this.memory.list();
     }
   }
@@ -128,7 +135,9 @@ export class FallbackRunStore implements RunStore {
     try {
       return await this.primary.clear();
     } catch (err) {
-      this.warn(`run log: could not clear the database (${err instanceof Error ? err.message : "unknown"})`);
+      this.warn(
+        `run log: could not clear the database (${err instanceof Error ? err.message : "unknown"})`,
+      );
       return local;
     }
   }

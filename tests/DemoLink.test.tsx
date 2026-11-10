@@ -4,7 +4,13 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import DemoLink from "@/components/DemoLink";
 
 const media = (narrow: boolean) =>
-  vi.stubGlobal("matchMedia", vi.fn().mockImplementation((q: string) => ({ matches: narrow && q.includes("max-width"), media: q })));
+  vi.stubGlobal(
+    "matchMedia",
+    vi.fn().mockImplementation((q: string) => ({
+      matches: narrow && q.includes("max-width"),
+      media: q,
+    })),
+  );
 
 afterEach(() => {
   cleanup();

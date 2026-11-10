@@ -24,7 +24,10 @@ export type Filters = {
 export const DEFAULT_FILTERS: Filters = { range: "24h", mode: "all", status: "all", query: "" };
 
 export const filtersActive = (f: Filters): boolean =>
-  f.range !== DEFAULT_FILTERS.range || f.mode !== "all" || f.status !== "all" || f.query.trim() !== "";
+  f.range !== DEFAULT_FILTERS.range ||
+  f.mode !== "all" ||
+  f.status !== "all" ||
+  f.query.trim() !== "";
 
 export function filterRuns(runs: RunRecord[], f: Filters, now: number): RunRecord[] {
   const q = f.query.trim().toLowerCase();
@@ -62,10 +65,19 @@ export function kpis(runs: RunRecord[]): Kpis {
   };
 }
 
-export type Bucket = { start: number; label: string; counts: Record<Mode, number>; costUsd: number };
+export type Bucket = {
+  start: number;
+  label: string;
+  counts: Record<Mode, number>;
+  costUsd: number;
+};
 
 /** Runs per time bucket over the range, oldest first. Empty buckets are kept so the chart shows gaps honestly. */
-export function bucketRuns(runs: RunRecord[], range: Exclude<RangeKey, "all">, now: number): Bucket[] {
+export function bucketRuns(
+  runs: RunRecord[],
+  range: Exclude<RangeKey, "all">,
+  now: number,
+): Bucket[] {
   const hourly = range === "1h" || range === "24h";
   const size = range === "1h" ? 5 * 60_000 : hourly ? 3_600_000 : 86_400_000;
   const count = range === "1h" ? 12 : range === "24h" ? 24 : 7;
@@ -74,7 +86,10 @@ export function bucketRuns(runs: RunRecord[], range: Exclude<RangeKey, "all">, n
     const start = lastStart - (count - 1 - i) * size;
     const d = new Date(start);
     const label = hourly
-      ? d.toLocaleTimeString("en-US", { hour: "numeric", minute: range === "1h" ? "2-digit" : undefined })
+      ? d.toLocaleTimeString("en-US", {
+          hour: "numeric",
+          minute: range === "1h" ? "2-digit" : undefined,
+        })
       : d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
     return { start, label, counts: { live: 0, simulated: 0, replay: 0 }, costUsd: 0 };
   });
@@ -87,7 +102,10 @@ export function bucketRuns(runs: RunRecord[], range: Exclude<RangeKey, "all">, n
   return buckets;
 }
 
-export const countBy = <K extends string>(runs: RunRecord[], key: (r: RunRecord) => K): Partial<Record<K, number>> => {
+export const countBy = <K extends string>(
+  runs: RunRecord[],
+  key: (r: RunRecord) => K,
+): Partial<Record<K, number>> => {
   const out: Partial<Record<K, number>> = {};
   for (const r of runs) out[key(r)] = (out[key(r)] ?? 0) + 1;
   return out;
@@ -98,7 +116,9 @@ export type AgentTiming = { agent: AgentName; label: string; avgMs: number; samp
 /** Average time per agent across the runs that include it. */
 export function agentTimings(runs: RunRecord[]): AgentTiming[] {
   return AGENT_LIST.map((a) => {
-    const times = runs.map((r) => r.agentMs[a.id]).filter((v): v is number => typeof v === "number");
+    const times = runs
+      .map((r) => r.agentMs[a.id])
+      .filter((v): v is number => typeof v === "number");
     return {
       agent: a.id,
       label: a.label,
@@ -116,7 +136,7 @@ export function sortRuns(runs: RunRecord[], sort: SortState): RunRecord[] {
   return [...runs].sort((a, b) => (a[sort.key] - b[sort.key]) * sign);
 }
 
-export const paginate = <T,>(items: T[], page: number, pageSize: number) => {
+export const paginate = <T>(items: T[], page: number, pageSize: number) => {
   const pages = Math.max(1, Math.ceil(items.length / pageSize));
   const current = Math.min(Math.max(1, page), pages);
   return { items: items.slice((current - 1) * pageSize, current * pageSize), page: current, pages };
@@ -129,7 +149,19 @@ export function toCsv(runs: RunRecord[]): string {
     if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
     return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
-  const head = ["time", "request", "mode", "status", "seconds", "rounds", "cost_usd", "input_tokens", "output_tokens", "visitor", "error"];
+  const head = [
+    "time",
+    "request",
+    "mode",
+    "status",
+    "seconds",
+    "rounds",
+    "cost_usd",
+    "input_tokens",
+    "output_tokens",
+    "visitor",
+    "error",
+  ];
   const rows = runs.map((r) =>
     [
       new Date(r.at).toISOString(),

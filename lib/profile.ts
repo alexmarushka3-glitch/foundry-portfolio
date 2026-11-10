@@ -14,7 +14,8 @@ export const profile = {
   how: "One agent reads the starter kit, two plan, two build, two check the work (and can send it back), and one writes it up.",
   /** The one-line version, used for the page description in search results and link previews. */
   title: "Student at the University of Chicago",
-  pitch: "Describe a small app and eight AI agents build it, test it in a real browser, and hand it to you as one file.",
+  pitch:
+    "Describe a small app and eight AI agents build it, test it in a real browser, and hand it to you as one file.",
   email: "alex.marushka3@gmail.com",
   links: [
     { label: "Resume", href: "/Alex-Marushka-Resume.pdf" },

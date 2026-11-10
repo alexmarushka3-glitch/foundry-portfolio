@@ -8,23 +8,40 @@ import type { Workspace } from "./workspace";
 export type ToolDef = {
   name: string;
   description: string;
-  input_schema: { type: "object"; properties: Record<string, { type: string; description: string }>; required: string[] };
+  input_schema: {
+    type: "object";
+    properties: Record<string, { type: string; description: string }>;
+    required: string[];
+  };
 };
 
 const LIST_DIR: ToolDef = {
   name: "list_dir",
   description: "List the files and folders in a directory of the app. Use '.' for the top level.",
-  input_schema: { type: "object", properties: { path: { type: "string", description: "Directory path, for example 'tests'." } }, required: ["path"] },
+  input_schema: {
+    type: "object",
+    properties: { path: { type: "string", description: "Directory path, for example 'tests'." } },
+    required: ["path"],
+  },
 };
 const READ_FILE: ToolDef = {
   name: "read_file",
   description: "Read one file of the app, including changes already written in this run.",
-  input_schema: { type: "object", properties: { path: { type: "string", description: "File path, for example 'app.js'." } }, required: ["path"] },
+  input_schema: {
+    type: "object",
+    properties: { path: { type: "string", description: "File path, for example 'app.js'." } },
+    required: ["path"],
+  },
 };
 const GREP: ToolDef = {
   name: "grep",
-  description: "Search every file for a regular expression (case-insensitive). Returns up to 40 matching lines.",
-  input_schema: { type: "object", properties: { pattern: { type: "string", description: "Text or regular expression." } }, required: ["pattern"] },
+  description:
+    "Search every file for a regular expression (case-insensitive). Returns up to 40 matching lines.",
+  input_schema: {
+    type: "object",
+    properties: { pattern: { type: "string", description: "Text or regular expression." } },
+    required: ["pattern"],
+  },
 };
 const WRITE_FILE: ToolDef = {
   name: "write_file",
@@ -68,9 +85,19 @@ export const AGENT_TOOLS: Partial<Record<AgentName, ToolDef[]>> = {
 };
 
 /** The tools an agent is actually offered: run_tests only when a sandbox can run it. */
-export function toolsFor(agent: AgentName, canRunTests: boolean, canRunBrowser = false): ToolDef[] | undefined {
+export function toolsFor(
+  agent: AgentName,
+  canRunTests: boolean,
+  canRunBrowser = false,
+): ToolDef[] | undefined {
   const all = AGENT_TOOLS[agent];
-  return all?.filter((t) => (t.name === RUN_TESTS_TOOL.name ? canRunTests : t.name === RUN_BROWSER_TEST_TOOL.name ? canRunBrowser : true));
+  return all?.filter((t) =>
+    t.name === RUN_TESTS_TOOL.name
+      ? canRunTests
+      : t.name === RUN_BROWSER_TEST_TOOL.name
+        ? canRunBrowser
+        : true,
+  );
 }
 
 /** How many times one agent may run the tests in one round. */
@@ -87,40 +114,79 @@ const OWN_PATHS: Partial<Record<AgentName, RegExp>> = {
 
 export const MAX_TOOL_RESULT = 6_000;
 
-export type ToolOutcome = { ok: boolean; text: string; /** One short line for the page. */ label: string };
+export type ToolOutcome = {
+  ok: boolean;
+  text: string;
+  /** One short line for the page. */ label: string;
+};
 
 const short = (s: string, n = 60) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
 
 /** Run one tool call. Never throws: a bad call comes back as an error the agent can read and fix. */
-export function runTool(ws: Workspace, agent: AgentName, name: string, input: unknown): ToolOutcome {
+export function runTool(
+  ws: Workspace,
+  agent: AgentName,
+  name: string,
+  input: unknown,
+): ToolOutcome {
   const args = (input ?? {}) as Record<string, unknown>;
   const str = (k: string) => (typeof args[k] === "string" ? (args[k] as string) : "");
   const allowed = AGENT_TOOLS[agent]?.some((t) => t.name === name);
-  if (!allowed) return { ok: false, text: `Tool ${name} is not available to this agent.`, label: `${name} (not allowed)` };
+  if (!allowed)
+    return {
+      ok: false,
+      text: `Tool ${name} is not available to this agent.`,
+      label: `${name} (not allowed)`,
+    };
 
   try {
     switch (name) {
       case "list_dir": {
         const entries = ws.listDir(str("path") || ".");
-        return { ok: true, text: entries.length ? entries.join("\n") : "(empty or not found)", label: `list_dir ${short(str("path") || ".")}` };
+        return {
+          ok: true,
+          text: entries.length ? entries.join("\n") : "(empty or not found)",
+          label: `list_dir ${short(str("path") || ".")}`,
+        };
       }
       case "read_file": {
         const body = ws.read(str("path"));
-        if (body === null) return { ok: false, text: `No such file: ${str("path")}`, label: `read_file ${short(str("path"))} (not found)` };
-        return { ok: true, text: body.slice(0, MAX_TOOL_RESULT), label: `read_file ${short(str("path"))}` };
+        if (body === null)
+          return {
+            ok: false,
+            text: `No such file: ${str("path")}`,
+            label: `read_file ${short(str("path"))} (not found)`,
+          };
+        return {
+          ok: true,
+          text: body.slice(0, MAX_TOOL_RESULT),
+          label: `read_file ${short(str("path"))}`,
+        };
       }
       case "grep": {
         const hits = ws.grep(str("pattern"));
-        return { ok: true, text: hits.length ? hits.join("\n") : "(no matches)", label: `grep ${short(str("pattern"))}` };
+        return {
+          ok: true,
+          text: hits.length ? hits.join("\n") : "(no matches)",
+          label: `grep ${short(str("pattern"))}`,
+        };
       }
       case "write_file": {
         const path = str("path");
         const own = OWN_PATHS[agent];
         if (own && !own.test(path.replace(/\\/g, "/").replace(/^\.?\/+/, ""))) {
-          return { ok: false, text: `The ${agent} agent may not write ${path}.`, label: `write_file ${short(path)} (not allowed)` };
+          return {
+            ok: false,
+            text: `The ${agent} agent may not write ${path}.`,
+            label: `write_file ${short(path)} (not allowed)`,
+          };
         }
         ws.write(path, str("content"));
-        return { ok: true, text: `Wrote ${path} (${str("content").length} characters).`, label: `write_file ${short(path)}` };
+        return {
+          ok: true,
+          text: `Wrote ${path} (${str("content").length} characters).`,
+          label: `write_file ${short(path)}`,
+        };
       }
     }
   } catch (err) {

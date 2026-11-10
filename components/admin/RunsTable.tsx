@@ -34,8 +34,16 @@ export default function RunsTable({ runs, now }: Props) {
   const header = (key: SortKey) => {
     const active = sort.key === key;
     return (
-      <th scope="col" aria-sort={active ? (sort.dir === "asc" ? "ascending" : "descending") : "none"} className={key === "at" ? "" : "num"}>
-        <button type="button" className="sort" onClick={() => setSort({ key, dir: active && sort.dir === "desc" ? "asc" : "desc" })}>
+      <th
+        scope="col"
+        aria-sort={active ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
+        className={key === "at" ? "" : "num"}
+      >
+        <button
+          type="button"
+          className="sort"
+          onClick={() => setSort({ key, dir: active && sort.dir === "desc" ? "asc" : "desc" })}
+        >
           {COLUMN_LABEL[key]}
           <span aria-hidden="true">{active ? (sort.dir === "asc" ? " ▲" : " ▼") : ""}</span>
         </button>
@@ -46,8 +54,8 @@ export default function RunsTable({ runs, now }: Props) {
   if (runs.length === 0) {
     return (
       <p className="empty-state">
-        No runs match. Runs appear here when someone types their own idea on the site. Replays of the three examples play in the
-        browser and are not counted.
+        No runs match. Runs appear here when someone types their own idea on the site. Replays of
+        the three examples play in the browser and are not counted.
       </p>
     );
   }
@@ -100,8 +108,12 @@ export default function RunsTable({ runs, now }: Props) {
                     <td>
                       <span className={`pill status-${r.status}`}>{STATUS_LABEL[r.status]}</span>
                     </td>
-                    <td className="num" data-label="Time">{formatDuration(r.ms)}</td>
-                    <td className="num" data-label="Cost">{r.mode === "live" ? formatRunCost(r.costUsd) : "–"}</td>
+                    <td className="num" data-label="Time">
+                      {formatDuration(r.ms)}
+                    </td>
+                    <td className="num" data-label="Cost">
+                      {r.mode === "live" ? formatRunCost(r.costUsd) : "–"}
+                    </td>
                     <td className="num">
                       <button
                         type="button"
@@ -128,7 +140,9 @@ export default function RunsTable({ runs, now }: Props) {
                           </div>
                           <div>
                             <dt>Tokens in / out</dt>
-                            <dd>{r.mode === "live" ? `${r.inputTokens} / ${r.outputTokens}` : "–"}</dd>
+                            <dd>
+                              {r.mode === "live" ? `${r.inputTokens} / ${r.outputTokens}` : "–"}
+                            </dd>
                           </div>
                           {r.error && (
                             <div>
@@ -136,12 +150,14 @@ export default function RunsTable({ runs, now }: Props) {
                               <dd>{r.error}</dd>
                             </div>
                           )}
-                          {(Object.entries(r.agentMs) as [AgentName, number][]).map(([agent, ms]) => (
-                            <div key={agent}>
-                              <dt>{AGENT_BY_ID[agent].label}</dt>
-                              <dd>{formatDuration(ms)}</dd>
-                            </div>
-                          ))}
+                          {(Object.entries(r.agentMs) as [AgentName, number][]).map(
+                            ([agent, ms]) => (
+                              <div key={agent}>
+                                <dt>{AGENT_BY_ID[agent].label}</dt>
+                                <dd>{formatDuration(ms)}</dd>
+                              </div>
+                            ),
+                          )}
                         </dl>
                       </td>
                     </tr>
@@ -159,7 +175,11 @@ export default function RunsTable({ runs, now }: Props) {
         <span>
           Page {view.page} of {view.pages}
         </span>
-        <button type="button" onClick={() => setPage(view.page + 1)} disabled={view.page >= view.pages}>
+        <button
+          type="button"
+          onClick={() => setPage(view.page + 1)}
+          disabled={view.page >= view.pages}
+        >
           Next
         </button>
       </nav>

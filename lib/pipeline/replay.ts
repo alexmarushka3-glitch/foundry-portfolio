@@ -21,7 +21,12 @@ function abortableSleep(ms: number, signal?: AbortSignal): Promise<void> {
  * in the browser. Events go out in order, each at its recorded time scaled by `pace` (0 skips the waits,
  * which tests use).
  */
-export async function replayOnServer(rec: LiveRecording, emit: Emit, pace = 1, signal?: AbortSignal): Promise<void> {
+export async function replayOnServer(
+  rec: LiveRecording,
+  emit: Emit,
+  pace = 1,
+  signal?: AbortSignal,
+): Promise<void> {
   const t0 = Date.now();
   emit({ type: "mode", mode: "replay" });
   for (const { at, event } of rec.events) {

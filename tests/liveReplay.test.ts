@@ -15,7 +15,9 @@ function recording(): LiveRecording {
     events.push(ev(t + 10, { type: "token", agent, round, text: `${agent} r${round}` }));
     t += ms;
     events.push(ev(t, { type: "done", agent, round, ms }));
-    events.push(ev(t, { type: "usage", agent, round, inputTokens: 1, outputTokens: 1, costUsd: 0.01 }));
+    events.push(
+      ev(t, { type: "usage", agent, round, inputTokens: 1, outputTokens: 1, costUsd: 0.01 }),
+    );
     t += 5;
   };
   const r1: AgentName[] = ["researcher", "story", "pm", "backend", "frontend", "e2e", "validator"];
@@ -58,8 +60,11 @@ describe("buildLiveReplayRun", () => {
   });
 
   it("puts round 2 after round 1 ends", () => {
-    const r1End = Math.max(...run.steps.filter((s) => s.round === 1 && s.agent === "validator").map((s) => s.end));
-    for (const s of run.steps.filter((s) => s.round === 2)) expect(s.start).toBeGreaterThanOrEqual(r1End);
+    const r1End = Math.max(
+      ...run.steps.filter((s) => s.round === 1 && s.agent === "validator").map((s) => s.end),
+    );
+    for (const s of run.steps.filter((s) => s.round === 2))
+      expect(s.start).toBeGreaterThanOrEqual(r1End);
   });
 
   it("gives every step at least 900 ms", () => {

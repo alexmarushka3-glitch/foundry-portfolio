@@ -16,7 +16,8 @@ for (const file of [".env.local", ".env.sandbox.local", ".env.eval.local"]) {
   if (existsSync(file)) Object.assign(process.env, parseEnv(readFileSync(file, "utf8")));
 }
 // Recordings never open a pull request: drop any GitHub App settings the env files carry.
-for (const key of Object.keys(process.env)) if (key.startsWith("GITHUB_APP_")) delete process.env[key];
+for (const key of Object.keys(process.env))
+  if (key.startsWith("GITHUB_APP_")) delete process.env[key];
 process.env.FOUNDRY_LIVE = "on";
 
 const OUT_DIR = "recordings-src/live";
@@ -29,7 +30,8 @@ function fail(message: string): never {
   process.exit(1);
 }
 
-if (!process.env.ANTHROPIC_API_KEY) fail("ANTHROPIC_API_KEY is not set (expected in .env.local). Nothing was run.");
+if (!process.env.ANTHROPIC_API_KEY)
+  fail("ANTHROPIC_API_KEY is not set (expected in .env.local). Nothing was run.");
 if (!process.env.FOUNDRY_SANDBOX_SNAPSHOT) {
   fail("FOUNDRY_SANDBOX_SNAPSHOT is not set (put it in .env.eval.local). Nothing was run.");
 }
@@ -42,7 +44,9 @@ const plan = (() => {
   }
 })();
 
-console.log(`${plan.requests.length} live runs, at most about $${plan.maxCostUsd.toFixed(2)} ($${UPPER_COST_PER_RUN_USD} each, upper estimate; retries cost extra).`);
+console.log(
+  `${plan.requests.length} live runs, at most about $${plan.maxCostUsd.toFixed(2)} ($${UPPER_COST_PER_RUN_USD} each, upper estimate; retries cost extra).`,
+);
 if (!flag("--confirm")) fail("Add --confirm to spend that. Nothing was run.");
 
 mkdirSync(OUT_DIR, { recursive: true });
@@ -72,10 +76,14 @@ for (const [i, request] of plan.requests.entries()) {
       assertRecordingSize(json);
       writeFileSync(`${OUT_DIR}/${slug}.json`, json);
       saved = true;
-      console.log(`${slug}: ${rec.approved ? "approved" : "not approved"}, ${rec.rounds} round(s), $${rec.costUsd.toFixed(3)}, ${rec.totalMs} ms`);
+      console.log(
+        `${slug}: ${rec.approved ? "approved" : "not approved"}, ${rec.rounds} round(s), $${rec.costUsd.toFixed(3)}, ${rec.totalMs} ms`,
+      );
     } catch (err) {
       const e = err as Error;
-      console.error(`${slug}: attempt ${attempt} failed (${e.name}: ${String(e.message).slice(0, 200)})${attempt < 2 ? ", retrying once" : ""}`);
+      console.error(
+        `${slug}: attempt ${attempt} failed (${e.name}: ${String(e.message).slice(0, 200)})${attempt < 2 ? ", retrying once" : ""}`,
+      );
     }
   }
   if (!saved) failures++;

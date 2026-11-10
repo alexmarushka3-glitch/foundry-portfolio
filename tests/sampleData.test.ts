@@ -40,7 +40,9 @@ describe("sample data", () => {
     expect(k.approvalRate).toBeGreaterThan(0.4);
     expect(k.errors).toBeGreaterThan(0);
     expect(k.costUsd).toBeGreaterThan(0);
-    expect(bucketRuns(runs, "7d", NOW).filter((b) => Object.values(b.counts).some(Boolean)).length).toBeGreaterThan(2);
+    expect(
+      bucketRuns(runs, "7d", NOW).filter((b) => Object.values(b.counts).some(Boolean)).length,
+    ).toBeGreaterThan(2);
     expect(agentTimings(runs).every((t) => t.avgMs > 0)).toBe(true);
     expect(filterRuns(runs, DEFAULT_FILTERS, NOW).length).toBeGreaterThan(5);
   });

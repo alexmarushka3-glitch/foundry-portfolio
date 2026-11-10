@@ -17,7 +17,15 @@ type Props = {
 };
 
 /** The dashboard's key actions. Ones that throw data away ask twice. */
-export default function ControlPanel({ server, pending, onAct, onExport, exportCount, sample = false, heading: Heading = "h2" }: Props) {
+export default function ControlPanel({
+  server,
+  pending,
+  onAct,
+  onExport,
+  exportCount,
+  sample = false,
+  heading: Heading = "h2",
+}: Props) {
   const [confirm, setConfirm] = useState<AdminAction | null>(null);
   const { limits } = server;
   const dayShare = limits.perDay ? Math.min(1, limits.usedToday / limits.perDay) : 1;
@@ -59,20 +67,34 @@ export default function ControlPanel({ server, pending, onAct, onExport, exportC
         <span className="dot" aria-hidden="true" /> {status.text}
       </p>
 
-      <div className="meter" role="img" aria-label={`${limits.usedToday} of ${limits.perDay} live runs used today`}>
+      <div
+        className="meter"
+        role="img"
+        aria-label={`${limits.usedToday} of ${limits.perDay} live runs used today`}
+      >
         <div className="meter-fill" style={{ width: `${dayShare * 100}%` }} />
       </div>
       <p className="meter-note">
-        {limits.usedToday} of {limits.perDay} live runs used today. {limits.perHour} per browser and {limits.perNetworkHour} per network per hour.
+        {limits.usedToday} of {limits.perDay} live runs used today. {limits.perHour} per browser and{" "}
+        {limits.perNetworkHour} per network per hour.
       </p>
 
       <div className="actions">
         {server.livePaused ? (
-          <button type="button" className="primary" disabled={pending !== null || !server.liveConfigured} onClick={() => onAct("resume-live")}>
+          <button
+            type="button"
+            className="primary"
+            disabled={pending !== null || !server.liveConfigured}
+            onClick={() => onAct("resume-live")}
+          >
             Resume live runs
           </button>
         ) : (
-          <button type="button" disabled={pending !== null || !server.liveConfigured} onClick={() => onAct("pause-live")}>
+          <button
+            type="button"
+            disabled={pending !== null || !server.liveConfigured}
+            onClick={() => onAct("pause-live")}
+          >
             Pause live runs
           </button>
         )}
@@ -83,14 +105,16 @@ export default function ControlPanel({ server, pending, onAct, onExport, exportC
         {destructive("clear-log", "Clear the run log", "Yes, clear it")}
       </div>
       <p className="fine">
-        Models: {server.models.fast} (fast), {server.models.build} (build), {server.models.smart} (smart).
+        Models: {server.models.fast} (fast), {server.models.build} (build), {server.models.smart}{" "}
+        (smart).
       </p>
       <p className="fine">
         {sample ? (
           "In this sample, these buttons only change what is on your screen. Nothing is sent anywhere."
         ) : (
           <>
-            Pausing is held in memory on this server instance. To turn live runs off for good, set <code>FOUNDRY_LIVE=off</code>.
+            Pausing is held in memory on this server instance. To turn live runs off for good, set{" "}
+            <code>FOUNDRY_LIVE=off</code>.
           </>
         )}
       </p>

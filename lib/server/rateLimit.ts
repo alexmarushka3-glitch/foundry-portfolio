@@ -52,13 +52,15 @@ export type LiveLimits = {
 };
 
 export const networkLimit = (l: LiveLimits) => Math.max(l.perHour, l.perNetworkHour ?? l.perHour);
-export const browserUsedUp = (l: LiveLimits) => `You've used ${l.perHour} live runs this hour, so this one is a simulation.`;
+export const browserUsedUp = (l: LiveLimits) =>
+  `You've used ${l.perHour} live runs this hour, so this one is a simulation.`;
 export const networkUsedUp = (l: LiveLimits) =>
   `Your network (for example a shared Wi-Fi) has used its ${networkLimit(l)} live runs this hour, so this one is a simulation.`;
 export const dayUsedUp = "Today's live runs are used up, so this one is a simulation.";
 
 /** The key a browser is counted under: its cookie id, or its address when it sent none. */
-export const browserKey = (visitor: string, browser?: string) => (browser ? `b:${browser}` : `a:${visitor}`);
+export const browserKey = (visitor: string, browser?: string) =>
+  browser ? `b:${browser}` : `a:${visitor}`;
 
 /**
  * The brake on live (paid) runs: a few per browser per hour, a few more per network per hour (so people on one
@@ -91,7 +93,8 @@ export class LiveLimiter {
     if (this.dayCount >= this.limits.perDay) return dayUsedUp;
     const key = browserKey(visitor, browser);
     if (this.perBrowser.used(key) >= this.limits.perHour) return browserUsedUp(this.limits);
-    if (this.perNetwork.used(visitor) >= networkLimit(this.limits)) return networkUsedUp(this.limits);
+    if (this.perNetwork.used(visitor) >= networkLimit(this.limits))
+      return networkUsedUp(this.limits);
     this.perBrowser.hit(key);
     this.perNetwork.hit(visitor);
     this.dayCount += 1;

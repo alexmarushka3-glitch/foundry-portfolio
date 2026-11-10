@@ -22,8 +22,13 @@ export interface Workspace {
   changes(): Record<string, string>;
 }
 
-const norm = (p: string) => p.replace(/\\/g, "/").replace(/^\.?\/+/, "").replace(/\/+$/, "");
-const safe = (p: string) => !p.split("/").some((part) => part === ".." || part === "") && !p.includes("\0");
+const norm = (p: string) =>
+  p
+    .replace(/\\/g, "/")
+    .replace(/^\.?\/+/, "")
+    .replace(/\/+$/, "");
+const safe = (p: string) =>
+  !p.split("/").some((part) => part === ".." || part === "") && !p.includes("\0");
 
 export function createWorkspace(): Workspace {
   const base: Record<string, string> = STARTER_FILES;
@@ -70,10 +75,14 @@ export function createWorkspace(): Workspace {
     write(path, content) {
       const p = norm(path);
       if (!safe(p) || !WRITABLE.some((re) => re.test(p))) {
-        throw new Error(`Not allowed to write ${p || "(empty path)"}. Allowed: app.js, tests/*.test.js, index.html, style.css, ui.js.`);
+        throw new Error(
+          `Not allowed to write ${p || "(empty path)"}. Allowed: app.js, tests/*.test.js, index.html, style.css, ui.js.`,
+        );
       }
-      if (Buffer.byteLength(content) > MAX_FILE_BYTES) throw new Error(`File too large (limit ${MAX_FILE_BYTES} bytes).`);
-      if (!overlay.has(p) && overlay.size >= MAX_WRITES) throw new Error(`Too many files written (limit ${MAX_WRITES}).`);
+      if (Buffer.byteLength(content) > MAX_FILE_BYTES)
+        throw new Error(`File too large (limit ${MAX_FILE_BYTES} bytes).`);
+      if (!overlay.has(p) && overlay.size >= MAX_WRITES)
+        throw new Error(`Too many files written (limit ${MAX_WRITES}).`);
       overlay.set(p, content);
     },
 

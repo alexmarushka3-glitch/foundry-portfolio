@@ -7,7 +7,10 @@ export default function NotFound() {
       <section className="section">
         <Logo size={32} />
         <h1>Page not found</h1>
-        <p className="lede">There is nothing at this address. The demo, the scope and limits, and my contact details are on the home page.</p>
+        <p className="lede">
+          There is nothing at this address. The demo, the scope and limits, and my contact details
+          are on the home page.
+        </p>
         <p>
           <a className="btn btn-primary" href="/">
             Back to Foundry

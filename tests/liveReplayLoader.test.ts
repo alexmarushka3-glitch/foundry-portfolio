@@ -6,7 +6,9 @@ describe("loadLiveRecording", () => {
     vi.resetModules();
     const { loadLiveRecording } = await import("@/lib/liveReplay");
     const good = { slug: "x", request: "Add due dates" } as unknown as LiveRecording;
-    const failing = [{ request: "Add due dates", load: () => Promise.reject(new Error("chunk failed")) }];
+    const failing = [
+      { request: "Add due dates", load: () => Promise.reject(new Error("chunk failed")) },
+    ];
     await expect(loadLiveRecording("add due dates", failing)).rejects.toThrow(/chunk failed/);
     const load = vi.fn(() => Promise.resolve({ default: good }));
     const ok = [{ request: "Add due dates", load }];

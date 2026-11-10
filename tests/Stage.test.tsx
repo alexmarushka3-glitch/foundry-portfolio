@@ -21,7 +21,9 @@ vi.mock("@/lib/liveReplay", async (orig) => {
     },
   };
 });
-vi.mock("@/lib/exampleRequests", () => ({ EXAMPLE_REQUESTS: ["Let users set a due date on tasks"] }));
+vi.mock("@/lib/exampleRequests", () => ({
+  EXAMPLE_REQUESTS: ["Let users set a due date on tasks"],
+}));
 
 // jsdom has no matchMedia, and the stage's replays should not animate in these tests.
 beforeEach(() => {
@@ -42,7 +44,9 @@ afterEach(() => {
 });
 
 const ndjson = (events: FoundryEvent[]) =>
-  new Response(events.map(encodeEvent).join(""), { headers: { "content-type": "application/x-ndjson" } });
+  new Response(events.map(encodeEvent).join(""), {
+    headers: { "content-type": "application/x-ndjson" },
+  });
 
 /** GET /api/run says live is off; POST /api/run answers with `post`. */
 function mockApi(post: () => Response | Promise<Response>) {
@@ -82,11 +86,21 @@ describe("Stage", () => {
   });
 
   it("shows the first example already finished when the visitor prefers reduced motion", async () => {
-    vi.stubGlobal("matchMedia", vi.fn().mockImplementation((query: string) => ({ matches: true, media: query, addEventListener: () => {}, removeEventListener: () => {} })));
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn().mockImplementation((query: string) => ({
+        matches: true,
+        media: query,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+      })),
+    );
     class IO {
       constructor(private cb: (e: unknown[]) => void) {}
       observe() {
-        this.cb([{ isIntersecting: true, intersectionRatio: 1, intersectionRect: { height: 9999 } }]);
+        this.cb([
+          { isIntersecting: true, intersectionRatio: 1, intersectionRect: { height: 9999 } },
+        ]);
       }
       disconnect() {}
     }
@@ -101,7 +115,9 @@ describe("Stage", () => {
     class IO {
       constructor(private cb: (e: unknown[]) => void) {}
       observe() {
-        this.cb([{ isIntersecting: true, intersectionRatio: 1, intersectionRect: { height: 9999 } }]);
+        this.cb([
+          { isIntersecting: true, intersectionRatio: 1, intersectionRect: { height: 9999 } },
+        ]);
       }
       disconnect() {}
     }
@@ -142,7 +158,13 @@ describe("Stage", () => {
         { type: "mode", mode: "live" },
         { type: "start", agent: "researcher", round: 1, model: "m" },
         { type: "done", agent: "researcher", round: 1, ms: 20 },
-        { type: "files", files: { "index.html": "<!doctype html><html><head><title>Tip calculator</title></head><body><h1>Tip calculator</h1></body></html>" } },
+        {
+          type: "files",
+          files: {
+            "index.html":
+              "<!doctype html><html><head><title>Tip calculator</title></head><body><h1>Tip calculator</h1></body></html>",
+          },
+        },
         { type: "finish", ms: 100, rounds: 1, approved: true },
       ]),
     );
@@ -162,29 +184,45 @@ describe("Stage", () => {
   });
 
   it("shows the server's error and lets the visitor try again (the button must not stay stuck)", async () => {
-    mockApi(() => ndjson([{ type: "mode", mode: "live" }, { type: "error", message: "The run stopped before it finished." }]));
+    mockApi(() =>
+      ndjson([
+        { type: "mode", mode: "live" },
+        { type: "error", message: "The run stopped before it finished." },
+      ]),
+    );
     render(<Stage />);
     typeIdea();
 
-    expect((await screen.findByRole("alert")).textContent).toContain("The run stopped before it finished.");
+    expect((await screen.findByRole("alert")).textContent).toContain(
+      "The run stopped before it finished.",
+    );
     const run = screen.getByRole("button", { name: "Build it" }) as HTMLButtonElement;
     await waitFor(() => expect(run.disabled).toBe(false));
   });
 
   it("recovers when the connection drops before the run finishes", async () => {
-    mockApi(() => ndjson([{ type: "mode", mode: "simulated" }, { type: "start", agent: "researcher", round: 1, model: "m" }]));
+    mockApi(() =>
+      ndjson([
+        { type: "mode", mode: "simulated" },
+        { type: "start", agent: "researcher", round: 1, model: "m" },
+      ]),
+    );
     render(<Stage />);
     typeIdea();
 
     expect((await screen.findByRole("alert")).textContent).toMatch(/ended before it finished/);
-    expect((screen.getByRole("button", { name: "Build it" }) as HTMLButtonElement).disabled).toBe(false);
+    expect((screen.getByRole("button", { name: "Build it" }) as HTMLButtonElement).disabled).toBe(
+      false,
+    );
   });
 
   it("shows the message from a rejected request", async () => {
     mockApi(() => Response.json({ error: "Keep it under 200 characters." }, { status: 400 }));
     render(<Stage />);
     typeIdea();
-    expect((await screen.findByRole("alert")).textContent).toContain("Keep it under 200 characters.");
+    expect((await screen.findByRole("alert")).textContent).toContain(
+      "Keep it under 200 characters.",
+    );
   });
 
   it("says what a typed idea will do, once the server has said whether live runs are on", async () => {
@@ -215,7 +253,9 @@ describe("the idea box", () => {
     const fetchMock = mockApi(() => ndjson([]));
     render(<Stage />);
     typeIdea("A login page that saves passwords");
-    expect(await screen.findByText(/doesn't build apps that ask for logins or payment details/)).toBeTruthy();
+    expect(
+      await screen.findByText(/doesn't build apps that ask for logins or payment details/),
+    ).toBeTruthy();
     expect(fetchMock.mock.calls.some(([, init]) => init?.method === "POST")).toBe(false);
   });
 
@@ -229,6 +269,8 @@ describe("the idea box", () => {
     const box = screen.getByLabelText(/describe your own app/i);
     fireEvent.change(box, { target: { value: IDEA } });
     fireEvent.keyDown(box, { key: "Enter" });
-    await waitFor(() => expect(fetchMock.mock.calls.filter(([, init]) => init?.method === "POST")).toHaveLength(1));
+    await waitFor(() =>
+      expect(fetchMock.mock.calls.filter(([, init]) => init?.method === "POST")).toHaveLength(1),
+    );
   });
 });

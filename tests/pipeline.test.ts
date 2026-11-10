@@ -19,7 +19,10 @@ const of = <T extends FoundryEvent["type"]>(events: FoundryEvent[], type: T) =>
   events.filter((e): e is Extract<FoundryEvent, { type: T }> => e.type === type);
 
 /** A fake model client. `reply` decides what each agent says, from the system prompt. */
-function fakeClient(reply: (system: string, round: number) => string, usage = { input_tokens: 100, output_tokens: 50 }) {
+function fakeClient(
+  reply: (system: string, round: number) => string,
+  usage = { input_tokens: 100, output_tokens: 50 },
+) {
   const calls: string[] = [];
   const client: LlmClient = {
     messages: {
@@ -52,30 +55,48 @@ describe("simulated runs", () => {
     const started = of(events, "start").map((s) => s.agent);
     expect(new Set(started).size).toBe(8);
     expect(started.filter((a) => a === "backend")).toHaveLength(2);
-    expect(of(events, "finish")[0]).toMatchObject({ rounds: 2, approved: true, costUsd: undefined });
+    expect(of(events, "finish")[0]).toMatchObject({
+      rounds: 2,
+      approved: true,
+      costUsd: undefined,
+    });
     expect(of(events, "start").every((s) => s.model.endsWith("(simulated)"))).toBe(true);
     expect(of(events, "usage")).toHaveLength(0);
   });
 
   it("explain why when live was refused", async () => {
-    const events = await run("Add a nickname", { allowLive: false, reason: "You have used 3 live runs." });
-    expect(of(events, "mode")[0]).toEqual({ type: "mode", mode: "simulated", reason: "You have used 3 live runs." });
+    const events = await run("Add a nickname", {
+      allowLive: false,
+      reason: "You have used 3 live runs.",
+    });
+    expect(of(events, "mode")[0]).toEqual({
+      type: "mode",
+      mode: "simulated",
+      reason: "You have used 3 live runs.",
+    });
   });
 
   it("say so when live runs are paused", async () => {
     process.env.ANTHROPIC_API_KEY = "sk-test";
     serverState().admin.livePaused = true;
     const events = await run("Add a nickname");
-    expect(of(events, "mode")[0]).toMatchObject({ mode: "simulated", reason: expect.stringMatching(/paused/) });
+    expect(of(events, "mode")[0]).toMatchObject({
+      mode: "simulated",
+      reason: expect.stringMatching(/paused/),
+    });
   });
 
   it("stop when the visitor leaves", async () => {
     const ctrl = new AbortController();
     const events: FoundryEvent[] = [];
-    const promise = runPipeline("Add a nickname", (e) => {
-      events.push(e);
-      if (e.type === "done" && e.agent === "researcher") ctrl.abort();
-    }, { pace: 0, signal: ctrl.signal });
+    const promise = runPipeline(
+      "Add a nickname",
+      (e) => {
+        events.push(e);
+        if (e.type === "done" && e.agent === "researcher") ctrl.abort();
+      },
+      { pace: 0, signal: ctrl.signal },
+    );
     await expect(promise).rejects.toThrow(/cancelled/);
     expect(of(events, "start").map((s) => s.agent)).toEqual(["researcher"]);
   });
@@ -87,7 +108,11 @@ describe("recorded examples", () => {
     const events = await run(FIXTURE_REQUEST, { client });
     expect(of(events, "mode")[0]).toMatchObject({ mode: "replay" });
     expect(of(events, "mode")).toHaveLength(1);
-    expect(events.slice(1)).toEqual(fixtureRecording().events.map((e) => e.event).filter((e) => e.type !== "mode" && e.type !== "usage"));
+    expect(events.slice(1)).toEqual(
+      fixtureRecording()
+        .events.map((e) => e.event)
+        .filter((e) => e.type !== "mode" && e.type !== "usage"),
+    );
     expect(of(events, "usage")).toHaveLength(0); // recorded spend is not new spend
     expect(of(events, "tool").length).toBeGreaterThan(0);
     expect(of(events, "finish")[0]).toMatchObject({ rounds: 1, approved: true });
@@ -97,7 +122,11 @@ describe("recorded examples", () => {
 
 describe("live runs", () => {
   const passing = (system: string) =>
-    system.includes("Browser Tester") ? "E2E: PASS\nok" : system.includes("Validator") ? "VERDICT: APPROVE\n- ok" : "text";
+    system.includes("Browser Tester")
+      ? "E2E: PASS\nok"
+      : system.includes("Validator")
+        ? "VERDICT: APPROVE\n- ok"
+        : "text";
 
   it("track tokens and cost per agent and report the total", async () => {
     const { client } = fakeClient(passing);
@@ -114,7 +143,8 @@ describe("live runs", () => {
     let validatorCalls = 0;
     const { client } = fakeClient((system) => {
       if (system.includes("Browser Tester")) return "E2E: PASS";
-      if (system.includes("Validator")) return ++validatorCalls === 1 ? "VERDICT: REVISE\n- fix it" : "VERDICT: APPROVE";
+      if (system.includes("Validator"))
+        return ++validatorCalls === 1 ? "VERDICT: REVISE\n- fix it" : "VERDICT: APPROVE";
       return "text";
     });
     const events = await run("Add a nickname", { client });
@@ -123,14 +153,18 @@ describe("live runs", () => {
   });
 
   it("stop after two rounds without approval, and report that honestly", async () => {
-    const { client } = fakeClient((system) => (system.includes("Browser Tester") ? "E2E: FAIL" : "text"));
+    const { client } = fakeClient((system) =>
+      system.includes("Browser Tester") ? "E2E: FAIL" : "text",
+    );
     const events = await run("Add a nickname", { client });
     expect(of(events, "finish")[0]).toMatchObject({ rounds: 2, approved: false });
     expect(of(events, "verdict").some((v) => v.gate === "validator")).toBe(false);
   });
 
   it("report the rounds that actually ran when the time budget cuts the second round", async () => {
-    const { client } = fakeClient((system) => (system.includes("Browser Tester") ? "E2E: FAIL" : "text"));
+    const { client } = fakeClient((system) =>
+      system.includes("Browser Tester") ? "E2E: FAIL" : "text",
+    );
     let clock = 1_000;
     vi.spyOn(Date, "now").mockImplementation(() => clock);
     const events: FoundryEvent[] = [];
@@ -148,10 +182,15 @@ describe("live runs", () => {
 
   it("fall back to the simulation when the preflight check fails", async () => {
     const { client } = fakeClient(passing);
-    client.messages.create = vi.fn().mockRejectedValue(Object.assign(new Error("credit"), { status: 400 }));
+    client.messages.create = vi
+      .fn()
+      .mockRejectedValue(Object.assign(new Error("credit"), { status: 400 }));
     vi.spyOn(console, "error").mockImplementation(() => {});
     const events = await run("Add a nickname", { client });
-    expect(of(events, "mode")[0]).toMatchObject({ mode: "simulated", reason: expect.stringMatching(/isn't available/) });
+    expect(of(events, "mode")[0]).toMatchObject({
+      mode: "simulated",
+      reason: expect.stringMatching(/isn't available/),
+    });
     expect(client.messages.stream).not.toHaveBeenCalled();
   });
 
@@ -165,7 +204,10 @@ describe("live runs", () => {
     const { client } = fakeClient(passing);
     client.messages.stream = vi.fn(() => ({
       async *[Symbol.asyncIterator]() {},
-      finalMessage: async () => ({ stop_reason: "refusal", usage: { input_tokens: 1, output_tokens: 1 } }),
+      finalMessage: async () => ({
+        stop_reason: "refusal",
+        usage: { input_tokens: 1, output_tokens: 1 },
+      }),
     })) as unknown as LlmClient["messages"]["stream"];
     await expect(run("Add a nickname", { client })).rejects.toThrow(/declined/);
   });

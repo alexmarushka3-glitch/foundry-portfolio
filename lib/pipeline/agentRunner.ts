@@ -3,7 +3,14 @@ import type { AgentSpec } from "./prompts";
 import { sleep } from "./replay";
 import { simulate } from "./simulate";
 import type { BrowserReport, BrowserRunner, TestRunner } from "./sandbox";
-import { MAX_BROWSER_RUNS, MAX_TEST_RUNS, RUN_BROWSER_TEST_TOOL, RUN_TESTS_TOOL, runTool, toolsFor } from "./tools";
+import {
+  MAX_BROWSER_RUNS,
+  MAX_TEST_RUNS,
+  RUN_BROWSER_TEST_TOOL,
+  RUN_TESTS_TOOL,
+  runTool,
+  toolsFor,
+} from "./tools";
 import type { Workspace } from "./workspace";
 import type { Emit } from "../types";
 
@@ -64,20 +71,27 @@ export async function runAgent(
   const { client, emit, signal } = ctx;
   if (signal?.aborted) throw new RunCancelled();
   const t0 = Date.now();
-  emit({ type: "start", agent: spec.name, round, model: client ? spec.model : `${spec.model} (simulated)` });
+  emit({
+    type: "start",
+    agent: spec.name,
+    round,
+    model: client ? spec.model : `${spec.model} (simulated)`,
+  });
 
   if (prelude) await prelude();
   const input = typeof inputOrBuild === "function" ? inputOrBuild() : inputOrBuild;
 
   let out = "";
   if (client) {
-    if (ctx.spend.usd > MAX_RUN_COST_USD) throw new Error("This run hit its spending limit and was stopped.");
+    if (ctx.spend.usd > MAX_RUN_COST_USD)
+      throw new Error("This run hit its spending limit and was stopped.");
     const tools = toolsFor(spec.name, Boolean(ctx.testRunner), Boolean(ctx.browserRunner));
     let testRuns = 0;
     let browserRuns = 0;
     const messages: unknown[] = [{ role: "user", content: input }];
     for (let turn = 0; ; turn++) {
-      if (ctx.spend.usd > MAX_RUN_COST_USD) throw new Error("This run hit its spending limit and was stopped.");
+      if (ctx.spend.usd > MAX_RUN_COST_USD)
+        throw new Error("This run hit its spending limit and was stopped.");
       // On the last allowed turn the agent must answer in text: tools stay defined but cannot be chosen.
       const lastTurn = turn >= MAX_TOOL_TURNS - 1;
       const stream = client.messages.stream(
@@ -116,42 +130,86 @@ export async function runAgent(
       });
 
       const calls = (final.content ?? []).filter((b) => b.type === "tool_use");
-      if (final.stop_reason === "max_tokens") emit({ type: "tool", agent: spec.name, round, label: "output limit reached, answer cut off", ok: false });
+      if (final.stop_reason === "max_tokens")
+        emit({
+          type: "tool",
+          agent: spec.name,
+          round,
+          label: "output limit reached, answer cut off",
+          ok: false,
+        });
       if (final.stop_reason !== "tool_use" || calls.length === 0) break;
 
       const results = [];
       for (const call of calls) {
         let r: { ok: boolean; text: string; label: string };
-        if (call.name === RUN_TESTS_TOOL.name && ctx.testRunner && toolsFor(spec.name, true)?.some((t) => t.name === call.name)) {
+        if (
+          call.name === RUN_TESTS_TOOL.name &&
+          ctx.testRunner &&
+          toolsFor(spec.name, true)?.some((t) => t.name === call.name)
+        ) {
           if (testRuns >= MAX_TEST_RUNS) {
-            r = { ok: false, text: `You have already run the tests ${MAX_TEST_RUNS} times. Finish without running them again.`, label: "run_tests (limit reached)" };
+            r = {
+              ok: false,
+              text: `You have already run the tests ${MAX_TEST_RUNS} times. Finish without running them again.`,
+              label: "run_tests (limit reached)",
+            };
           } else {
             testRuns += 1;
             const report = await ctx.testRunner(ctx.workspace.changes(), signal);
-            r = { ok: report.ok, text: `${report.summary}
-${report.output}`, label: report.summary };
+            r = {
+              ok: report.ok,
+              text: `${report.summary}
+${report.output}`,
+              label: report.summary,
+            };
           }
-        } else if (call.name === RUN_BROWSER_TEST_TOOL.name && ctx.browserRunner && toolsFor(spec.name, false, true)?.some((t) => t.name === call.name)) {
+        } else if (
+          call.name === RUN_BROWSER_TEST_TOOL.name &&
+          ctx.browserRunner &&
+          toolsFor(spec.name, false, true)?.some((t) => t.name === call.name)
+        ) {
           if (browserRuns >= MAX_BROWSER_RUNS) {
-            r = { ok: false, text: `You have already run the browser test ${MAX_BROWSER_RUNS} times. Finish with the last real result.`, label: "run_browser_test (limit reached)" };
+            r = {
+              ok: false,
+              text: `You have already run the browser test ${MAX_BROWSER_RUNS} times. Finish with the last real result.`,
+              label: "run_browser_test (limit reached)",
+            };
           } else {
             browserRuns += 1;
-            const spec_ = typeof (call.input as { spec?: unknown } | null)?.spec === "string" ? (call.input as { spec: string }).spec : "";
+            const spec_ =
+              typeof (call.input as { spec?: unknown } | null)?.spec === "string"
+                ? (call.input as { spec: string }).spec
+                : "";
             const report = await ctx.browserRunner(ctx.workspace.changes(), spec_, signal);
             if (ctx.browser) {
               ctx.browser.runs += 1;
               ctx.browser.last = report;
             }
-            report.shots.forEach((s) => emit({ type: "shot", agent: spec.name, round, label: s.label, png: s.png }));
-            r = { ok: report.ok, text: `${report.summary}\n${report.output}`, label: report.summary };
+            report.shots.forEach((s) =>
+              emit({ type: "shot", agent: spec.name, round, label: s.label, png: s.png }),
+            );
+            r = {
+              ok: report.ok,
+              text: `${report.summary}\n${report.output}`,
+              label: report.summary,
+            };
           }
         } else {
           r = runTool(ctx.workspace, spec.name, call.name ?? "", call.input);
         }
         emit({ type: "tool", agent: spec.name, round, label: r.label, ok: r.ok });
-        results.push({ type: "tool_result", tool_use_id: call.id, content: r.text, ...(r.ok ? {} : { is_error: true }) });
+        results.push({
+          type: "tool_result",
+          tool_use_id: call.id,
+          content: r.text,
+          ...(r.ok ? {} : { is_error: true }),
+        });
       }
-      messages.push({ role: "assistant", content: final.content }, { role: "user", content: results });
+      messages.push(
+        { role: "assistant", content: final.content },
+        { role: "user", content: results },
+      );
     }
   } else {
     out = simulate(spec.name, round, ctx.request);

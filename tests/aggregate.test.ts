@@ -40,7 +40,8 @@ describe("filterRuns", () => {
     run({ id: "sim", mode: "simulated", request: "Dark mode" }),
     run({ id: "err", status: "error", visitor: "bbbb2222" }),
   ];
-  const ids = (f: Partial<typeof DEFAULT_FILTERS>) => filterRuns(runs, { ...DEFAULT_FILTERS, ...f }, NOW).map((r) => r.id);
+  const ids = (f: Partial<typeof DEFAULT_FILTERS>) =>
+    filterRuns(runs, { ...DEFAULT_FILTERS, ...f }, NOW).map((r) => r.id);
 
   it("applies the time range", () => {
     expect(ids({ range: "24h" })).not.toContain("old");
@@ -85,14 +86,22 @@ describe("kpis", () => {
 
 describe("bucketRuns", () => {
   it("makes 24 hourly buckets ending with the current hour and places runs in them", () => {
-    const buckets = bucketRuns([run({ at: NOW - 30 * 60_000 }), run({ at: NOW - 5 * HOUR, mode: "simulated" })], "24h", NOW);
+    const buckets = bucketRuns(
+      [run({ at: NOW - 30 * 60_000 }), run({ at: NOW - 5 * HOUR, mode: "simulated" })],
+      "24h",
+      NOW,
+    );
     expect(buckets).toHaveLength(24);
     expect(buckets[23].counts.live).toBe(1);
     expect(buckets[18].counts.simulated).toBe(1);
     expect(buckets.reduce((s, b) => s + b.counts.live + b.counts.simulated, 0)).toBe(2);
   });
   it("ignores runs outside the range and sums cost", () => {
-    const buckets = bucketRuns([run({ at: NOW - 30 * HOUR }), run({ costUsd: 0.5 }), run({ costUsd: 0.25 })], "24h", NOW);
+    const buckets = bucketRuns(
+      [run({ at: NOW - 30 * HOUR }), run({ costUsd: 0.5 }), run({ costUsd: 0.25 })],
+      "24h",
+      NOW,
+    );
     expect(buckets.reduce((s, b) => s + b.counts.live, 0)).toBe(2);
     expect(buckets[23].costUsd).toBeCloseTo(0.75);
   });
@@ -104,10 +113,16 @@ describe("bucketRuns", () => {
 
 describe("countBy and agentTimings", () => {
   it("counts by key", () => {
-    expect(countBy([run(), run({ status: "error" }), run()], (r) => r.status)).toEqual({ approved: 2, error: 1 });
+    expect(countBy([run(), run({ status: "error" }), run()], (r) => r.status)).toEqual({
+      approved: 2,
+      error: 1,
+    });
   });
   it("averages only over runs that include the agent", () => {
-    const t = agentTimings([run({ agentMs: { story: 100, pm: 10 } }), run({ agentMs: { story: 300 } })]);
+    const t = agentTimings([
+      run({ agentMs: { story: 100, pm: 10 } }),
+      run({ agentMs: { story: 300 } }),
+    ]);
     expect(t.find((x) => x.agent === "story")).toMatchObject({ avgMs: 200, samples: 2 });
     expect(t.find((x) => x.agent === "pm")).toMatchObject({ avgMs: 10, samples: 1 });
     expect(t.find((x) => x.agent === "release")).toMatchObject({ avgMs: 0, samples: 0 });
@@ -124,7 +139,11 @@ describe("sortRuns and paginate", () => {
   });
   it("clamps the page into range", () => {
     const items = Array.from({ length: 25 }, (_, i) => i);
-    expect(paginate(items, 3, 10)).toMatchObject({ page: 3, pages: 3, items: [20, 21, 22, 23, 24] });
+    expect(paginate(items, 3, 10)).toMatchObject({
+      page: 3,
+      pages: 3,
+      items: [20, 21, 22, 23, 24],
+    });
     expect(paginate(items, 99, 10).page).toBe(3);
     expect(paginate(items, -4, 10).page).toBe(1);
     expect(paginate([], 1, 10)).toMatchObject({ page: 1, pages: 1, items: [] });
@@ -138,6 +157,6 @@ describe("toCsv", () => {
     expect(csv[1]).toContain('"Say ""hi"", please"');
   });
   it("defuses spreadsheet formulas", () => {
-    expect(toCsv([run({ request: "=HYPERLINK(\"http://evil\")" })])).toContain("'=HYPERLINK");
+    expect(toCsv([run({ request: '=HYPERLINK("http://evil")' })])).toContain("'=HYPERLINK");
   });
 });

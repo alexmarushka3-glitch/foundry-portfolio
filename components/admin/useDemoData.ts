@@ -27,7 +27,13 @@ export function useDemoData(): AdminData {
         case "resume-live":
           return { ...d, server: { ...d.server, livePaused: false, liveEnabled: true } };
         case "reset-limits":
-          return { ...d, server: { ...d.server, limits: { ...d.server.limits, usedToday: 0, visitorsTracked: 0 } } };
+          return {
+            ...d,
+            server: {
+              ...d.server,
+              limits: { ...d.server.limits, usedToday: 0, visitorsTracked: 0 },
+            },
+          };
         case "clear-log":
           return { ...d, runs: [] };
       }

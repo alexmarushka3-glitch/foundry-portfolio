@@ -33,7 +33,12 @@ export function simulate(agent: AgentName, round: number, request: string): stri
       );
     case "backend":
       return firstRound
-        ? lines("```js", "function addItem(items, text) { return [...items, { text }]; }", "```", "Notes: added the list logic; empty text not handled yet.")
+        ? lines(
+            "```js",
+            "function addItem(items, text) { return [...items, { text }]; }",
+            "```",
+            "Notes: added the list logic; empty text not handled yet.",
+          )
         : lines(
             "```js",
             "function addItem(items, text) {",
@@ -45,8 +50,18 @@ export function simulate(agent: AgentName, round: number, request: string): stri
           );
     case "frontend":
       return firstRound
-        ? lines("```html", '<label for="item">New item</label><input id="item" /><button id="add">Add</button>', "```", "Notes: page wired up; no error message yet.")
-        : lines("```html", '<p id="error" role="alert"></p>', "```", "Notes: shows the error message from app.js.");
+        ? lines(
+            "```html",
+            '<label for="item">New item</label><input id="item" /><button id="add">Add</button>',
+            "```",
+            "Notes: page wired up; no error message yet.",
+          )
+        : lines(
+            "```html",
+            '<p id="error" role="alert"></p>',
+            "```",
+            "Notes: shows the error message from app.js.",
+          );
     case "e2e":
       return lines(
         firstRound ? "E2E: FAIL" : "E2E: PASS",
@@ -55,8 +70,17 @@ export function simulate(agent: AgentName, round: number, request: string): stri
         `Flow 3, press Add with nothing typed: ${firstRound ? "FAIL (no message shown)" : "PASS"}`,
       );
     case "validator":
-      return lines("VERDICT: APPROVE", "- Criteria 1 to 3 met; flows all pass.", "- No network requests; data stays in the browser.");
+      return lines(
+        "VERDICT: APPROVE",
+        "- Criteria 1 to 3 met; flows all pass.",
+        "- No network requests; data stays in the browser.",
+      );
     case "release":
-      return lines(`${topic}`, "- Type in the box and press Add.", "- Bad input shows a message instead of breaking.", "It saves on your own device.");
+      return lines(
+        `${topic}`,
+        "- Type in the box and press Add.",
+        "- Bad input shows a message instead of breaking.",
+        "It saves on your own device.",
+      );
   }
 }

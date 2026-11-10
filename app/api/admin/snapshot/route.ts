@@ -18,12 +18,20 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   const denied = requireAdmin(req);
   if (denied) return denied;
-  if (snapshotBuilding()) return Response.json({ error: "A build is already running." }, { status: 409 });
+  if (snapshotBuilding())
+    return Response.json({ error: "A build is already running." }, { status: 409 });
   try {
     const result = await buildSandboxSnapshot();
     return Response.json(result, { headers: { "Cache-Control": "no-store" } });
   } catch (err) {
-    console.error("snapshot build failed:", (err as Error).name, String((err as Error).message).slice(0, 300));
-    return Response.json({ error: `The build failed: ${String((err as Error).message).slice(0, 200)}` }, { status: 500 });
+    console.error(
+      "snapshot build failed:",
+      (err as Error).name,
+      String((err as Error).message).slice(0, 300),
+    );
+    return Response.json(
+      { error: `The build failed: ${String((err as Error).message).slice(0, 200)}` },
+      { status: 500 },
+    );
   }
 }

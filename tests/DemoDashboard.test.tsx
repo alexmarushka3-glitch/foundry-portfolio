@@ -62,11 +62,19 @@ describe("DemoDashboard embedded on the home page", () => {
     expect(more.getAttribute("aria-expanded")).toBe("false");
     expect(document.querySelector("#dash-more")?.hasAttribute("hidden")).toBe(true);
     fireEvent.click(more);
-    expect(screen.getByRole("button", { name: "Hide the full sample dashboard" }).getAttribute("aria-expanded")).toBe("true");
+    expect(
+      screen
+        .getByRole("button", { name: "Hide the full sample dashboard" })
+        .getAttribute("aria-expanded"),
+    ).toBe("true");
     expect(document.querySelector("#dash-more")?.hasAttribute("hidden")).toBe(false);
     // the cards below the dashboard title are one level down from it, so the outline stays in order
-    expect(screen.getAllByRole("heading", { level: 4 }).map((h) => h.textContent)).toContain("Runs over time");
-    expect(screen.getAllByRole("heading", { level: 4 }).map((h) => h.textContent)).toContain("Live runs");
+    expect(screen.getAllByRole("heading", { level: 4 }).map((h) => h.textContent)).toContain(
+      "Runs over time",
+    );
+    expect(screen.getAllByRole("heading", { level: 4 }).map((h) => h.textContent)).toContain(
+      "Live runs",
+    );
     expect(screen.queryAllByRole("heading", { level: 2 })).toHaveLength(0);
 
     fireEvent.click(screen.getByRole("button", { name: /Show the runs table/ }));

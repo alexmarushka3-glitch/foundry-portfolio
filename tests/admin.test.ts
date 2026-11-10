@@ -46,7 +46,9 @@ describe("admin auth helpers", () => {
 describe("POST /api/admin/login", () => {
   it("is a 404 when no admin token is configured", async () => {
     delete process.env.ADMIN_TOKEN;
-    expect((await login(new Request("http://t/api/admin/login", json({ token: "x" })))).status).toBe(404);
+    expect(
+      (await login(new Request("http://t/api/admin/login", json({ token: "x" })))).status,
+    ).toBe(404);
   });
 
   it("sets an HTTP-only strict cookie for the right token", async () => {
@@ -60,17 +62,29 @@ describe("POST /api/admin/login", () => {
   });
 
   it("refuses a wrong token and locks the address out after five tries", async () => {
-    const attempt = () => login(new Request("http://t/api/admin/login", json({ token: "nope" }, { "x-forwarded-for": "192.0.2.1" })));
+    const attempt = () =>
+      login(
+        new Request(
+          "http://t/api/admin/login",
+          json({ token: "nope" }, { "x-forwarded-for": "192.0.2.1" }),
+        ),
+      );
     for (let i = 0; i < 5; i++) expect((await attempt()).status).toBe(401);
     expect((await attempt()).status).toBe(429);
     // even the right token is refused while locked out
-    const right = await login(new Request("http://t/api/admin/login", json({ token: TOKEN }, { "x-forwarded-for": "192.0.2.1" })));
+    const right = await login(
+      new Request(
+        "http://t/api/admin/login",
+        json({ token: TOKEN }, { "x-forwarded-for": "192.0.2.1" }),
+      ),
+    );
     expect(right.status).toBe(429);
   });
 });
 
 describe("GET /api/admin/stats", () => {
-  const get = (headers: Record<string, string> = {}) => stats(new Request("http://t/api/admin/stats", { headers }));
+  const get = (headers: Record<string, string> = {}) =>
+    stats(new Request("http://t/api/admin/stats", { headers }));
 
   it("is hidden when disabled and closed to anyone not signed in", async () => {
     expect((await get()).status).toBe(401);
@@ -91,7 +105,8 @@ describe("GET /api/admin/stats", () => {
 });
 
 describe("POST /api/admin/actions", () => {
-  const act = (action: unknown, headers = asAdmin()) => actions(new Request("http://t/api/admin/actions", json({ action }, headers)));
+  const act = (action: unknown, headers = asAdmin()) =>
+    actions(new Request("http://t/api/admin/actions", json({ action }, headers)));
 
   it("requires a signed-in admin and a known action", async () => {
     expect((await act("pause-live", {} as never)).status).toBe(401);
@@ -101,7 +116,11 @@ describe("POST /api/admin/actions", () => {
   it("pauses and resumes live runs", async () => {
     process.env.ANTHROPIC_API_KEY = "sk-test";
     let body = await (await act("pause-live")).json();
-    expect(body.server).toMatchObject({ livePaused: true, liveEnabled: false, liveConfigured: true });
+    expect(body.server).toMatchObject({
+      livePaused: true,
+      liveEnabled: false,
+      liveConfigured: true,
+    });
     body = await (await act("resume-live")).json();
     expect(body.server).toMatchObject({ livePaused: false, liveEnabled: true });
   });
@@ -110,8 +129,18 @@ describe("POST /api/admin/actions", () => {
     const state = serverState();
     await state.liveLimiter.check("a");
     await state.runLog.add({
-      id: "1", at: 1, request: "x", mode: "live", status: "approved", ms: 1, rounds: 1, costUsd: 0,
-      inputTokens: 0, outputTokens: 0, agentMs: {}, visitor: "v",
+      id: "1",
+      at: 1,
+      request: "x",
+      mode: "live",
+      status: "approved",
+      ms: 1,
+      rounds: 1,
+      costUsd: 0,
+      inputTokens: 0,
+      outputTokens: 0,
+      agentMs: {},
+      visitor: "v",
     });
     expect((await (await act("reset-limits")).json()).server.limits.usedToday).toBe(0);
     expect((await (await act("clear-log")).json()).runs).toEqual([]);
@@ -120,9 +149,13 @@ describe("POST /api/admin/actions", () => {
 
 describe("/api/admin/snapshot", async () => {
   const build = vi.hoisted(() => ({ fn: vi.fn(), building: false }));
-  vi.doMock("@/lib/pipeline/snapshotBuild", () => ({ buildSandboxSnapshot: build.fn, snapshotBuilding: () => build.building }));
+  vi.doMock("@/lib/pipeline/snapshotBuild", () => ({
+    buildSandboxSnapshot: build.fn,
+    snapshotBuilding: () => build.building,
+  }));
   const { GET: snapGet, POST: snapPost } = await import("@/app/api/admin/snapshot/route");
-  const req = (method: string, headers: Record<string, string> = {}) => new Request("http://t/api/admin/snapshot", { method, headers });
+  const req = (method: string, headers: Record<string, string> = {}) =>
+    new Request("http://t/api/admin/snapshot", { method, headers });
 
   beforeEach(() => {
     build.fn.mockReset();
@@ -138,7 +171,12 @@ describe("/api/admin/snapshot", async () => {
   });
 
   it("builds on request from a signed-in admin and returns the id", async () => {
-    build.fn.mockResolvedValue({ snapshotId: "snap_abc", commit: "2242a8f", seconds: 31, steps: [] });
+    build.fn.mockResolvedValue({
+      snapshotId: "snap_abc",
+      commit: "2242a8f",
+      seconds: 31,
+      steps: [],
+    });
     const res = await snapPost(req("POST", asAdmin()));
     expect(res.status).toBe(200);
     expect(await res.json()).toMatchObject({ snapshotId: "snap_abc" });

@@ -16,7 +16,10 @@ function parseLine(line: string): FoundryEvent {
  * Read a streamed response and call `onEvent` for every complete line.
  * A last line with no trailing newline is still delivered.
  */
-export async function readEvents(body: ReadableStream<Uint8Array>, onEvent: (e: FoundryEvent) => void): Promise<void> {
+export async function readEvents(
+  body: ReadableStream<Uint8Array>,
+  onEvent: (e: FoundryEvent) => void,
+): Promise<void> {
   const reader = body.getReader();
   const decoder = new TextDecoder();
   let buf = "";

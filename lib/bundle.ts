@@ -26,19 +26,27 @@ export function bundleApp(changes: Record<string, string>): string {
     const css = local(href);
     return css === undefined ? tag : `<style>\n${inlineStyle(css)}\n</style>`;
   });
-  html = html.replace(/<script\b([^>]*)\bsrc=["']([^"']+)["']([^>]*)>\s*<\/script>/gi, (tag, before: string, src: string, after: string) => {
-    const js = local(src);
-    if (js === undefined) return tag;
-    const attrs = `${before} ${after}`.replace(/\s+/g, " ").trim();
-    return `<script${attrs ? ` ${attrs}` : ""}>\n${inlineScript(js)}\n</script>`;
-  });
+  html = html.replace(
+    /<script\b([^>]*)\bsrc=["']([^"']+)["']([^>]*)>\s*<\/script>/gi,
+    (tag, before: string, src: string, after: string) => {
+      const js = local(src);
+      if (js === undefined) return tag;
+      const attrs = `${before} ${after}`.replace(/\s+/g, " ").trim();
+      return `<script${attrs ? ` ${attrs}` : ""}>\n${inlineScript(js)}\n</script>`;
+    },
+  );
   const mark = "<!-- Built by Foundry's AI agents: https://alexmarushka.vercel.app -->\n";
-  return html.startsWith("<!doctype") || html.startsWith("<!DOCTYPE") ? html.replace(/^(<!doctype[^>]*>\n?)/i, `$1${mark}`) : mark + html;
+  return html.startsWith("<!doctype") || html.startsWith("<!DOCTYPE")
+    ? html.replace(/^(<!doctype[^>]*>\n?)/i, `$1${mark}`)
+    : mark + html;
 }
 
 /** The app's title from its <title> or first <h1>, for the saved file's name. */
 export function appTitle(html: string): string {
-  const raw = /<title>([^<]*)<\/title>/i.exec(html)?.[1] || /<h1[^>]*>([^<]*)<\/h1>/i.exec(html)?.[1] || "My app";
+  const raw =
+    /<title>([^<]*)<\/title>/i.exec(html)?.[1] ||
+    /<h1[^>]*>([^<]*)<\/h1>/i.exec(html)?.[1] ||
+    "My app";
   return raw.replace(/\s+/g, " ").trim() || "My app";
 }
 

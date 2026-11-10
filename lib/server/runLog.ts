@@ -34,7 +34,8 @@ export class RunLog {
 
   add(record: RunRecord): void {
     this.records.push(record);
-    if (this.records.length > this.capacity) this.records.splice(0, this.records.length - this.capacity);
+    if (this.records.length > this.capacity)
+      this.records.splice(0, this.records.length - this.capacity);
   }
 
   /** Newest first. */
@@ -49,7 +50,8 @@ export class RunLog {
   }
 }
 
-export const hashVisitor = (address: string): string => createHash("sha256").update(address).digest("hex").slice(0, 8);
+export const hashVisitor = (address: string): string =>
+  createHash("sha256").update(address).digest("hex").slice(0, 8);
 
 /** Watches the events of one run and turns them into a RunRecord. */
 export function createRecorder(meta: { request: string; visitor: string; now?: () => number }) {

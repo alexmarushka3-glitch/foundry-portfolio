@@ -19,9 +19,22 @@ export type FoundryEvent =
   | { type: "start"; agent: AgentName; round: number; model: string }
   | { type: "token"; agent: AgentName; round: number; text: string }
   | { type: "tool"; agent: AgentName; round: number; label: string; ok: boolean }
-  | { type: "shot"; agent: AgentName; round: number; label: string; /** A PNG picture of the real browser page, base64. */ png: string }
+  | {
+      type: "shot";
+      agent: AgentName;
+      round: number;
+      label: string;
+      /** A PNG picture of the real browser page, base64. */ png: string;
+    }
   | { type: "done"; agent: AgentName; round: number; ms: number }
-  | { type: "usage"; agent: AgentName; round: number; inputTokens: number; outputTokens: number; costUsd: number }
+  | {
+      type: "usage";
+      agent: AgentName;
+      round: number;
+      inputTokens: number;
+      outputTokens: number;
+      costUsd: number;
+    }
   | { type: "verdict"; gate: Gate; round: number; approved: boolean }
   | { type: "pr"; url: string; number: number }
   /** The files the engineers wrote, path -> content. Sent only by a live run that passed both checks. */

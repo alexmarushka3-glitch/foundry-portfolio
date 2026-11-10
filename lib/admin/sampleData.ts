@@ -75,10 +75,20 @@ export function sampleRuns(now: number, seed = 7): RunRecord[] {
   for (let i = 0; i < COUNT; i++) {
     // Bias toward recent: the first dozen fall in the last day, a few in the last hour.
     const age = i < 4 ? rand() * HOUR : i < 22 ? rand() * 24 * HOUR : rand() * 7 * 24 * HOUR;
-    let mode = pick<Mode>(rand, [["live", 45], ["simulated", 45], ["replay", 10]]);
+    let mode = pick<Mode>(rand, [
+      ["live", 45],
+      ["simulated", 45],
+      ["replay", 10],
+    ]);
     // Past the daily limit, a request falls back to the simulation, as it does on the site.
-    if (mode === "live" && age < 24 * HOUR && ++liveToday > SAMPLE_LIMITS.perDay) mode = "simulated";
-    const status = pick<RunStatus>(rand, [["approved", 70], ["not-approved", 9], ["error", 8], ["cancelled", 13]]);
+    if (mode === "live" && age < 24 * HOUR && ++liveToday > SAMPLE_LIMITS.perDay)
+      mode = "simulated";
+    const status = pick<RunStatus>(rand, [
+      ["approved", 70],
+      ["not-approved", 9],
+      ["error", 8],
+      ["cancelled", 13],
+    ]);
     const rounds = status === "error" || status === "cancelled" ? 0 : rand() < 0.3 ? 2 : 1;
     const agentMs: Partial<Record<AgentName, number>> = {};
     let ms = 0;
@@ -86,8 +96,11 @@ export function sampleRuns(now: number, seed = 7): RunRecord[] {
       const cut = status === "cancelled" ? Math.ceil(rand() * 5) : 8;
       (Object.keys(AGENT_BASE_MS) as AgentName[]).slice(0, cut).forEach((agent) => {
         const factor = 0.7 + rand() * 0.7;
-        const rep = rounds === 2 && ["backend", "frontend", "e2e", "validator"].includes(agent) ? 2 : 1;
-        agentMs[agent] = Math.round(AGENT_BASE_MS[agent] * factor * rep * (mode === "simulated" ? SIMULATED_SPEED : 1));
+        const rep =
+          rounds === 2 && ["backend", "frontend", "e2e", "validator"].includes(agent) ? 2 : 1;
+        agentMs[agent] = Math.round(
+          AGENT_BASE_MS[agent] * factor * rep * (mode === "simulated" ? SIMULATED_SPEED : 1),
+        );
         ms += agentMs[agent]!;
       });
       ms = Math.round(ms * 0.82); // backend and frontend overlap
@@ -95,7 +108,10 @@ export function sampleRuns(now: number, seed = 7): RunRecord[] {
       ms = Math.round(5000 + rand() * 40_000);
     }
     const live = mode === "live";
-    const costUsd = live && status !== "error" ? +(0.17 + rand() * 0.05 + (rounds === 2 ? 0.03 : 0)).toFixed(4) : 0;
+    const costUsd =
+      live && status !== "error"
+        ? +(0.17 + rand() * 0.05 + (rounds === 2 ? 0.03 : 0)).toFixed(4)
+        : 0;
     runs.push({
       id: `sample-run-${String(i).padStart(2, "0")}`,
       at: Math.round(now - age),
@@ -108,7 +124,10 @@ export function sampleRuns(now: number, seed = 7): RunRecord[] {
       inputTokens: live ? Math.round(costUsd * 130_000) : 0,
       outputTokens: live ? Math.round(costUsd * 45_000) : 0,
       agentMs,
-      error: status === "error" ? "The run stopped before it finished. Try again in a moment." : undefined,
+      error:
+        status === "error"
+          ? "The run stopped before it finished. Try again in a moment."
+          : undefined,
       visitor: `${SAMPLE_VISITOR_PREFIX}${String(1 + Math.floor(rand() * 14)).padStart(2, "0")}`,
     });
   }

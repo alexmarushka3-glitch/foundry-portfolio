@@ -10,7 +10,8 @@ export function runSummary(run: Run): string {
     case "replay":
       return `${verdict} The real run took ${formatDuration(run.realMs)}.`;
     case "live": {
-      const cost = run.costUsd !== undefined ? ` Estimated cost: ${formatRunCost(run.costUsd)}.` : "";
+      const cost =
+        run.costUsd !== undefined ? ` Estimated cost: ${formatRunCost(run.costUsd)}.` : "";
       return `${verdict} Took ${formatDuration(run.realMs)}.${cost}`;
     }
     case "simulated":

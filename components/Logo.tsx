@@ -9,7 +9,15 @@ type Props = { size?: number; className?: string };
 /** Decorative: the word "Foundry" always sits next to it, so it is hidden from screen readers. */
 export default function Logo({ size = 32, className }: Props) {
   return (
-    <svg className={className} width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden="true" focusable="false">
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 32 32"
+      fill="none"
+      aria-hidden="true"
+      focusable="false"
+    >
       <rect width="32" height="32" rx="8" fill={LOGO_COLORS.iron} />
       <rect x="9" y="7" width="4.2" height="18" rx="2.1" fill={LOGO_COLORS.paper} />
       <rect x="9" y="7" width="13" height="4.2" rx="2.1" fill={LOGO_COLORS.paper} />

@@ -1,6 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 import type { RunRecord } from "@/lib/server/runLog";
-import { FallbackRunStore, MemoryRunStore, RedisRunStore, createRunStore, type RunStore } from "@/lib/server/runStore";
+import {
+  FallbackRunStore,
+  MemoryRunStore,
+  RedisRunStore,
+  createRunStore,
+  type RunStore,
+} from "@/lib/server/runStore";
 
 const record = (over: Partial<RunRecord> = {}): RunRecord => ({
   id: crypto.randomUUID(),
@@ -64,7 +70,12 @@ describe("MemoryRunStore", () => {
 describe("RedisRunStore", () => {
   const make = (capacity = 3) => {
     const fake = fakeUpstash();
-    const store = new RedisRunStore({ url: "https://redis.test", token: "t", capacity, fetchFn: fake.fetchFn });
+    const store = new RedisRunStore({
+      url: "https://redis.test",
+      token: "t",
+      capacity,
+      fetchFn: fake.fetchFn,
+    });
     return { store, ...fake };
   };
 
@@ -85,7 +96,14 @@ describe("RedisRunStore", () => {
   it("sends the token as a bearer header and never puts it in the URL", async () => {
     const { store, fetchFn } = (() => {
       const fake = fakeUpstash();
-      return { store: new RedisRunStore({ url: "https://redis.test", token: "secret-t", fetchFn: fake.fetchFn }), fetchFn: fake.fetchFn };
+      return {
+        store: new RedisRunStore({
+          url: "https://redis.test",
+          token: "secret-t",
+          fetchFn: fake.fetchFn,
+        }),
+        fetchFn: fake.fetchFn,
+      };
     })();
     await store.add(record());
     const [url, init] = (fetchFn as unknown as ReturnType<typeof vi.fn>).mock.calls[0];
@@ -131,7 +149,11 @@ describe("FallbackRunStore", () => {
 
   it("reads from the database when it works", async () => {
     const fake = fakeUpstash();
-    const redis = new RedisRunStore({ url: "https://redis.test", token: "t", fetchFn: fake.fetchFn });
+    const redis = new RedisRunStore({
+      url: "https://redis.test",
+      token: "t",
+      fetchFn: fake.fetchFn,
+    });
     const store = new FallbackRunStore(redis, vi.fn());
     await store.add(record({ at: 7 }));
     expect((await store.list()).map((r) => r.at)).toEqual([7]);
@@ -143,7 +165,11 @@ describe("createRunStore", () => {
     expect(createRunStore({})).toBeInstanceOf(MemoryRunStore);
   });
   it("uses Redis when the Upstash REST variables are set (either naming)", () => {
-    expect(createRunStore({ KV_REST_API_URL: "https://a", KV_REST_API_TOKEN: "t" })).toBeInstanceOf(RedisRunStore);
-    expect(createRunStore({ UPSTASH_REDIS_REST_URL: "https://a", UPSTASH_REDIS_REST_TOKEN: "t" })).toBeInstanceOf(RedisRunStore);
+    expect(createRunStore({ KV_REST_API_URL: "https://a", KV_REST_API_TOKEN: "t" })).toBeInstanceOf(
+      RedisRunStore,
+    );
+    expect(
+      createRunStore({ UPSTASH_REDIS_REST_URL: "https://a", UPSTASH_REDIS_REST_TOKEN: "t" }),
+    ).toBeInstanceOf(RedisRunStore);
   });
 });

@@ -5,15 +5,36 @@ import type { LiveRecording } from "../lib/recorder/capture";
 import recordings from "../lib/liveRecordings.json";
 import type { Run, Step } from "../lib/run";
 
-const step = (agent: Step["agent"], text: string, shots?: Step["shots"]): Step => ({ agent, round: 1, model: "m", text, start: 0, end: 1, ms: 1, shots });
-const run = (over: Partial<Run>, steps: Step[]): Run => ({ request: "r", mode: "live", steps, total: 1, approved: true, rounds: 1, realMs: 1, ...over });
+const step = (agent: Step["agent"], text: string, shots?: Step["shots"]): Step => ({
+  agent,
+  round: 1,
+  model: "m",
+  text,
+  start: 0,
+  end: 1,
+  ms: 1,
+  shots,
+});
+const run = (over: Partial<Run>, steps: Step[]): Run => ({
+  request: "r",
+  mode: "live",
+  steps,
+  total: 1,
+  approved: true,
+  rounds: 1,
+  realMs: 1,
+  ...over,
+});
 
 describe("runEvidence", () => {
   it("reads the test results, the written files and a browser picture from a live run", () => {
     const shot = { label: "after adding a task", png: "AAAA" };
     const ev = runEvidence(
       run({}, [
-        step("backend", "› read_file src/db.js\n› write_file src/db.js\n› write_file tests/api.test.js\n› npm test: 8 passed, 0 failed\n"),
+        step(
+          "backend",
+          "› read_file src/db.js\n› write_file src/db.js\n› write_file tests/api.test.js\n› npm test: 8 passed, 0 failed\n",
+        ),
         step("frontend", "› write_file src/db.js\n› write_file public/app.js\n"),
         step("e2e", "› npm test: 9 passed, 0 failed\n› real browser: 2 passed, 0 failed\n", [shot]),
       ]),
@@ -29,17 +50,29 @@ describe("runEvidence", () => {
   it("shows the browser test's last picture, the one of the new feature", () => {
     const basic = { label: "add complete and delete a task", png: "AAAA" };
     const feature = { label: "feature filter flow", png: "BBBB" };
-    const ev = runEvidence(run({}, [step("e2e", "› real browser: 2 passed, 0 failed\n", [basic, feature])]));
+    const ev = runEvidence(
+      run({}, [step("e2e", "› real browser: 2 passed, 0 failed\n", [basic, feature])]),
+    );
     expect(ev?.shot).toEqual(feature);
   });
 
   it("gives a replay of a real live run the same evidence", () => {
-    const ev = runEvidence(run({ mode: "replay", source: "live-run" }, [step("e2e", "› real browser: 2 passed, 0 failed\n")]));
+    const ev = runEvidence(
+      run({ mode: "replay", source: "live-run" }, [
+        step("e2e", "› real browser: 2 passed, 0 failed\n"),
+      ]),
+    );
     expect(ev?.browser).toBe("2 passed, 0 failed");
   });
 
   it("gives a simulation none, even if its text looks like test output", () => {
-    expect(runEvidence(run({ mode: "simulated" }, [step("e2e", "› npm test: 8 passed, 0 failed\n› write_file src/db.js\n")]))).toBeNull();
+    expect(
+      runEvidence(
+        run({ mode: "simulated" }, [
+          step("e2e", "› npm test: 8 passed, 0 failed\n› write_file src/db.js\n"),
+        ]),
+      ),
+    ).toBeNull();
   });
 
   it("returns nothing when the run left no result, file or picture", () => {
