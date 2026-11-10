@@ -47,12 +47,33 @@ describe("createRecorder", () => {
     rec.observe({ type: "mode", mode: "live" });
     rec.observe({ type: "done", agent: "story", round: 1, ms: 40 });
     rec.observe({ type: "done", agent: "story", round: 2, ms: 60 });
-    rec.observe({ type: "usage", agent: "story", round: 1, inputTokens: 10, outputTokens: 5, costUsd: 0.01 });
-    rec.observe({ type: "usage", agent: "pm", round: 1, inputTokens: 20, outputTokens: 5, costUsd: 0.02 });
+    rec.observe({
+      type: "usage",
+      agent: "story",
+      round: 1,
+      inputTokens: 10,
+      outputTokens: 5,
+      costUsd: 0.01,
+    });
+    rec.observe({
+      type: "usage",
+      agent: "pm",
+      round: 1,
+      inputTokens: 20,
+      outputTokens: 5,
+      costUsd: 0.02,
+    });
     rec.observe({ type: "finish", ms: 500, rounds: 2, approved: true });
     t = 3500;
     const r = rec.close();
-    expect(r).toMatchObject({ mode: "live", status: "approved", rounds: 2, ms: 2500, inputTokens: 30, outputTokens: 10 });
+    expect(r).toMatchObject({
+      mode: "live",
+      status: "approved",
+      rounds: 2,
+      ms: 2500,
+      inputTokens: 30,
+      outputTokens: 10,
+    });
     expect(r.costUsd).toBeCloseTo(0.03);
     expect(r.agentMs.story).toBe(100);
   });

@@ -12,9 +12,16 @@ type Block = { type: string; id?: string; name?: string; input?: unknown; text?:
 function toolClient(script: (agent: string, turn: number, messages: unknown[]) => Block[]) {
   const seen: Array<{ agent: string; params: Record<string, unknown> }> = [];
   const agentOf = (system: string) =>
-    ["Researcher", "Story Writer", "Project Manager", "Logic engineer", "Interface engineer", "Browser Tester", "Validator", "Release"].find((a) =>
-      system.includes(`You are the ${a}`),
-    ) ?? "?";
+    [
+      "Researcher",
+      "Story Writer",
+      "Project Manager",
+      "Logic engineer",
+      "Interface engineer",
+      "Browser Tester",
+      "Validator",
+      "Release",
+    ].find((a) => system.includes(`You are the ${a}`)) ?? "?";
   const client: LlmClient = {
     messages: {
       create: vi.fn().mockResolvedValue({}),
@@ -27,7 +34,9 @@ function toolClient(script: (agent: string, turn: number, messages: unknown[]) =
         const usesTools = content.some((b) => b.type === "tool_use");
         return {
           async *[Symbol.asyncIterator]() {
-            for (const b of content) if (b.type === "text") yield { type: "content_block_delta", delta: { type: "text_delta", text: b.text } };
+            for (const b of content)
+              if (b.type === "text")
+                yield { type: "content_block_delta", delta: { type: "text_delta", text: b.text } };
           },
           finalMessage: async () => ({
             stop_reason: usesTools ? "tool_use" : "end_turn",
@@ -42,7 +51,12 @@ function toolClient(script: (agent: string, turn: number, messages: unknown[]) =
 }
 
 const text = (t: string): Block[] => [{ type: "text", text: t }];
-const tool = (id: string, name: string, input: unknown): Block => ({ type: "tool_use", id, name, input });
+const tool = (id: string, name: string, input: unknown): Block => ({
+  type: "tool_use",
+  id,
+  name,
+  input,
+});
 
 async function run(client: LlmClient) {
   const events: FoundryEvent[] = [];
@@ -51,32 +65,48 @@ async function run(client: LlmClient) {
 }
 
 const verdicts = (agent: string): Block[] | null =>
-  agent === "Browser Tester" ? text("E2E: PASS") : agent === "Validator" ? text("VERDICT: APPROVE\n- ok") : null;
+  agent === "Browser Tester"
+    ? text("E2E: PASS")
+    : agent === "Validator"
+      ? text("VERDICT: APPROVE\n- ok")
+      : null;
 
 describe("tool loop", () => {
   it("lets agents read and write files, feeds results back, and shows the calls", async () => {
     const { client, seen } = toolClient((agent, turn, messages) => {
       const v = verdicts(agent);
       if (v) return v;
-      if (agent === "Researcher") return turn === 0 ? [tool("t1", "read_file", { path: "README.md" })] : text("- the kit has loadData and saveData");
+      if (agent === "Researcher")
+        return turn === 0
+          ? [tool("t1", "read_file", { path: "README.md" })]
+          : text("- the kit has loadData and saveData");
       if (agent === "Logic engineer") {
         return turn === 0
-          ? [tool("b1", "read_file", { path: "app.js" }), tool("b2", "write_file", { path: "app.js", content: "// new logic\n" })]
+          ? [
+              tool("b1", "read_file", { path: "app.js" }),
+              tool("b2", "write_file", { path: "app.js", content: "// new logic\n" }),
+            ]
           : text("Changed app.js.");
       }
-      if (agent === "Interface engineer") return turn === 0 ? [tool("f1", "write_file", { path: "app.js", content: "// not mine" })] : text("Tried.");
+      if (agent === "Interface engineer")
+        return turn === 0
+          ? [tool("f1", "write_file", { path: "app.js", content: "// not mine" })]
+          : text("Tried.");
       void messages;
       return text(agent);
     });
     const events = await run(client);
 
     // the researcher's tool result went back to the model as a tool_result for the same call id
-    const researcherSecond = seen.filter((s) => s.agent === "Researcher")[1].params.messages as Array<{ role: string; content: unknown }>;
+    const researcherSecond = seen.filter((s) => s.agent === "Researcher")[1].params
+      .messages as Array<{ role: string; content: unknown }>;
     expect(researcherSecond).toHaveLength(3);
     expect(JSON.stringify(researcherSecond[2].content)).toContain('"tool_use_id":"t1"');
     expect(JSON.stringify(researcherSecond[2].content)).toContain("Starter kit");
 
-    const tools = events.filter((e): e is Extract<FoundryEvent, { type: "tool" }> => e.type === "tool");
+    const tools = events.filter(
+      (e): e is Extract<FoundryEvent, { type: "tool" }> => e.type === "tool",
+    );
     expect(tools.map((t) => [t.agent, t.label, t.ok])).toEqual([
       ["researcher", "read_file README.md", true],
       ["backend", "read_file app.js", true],
@@ -85,7 +115,9 @@ describe("tool loop", () => {
     ]);
 
     // the checking agents see the real files the logic engineer wrote
-    const e2e = seen.find((s) => s.agent === "Browser Tester")!.params.messages as Array<{ content: string }>;
+    const e2e = seen.find((s) => s.agent === "Browser Tester")!.params.messages as Array<{
+      content: string;
+    }>;
     expect(e2e[0].content).toContain("--- app.js ---\n// new logic");
     expect(e2e[0].content).not.toContain("not mine");
   });
@@ -94,9 +126,16 @@ describe("tool loop", () => {
     const { client, seen } = toolClient((agent) => verdicts(agent) ?? text("ok"));
     await run(client);
     const withTools = [...new Set(seen.filter((s) => s.params.tools).map((s) => s.agent))].sort();
-    expect(withTools).toEqual(["Browser Tester", "Interface engineer", "Logic engineer", "Researcher"]);
+    expect(withTools).toEqual([
+      "Browser Tester",
+      "Interface engineer",
+      "Logic engineer",
+      "Researcher",
+    ]);
     // without a sandbox nobody is offered the tools that need one
-    expect(seen.every((s) => !JSON.stringify(s.params.tools ?? []).match(/run_tests|run_browser_test/))).toBe(true);
+    expect(
+      seen.every((s) => !JSON.stringify(s.params.tools ?? []).match(/run_tests|run_browser_test/)),
+    ).toBe(true);
   });
 
   it("makes an agent that keeps calling tools answer in text on its last turn", async () => {
@@ -122,7 +161,9 @@ describe("tool loop", () => {
     const { client } = toolClient((agent, turn) => {
       const v = verdicts(agent);
       if (v) return v;
-      return agent === "Researcher" && turn === 0 ? [tool("t1", "list_dir", { path: "." })] : text("ok");
+      return agent === "Researcher" && turn === 0
+        ? [tool("t1", "list_dir", { path: "." })]
+        : text("ok");
     });
     const events = await run(client);
     const usage = events.filter((e) => e.type === "usage");
@@ -131,11 +172,21 @@ describe("tool loop", () => {
 });
 
 describe("real test runs", () => {
-  const report = (ok: boolean, ran = true) => ({ ran, ok, summary: ok ? "npm test: 5 passed, 0 failed" : "npm test: 3 passed, 2 failed", output: "details", ms: 5 });
+  const report = (ok: boolean, ran = true) => ({
+    ran,
+    ok,
+    summary: ok ? "npm test: 5 passed, 0 failed" : "npm test: 3 passed, 2 failed",
+    output: "details",
+    ms: 5,
+  });
   const passingScript = (agent: string): Block[] | null => verdicts(agent);
 
   async function runWith(testRunner: TestRunnerType, script = passingScript) {
-    const { client, seen } = toolClient((agent, turn) => script(agent) ?? (agent === "Logic engineer" && turn === 0 ? [tool("r1", "run_tests", {})] : text("ok")));
+    const { client, seen } = toolClient(
+      (agent, turn) =>
+        script(agent) ??
+        (agent === "Logic engineer" && turn === 0 ? [tool("r1", "run_tests", {})] : text("ok")),
+    );
     const events: FoundryEvent[] = [];
     await runPipeline("Add a nickname", (e) => events.push(e), { pace: 0, client, testRunner });
     return { events, seen };
@@ -145,26 +196,38 @@ describe("real test runs", () => {
   it("offers run_tests to the engineers only when a runner exists, and returns its report to them", async () => {
     const runner = vi.fn(async () => report(true));
     const { events, seen } = await runWith(runner);
-    const toolNames = (agent: string) => (seen.find((s) => s.agent === agent)!.params.tools as Array<{ name: string }>).map((t) => t.name);
+    const toolNames = (agent: string) =>
+      (seen.find((s) => s.agent === agent)!.params.tools as Array<{ name: string }>).map(
+        (t) => t.name,
+      );
     expect(toolNames("Logic engineer")).toContain("run_tests");
     expect(toolNames("Researcher")).not.toContain("run_tests");
-    const labels = events.filter((e): e is Extract<FoundryEvent, { type: "tool" }> => e.type === "tool").map((t) => `${t.agent}: ${t.label}`);
+    const labels = events
+      .filter((e): e is Extract<FoundryEvent, { type: "tool" }> => e.type === "tool")
+      .map((t) => `${t.agent}: ${t.label}`);
     expect(labels).toContain("backend: npm test: 5 passed, 0 failed");
     expect(labels).toContain("e2e: npm test: 5 passed, 0 failed");
-    const second = seen.filter((s) => s.agent === "Logic engineer")[1].params.messages as Array<{ content: unknown }>;
+    const second = seen.filter((s) => s.agent === "Logic engineer")[1].params.messages as Array<{
+      content: unknown;
+    }>;
     expect(JSON.stringify(second[2].content)).toContain("5 passed");
   });
 
   it("does not offer run_tests when there is no runner", async () => {
     const { seen } = await runWith(undefined as unknown as TestRunnerType);
-    expect(seen.every((s) => !JSON.stringify(s.params.tools ?? []).includes("run_tests"))).toBe(true);
+    expect(seen.every((s) => !JSON.stringify(s.params.tools ?? []).includes("run_tests"))).toBe(
+      true,
+    );
   });
 
   it("fails the E2E gate when the real tests fail, even if the E2E agent says PASS, and sends the work back", async () => {
     let calls = 0;
     const runner = vi.fn(async () => report(++calls > 2)); // fails during round 1, passes from round 2
     const { events } = await runWith(runner);
-    const gates = events.filter((e): e is Extract<FoundryEvent, { type: "verdict" }> => e.type === "verdict" && e.gate === "e2e");
+    const gates = events.filter(
+      (e): e is Extract<FoundryEvent, { type: "verdict" }> =>
+        e.type === "verdict" && e.gate === "e2e",
+    );
     expect(gates[0]).toMatchObject({ round: 1, approved: false });
     expect(gates.at(-1)).toMatchObject({ approved: true });
     expect(events.find((e) => e.type === "finish")).toMatchObject({ rounds: 2, approved: true });
@@ -174,18 +237,32 @@ describe("real test runs", () => {
     const runner = vi.fn(async () => report(false, false));
     const { events, seen } = await runWith(runner);
     expect(events.find((e) => e.type === "finish")).toMatchObject({ rounds: 1, approved: true });
-    const validator = seen.find((s) => s.agent === "Validator")!.params.messages as Array<{ content: string }>;
+    const validator = seen.find((s) => s.agent === "Validator")!.params.messages as Array<{
+      content: string;
+    }>;
     expect(validator[0].content).toContain("sandbox was unavailable");
   });
 
   it("stops an agent from running the tests more than twice", async () => {
     const runner = vi.fn(async () => report(true));
-    const { client } = toolClient((agent, turn) => verdicts(agent) ?? (agent === "Logic engineer" && turn < 3 ? [tool(`r${turn}`, "run_tests", {})] : text("ok")));
+    const { client } = toolClient(
+      (agent, turn) =>
+        verdicts(agent) ??
+        (agent === "Logic engineer" && turn < 3 ? [tool(`r${turn}`, "run_tests", {})] : text("ok")),
+    );
     const events: FoundryEvent[] = [];
-    await runPipeline("Add a nickname", (e) => events.push(e), { pace: 0, client, testRunner: runner });
-    const backendRuns = events.filter((e) => e.type === "tool" && e.agent === "backend" && e.label.startsWith("npm test"));
+    await runPipeline("Add a nickname", (e) => events.push(e), {
+      pace: 0,
+      client,
+      testRunner: runner,
+    });
+    const backendRuns = events.filter(
+      (e) => e.type === "tool" && e.agent === "backend" && e.label.startsWith("npm test"),
+    );
     expect(backendRuns).toHaveLength(2);
-    expect(events.some((e) => e.type === "tool" && e.label === "run_tests (limit reached)")).toBe(true);
+    expect(events.some((e) => e.type === "tool" && e.label === "run_tests (limit reached)")).toBe(
+      true,
+    );
   });
 });
 
@@ -206,23 +283,38 @@ describe("real browser runs", () => {
     const { client, seen } = toolClient((agent, turn) => {
       if (agent === "Browser Tester") {
         // the verifier's text always claims PASS: the real result must decide
-        return verifierRuns && turn === 0 ? [tool("e1", "run_browser_test", { spec: "test('x', async () => {})" }), ...text("")] : text("E2E: PASS\nchecked");
+        return verifierRuns && turn === 0
+          ? [tool("e1", "run_browser_test", { spec: "test('x', async () => {})" }), ...text("")]
+          : text("E2E: PASS\nchecked");
       }
       return verdicts(agent) ?? text("ok");
     });
     const events: FoundryEvent[] = [];
-    await runPipeline("Add a nickname", (e) => events.push(e), { pace: 0, client, testRunner: async () => tests, browserRunner });
+    await runPipeline("Add a nickname", (e) => events.push(e), {
+      pace: 0,
+      client,
+      testRunner: async () => tests,
+      browserRunner,
+    });
     return { events, seen };
   }
   const finish = (events: FoundryEvent[]) => events.find((e) => e.type === "finish");
-  const gates = (events: FoundryEvent[]) => events.filter((e): e is Extract<FoundryEvent, { type: "verdict" }> => e.type === "verdict" && e.gate === "e2e");
+  const gates = (events: FoundryEvent[]) =>
+    events.filter(
+      (e): e is Extract<FoundryEvent, { type: "verdict" }> =>
+        e.type === "verdict" && e.gate === "e2e",
+    );
 
   it("gives the verifier the browser tool, passes the spec to the runner, and streams the pictures", async () => {
     const runner = vi.fn(async () => browserReport(true));
     const { events, seen } = await runWith(runner);
     expect(runner).toHaveBeenCalledWith(expect.any(Object), "test('x', async () => {})", undefined);
-    expect(JSON.stringify(seen.find((s) => s.agent === "Browser Tester")!.params.tools)).toContain("run_browser_test");
-    expect(events.filter((e) => e.type === "shot")).toEqual([{ type: "shot", agent: "e2e", round: 1, label: "adds a task", png: "iVBORw0KGgo=" }]);
+    expect(JSON.stringify(seen.find((s) => s.agent === "Browser Tester")!.params.tools)).toContain(
+      "run_browser_test",
+    );
+    expect(events.filter((e) => e.type === "shot")).toEqual([
+      { type: "shot", agent: "e2e", round: 1, label: "adds a task", png: "iVBORw0KGgo=" },
+    ]);
     expect(finish(events)).toMatchObject({ rounds: 1, approved: true });
   });
 
@@ -248,11 +340,22 @@ describe("real browser runs", () => {
 
   it("stops the verifier after three browser runs", async () => {
     const runner = vi.fn(async () => browserReport(false));
-    const { client } = toolClient((agent, turn) => (agent === "Browser Tester" && turn < 5 ? [tool(`e${turn}`, "run_browser_test", { spec: "x" })] : verdicts(agent) ?? text("ok")));
+    const { client } = toolClient((agent, turn) =>
+      agent === "Browser Tester" && turn < 5
+        ? [tool(`e${turn}`, "run_browser_test", { spec: "x" })]
+        : (verdicts(agent) ?? text("ok")),
+    );
     const events: FoundryEvent[] = [];
-    await runPipeline("Add a nickname", (e) => events.push(e), { pace: 0, client, testRunner: async () => tests, browserRunner: runner });
+    await runPipeline("Add a nickname", (e) => events.push(e), {
+      pace: 0,
+      client,
+      testRunner: async () => tests,
+      browserRunner: runner,
+    });
     expect(runner).toHaveBeenCalledTimes(6); // three per round, two rounds
-    expect(events.some((e) => e.type === "tool" && e.label === "run_browser_test (limit reached)")).toBe(true);
+    expect(
+      events.some((e) => e.type === "tool" && e.label === "run_browser_test (limit reached)"),
+    ).toBe(true);
   });
 });
 
@@ -261,21 +364,32 @@ describe("handing over the app", () => {
 
   async function runWith(approve = true) {
     const { client } = toolClient((agent, turn) => {
-      if (agent === "Logic engineer" && turn === 0) return [tool("w1", "write_file", { path: "app.js", content: "// new\n" })];
-      if (agent === "Validator") return text(approve ? "VERDICT: APPROVE" : "VERDICT: REVISE\n- no");
+      if (agent === "Logic engineer" && turn === 0)
+        return [tool("w1", "write_file", { path: "app.js", content: "// new\n" })];
+      if (agent === "Validator")
+        return text(approve ? "VERDICT: APPROVE" : "VERDICT: REVISE\n- no");
       if (agent === "Browser Tester") return text("E2E: PASS");
       if (agent === "Release") return text("Tip calculator\n- Type the bill");
       return text("ok");
     });
     const events: FoundryEvent[] = [];
-    await runPipeline("A tip calculator", (e) => events.push(e), { pace: 0, client, testRunner: async () => tests });
+    await runPipeline("A tip calculator", (e) => events.push(e), {
+      pace: 0,
+      client,
+      testRunner: async () => tests,
+    });
     return events;
   }
 
   it("hands the page the approved app's changed files, before the finish, and opens no pull request", async () => {
     const events = await runWith();
-    expect(events.find((e) => e.type === "files")).toEqual({ type: "files", files: { "app.js": "// new\n" } });
-    expect(events.findIndex((e) => e.type === "files")).toBeLessThan(events.findIndex((e) => e.type === "finish"));
+    expect(events.find((e) => e.type === "files")).toEqual({
+      type: "files",
+      files: { "app.js": "// new\n" },
+    });
+    expect(events.findIndex((e) => e.type === "files")).toBeLessThan(
+      events.findIndex((e) => e.type === "finish"),
+    );
     expect(events.some((e) => e.type === "pr")).toBe(false);
   });
 
@@ -286,9 +400,13 @@ describe("handing over the app", () => {
   });
 
   it("stops before building when the Story Writer refuses the idea", async () => {
-    const { client, seen } = toolClient((agent) => (agent === "Story Writer" ? text("REFUSE: That app would collect passwords.") : text("ok")));
+    const { client, seen } = toolClient((agent) =>
+      agent === "Story Writer" ? text("REFUSE: That app would collect passwords.") : text("ok"),
+    );
     const events: FoundryEvent[] = [];
-    await expect(runPipeline("A tip calculator", (e) => events.push(e), { pace: 0, client })).rejects.toThrow(/won't build that one: That app would collect passwords/);
+    await expect(
+      runPipeline("A tip calculator", (e) => events.push(e), { pace: 0, client }),
+    ).rejects.toThrow(/won't build that one: That app would collect passwords/);
     expect(seen.some((s) => s.agent === "Logic engineer")).toBe(false);
   });
 });

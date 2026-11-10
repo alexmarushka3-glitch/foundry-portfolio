@@ -17,7 +17,8 @@ export function tokenMatches(input: string): boolean {
   return timingSafeEqual(digest(input), digest(token));
 }
 
-const sign = (token: string, exp: string) => createHmac("sha256", token).update(`foundry-admin-session:${exp}`).digest("hex");
+const sign = (token: string, exp: string) =>
+  createHmac("sha256", token).update(`foundry-admin-session:${exp}`).digest("hex");
 
 /**
  * The cookie value for a signed-in admin: an expiry time and a signature over it, "<expiry ms>.<hex>". The server
@@ -58,8 +59,11 @@ export function blockCrossSite(req: Request): Response | null {
   } catch {
     return Response.json({ error: "Cross-site request blocked." }, { status: 403 });
   }
-  const host = req.headers.get("x-forwarded-host") ?? req.headers.get("host") ?? new URL(req.url).host;
-  return originHost === host ? null : Response.json({ error: "Cross-site request blocked." }, { status: 403 });
+  const host =
+    req.headers.get("x-forwarded-host") ?? req.headers.get("host") ?? new URL(req.url).host;
+  return originHost === host
+    ? null
+    : Response.json({ error: "Cross-site request blocked." }, { status: 403 });
 }
 
 export function cookieFromHeader(header: string | null, name = ADMIN_COOKIE): string | undefined {

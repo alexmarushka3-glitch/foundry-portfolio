@@ -6,7 +6,12 @@ import snapshot from "../tasklySnapshot.json";
 // from inside the deployment, so the snapshot is made with that deployment's own sandbox credentials, which is
 // the only kind a production run can see. The same steps live in scripts/build-sandbox-snapshot.mjs for local use.
 
-export type SnapshotBuild = { snapshotId: string; commit: string; seconds: number; steps: string[] };
+export type SnapshotBuild = {
+  snapshotId: string;
+  commit: string;
+  seconds: number;
+  steps: string[];
+};
 
 const LIBS =
   "sudo dnf install -y --setopt=install_weak_deps=False nss nspr atk at-spi2-atk cups-libs libdrm libxkbcommon libXcomposite libXdamage libXfixes libXrandr mesa-libgbm pango cairo alsa-lib libX11 libxcb";
@@ -32,12 +37,19 @@ async function run(): Promise<SnapshotBuild> {
   const sandbox = await Sandbox.create({
     runtime: "node24",
     timeout: 5 * 60_000,
-    source: { type: "git", url: `https://github.com/${snapshot.repo}.git`, revision: snapshot.commit },
+    source: {
+      type: "git",
+      url: `https://github.com/${snapshot.repo}.git`,
+      revision: snapshot.commit,
+    },
   });
   lap("sandbox created");
   try {
     const sh = async (label: string, cmd: string) => {
-      const r = await sandbox.runCommand("bash", ["-lc", `${cmd} 2>&1 | tail -c 1500; exit \${PIPESTATUS[0]}`]);
+      const r = await sandbox.runCommand("bash", [
+        "-lc",
+        `${cmd} 2>&1 | tail -c 1500; exit \${PIPESTATUS[0]}`,
+      ]);
       lap(`${label}: exit ${r.exitCode}`);
       if (r.exitCode !== 0) throw new Error(`${label} failed: ${(await r.stdout()).slice(-300)}`);
     };
@@ -47,7 +59,12 @@ async function run(): Promise<SnapshotBuild> {
     await sh("browser check", "npx playwright test");
     const snap = await sandbox.snapshot();
     lap("snapshot taken");
-    return { snapshotId: snap.snapshotId, commit: snapshot.commit, seconds: Math.round((Date.now() - t0) / 1000), steps };
+    return {
+      snapshotId: snap.snapshotId,
+      commit: snapshot.commit,
+      seconds: Math.round((Date.now() - t0) / 1000),
+      steps,
+    };
   } catch (err) {
     await sandbox.stop().catch(() => {});
     throw err;

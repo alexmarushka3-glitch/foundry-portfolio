@@ -10,7 +10,9 @@
 import { Sandbox } from "@vercel/sandbox";
 import { readFileSync } from "node:fs";
 
-const repo = JSON.parse(readFileSync(new URL("../lib/tasklySnapshot.json", import.meta.url), "utf8"));
+const repo = JSON.parse(
+  readFileSync(new URL("../lib/tasklySnapshot.json", import.meta.url), "utf8"),
+);
 const t0 = Date.now();
 const lap = (l) => console.log(`${((Date.now() - t0) / 1000).toFixed(0)}s ${l}`);
 

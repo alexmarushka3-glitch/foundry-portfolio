@@ -7,9 +7,17 @@ import { profile } from "@/lib/profile";
 beforeEach(() => {
   vi.stubGlobal(
     "matchMedia",
-    vi.fn().mockImplementation((query: string) => ({ matches: false, media: query, addEventListener: () => {}, removeEventListener: () => {} })),
+    vi.fn().mockImplementation((query: string) => ({
+      matches: false,
+      media: query,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    })),
   );
-  vi.stubGlobal("fetch", vi.fn(async () => Response.json({ live: false })));
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => Response.json({ live: false })),
+  );
 });
 afterEach(() => {
   cleanup();
@@ -21,7 +29,9 @@ describe("Home page", () => {
     const { container } = render(<Home />);
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Foundry");
     expect(screen.getByText(profile.intro)).toBeTruthy();
-    expect(container.querySelector(".hero .byline")?.textContent).toMatch(/Alex Marushka, Business Economics student at the University of Chicago, class of 2029/);
+    expect(container.querySelector(".hero .byline")?.textContent).toMatch(
+      /Alex Marushka, Business Economics student at the University of Chicago, class of 2029/,
+    );
   });
 
   it("shows the logo in the nav and next to the title, hidden from screen readers", () => {
@@ -35,7 +45,12 @@ describe("Home page", () => {
   it("names the site in the nav and links the sections in page order, with no projects or made-up dashboard on the home page", () => {
     render(<Home />);
     const nav = within(screen.getByRole("navigation", { name: "Sections" }));
-    expect(nav.getAllByRole("link").map((a) => a.textContent)).toEqual(["Demo", "Project", "Scope", "About"]);
+    expect(nav.getAllByRole("link").map((a) => a.textContent)).toEqual([
+      "Demo",
+      "Project",
+      "Scope",
+      "About",
+    ]);
     expect(screen.getByRole("link", { name: "Foundry" }).getAttribute("href")).toBe("#top");
 
     const ids = [...document.querySelectorAll("main > section")].map((s) => s.id);
@@ -73,7 +88,8 @@ describe("Home page", () => {
     render(<Home />);
     const section = within(document.getElementById("project")!);
     expect(section.getByRole("heading", { name: "The project in short" })).toBeTruthy();
-    for (const term of ["The question", "What I built", "What happened", "My part"]) expect(section.getByText(term)).toBeTruthy();
+    for (const term of ["The question", "What I built", "What happened", "My part"])
+      expect(section.getByText(term)).toBeTruthy();
     expect(section.getByRole("heading", { name: "Decisions that mattered" })).toBeTruthy();
   });
 });

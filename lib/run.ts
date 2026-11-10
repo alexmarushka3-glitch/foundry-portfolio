@@ -4,7 +4,11 @@ import type { AgentName, Mode } from "./types";
 // Safe to import in the browser and on the server: no Node-only code.
 
 /** Compare requests ignoring case, outer spacing and trailing punctuation. */
-export const normalizeRequest = (s: string) => s.trim().toLowerCase().replace(/[.!?]+$/, "");
+export const normalizeRequest = (s: string) =>
+  s
+    .trim()
+    .toLowerCase()
+    .replace(/[.!?]+$/, "");
 
 /** A picture taken by the real browser during the E2E step. */
 export type Shot = { label: string; png: string };
@@ -73,10 +77,25 @@ export function viewsAt(run: Run, t: number): StepView[] {
   for (const s of run.steps) {
     if (t < s.start) continue;
     if (t >= s.end) {
-      views.push({ agent: s.agent, round: s.round, model: s.model, text: s.text, status: "done", ms: s.ms, passed: s.passed, shots: s.shots });
+      views.push({
+        agent: s.agent,
+        round: s.round,
+        model: s.model,
+        text: s.text,
+        status: "done",
+        ms: s.ms,
+        passed: s.passed,
+        shots: s.shots,
+      });
     } else {
       const p = (t - s.start) / Math.max(1, s.end - s.start);
-      views.push({ agent: s.agent, round: s.round, model: s.model, text: s.text.slice(0, Math.floor(s.text.length * p)), status: "active" });
+      views.push({
+        agent: s.agent,
+        round: s.round,
+        model: s.model,
+        text: s.text.slice(0, Math.floor(s.text.length * p)),
+        status: "active",
+      });
     }
   }
   return views;
@@ -87,7 +106,16 @@ export function framesFrom(views: StepView[]): AgentFrame[] {
   return AGENT_LIST.map((a) => {
     const mine = views.filter((v) => v.agent === a.id).sort((x, y) => y.round - x.round)[0];
     if (!mine) return { agent: a.id, status: "pending", round: 0, text: "" };
-    return { agent: a.id, status: mine.status, round: mine.round, model: mine.model, text: mine.text, ms: mine.ms, passed: mine.passed, shots: mine.shots };
+    return {
+      agent: a.id,
+      status: mine.status,
+      round: mine.round,
+      model: mine.model,
+      text: mine.text,
+      ms: mine.ms,
+      passed: mine.passed,
+      shots: mine.shots,
+    };
   });
 }
 

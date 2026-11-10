@@ -10,8 +10,13 @@ describe("shipped recordings summary", () => {
       rounds: r.rounds,
       approved: r.approved,
       totalMs: r.totalMs,
-      models: [...new Set(r.events.flatMap((e) => (e.event.type === "start" ? [e.event.model] : [])))],
-      costUsd: r.events.reduce((sum, e) => sum + (e.event.type === "usage" ? e.event.costUsd : 0), 0),
+      models: [
+        ...new Set(r.events.flatMap((e) => (e.event.type === "start" ? [e.event.model] : []))),
+      ],
+      costUsd: r.events.reduce(
+        (sum, e) => sum + (e.event.type === "usage" ? e.event.costUsd : 0),
+        0,
+      ),
     }));
     expect(summary).toEqual(expected);
   });

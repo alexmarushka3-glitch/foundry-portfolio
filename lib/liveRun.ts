@@ -21,9 +21,15 @@ export type LiveState = {
   error?: string;
 };
 
-export const startLive = (request: string): LiveState => ({ request, mode: null, steps: [], costUsd: 0 });
+export const startLive = (request: string): LiveState => ({
+  request,
+  mode: null,
+  steps: [],
+  costUsd: 0,
+});
 
-const sameStep = (s: LiveStep, agent: string, round: number) => s.agent === agent && s.round === round;
+const sameStep = (s: LiveStep, agent: string, round: number) =>
+  s.agent === agent && s.round === round;
 
 /** Apply one server event. `at` is when it arrived, in ms since the run started. */
 export function applyEvent(state: LiveState, e: FoundryEvent, at: number): LiveState {
@@ -33,16 +39,27 @@ export function applyEvent(state: LiveState, e: FoundryEvent, at: number): LiveS
     case "start":
       return {
         ...state,
-        steps: [...state.steps, { agent: e.agent, round: e.round, model: e.model, text: "", status: "active", start: at }],
+        steps: [
+          ...state.steps,
+          { agent: e.agent, round: e.round, model: e.model, text: "", status: "active", start: at },
+        ],
       };
     case "token":
-      return { ...state, steps: state.steps.map((s) => (sameStep(s, e.agent, e.round) ? { ...s, text: s.text + e.text } : s)) };
+      return {
+        ...state,
+        steps: state.steps.map((s) =>
+          sameStep(s, e.agent, e.round) ? { ...s, text: s.text + e.text } : s,
+        ),
+      };
     case "tool":
       return {
         ...state,
         steps: state.steps.map((s) =>
           sameStep(s, e.agent, e.round)
-            ? { ...s, text: `${s.text}${s.text && !s.text.endsWith("\n") ? "\n" : ""}› ${e.label}${e.ok ? "" : " (failed)"}\n` }
+            ? {
+                ...s,
+                text: `${s.text}${s.text && !s.text.endsWith("\n") ? "\n" : ""}› ${e.label}${e.ok ? "" : " (failed)"}\n`,
+              }
             : s,
         ),
       };
@@ -50,18 +67,27 @@ export function applyEvent(state: LiveState, e: FoundryEvent, at: number): LiveS
       return {
         ...state,
         steps: state.steps.map((s) =>
-          sameStep(s, e.agent, e.round) ? { ...s, shots: [...(s.shots ?? []), { label: e.label, png: e.png }] } : s,
+          sameStep(s, e.agent, e.round)
+            ? { ...s, shots: [...(s.shots ?? []), { label: e.label, png: e.png }] }
+            : s,
         ),
       };
     case "done":
       return {
         ...state,
-        steps: state.steps.map((s) => (sameStep(s, e.agent, e.round) ? { ...s, status: "done", ms: e.ms, end: at } : s)),
+        steps: state.steps.map((s) =>
+          sameStep(s, e.agent, e.round) ? { ...s, status: "done", ms: e.ms, end: at } : s,
+        ),
       };
     case "usage":
       return { ...state, costUsd: state.costUsd + e.costUsd };
     case "verdict":
-      return { ...state, steps: state.steps.map((s) => (sameStep(s, e.gate, e.round) ? { ...s, passed: e.approved } : s)) };
+      return {
+        ...state,
+        steps: state.steps.map((s) =>
+          sameStep(s, e.gate, e.round) ? { ...s, passed: e.approved } : s,
+        ),
+      };
     case "pr":
       return { ...state, pr: { url: e.url, number: e.number } };
     case "files":

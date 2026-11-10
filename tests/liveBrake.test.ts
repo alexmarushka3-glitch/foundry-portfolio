@@ -1,5 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
-import { FallbackLiveBrake, MemoryLiveBrake, RedisLiveBrake, createLiveBrake, type LiveBrake } from "@/lib/server/liveBrake";
+import {
+  FallbackLiveBrake,
+  MemoryLiveBrake,
+  RedisLiveBrake,
+  createLiveBrake,
+  type LiveBrake,
+} from "@/lib/server/liveBrake";
 import { LiveLimiter } from "@/lib/server/rateLimit";
 
 /** A tiny fake of the Upstash REST pipeline endpoint: counters plus SCAN, GET and DEL. */
@@ -39,7 +45,11 @@ function fakeUpstash() {
     });
     return new Response(JSON.stringify(out), { status: 200 });
   });
-  return { data, calls, config: { url: "https://redis.test", token: "t", fetchFn: fetchFn as unknown as typeof fetch } };
+  return {
+    data,
+    calls,
+    config: { url: "https://redis.test", token: "t", fetchFn: fetchFn as unknown as typeof fetch },
+  };
 }
 
 describe("RedisLiveBrake", () => {
@@ -56,7 +66,11 @@ describe("RedisLiveBrake", () => {
 
   it("gives each browser on one network its own runs, up to the network cap", async () => {
     const { config } = fakeUpstash();
-    const brake = new RedisLiveBrake({ perHour: 1, perNetworkHour: 2, perDay: 100 }, config, () => T);
+    const brake = new RedisLiveBrake(
+      { perHour: 1, perNetworkHour: 2, perDay: 100 },
+      config,
+      () => T,
+    );
     expect(await brake.check("wifi", "b1")).toBeNull();
     expect(await brake.check("wifi", "b1")).toMatch(/1 live runs this hour/);
     expect(await brake.check("wifi", "b2")).toBeNull();
@@ -150,7 +164,11 @@ describe("FallbackLiveBrake", () => {
 
   it("keeps braking from this instance's counters, and warns, when the database is down", async () => {
     const warn = vi.fn();
-    const brake = new FallbackLiveBrake(down, new MemoryLiveBrake(new LiveLimiter({ perHour: 1, perDay: 5 })), warn);
+    const brake = new FallbackLiveBrake(
+      down,
+      new MemoryLiveBrake(new LiveLimiter({ perHour: 1, perDay: 5 })),
+      warn,
+    );
     expect(await brake.check("v")).toBeNull();
     expect(await brake.check("v")).toMatch(/1 live runs this hour/);
     expect((await brake.snapshot()).usedToday).toBe(1);
@@ -165,6 +183,8 @@ describe("createLiveBrake", () => {
     expect(createLiveBrake(limits, {})).toBeInstanceOf(MemoryLiveBrake);
   });
   it("uses Redis, with the memory fallback, when the Upstash REST variables are set", () => {
-    expect(createLiveBrake(limits, { KV_REST_API_URL: "https://a", KV_REST_API_TOKEN: "t" })).toBeInstanceOf(FallbackLiveBrake);
+    expect(
+      createLiveBrake(limits, { KV_REST_API_URL: "https://a", KV_REST_API_TOKEN: "t" }),
+    ).toBeInstanceOf(FallbackLiveBrake);
   });
 });

@@ -76,6 +76,8 @@ export async function captureRun(
 
 export function assertRecordingSize(json: string): void {
   if (json.length > MAX_RECORDING_CHARS) {
-    throw new Error(`Recording is ${json.length} characters, over the ${MAX_RECORDING_CHARS} limit.`);
+    throw new Error(
+      `Recording is ${json.length} characters, over the ${MAX_RECORDING_CHARS} limit.`,
+    );
   }
 }

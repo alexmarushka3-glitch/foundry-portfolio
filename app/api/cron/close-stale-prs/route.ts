@@ -19,9 +19,15 @@ export async function GET(req: Request) {
   if (!authorized(req)) return Response.json({ error: "Not allowed." }, { status: 401 });
   if (!githubConfigured()) return Response.json({ closed: 0, note: "GitHub is not set up." });
   try {
-    return Response.json(await createGithubClient().closeStale(STALE_AFTER_MS), { headers: { "Cache-Control": "no-store" } });
+    return Response.json(await createGithubClient().closeStale(STALE_AFTER_MS), {
+      headers: { "Cache-Control": "no-store" },
+    });
   } catch (err) {
-    console.error("closing stale pull requests failed:", (err as Error).name, String((err as Error).message).slice(0, 200));
+    console.error(
+      "closing stale pull requests failed:",
+      (err as Error).name,
+      String((err as Error).message).slice(0, 200),
+    );
     return Response.json({ error: "Could not close stale pull requests." }, { status: 500 });
   }
 }

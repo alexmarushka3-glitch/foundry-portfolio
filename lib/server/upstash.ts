@@ -4,14 +4,19 @@
 export type UpstashConfig = { url: string; token: string; fetchFn?: typeof fetch };
 export type RedisCommand = (string | number)[];
 
-export function upstashConfig(env: Record<string, string | undefined> = process.env): UpstashConfig | null {
+export function upstashConfig(
+  env: Record<string, string | undefined> = process.env,
+): UpstashConfig | null {
   const url = env.KV_REST_API_URL ?? env.UPSTASH_REDIS_REST_URL;
   const token = env.KV_REST_API_TOKEN ?? env.UPSTASH_REDIS_REST_TOKEN;
   return url && token ? { url, token } : null;
 }
 
 /** Sends the commands in one request and returns each result. Throws if the request or any command fails. */
-export async function upstashPipeline({ url, token, fetchFn = fetch }: UpstashConfig, commands: RedisCommand[]): Promise<unknown[]> {
+export async function upstashPipeline(
+  { url, token, fetchFn = fetch }: UpstashConfig,
+  commands: RedisCommand[],
+): Promise<unknown[]> {
   const res = await fetchFn(`${url.replace(/\/+$/, "")}/pipeline`, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },

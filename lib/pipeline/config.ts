@@ -56,8 +56,16 @@ export function modelParams(model: string, maxTokens: number) {
     return { max_tokens: maxTokens + 1500, output_config: { effort: "low" as const } };
   }
   if (model.startsWith("claude-haiku")) {
-    return { max_tokens: maxTokens, thinking: { type: "disabled" as const }, output_config: { effort: "low" as const } };
+    return {
+      max_tokens: maxTokens,
+      thinking: { type: "disabled" as const },
+      output_config: { effort: "low" as const },
+    };
   }
   // Sonnet 5.5 and similar: "between_tools" is the supported way to keep thinking off.
-  return { max_tokens: maxTokens, thinking: { type: "between_tools" as const }, output_config: { effort: "low" as const } };
+  return {
+    max_tokens: maxTokens,
+    thinking: { type: "between_tools" as const },
+    output_config: { effort: "low" as const },
+  };
 }

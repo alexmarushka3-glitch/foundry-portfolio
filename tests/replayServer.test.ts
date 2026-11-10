@@ -9,7 +9,15 @@ describe("replayOnServer", () => {
     const ctrl = new AbortController();
     const events: FoundryEvent[] = [];
     const started = Date.now();
-    await replayOnServer(rec, (e) => { events.push(e); if (e.type === "start") ctrl.abort(); }, 1, ctrl.signal);
+    await replayOnServer(
+      rec,
+      (e) => {
+        events.push(e);
+        if (e.type === "start") ctrl.abort();
+      },
+      1,
+      ctrl.signal,
+    );
     expect(Date.now() - started).toBeLessThan(1000);
     expect(events.at(-1)?.type).toBe("start");
     expect(events.some((e) => e.type === "finish")).toBe(false);
@@ -17,7 +25,10 @@ describe("replayOnServer", () => {
 
   it("never emits a pr event", async () => {
     const rec = fixtureRecording();
-    rec.events.splice(3, 0, { at: 200, event: { type: "pr", url: "https://example.com/pr/1", number: 1 } });
+    rec.events.splice(3, 0, {
+      at: 200,
+      event: { type: "pr", url: "https://example.com/pr/1", number: 1 },
+    });
     const events: FoundryEvent[] = [];
     await replayOnServer(rec, (e) => events.push(e), 0);
     expect(events.some((e) => e.type === "pr")).toBe(false);

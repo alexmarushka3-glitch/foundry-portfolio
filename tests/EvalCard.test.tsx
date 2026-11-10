@@ -6,7 +6,13 @@ import type { EvalRun } from "@/lib/eval/summarize";
 
 afterEach(cleanup);
 
-const run = (over: Partial<EvalRun> = {}): EvalRun => ({ approved: true, rounds: 1, costUsd: 0.2, ms: 60_000, ...over });
+const run = (over: Partial<EvalRun> = {}): EvalRun => ({
+  approved: true,
+  rounds: 1,
+  costUsd: 0.2,
+  ms: 60_000,
+  ...over,
+});
 
 describe("EvalCard", () => {
   it("renders nothing until there are real runs, so no empty or invented number shows", () => {
@@ -40,14 +46,27 @@ describe("EvalCard", () => {
   });
 
   it("reports average cost and time over every run, including the ones not approved", () => {
-    render(<EvalCard runs={[run({ costUsd: 0.1, ms: 40_000 }), run({ approved: false, costUsd: 0.3, ms: 80_000 })]} />);
+    render(
+      <EvalCard
+        runs={[
+          run({ costUsd: 0.1, ms: 40_000 }),
+          run({ approved: false, costUsd: 0.3, ms: 80_000 }),
+        ]}
+      />,
+    );
     expect(screen.getByText(/\$0\.20/)).toBeTruthy();
     expect(screen.getByText(/60 s/)).toBeTruthy();
   });
 
   it("breaks the outcomes down so the not approved and sent back runs are visible", () => {
     const { container } = render(
-      <EvalCard runs={[run(), run({ rounds: 2, request: "Add a filter" }), run({ approved: false, request: "Add a sort" })]} />,
+      <EvalCard
+        runs={[
+          run(),
+          run({ rounds: 2, request: "Add a filter" }),
+          run({ approved: false, request: "Add a sort" }),
+        ]}
+      />,
     );
     const text = container.textContent ?? "";
     expect(text).toMatch(/1 approved on the first round/);
@@ -56,7 +75,15 @@ describe("EvalCard", () => {
   });
 
   it("lists each run that was not approved on the first round, with its request", () => {
-    render(<EvalCard runs={[run(), run({ rounds: 2, request: "Add a filter" }), run({ approved: false, request: "Add a sort" })]} />);
+    render(
+      <EvalCard
+        runs={[
+          run(),
+          run({ rounds: 2, request: "Add a filter" }),
+          run({ approved: false, request: "Add a sort" }),
+        ]}
+      />,
+    );
     expect(screen.getByText(/Add a filter/)).toBeTruthy();
     expect(screen.getByText(/Add a sort/)).toBeTruthy();
     expect(screen.getAllByRole("listitem")).toHaveLength(2);

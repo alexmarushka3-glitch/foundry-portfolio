@@ -2,14 +2,25 @@ import { describe, expect, it } from "vitest";
 import { applyEvent, startLive, toRun } from "@/lib/liveRun";
 import type { FoundryEvent } from "@/lib/types";
 
-const play = (events: [FoundryEvent, number][]) => events.reduce((s, [e, at]) => applyEvent(s, e, at), startLive("idea"));
+const play = (events: [FoundryEvent, number][]) =>
+  events.reduce((s, [e, at]) => applyEvent(s, e, at), startLive("idea"));
 
 const finished: [FoundryEvent, number][] = [
   [{ type: "mode", mode: "live" }, 0],
   [{ type: "start", agent: "researcher", round: 1, model: "m" }, 10],
   [{ type: "token", agent: "researcher", round: 1, text: "he" }, 20],
   [{ type: "token", agent: "researcher", round: 1, text: "llo" }, 30],
-  [{ type: "usage", agent: "researcher", round: 1, inputTokens: 5, outputTokens: 5, costUsd: 0.01 }, 40],
+  [
+    {
+      type: "usage",
+      agent: "researcher",
+      round: 1,
+      inputTokens: 5,
+      outputTokens: 5,
+      costUsd: 0.01,
+    },
+    40,
+  ],
   [{ type: "done", agent: "researcher", round: 1, ms: 35 }, 45],
   [{ type: "start", agent: "e2e", round: 1, model: "m" }, 50],
   [{ type: "done", agent: "e2e", round: 1, ms: 5 }, 55],
@@ -50,7 +61,10 @@ describe("toRun", () => {
 
   it("keeps the reason a run was simulated, so the finished run can still show it", () => {
     const why = "You've used 2 live runs this hour, so this one is a simulation.";
-    const simulated = finished.map(([e, at]) => [e.type === "mode" ? { type: "mode", mode: "simulated", reason: why } : e, at]) as typeof finished;
+    const simulated = finished.map(([e, at]) => [
+      e.type === "mode" ? { type: "mode", mode: "simulated", reason: why } : e,
+      at,
+    ]) as typeof finished;
     const run = toRun(play(simulated), 100)!;
     expect(run.mode).toBe("simulated");
     expect(run.reason).toBe(why);
@@ -65,7 +79,10 @@ describe("toRun", () => {
 
   it("carries an approved run's files onto the run", () => {
     const files = { "src/db.js": "x" };
-    const run = toRun(play([...finished.slice(0, -1), [{ type: "files", files }, 58], finished.at(-1)!]), 100)!;
+    const run = toRun(
+      play([...finished.slice(0, -1), [{ type: "files", files }, 58], finished.at(-1)!]),
+      100,
+    )!;
     expect(run.files).toEqual(files);
     expect(toRun(play(finished), 100)!.files).toBeUndefined();
   });
@@ -81,9 +98,25 @@ describe("tool events", () => {
     let s = startLive("x");
     s = applyEvent(s, { type: "start", agent: "backend", round: 1, model: "m" }, 0);
     s = applyEvent(s, { type: "token", agent: "backend", round: 1, text: "Looking." }, 1);
-    s = applyEvent(s, { type: "tool", agent: "backend", round: 1, label: "read_file src/db.js", ok: true }, 2);
-    s = applyEvent(s, { type: "tool", agent: "backend", round: 1, label: "write_file package.json (not allowed)", ok: false }, 3);
-    expect(s.steps[0].text).toBe("Looking.\n› read_file src/db.js\n› write_file package.json (not allowed) (failed)\n");
+    s = applyEvent(
+      s,
+      { type: "tool", agent: "backend", round: 1, label: "read_file src/db.js", ok: true },
+      2,
+    );
+    s = applyEvent(
+      s,
+      {
+        type: "tool",
+        agent: "backend",
+        round: 1,
+        label: "write_file package.json (not allowed)",
+        ok: false,
+      },
+      3,
+    );
+    expect(s.steps[0].text).toBe(
+      "Looking.\n› read_file src/db.js\n› write_file package.json (not allowed) (failed)\n",
+    );
   });
 });
 
@@ -92,8 +125,16 @@ describe("shot events", () => {
     let s = startLive("x");
     s = applyEvent(s, { type: "mode", mode: "live" }, 0);
     s = applyEvent(s, { type: "start", agent: "e2e", round: 1, model: "m" }, 1);
-    s = applyEvent(s, { type: "shot", agent: "e2e", round: 1, label: "adds a task", png: "AAAA" }, 2);
-    s = applyEvent(s, { type: "shot", agent: "e2e", round: 1, label: "deletes it", png: "BBBB" }, 3);
+    s = applyEvent(
+      s,
+      { type: "shot", agent: "e2e", round: 1, label: "adds a task", png: "AAAA" },
+      2,
+    );
+    s = applyEvent(
+      s,
+      { type: "shot", agent: "e2e", round: 1, label: "deletes it", png: "BBBB" },
+      3,
+    );
     s = applyEvent(s, { type: "done", agent: "e2e", round: 1, ms: 5 }, 4);
     s = applyEvent(s, { type: "finish", ms: 10, rounds: 1, approved: true }, 5);
     expect(s.steps[0].shots).toEqual([

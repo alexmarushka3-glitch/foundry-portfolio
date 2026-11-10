@@ -48,9 +48,8 @@ export default function Home() {
             </a>
           </div>
           <p className="byline">
-            {profile.name}, Business Economics student at the University of Chicago, class of 2029. Recruiting for consulting and tech
-            roles.{" "}
-            <ContactLinks label="Email" />
+            {profile.name}, Business Economics student at the University of Chicago, class of 2029.
+            Recruiting for consulting and tech roles. <ContactLinks label="Email" />
           </p>
         </section>
 
@@ -113,10 +112,17 @@ export default function Home() {
       </main>
 
       <footer className="footer">
-        <p>Built with Claude Code. The agents run on Claude models. Visits are counted with Vercel Web Analytics, without cookies.</p>
+        <p>
+          Built with Claude Code. The agents run on Claude models. Visits are counted with Vercel
+          Web Analytics, without cookies.
+        </p>
         <p className="contact">
           <ContactLinks label="Email" />{" "}
-          <a href="https://github.com/alexmarushka3-glitch/foundry-portfolio" target="_blank" rel="noreferrer">
+          <a
+            href="https://github.com/alexmarushka3-glitch/foundry-portfolio"
+            target="_blank"
+            rel="noreferrer"
+          >
             Site code
           </a>
         </p>

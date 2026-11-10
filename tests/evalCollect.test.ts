@@ -14,7 +14,12 @@ const finish = (over: Partial<Extract<FoundryEvent, { type: "finish" }>> = {}): 
 
 describe("collectRun", () => {
   it("scores a finished live run from its finish event", () => {
-    expect(collectRun([live, finish()])).toEqual({ approved: true, rounds: 2, costUsd: 0.12, ms: 41_000 });
+    expect(collectRun([live, finish()])).toEqual({
+      approved: true,
+      rounds: 2,
+      costUsd: 0.12,
+      ms: 41_000,
+    });
   });
 
   it("does not count a simulation, so made-up text can never raise the success rate", () => {

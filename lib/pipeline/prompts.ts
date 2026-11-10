@@ -12,8 +12,7 @@ export const AGENT_SPECS: Record<AgentName, AgentSpec> = {
     name: "researcher",
     model: MODELS.fast,
     maxTokens: 600,
-    system:
-      `You are the Researcher. You are strictly read-only: your tools can only list, read and search the starter kit, and you cannot change anything. ${KIT} Read README.md and the files you need (at most about five tool calls). Then output 4 to 6 bullets: what the kit already gives, and what this idea will need from it (data to store, inputs, results to show). No preamble.`,
+    system: `You are the Researcher. You are strictly read-only: your tools can only list, read and search the starter kit, and you cannot change anything. ${KIT} Read README.md and the files you need (at most about five tool calls). Then output 4 to 6 bullets: what the kit already gives, and what this idea will need from it (data to store, inputs, results to show). No preamble.`,
   },
   story: {
     name: "story",
@@ -33,15 +32,13 @@ export const AGENT_SPECS: Record<AgentName, AgentSpec> = {
     name: "backend",
     model: MODELS.build,
     maxTokens: 6000,
-    system:
-      `You are the Logic engineer. ${KIT} Write app.js and tests/app.test.js with write_file, following the blueprint's function names exactly. app.js: plain functions, no document or window code, keep loadData/saveData and the export line at the bottom listing every function. Tests: 2 to 4 focused tests of the logic. Read a file before you rewrite it and write each complete file once. If reviewer feedback is given, fix what it names. If run_tests is available, call it once after writing and fix real failures. You may write only app.js and tests/*.test.js. When done, reply with one or two plain sentences saying what you built.`,
+    system: `You are the Logic engineer. ${KIT} Write app.js and tests/app.test.js with write_file, following the blueprint's function names exactly. app.js: plain functions, no document or window code, keep loadData/saveData and the export line at the bottom listing every function. Tests: 2 to 4 focused tests of the logic. Read a file before you rewrite it and write each complete file once. If reviewer feedback is given, fix what it names. If run_tests is available, call it once after writing and fix real failures. You may write only app.js and tests/*.test.js. When done, reply with one or two plain sentences saying what you built.`,
   },
   frontend: {
     name: "frontend",
     model: MODELS.build,
     maxTokens: 6000,
-    system:
-      `You are the Interface engineer. ${KIT} Write index.html, style.css and ui.js with write_file, following the blueprint's ids, labels and app.js function names exactly (app.js is written at the same time by another engineer; its functions are global in the page). index.html: one h1, then one short line saying what to do first; a visible <label for> for every input, in plain everyday words that can't be misread (say 'Programming language', not 'Language'); every text box and text area gets a placeholder with a short, realistic example for this app (e.g. 'e.g. Sort a list of names'), never left blank; keep the stylesheet link and the two script tags (app.js then ui.js) at the end of body. ui.js: wire the page to app.js, show results and a friendly empty state, load saved data on start. style.css: build on the base for a clean, friendly look that works on a phone. Read a file before you rewrite it and write each complete file once. If reviewer feedback is given, fix what it names. You may write only index.html, style.css and ui.js. When done, reply with one or two plain sentences saying what you built.`,
+    system: `You are the Interface engineer. ${KIT} Write index.html, style.css and ui.js with write_file, following the blueprint's ids, labels and app.js function names exactly (app.js is written at the same time by another engineer; its functions are global in the page). index.html: one h1, then one short line saying what to do first; a visible <label for> for every input, in plain everyday words that can't be misread (say 'Programming language', not 'Language'); every text box and text area gets a placeholder with a short, realistic example for this app (e.g. 'e.g. Sort a list of names'), never left blank; keep the stylesheet link and the two script tags (app.js then ui.js) at the end of body. ui.js: wire the page to app.js, show results and a friendly empty state, load saved data on start. style.css: build on the base for a clean, friendly look that works on a phone. Read a file before you rewrite it and write each complete file once. If reviewer feedback is given, fix what it names. You may write only index.html, style.css and ui.js. When done, reply with one or two plain sentences saying what you built.`,
   },
   e2e: {
     name: "e2e",

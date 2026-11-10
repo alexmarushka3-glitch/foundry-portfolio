@@ -13,7 +13,9 @@ export async function POST(req: Request) {
 
   const read = await readJsonBody(req);
   if (!read.ok) return Response.json({ error: read.error }, { status: read.status });
-  const action = ADMIN_ACTIONS.find((a) => a === (read.body as { action?: unknown } | null)?.action);
+  const action = ADMIN_ACTIONS.find(
+    (a) => a === (read.body as { action?: unknown } | null)?.action,
+  );
   if (!action) return Response.json({ error: "Unknown action." }, { status: 400 });
 
   const state = serverState();

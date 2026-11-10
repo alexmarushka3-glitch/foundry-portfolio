@@ -11,8 +11,22 @@ const good = async (emit: Emit) => {
   emit({ type: "mode", mode: "live" });
   emit({ type: "start", agent: "researcher", round: 1, model: "m" });
   emit({ type: "token", agent: "researcher", round: 1, text: "hi" });
-  emit({ type: "usage", agent: "researcher", round: 1, inputTokens: 1, outputTokens: 1, costUsd: 0.01 });
-  emit({ type: "usage", agent: "validator", round: 1, inputTokens: 1, outputTokens: 1, costUsd: 0.02 });
+  emit({
+    type: "usage",
+    agent: "researcher",
+    round: 1,
+    inputTokens: 1,
+    outputTokens: 1,
+    costUsd: 0.01,
+  });
+  emit({
+    type: "usage",
+    agent: "validator",
+    round: 1,
+    inputTokens: 1,
+    outputTokens: 1,
+    costUsd: 0.02,
+  });
   emit({ type: "done", agent: "researcher", round: 1, ms: 5 });
   emit({ type: "verdict", gate: "validator", round: 1, approved: true });
   emit({ type: "finish", ms: 900, rounds: 1, approved: true });
@@ -21,7 +35,12 @@ const good = async (emit: Emit) => {
 describe("captureRun", () => {
   it("records timed events and the outcome", async () => {
     // start time, then one reading per event (8 events)
-    const rec = await captureRun("s", "req", good, clock(1000, 1000, 1010, 1020, 1030, 1040, 1050, 1060, 1900));
+    const rec = await captureRun(
+      "s",
+      "req",
+      good,
+      clock(1000, 1000, 1010, 1020, 1030, 1040, 1050, 1060, 1900),
+    );
     expect(rec.slug).toBe("s");
     expect(rec.request).toBe("req");
     expect(rec.approved).toBe(true);

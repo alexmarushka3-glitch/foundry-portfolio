@@ -17,11 +17,24 @@ type Props = {
 };
 
 /** Play, speed and scrub controls for a finished run, or a short note when there is nothing to play. */
-export default function PlayerControls({ total, t, playing, speed, running, onTogglePlay, onSpeed, onSeek }: Props) {
+export default function PlayerControls({
+  total,
+  t,
+  playing,
+  speed,
+  running,
+  onTogglePlay,
+  onSpeed,
+  onSeek,
+}: Props) {
   if (total === null) {
     return (
       <div className="player">
-        <p className="player-note">{running ? "Running now. You can scrub back through it once it finishes." : "Pick an idea to start."}</p>
+        <p className="player-note">
+          {running
+            ? "Running now. You can scrub back through it once it finishes."
+            : "Pick an idea to start."}
+        </p>
       </div>
     );
   }
@@ -29,7 +42,12 @@ export default function PlayerControls({ total, t, playing, speed, running, onTo
   const label = playing ? "Pause" : atEnd ? "Replay" : "Play";
   return (
     <div className="player">
-      <button type="button" className="play" onClick={onTogglePlay} aria-label={playing ? "Pause" : atEnd ? "Replay from the start" : "Play"}>
+      <button
+        type="button"
+        className="play"
+        onClick={onTogglePlay}
+        aria-label={playing ? "Pause" : atEnd ? "Replay from the start" : "Play"}
+      >
         {label}
       </button>
       <div className="speeds" role="group" aria-label="Playback speed">

@@ -9,7 +9,10 @@ import type { AgentName } from "@/lib/types";
 type Layout = "wide" | "narrow";
 type Pos = { x: number; y: number };
 
-const GEOMETRY: Record<Layout, { viewBox: string; w: number; h: number; pos: Record<AgentName, Pos> }> = {
+const GEOMETRY: Record<
+  Layout,
+  { viewBox: string; w: number; h: number; pos: Record<AgentName, Pos> }
+> = {
   wide: {
     // tight to the boxes: the "sent back" arcs are drawn outside it (the svg lets them overflow into the margin)
     viewBox: "0 30 1000 190",
@@ -108,11 +111,20 @@ export default function PipelineSvg({
   };
 
   return (
-    <svg className="pipeline" viewBox={g.viewBox} role="group" aria-label="Pipeline of eight agents" preserveAspectRatio="xMidYMid meet">
+    <svg
+      className="pipeline"
+      viewBox={g.viewBox}
+      role="group"
+      aria-label="Pipeline of eight agents"
+      preserveAspectRatio="xMidYMid meet"
+    >
       {EDGES.map(([a, b]) => (
         <g key={`${a}-${b}`}>
           <path className="edge" d={edgePath(layout, a, b)} />
-          <path className={`edge-fill${byId[a].status === "done" ? " on" : ""}`} d={edgePath(layout, a, b)} />
+          <path
+            className={`edge-fill${byId[a].status === "done" ? " on" : ""}`}
+            d={edgePath(layout, a, b)}
+          />
         </g>
       ))}
 
@@ -120,7 +132,9 @@ export default function PipelineSvg({
         <g className={`sendback${sentBack ? " on" : ""}`} aria-hidden={!sentBack}>
           <path d="M640 96 C640 4 490 -8 490 37" />
           <path d="M780 154 C780 262 490 262 490 211" />
-          <text x="620" y="-6">sent back for another round</text>
+          <text x="620" y="-6">
+            sent back for another round
+          </text>
         </g>
       )}
 
@@ -152,7 +166,11 @@ export default function PipelineSvg({
             </text>
             {f.status === "done" && (
               <g className="node-mark" transform={`translate(${w - 25} ${g.h - 27})`}>
-                {failed ? <path d="M3 3 L13 13 M13 3 L3 13" /> : <path d="M2 8.5 L6.5 13 L14 3.5" />}
+                {failed ? (
+                  <path d="M3 3 L13 13 M13 3 L3 13" />
+                ) : (
+                  <path d="M2 8.5 L6.5 13 L14 3.5" />
+                )}
               </g>
             )}
           </g>

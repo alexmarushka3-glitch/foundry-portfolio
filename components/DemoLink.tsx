@@ -7,7 +7,13 @@ import type { MouseEvent, ReactNode } from "react";
  * landing on #demo would leave the drawing (and the example that autoplays when it comes into view) below the fold.
  * There it scrolls to the drawing instead. It stays a real link, so Cmd/Ctrl-click and no-JS still go to #demo.
  */
-export default function DemoLink({ className, children }: { className?: string; children: ReactNode }) {
+export default function DemoLink({
+  className,
+  children,
+}: {
+  className?: string;
+  children: ReactNode;
+}) {
   const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
     if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     if (!window.matchMedia("(max-width: 900px)").matches) return;

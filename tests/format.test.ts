@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { formatAgo, formatClock, formatDuration, formatPercent, formatRunCost, formatTotalCost } from "@/lib/format";
+import {
+  formatAgo,
+  formatClock,
+  formatDuration,
+  formatPercent,
+  formatRunCost,
+  formatTotalCost,
+} from "@/lib/format";
 
 describe("formatDuration", () => {
   it("shows seconds under a minute and minutes above", () => {

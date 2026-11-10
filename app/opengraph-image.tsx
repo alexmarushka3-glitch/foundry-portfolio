@@ -10,7 +10,8 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 // The image renderer needs the font file itself (woff, not woff2); the site's web font does not carry over.
-const fontFile = (weight: 400 | 700) => readFile(join(process.cwd(), `assets/fonts/schibsted-grotesk-latin-${weight}-normal.woff`));
+const fontFile = (weight: 400 | 700) =>
+  readFile(join(process.cwd(), `assets/fonts/schibsted-grotesk-latin-${weight}-normal.woff`));
 
 export default async function OpengraphImage() {
   const [regular, bold] = await Promise.all([fontFile(400), fontFile(700)]);
@@ -31,16 +32,37 @@ export default async function OpengraphImage() {
       >
         <div style={{ display: "flex", alignItems: "center", gap: 36 }}>
           <Logo size={132} />
-          <div style={{ fontSize: 148, fontWeight: 700, letterSpacing: -6, lineHeight: 1 }}>{profile.headline}</div>
+          <div style={{ fontSize: 148, fontWeight: 700, letterSpacing: -6, lineHeight: 1 }}>
+            {profile.headline}
+          </div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-          <div style={{ display: "flex", flexDirection: "column", fontSize: 40, lineHeight: 1.3, maxWidth: 1056, color: "#1e252b" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              fontSize: 40,
+              lineHeight: 1.3,
+              maxWidth: 1056,
+              color: "#1e252b",
+            }}
+          >
             <div>A specific change goes in.</div>
             <div>A draft pull request comes out,</div>
             <div>checked by other agents and real tests.</div>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 28, color: "#4b555e" }}>
-            <div style={{ width: 14, height: 14, borderRadius: 7, background: LOGO_COLORS.amber }} />
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 14,
+              fontSize: 28,
+              color: "#4b555e",
+            }}
+          >
+            <div
+              style={{ width: 14, height: 14, borderRadius: 7, background: LOGO_COLORS.amber }}
+            />
             {profile.name}
           </div>
         </div>

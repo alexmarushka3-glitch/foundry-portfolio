@@ -56,7 +56,16 @@ describe("GET /api/run", () => {
 
 describe("POST /api/run validation", () => {
   it("rejects bad JSON, empty ideas and long ideas with a 400 and a message", async () => {
-    for (const body of ["{nope", {}, { request: "   " }, { request: "x".repeat(201) }, { request: "free text that is not an example" }, { idea: "hi" }, { idea: "x".repeat(161) }, { idea: "A login page that saves passwords" }]) {
+    for (const body of [
+      "{nope",
+      {},
+      { request: "   " },
+      { request: "x".repeat(201) },
+      { request: "free text that is not an example" },
+      { idea: "hi" },
+      { idea: "x".repeat(161) },
+      { idea: "A login page that saves passwords" },
+    ]) {
       const res = await post(body);
       expect(res.status).toBe(400);
       expect((await res.json()).error).toBeTruthy();
@@ -76,7 +85,12 @@ describe("POST /api/run streaming", () => {
     const res = await post(NICK, { "x-forwarded-for": "203.0.113.9" });
     await res.text();
     const [logged] = await serverState().runLog.list();
-    expect(logged).toMatchObject({ request: "A tip calculator for friends", mode: "simulated", status: "approved", rounds: 1 });
+    expect(logged).toMatchObject({
+      request: "A tip calculator for friends",
+      mode: "simulated",
+      status: "approved",
+      rounds: 1,
+    });
     expect(logged.visitor).toHaveLength(8);
     expect(JSON.stringify(logged)).not.toContain("203.0.113.9");
   });
@@ -87,13 +101,16 @@ describe("POST /api/run streaming", () => {
     const res = await post(NICK);
     const events = await readLines(res);
     const err = events.find((e) => e.type === "error");
-    expect(err).toMatchObject({ message: "The run stopped before it finished. Try again in a moment." });
+    expect(err).toMatchObject({
+      message: "The run stopped before it finished. Try again in a moment.",
+    });
     expect((await serverState().runLog.list())[0].status).toBe("error");
   });
 });
 
 describe("POST /api/run limits", () => {
-  const optionsOf = () => pipeline.runPipeline.mock.calls.at(-1)![2] as { allowLive: boolean; reason?: string };
+  const optionsOf = () =>
+    pipeline.runPipeline.mock.calls.at(-1)![2] as { allowLive: boolean; reason?: string };
 
   const browser = (id: string) => `foundry_b=${id.padEnd(20, "0")}`;
 
@@ -104,7 +121,10 @@ describe("POST /api/run limits", () => {
     await (await post(idea("A habit tracker one"), headers)).text();
     expect(optionsOf().allowLive).toBe(true);
     await (await post(idea("A habit tracker two"), headers)).text();
-    expect(optionsOf()).toMatchObject({ allowLive: false, reason: expect.stringMatching(/1 live runs this hour/) });
+    expect(optionsOf()).toMatchObject({
+      allowLive: false,
+      reason: expect.stringMatching(/1 live runs this hour/),
+    });
     // a different visitor still gets a live run
     await (await post(idea("A habit tracker three"), { "x-forwarded-for": "198.51.100.8" })).text();
     expect(optionsOf().allowLive).toBe(true);
@@ -115,19 +135,33 @@ describe("POST /api/run limits", () => {
     process.env.FOUNDRY_LIVE_PER_HOUR = "1";
     process.env.FOUNDRY_LIVE_PER_NETWORK_HOUR = "2";
     const wifi = "203.0.113.50";
-    await (await post(idea("Idea one"), { "x-forwarded-for": wifi, cookie: browser("bob") })).text();
+    await (
+      await post(idea("Idea one"), { "x-forwarded-for": wifi, cookie: browser("bob") })
+    ).text();
     expect(optionsOf().allowLive).toBe(true);
-    await (await post(idea("Idea two"), { "x-forwarded-for": wifi, cookie: browser("carol") })).text();
+    await (
+      await post(idea("Idea two"), { "x-forwarded-for": wifi, cookie: browser("carol") })
+    ).text();
     expect(optionsOf().allowLive).toBe(true);
-    await (await post(idea("Idea three"), { "x-forwarded-for": wifi, cookie: browser("dave") })).text();
-    expect(optionsOf()).toMatchObject({ allowLive: false, reason: expect.stringMatching(/network.*2 live runs this hour/) });
+    await (
+      await post(idea("Idea three"), { "x-forwarded-for": wifi, cookie: browser("dave") })
+    ).text();
+    expect(optionsOf()).toMatchObject({
+      allowLive: false,
+      reason: expect.stringMatching(/network.*2 live runs this hour/),
+    });
   });
 
   it("gives a browser without an id a cookie, and keeps one it already has", async () => {
     const fresh = await post(idea("Cookie one"), { "x-forwarded-for": "198.51.100.9" });
     await fresh.text();
-    expect(fresh.headers.get("set-cookie")).toMatch(/^foundry_b=[A-Za-z0-9-]{16,64}; Path=\/api;.*HttpOnly/);
-    const known = await post(idea("Cookie two"), { "x-forwarded-for": "198.51.100.9", cookie: browser("erin") });
+    expect(fresh.headers.get("set-cookie")).toMatch(
+      /^foundry_b=[A-Za-z0-9-]{16,64}; Path=\/api;.*HttpOnly/,
+    );
+    const known = await post(idea("Cookie two"), {
+      "x-forwarded-for": "198.51.100.9",
+      cookie: browser("erin"),
+    });
     await known.text();
     expect(known.headers.get("set-cookie")).toBeNull();
   });
@@ -135,7 +169,8 @@ describe("POST /api/run limits", () => {
   it("does not count recorded examples", async () => {
     pipeline.live = true;
     process.env.FOUNDRY_LIVE_PER_HOUR = "1";
-    for (let i = 0; i < 3; i++) await (await post({ request: "Let users set a due date on tasks" })).text();
+    for (let i = 0; i < 3; i++)
+      await (await post({ request: "Let users set a due date on tasks" })).text();
     expect((await serverState().liveLimiter.snapshot()).usedToday).toBe(0);
   });
 });
@@ -143,12 +178,14 @@ describe("POST /api/run limits", () => {
 describe("POST /api/run cancellation", () => {
   it("aborts the pipeline when the visitor disconnects, and logs the run as cancelled", async () => {
     let seen: AbortSignal | undefined;
-    pipeline.runPipeline.mockImplementation(async (_r: string, emit: (e: FoundryEvent) => void, opts: { signal: AbortSignal }) => {
-      seen = opts.signal;
-      emit({ type: "mode", mode: "live" });
-      await new Promise((resolve) => opts.signal.addEventListener("abort", resolve));
-      throw new Error("cancelled");
-    });
+    pipeline.runPipeline.mockImplementation(
+      async (_r: string, emit: (e: FoundryEvent) => void, opts: { signal: AbortSignal }) => {
+        seen = opts.signal;
+        emit({ type: "mode", mode: "live" });
+        await new Promise((resolve) => opts.signal.addEventListener("abort", resolve));
+        throw new Error("cancelled");
+      },
+    );
     const res = await post(NICK);
     const reader = res.body!.getReader();
     await reader.read(); // first event arrives

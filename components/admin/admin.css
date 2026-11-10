@@ -65,7 +65,9 @@
   background: var(--card);
   color: var(--ink);
   cursor: pointer;
-  transition: background-color 120ms ease, transform 120ms var(--ease-out);
+  transition:
+    background-color 120ms ease,
+    transform 120ms var(--ease-out);
 }
 .admin button:active:not(:disabled) {
   transform: scale(0.97);

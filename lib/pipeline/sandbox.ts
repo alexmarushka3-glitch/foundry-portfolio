@@ -26,10 +26,17 @@ export type BrowserShot = { label: string; /** PNG, base64. */ png: string };
 export type BrowserReport = TestReport & { shots: BrowserShot[] };
 
 /** Run the app's unit tests with these changed files (path -> content) on top of the starter kit. */
-export type TestRunner = (files: Record<string, string>, signal?: AbortSignal) => Promise<TestReport>;
+export type TestRunner = (
+  files: Record<string, string>,
+  signal?: AbortSignal,
+) => Promise<TestReport>;
 
 /** Run a Playwright spec (the E2E agent's) plus the smoke test in a real browser, against the bundled app served in the sandbox. */
-export type BrowserRunner = (files: Record<string, string>, spec: string, signal?: AbortSignal) => Promise<BrowserReport>;
+export type BrowserRunner = (
+  files: Record<string, string>,
+  spec: string,
+  signal?: AbortSignal,
+) => Promise<BrowserReport>;
 
 export const TEST_TIMEOUT_MS = 90_000;
 export const BROWSER_TIMEOUT_MS = 100_000;
@@ -97,7 +104,8 @@ export function summarizeTestOutput(out: string, exitCode: number): string {
 export function summarizeBrowserOutput(out: string, exitCode: number): string {
   const passed = /(\d+) passed/.exec(out)?.[1] ?? "0";
   const failed = /(\d+) failed/.exec(out)?.[1] ?? "0";
-  if (/(\d+) passed|(\d+) failed/.test(out)) return `real browser: ${passed} passed, ${failed} failed`;
+  if (/(\d+) passed|(\d+) failed/.test(out))
+    return `real browser: ${passed} passed, ${failed} failed`;
   return exitCode === 0 ? "real browser tests passed" : "real browser tests failed";
 }
 
@@ -106,22 +114,37 @@ export const snapshotId = () => process.env.FOUNDRY_SANDBOX_SNAPSHOT?.trim() ?? 
 export const snapshotConfigured = () => snapshotId() !== "";
 
 /** A sandbox ready to test: from the snapshot if there is one and it still works, else a fresh clone with dependencies. */
-async function openSandbox(signal: AbortSignal | undefined, ms: number): Promise<{ sandbox: Sandbox; fromSnapshot: boolean }> {
+async function openSandbox(
+  signal: AbortSignal | undefined,
+  ms: number,
+): Promise<{ sandbox: Sandbox; fromSnapshot: boolean }> {
   const common = { timeout: ms + 30_000, persistent: false, signal };
   const id = snapshotId();
   if (id) {
     try {
-      const sandbox = await Sandbox.create({ ...common, source: { type: "snapshot", snapshotId: id }, networkPolicy: "deny-all" });
+      const sandbox = await Sandbox.create({
+        ...common,
+        source: { type: "snapshot", snapshotId: id },
+        networkPolicy: "deny-all",
+      });
       return { sandbox, fromSnapshot: true };
     } catch (err) {
       if (signal?.aborted) throw err;
-      console.error("sandbox snapshot unusable, cloning instead:", (err as Error).name, String((err as Error).message).slice(0, 160));
+      console.error(
+        "sandbox snapshot unusable, cloning instead:",
+        (err as Error).name,
+        String((err as Error).message).slice(0, 160),
+      );
     }
   }
   const sandbox = await Sandbox.create({
     ...common,
     runtime: "node24",
-    source: { type: "git", url: `https://github.com/${snapshot.repo}.git`, revision: snapshot.commit },
+    source: {
+      type: "git",
+      url: `https://github.com/${snapshot.repo}.git`,
+      revision: snapshot.commit,
+    },
   });
   const install = await sandbox.runCommand("npm", ["ci", "--no-audit", "--no-fund"], { signal });
   if (install.exitCode !== 0) {
@@ -139,10 +162,16 @@ class InstallFailed extends Error {
   }
 }
 
-const toFiles = (files: Record<string, string>) => Object.entries(files).map(([path, content]) => ({ path, content: Buffer.from(content) }));
+const toFiles = (files: Record<string, string>) =>
+  Object.entries(files).map(([path, content]) => ({ path, content: Buffer.from(content) }));
 
 /** Clear the snapshot's own project files, then write the app (the starter kit with the agents' changes) and any extras. */
-async function writeApp(sandbox: Sandbox, changes: Record<string, string>, extra: Record<string, string>, signal?: AbortSignal) {
+async function writeApp(
+  sandbox: Sandbox,
+  changes: Record<string, string>,
+  extra: Record<string, string>,
+  signal?: AbortSignal,
+) {
   await sandbox.runCommand("bash", ["-lc", CLEAR], { signal });
   await sandbox.writeFiles(toFiles({ ...appFiles(changes), ...extra }), { signal });
 }
@@ -171,8 +200,19 @@ async function withSandbox<R extends TestReport>(
     return await Promise.race([run, hard]);
   } catch (err) {
     if (signal?.aborted) throw err;
-    if (err instanceof InstallFailed) return { ...unavailable(), ran: true, summary: "npm install failed", output: err.output, ms: elapsed() };
-    console.error("sandbox run failed:", (err as Error).name, String((err as Error).message).slice(0, 200));
+    if (err instanceof InstallFailed)
+      return {
+        ...unavailable(),
+        ran: true,
+        summary: "npm install failed",
+        output: err.output,
+        ms: elapsed(),
+      };
+    console.error(
+      "sandbox run failed:",
+      (err as Error).name,
+      String((err as Error).message).slice(0, 200),
+    );
     return { ...unavailable(), ms: elapsed() };
   } finally {
     clearTimeout(timer);
@@ -185,12 +225,24 @@ export function createSandboxTestRunner(): TestRunner {
     withSandbox<TestReport>(
       signal,
       TEST_TIMEOUT_MS,
-      () => ({ ran: false, ok: false, summary: "Tests could not run (sandbox unavailable)", output: "", ms: 0 }),
+      () => ({
+        ran: false,
+        ok: false,
+        summary: "Tests could not run (sandbox unavailable)",
+        output: "",
+        ms: 0,
+      }),
       async (sandbox, _snap, elapsed) => {
         await writeApp(sandbox, files, {}, signal);
         const test = await sandbox.runCommand("npm", ["test"], { signal });
         const out = (await test.stdout()) + (await test.stderr());
-        return { ran: true, ok: test.exitCode === 0, summary: summarizeTestOutput(out, test.exitCode), output: tail(out), ms: elapsed() };
+        return {
+          ran: true,
+          ok: test.exitCode === 0,
+          summary: summarizeTestOutput(out, test.exitCode),
+          output: tail(out),
+          ms: elapsed(),
+        };
       },
     );
 }
@@ -198,9 +250,21 @@ export function createSandboxTestRunner(): TestRunner {
 /** The browser needs Chromium, which only the snapshot has. Without it, the report says the browser could not run. */
 export function createSandboxBrowserRunner(): BrowserRunner {
   return async (files, spec, signal) => {
-    const none = (summary: string): BrowserReport => ({ ran: false, ok: false, summary, output: "", ms: 0, shots: [] });
+    const none = (summary: string): BrowserReport => ({
+      ran: false,
+      ok: false,
+      summary,
+      output: "",
+      ms: 0,
+      shots: [],
+    });
     if (!snapshotConfigured()) return none("Real browser unavailable (no sandbox snapshot)");
-    if (Buffer.byteLength(spec) > MAX_SPEC_BYTES) return { ...none("Test file too large"), ran: true, output: `The test file is over ${MAX_SPEC_BYTES} bytes. Write a shorter one.` };
+    if (Buffer.byteLength(spec) > MAX_SPEC_BYTES)
+      return {
+        ...none("Test file too large"),
+        ran: true,
+        output: `The test file is over ${MAX_SPEC_BYTES} bytes. Write a shorter one.`,
+      };
 
     return withSandbox<BrowserReport>(
       signal,
@@ -220,20 +284,45 @@ export function createSandboxBrowserRunner(): BrowserRunner {
           },
           signal,
         );
-        const run = await sandbox.runCommand("bash", ["-lc", `set -o pipefail; timeout 70 npx playwright test -c ${RUN_CONFIG} 2>&1 | tail -c 6000`], { signal });
+        const run = await sandbox.runCommand(
+          "bash",
+          [
+            "-lc",
+            `set -o pipefail; timeout 70 npx playwright test -c ${RUN_CONFIG} 2>&1 | tail -c 6000`,
+          ],
+          { signal },
+        );
         const out = await run.stdout();
         const ok = run.exitCode === 0 && /\d+ passed/.test(out);
 
         const shots: BrowserShot[] = [];
-        const listing = await sandbox.runCommand("bash", ["-lc", "ls /tmp/pw-out/*/test-*.png 2>/dev/null | head -8"], { signal });
+        const listing = await sandbox.runCommand(
+          "bash",
+          ["-lc", "ls /tmp/pw-out/*/test-*.png 2>/dev/null | head -8"],
+          { signal },
+        );
         for (const path of (await listing.stdout()).split("\n").filter(Boolean)) {
           if (shots.length >= MAX_SHOTS) break;
           const buf = await sandbox.fs.readFile(path).catch(() => null);
           if (!buf || buf.length > MAX_SHOT_BYTES) continue;
           const name = path.split("/").at(-2) ?? "test";
-          shots.push({ label: name.replace(/-chromium.*$/, "").replace(/^[^-]+-/, "").replace(/-/g, " ").slice(0, 70), png: Buffer.from(buf).toString("base64") });
+          shots.push({
+            label: name
+              .replace(/-chromium.*$/, "")
+              .replace(/^[^-]+-/, "")
+              .replace(/-/g, " ")
+              .slice(0, 70),
+            png: Buffer.from(buf).toString("base64"),
+          });
         }
-        return { ran: true, ok, summary: summarizeBrowserOutput(out, ok ? 0 : 1), output: tail(out), ms: elapsed(), shots };
+        return {
+          ran: true,
+          ok,
+          summary: summarizeBrowserOutput(out, ok ? 0 : 1),
+          output: tail(out),
+          ms: elapsed(),
+          shots,
+        };
       },
     );
   };

@@ -9,7 +9,16 @@ import FilterBar from "./FilterBar";
 import KpiCards from "./KpiCards";
 import RunsTable from "./RunsTable";
 import type { AdminData } from "./useAdminData";
-import { agentTimings, bucketRuns, countBy, DEFAULT_FILTERS, filterRuns, kpis, toCsv, type Filters } from "@/lib/admin/aggregate";
+import {
+  agentTimings,
+  bucketRuns,
+  countBy,
+  DEFAULT_FILTERS,
+  filterRuns,
+  kpis,
+  toCsv,
+  type Filters,
+} from "@/lib/admin/aggregate";
 import { formatAgo, formatDuration } from "@/lib/format";
 import type { RunStatus } from "@/lib/server/runLog";
 import type { Mode } from "@/lib/types";
@@ -49,7 +58,13 @@ type Props = {
 };
 
 /** The dashboard itself. It doesn't know where its data comes from: the real server, or the sample generator. */
-export default function AdminView({ admin, sample = false, embedded = false, auto = false, onAuto }: Props) {
+export default function AdminView({
+  admin,
+  sample = false,
+  embedded = false,
+  auto = false,
+  onAuto,
+}: Props) {
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
   const [showRuns, setShowRuns] = useState(!embedded);
   // On the home page the dashboard starts as just the key numbers; the filters, charts, controls and runs table open on request.
@@ -59,10 +74,16 @@ export default function AdminView({ admin, sample = false, embedded = false, aut
   const { data, error, loading, pending, refresh, act, signOut } = admin;
 
   const now = data?.generatedAt ?? 0;
-  const shown = useMemo(() => (data ? filterRuns(data.runs, filters, now) : []), [data, filters, now]);
+  const shown = useMemo(
+    () => (data ? filterRuns(data.runs, filters, now) : []),
+    [data, filters, now],
+  );
   const numbers = useMemo(() => kpis(shown), [shown]);
   const timings = useMemo(() => agentTimings(shown), [shown]);
-  const buckets = useMemo(() => bucketRuns(shown, filters.range === "all" ? "7d" : filters.range, now), [shown, filters.range, now]);
+  const buckets = useMemo(
+    () => bucketRuns(shown, filters.range === "all" ? "7d" : filters.range, now),
+    [shown, filters.range, now],
+  );
   const byStatus = useMemo(() => countBy(shown, (r) => r.status), [shown]);
   const byMode = useMemo(() => countBy(shown, (r) => r.mode), [shown]);
 
@@ -70,13 +91,15 @@ export default function AdminView({ admin, sample = false, embedded = false, aut
     <div className={`admin${embedded ? " embedded" : ""}`}>
       {sample && embedded && (
         <aside className="sample-banner" role="note">
-          <strong>Sample data.</strong> Made up to show the layout. The buttons only change this page.
+          <strong>Sample data.</strong> Made up to show the layout. The buttons only change this
+          page.
         </aside>
       )}
       {sample && !embedded && (
         <aside className="sample-banner" role="note">
-          <strong>Sample data.</strong> Everything on this page is made up to show how the dashboard works. These are not real visitors,
-          runs or costs, and the buttons only change what you see here. The three recorded examples at the bottom are the real live-run recordings.{" "}
+          <strong>Sample data.</strong> Everything on this page is made up to show how the dashboard
+          works. These are not real visitors, runs or costs, and the buttons only change what you
+          see here. The three recorded examples at the bottom are the real live-run recordings.{" "}
           <a href="/">Back to the site</a>
         </aside>
       )}
@@ -131,84 +154,114 @@ export default function AdminView({ admin, sample = false, embedded = false, aut
             </p>
           )}
 
-          {open && <FilterBar filters={filters} onChange={setFilters} shown={shown.length} total={data.runs.length} />}
+          {open && (
+            <FilterBar
+              filters={filters}
+              onChange={setFilters}
+              shown={shown.length}
+              total={data.runs.length}
+            />
+          )}
           <KpiCards kpis={numbers} compact={embedded} />
 
           {embedded && (
             <p className="dash-toggle">
-              <button type="button" aria-expanded={open} aria-controls="dash-more" onClick={() => setOpen((v) => !v)}>
+              <button
+                type="button"
+                aria-expanded={open}
+                aria-controls="dash-more"
+                onClick={() => setOpen((v) => !v)}
+              >
                 {open ? "Hide the full sample dashboard" : "Show the full sample dashboard"}
               </button>
             </p>
           )}
 
           <div id="dash-more" hidden={!open}>
-          <div className="grid">
-            <section className="card wide" aria-labelledby="runs-over-time">
-              <Card id="runs-over-time">Runs over time</Card>
-              <StackedBars buckets={buckets} />
-              <Legend items={MODES.map((m) => ({ label: `${m} (${byMode[m] ?? 0})`, color: MODE_COLOR[m] }))} />
-            </section>
-
-            <section className="card" aria-labelledby="by-result">
-              <Card id="by-result">Results</Card>
-              <div className="donut-row">
-                <Donut
-                  label="Runs by result"
-                  slices={(Object.keys(STATUS_LABEL) as RunStatus[]).map((s) => ({
-                    label: STATUS_LABEL[s],
-                    value: byStatus[s] ?? 0,
-                    color: STATUS_COLOR[s],
-                  }))}
-                />
+            <div className="grid">
+              <section className="card wide" aria-labelledby="runs-over-time">
+                <Card id="runs-over-time">Runs over time</Card>
+                <StackedBars buckets={buckets} />
                 <Legend
-                  items={(Object.keys(STATUS_LABEL) as RunStatus[]).map((s) => ({
-                    label: `${STATUS_LABEL[s]} (${byStatus[s] ?? 0})`,
-                    color: STATUS_COLOR[s],
+                  items={MODES.map((m) => ({
+                    label: `${m} (${byMode[m] ?? 0})`,
+                    color: MODE_COLOR[m],
                   }))}
                 />
-              </div>
-            </section>
+              </section>
 
-            <section className="card" aria-labelledby="by-agent">
-              <Card id="by-agent">Average time per agent</Card>
-              <HBars rows={timings.map((t) => ({ label: t.label, value: t.avgMs }))} format={formatDuration} />
-            </section>
+              <section className="card" aria-labelledby="by-result">
+                <Card id="by-result">Results</Card>
+                <div className="donut-row">
+                  <Donut
+                    label="Runs by result"
+                    slices={(Object.keys(STATUS_LABEL) as RunStatus[]).map((s) => ({
+                      label: STATUS_LABEL[s],
+                      value: byStatus[s] ?? 0,
+                      color: STATUS_COLOR[s],
+                    }))}
+                  />
+                  <Legend
+                    items={(Object.keys(STATUS_LABEL) as RunStatus[]).map((s) => ({
+                      label: `${STATUS_LABEL[s]} (${byStatus[s] ?? 0})`,
+                      color: STATUS_COLOR[s],
+                    }))}
+                  />
+                </div>
+              </section>
 
-            <ControlPanel
-              server={data.server}
-              pending={pending}
-              onAct={(a) => void act(a)}
-              sample={sample}
-              heading={embedded ? "h4" : "h2"}
-              onExport={() => downloadCsv(toCsv(shown), sample ? "sample-foundry-runs" : "foundry-runs")}
-              exportCount={shown.length}
-            />
+              <section className="card" aria-labelledby="by-agent">
+                <Card id="by-agent">Average time per agent</Card>
+                <HBars
+                  rows={timings.map((t) => ({ label: t.label, value: t.avgMs }))}
+                  format={formatDuration}
+                />
+              </section>
 
-            {!sample && <SandboxPanel />}
-          </div>
+              <ControlPanel
+                server={data.server}
+                pending={pending}
+                onAct={(a) => void act(a)}
+                sample={sample}
+                heading={embedded ? "h4" : "h2"}
+                onExport={() =>
+                  downloadCsv(toCsv(shown), sample ? "sample-foundry-runs" : "foundry-runs")
+                }
+                exportCount={shown.length}
+              />
 
-          <section className="card" aria-labelledby="runs-title">
-            <div className="card-head">
-              <Card id="runs-title">Runs</Card>
-              {embedded && (
-                <button type="button" aria-expanded={showRuns} aria-controls="runs-panel" onClick={() => setShowRuns((v) => !v)}>
-                  {showRuns ? "Hide the runs table" : `Show the runs table (${shown.length})`}
-                </button>
-              )}
+              {!sample && <SandboxPanel />}
             </div>
-            {showRuns && (
-              <div id="runs-panel">
-                <RunsTable runs={shown} now={now} />
+
+            <section className="card" aria-labelledby="runs-title">
+              <div className="card-head">
+                <Card id="runs-title">Runs</Card>
+                {embedded && (
+                  <button
+                    type="button"
+                    aria-expanded={showRuns}
+                    aria-controls="runs-panel"
+                    onClick={() => setShowRuns((v) => !v)}
+                  >
+                    {showRuns ? "Hide the runs table" : `Show the runs table (${shown.length})`}
+                  </button>
+                )}
               </div>
-            )}
-          </section>
+              {showRuns && (
+                <div id="runs-panel">
+                  <RunsTable runs={shown} now={now} />
+                </div>
+              )}
+            </section>
           </div>
 
           {!embedded && (
             <section className="card" aria-labelledby="recorded-title">
               <h2 id="recorded-title">Recorded examples</h2>
-              <p className="muted">The three real live runs the site replays, each kept as it came out. They are fixed, so replaying them costs nothing.</p>
+              <p className="muted">
+                The three real live runs the site replays, each kept as it came out. They are fixed,
+                so replaying them costs nothing.
+              </p>
               <div className="table-wrap" tabIndex={0} role="region" aria-label="Recorded examples">
                 <table className="runs">
                   <thead>
@@ -229,7 +282,9 @@ export default function AdminView({ admin, sample = false, embedded = false, aut
                       <tr key={r.request}>
                         <td className="idea-cell">{r.request}</td>
                         <td>
-                          <span className={`pill ${r.approved ? "status-approved" : "status-not-approved"}`}>
+                          <span
+                            className={`pill ${r.approved ? "status-approved" : "status-not-approved"}`}
+                          >
                             {r.approved ? "Passed" : "Did not pass"}
                           </span>
                         </td>

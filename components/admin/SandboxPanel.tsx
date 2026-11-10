@@ -16,7 +16,10 @@ export default function SandboxPanel() {
     let alive = true;
     fetch("/api/admin/snapshot")
       .then((r) => (r.ok ? r.json() : null))
-      .then((d: { configured?: boolean } | null) => alive && setConfigured(d ? Boolean(d.configured) : null))
+      .then(
+        (d: { configured?: boolean } | null) =>
+          alive && setConfigured(d ? Boolean(d.configured) : null),
+      )
       .catch(() => {});
     return () => {
       alive = false;
@@ -30,7 +33,8 @@ export default function SandboxPanel() {
     try {
       const res = await fetch("/api/admin/snapshot", { method: "POST" });
       const body = (await res.json().catch(() => ({}))) as Partial<Build> & { error?: string };
-      if (!res.ok || !body.snapshotId) throw new Error(body.error ?? `Request failed (${res.status})`);
+      if (!res.ok || !body.snapshotId)
+        throw new Error(body.error ?? `Request failed (${res.status})`);
       setBuild(body as Build);
     } catch (err) {
       setError((err as Error).message);
@@ -43,8 +47,13 @@ export default function SandboxPanel() {
     <section className="card controls" aria-labelledby="sandbox-title">
       <h2 id="sandbox-title">Sandbox browser</h2>
       <p className="fine">
-        Live runs start from a prepared snapshot (the sample app, its packages and Chromium). It has to be built by this site itself
-        to be visible to it. {configured === null ? "" : configured ? "A snapshot id is set." : "No snapshot id is set, so the real browser step is skipped."}
+        Live runs start from a prepared snapshot (the sample app, its packages and Chromium). It has
+        to be built by this site itself to be visible to it.{" "}
+        {configured === null
+          ? ""
+          : configured
+            ? "A snapshot id is set."
+            : "No snapshot id is set, so the real browser step is skipped."}
       </p>
       <div className="actions">
         <button type="button" disabled={busy} onClick={() => void run()}>
@@ -59,14 +68,18 @@ export default function SandboxPanel() {
       {build && (
         <div role="status">
           <p className="fine">
-            Built in {build.seconds}s from commit {build.commit.slice(0, 7)}. In Vercel, set <code>FOUNDRY_SANDBOX_SNAPSHOT</code> (Production) to:
+            Built in {build.seconds}s from commit {build.commit.slice(0, 7)}. In Vercel, set{" "}
+            <code>FOUNDRY_SANDBOX_SNAPSHOT</code> (Production) to:
           </p>
           <p>
             <code>{build.snapshotId}</code>{" "}
             <button
               type="button"
               onClick={() => {
-                void navigator.clipboard?.writeText(build.snapshotId).then(() => setCopied(true)).catch(() => {});
+                void navigator.clipboard
+                  ?.writeText(build.snapshotId)
+                  .then(() => setCopied(true))
+                  .catch(() => {});
               }}
             >
               {copied ? "Copied" : "Copy"}

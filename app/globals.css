@@ -49,7 +49,12 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--font-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family:
+    var(--font-sans),
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
   font-size: 1.0625rem;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -300,7 +305,10 @@ main,
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
-  transition: transform 160ms var(--ease-out), background-color 160ms var(--ease-out), border-color 160ms var(--ease-out);
+  transition:
+    transform 160ms var(--ease-out),
+    background-color 160ms var(--ease-out),
+    border-color 160ms var(--ease-out);
 }
 .btn:active {
   transform: scale(0.97);
@@ -459,7 +467,9 @@ main,
   border-radius: 10px;
   padding: 0 22px;
   cursor: pointer;
-  transition: transform 160ms var(--ease-out), opacity 160ms var(--ease-out);
+  transition:
+    transform 160ms var(--ease-out),
+    opacity 160ms var(--ease-out);
 }
 .run:active:not(:disabled) {
   transform: scale(0.97);
@@ -493,7 +503,9 @@ main,
   border-radius: 999px;
   padding: 9px 16px;
   cursor: pointer;
-  transition: border-color 160ms var(--ease-out), transform 160ms var(--ease-out);
+  transition:
+    border-color 160ms var(--ease-out),
+    transform 160ms var(--ease-out);
 }
 .example[aria-pressed="true"] {
   border-color: var(--amber);
@@ -801,7 +813,9 @@ main,
   min-height: 40px;
   padding: 6px 14px;
   cursor: pointer;
-  transition: transform 160ms var(--ease-out), border-color 160ms var(--ease-out);
+  transition:
+    transform 160ms var(--ease-out),
+    border-color 160ms var(--ease-out);
 }
 .play {
   min-width: 82px;

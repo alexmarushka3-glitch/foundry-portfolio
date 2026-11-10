@@ -24,18 +24,21 @@ export function useAdminData(autoRefresh: boolean, intervalMs = 10_000): AdminDa
   const [pending, setPending] = useState<AdminAction | null>(null);
   const alive = useRef(true);
 
-  const request = useCallback(async (input: string, init?: RequestInit): Promise<AdminOverview | null> => {
-    const res = await fetch(input, { cache: "no-store", ...init });
-    if (res.status === 401) {
-      window.location.reload(); // the session ended: the page will show the sign-in form
-      return null;
-    }
-    if (!res.ok) {
-      const body = (await res.json().catch(() => ({}))) as { error?: string };
-      throw new Error(body.error ?? `Request failed (${res.status})`);
-    }
-    return (await res.json()) as AdminOverview;
-  }, []);
+  const request = useCallback(
+    async (input: string, init?: RequestInit): Promise<AdminOverview | null> => {
+      const res = await fetch(input, { cache: "no-store", ...init });
+      if (res.status === 401) {
+        window.location.reload(); // the session ended: the page will show the sign-in form
+        return null;
+      }
+      if (!res.ok) {
+        const body = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(body.error ?? `Request failed (${res.status})`);
+      }
+      return (await res.json()) as AdminOverview;
+    },
+    [],
+  );
 
   const refresh = useCallback(async () => {
     try {

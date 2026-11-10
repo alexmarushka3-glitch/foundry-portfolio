@@ -66,7 +66,11 @@ export function useLiveAvailability(): boolean | null {
 }
 
 /** Calls `onView` once, the first time the element fills enough of the screen. */
-export function useOnceInView(ref: RefObject<HTMLElement | null>, onView: () => void, enabled: () => boolean) {
+export function useOnceInView(
+  ref: RefObject<HTMLElement | null>,
+  onView: () => void,
+  enabled: () => boolean,
+) {
   const cb = useRef(onView);
   cb.current = onView;
   const gate = useRef(enabled);

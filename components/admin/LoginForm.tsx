@@ -37,7 +37,13 @@ export default function LoginForm() {
         <h1>Foundry admin</h1>
         <p className="muted">Enter the admin token to continue.</p>
         <label htmlFor="token">Admin token</label>
-        <input id="token" type="password" autoComplete="current-password" value={token} onChange={(e) => setToken(e.target.value)} />
+        <input
+          id="token"
+          type="password"
+          autoComplete="current-password"
+          value={token}
+          onChange={(e) => setToken(e.target.value)}
+        />
         {error && (
           <p className="banner error" role="alert">
             {error}

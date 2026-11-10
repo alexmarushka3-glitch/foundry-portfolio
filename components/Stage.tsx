@@ -36,8 +36,7 @@ const MODE_COPY: Record<Mode, { label: string; detail: string }> = {
 
 const LIVE_REPLAY_COPY = {
   label: "Replay of a real live run",
-  detail:
-    "A recording of a real run, sped up: real AI output, real tests and a real browser test.",
+  detail: "A recording of a real run, sped up: real AI output, real tests and a real browser test.",
 };
 
 /**
@@ -63,7 +62,13 @@ export default function Stage() {
     },
     [seek],
   );
-  const { live, error, start: startLive, cancel: cancelLive, clearError } = useLiveRun(showFinished);
+  const {
+    live,
+    error,
+    start: startLive,
+    cancel: cancelLive,
+    clearError,
+  } = useLiveRun(showFinished);
   const busy = live !== null;
 
   const resetView = useCallback(() => {
@@ -134,10 +139,17 @@ export default function Stage() {
   );
 
   /* What to draw. */
-  const views: StepView[] = useMemo(() => (live ? live.steps : run ? viewsAt(run, t) : []), [live, run, t]);
+  const views: StepView[] = useMemo(
+    () => (live ? live.steps : run ? viewsAt(run, t) : []),
+    [live, run, t],
+  );
   const frames = useMemo(() => framesFrom(views), [views]);
   const mode: Mode | null = live ? live.mode : (run?.mode ?? null);
-  const modeCopy = mode ? (mode === "replay" && run?.source === "live-run" && !live ? LIVE_REPLAY_COPY : MODE_COPY[mode]) : null;
+  const modeCopy = mode
+    ? mode === "replay" && run?.source === "live-run" && !live
+      ? LIVE_REPLAY_COPY
+      : MODE_COPY[mode]
+    : null;
   const reason = live ? live.reason : run?.reason;
   const atEnd = run !== null && t >= run.total - 1;
   const evidence = useMemo(() => (run && atEnd ? runEvidence(run) : null), [run, atEnd]);
@@ -145,7 +157,13 @@ export default function Stage() {
   const byId = Object.fromEntries(frames.map((f) => [f.agent, f])) as Record<AgentName, AgentFrame>;
   const active = frames.filter((f) => f.status === "active");
   const lastDone = [...frames].reverse().find((f) => f.status === "done");
-  const focus: AgentFrame[] = selected ? [byId[selected]] : active.length ? active : lastDone ? [lastDone] : [];
+  const focus: AgentFrame[] = selected
+    ? [byId[selected]]
+    : active.length
+      ? active
+      : lastDone
+        ? [lastDone]
+        : [];
 
   const announce = active.length
     ? `${active.map((a) => AGENT_BY_ID[a.agent].label).join(" and ")} ${active.length > 1 ? "are" : "is"} working.`
@@ -165,7 +183,12 @@ export default function Stage() {
         )}
       </div>
 
-      <IdeaForm onSubmit={go} busy={busy} activeExample={run?.request} liveAvailable={liveAvailable} />
+      <IdeaForm
+        onSubmit={go}
+        busy={busy}
+        activeExample={run?.request}
+        liveAvailable={liveAvailable}
+      />
 
       {narrow && active.length > 0 && (
         // On a phone the drawing and the panel above it don't fit on one screen; this keeps who is working in view.
@@ -207,7 +230,9 @@ export default function Stage() {
 
       <div className="panels">
         {focus.length === 0 ? (
-          <p className="empty">Pick an example or describe your own app. You can watch the agents work.</p>
+          <p className="empty">
+            Pick an example or describe your own app. You can watch the agents work.
+          </p>
         ) : (
           focus.map((f) => <OutputPanel key={f.agent} frame={f} />)
         )}

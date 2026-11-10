@@ -6,7 +6,10 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       // Every page but the app preview frame, which gets its own, tighter policy below.
-      { source: "/((?!preview/).*)", headers: securityHeaders(process.env.NODE_ENV !== "production") },
+      {
+        source: "/((?!preview/).*)",
+        headers: securityHeaders(process.env.NODE_ENV !== "production"),
+      },
       { source: "/preview/:path*", headers: previewHeaders() },
       { source: "/admin", headers: [{ key: "Cache-Control", value: "no-store" }] },
       { source: "/api/admin/:path*", headers: [{ key: "Cache-Control", value: "no-store" }] },

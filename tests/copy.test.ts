@@ -56,7 +56,9 @@ describe("page copy", () => {
   });
 
   it("stays short: the intro is two sentences at most", () => {
-    expect(profile.intro.split(/[.!?](\s|$)/).filter((s) => s.trim().length > 1).length).toBeLessThanOrEqual(2);
+    expect(
+      profile.intro.split(/[.!?](\s|$)/).filter((s) => s.trim().length > 1).length,
+    ).toBeLessThanOrEqual(2);
   });
 
   it("gives the site a short title and a site address", () => {
@@ -65,7 +67,11 @@ describe("page copy", () => {
   });
 
   it("gives recruiters a case study whose numbers match the shipped recordings", () => {
-    const recs = (liveRecordings as { recordings: { totalMs: number; costUsd: number; approved: boolean; rounds: number }[] }).recordings;
+    const recs = (
+      liveRecordings as {
+        recordings: { totalMs: number; costUsd: number; approved: boolean; rounds: number }[];
+      }
+    ).recordings;
     const secs = recs.map((r) => Math.round(r.totalMs / 1000));
     const cents = recs.map((r) => Math.round(r.costUsd * 100));
     const happened = profile.caseStudy.find((r) => r.term === "What happened")!.text;

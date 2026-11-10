@@ -9,7 +9,12 @@ vi.mock("@/lib/pipeline/github", () => ({
 
 import { GET } from "@/app/api/cron/close-stale-prs/route";
 
-const call = (auth?: string) => GET(new Request("http://t/api/cron/close-stale-prs", { headers: auth ? { authorization: auth } : {} }));
+const call = (auth?: string) =>
+  GET(
+    new Request("http://t/api/cron/close-stale-prs", {
+      headers: auth ? { authorization: auth } : {},
+    }),
+  );
 
 afterEach(() => {
   delete process.env.CRON_SECRET;

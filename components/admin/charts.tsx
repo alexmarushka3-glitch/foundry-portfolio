@@ -39,10 +39,21 @@ export function StackedBars({ buckets }: { buckets: Bucket[] }) {
 
   return (
     <div className="chart-scroll">
-      <svg className="chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Runs over time. ${sum} runs across ${buckets.length} periods.`}>
+      <svg
+        className="chart"
+        viewBox={`0 0 ${W} ${H}`}
+        role="img"
+        aria-label={`Runs over time. ${sum} runs across ${buckets.length} periods.`}
+      >
         {[0, 0.5, 1].map((f) => (
           <g key={f}>
-            <line x1={pad.l} x2={W - pad.r} y1={y(niceMax * f)} y2={y(niceMax * f)} className="gridline" />
+            <line
+              x1={pad.l}
+              x2={W - pad.r}
+              y1={y(niceMax * f)}
+              y2={y(niceMax * f)}
+              className="gridline"
+            />
             <text x={pad.l - 6} y={y(niceMax * f) + 4} textAnchor="end" className="tick">
               {Math.round(niceMax * f)}
             </text>
@@ -60,7 +71,17 @@ export function StackedBars({ buckets }: { buckets: Bucket[] }) {
                 const top = y(acc + v);
                 const h = y(acc) - top;
                 acc += v;
-                return <rect key={m} x={x} y={top} width={bw * 0.7} height={h} rx={2} fill={MODE_COLOR[m]} />;
+                return (
+                  <rect
+                    key={m}
+                    x={x}
+                    y={top}
+                    width={bw * 0.7}
+                    height={h}
+                    rx={2}
+                    fill={MODE_COLOR[m]}
+                  />
+                );
               })}
               {i % every === 0 && (
                 <text x={x + bw * 0.35} y={H - 6} textAnchor="middle" className="tick">
@@ -76,7 +97,13 @@ export function StackedBars({ buckets }: { buckets: Bucket[] }) {
 }
 
 /** Share of runs by category, as a ring with the total in the middle. */
-export function Donut({ slices, label }: { slices: { label: string; value: number; color: string }[]; label: string }) {
+export function Donut({
+  slices,
+  label,
+}: {
+  slices: { label: string; value: number; color: string }[];
+  label: string;
+}) {
   const total = slices.reduce((s, x) => s + x.value, 0);
   const R = 52;
   const C = 2 * Math.PI * R;
@@ -118,7 +145,13 @@ export function Donut({ slices, label }: { slices: { label: string; value: numbe
 }
 
 /** Horizontal bars, one per row. */
-export function HBars({ rows, format }: { rows: { label: string; value: number; note?: string }[]; format: (v: number) => string }) {
+export function HBars({
+  rows,
+  format,
+}: {
+  rows: { label: string; value: number; note?: string }[];
+  format: (v: number) => string;
+}) {
   const max = Math.max(1, ...rows.map((r) => r.value));
   return (
     <ul className="hbars" aria-label="Average time per agent">

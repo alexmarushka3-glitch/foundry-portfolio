@@ -2,9 +2,19 @@ import { createHmac } from "node:crypto";
 import { beforeEach, describe, expect, it } from "vitest";
 import { POST as actions } from "@/app/api/admin/actions/route";
 import { POST as login } from "@/app/api/admin/login/route";
-import { ADMIN_SESSION_SECONDS, blockCrossSite, sessionValid, sessionValue } from "@/lib/server/adminAuth";
+import {
+  ADMIN_SESSION_SECONDS,
+  blockCrossSite,
+  sessionValid,
+  sessionValue,
+} from "@/lib/server/adminAuth";
 import { MAX_BODY_BYTES, readJsonBody } from "@/lib/server/runApi";
-import { CONTENT_SECURITY_POLICY, PREVIEW_CONTENT_SECURITY_POLICY, previewHeaders, securityHeaders } from "@/lib/securityHeaders";
+import {
+  CONTENT_SECURITY_POLICY,
+  PREVIEW_CONTENT_SECURITY_POLICY,
+  previewHeaders,
+  securityHeaders,
+} from "@/lib/securityHeaders";
 
 const TOKEN = "correct horse battery staple";
 beforeEach(() => {
@@ -28,9 +38,20 @@ describe("admin session cookie", () => {
     const [exp, mac] = sessionValue(now)!.split(".");
     expect(sessionValid(`${Number(exp) + DAY}.${mac}`, now)).toBe(false); // longer expiry, same signature
     const forgedExp = String(now + 365 * DAY);
-    const forged = createHmac("sha256", TOKEN).update(`foundry-admin-session:${forgedExp}`).digest("hex");
+    const forged = createHmac("sha256", TOKEN)
+      .update(`foundry-admin-session:${forgedExp}`)
+      .digest("hex");
     expect(sessionValid(`${forgedExp}.${forged}`, now)).toBe(false); // correctly signed but absurdly long
-    for (const junk of ["", "x", "1.2.3", `${exp}.`, `.${mac}`, "abc.def", `${exp}.${mac}x`, `-5.${mac}`]) {
+    for (const junk of [
+      "",
+      "x",
+      "1.2.3",
+      `${exp}.`,
+      `.${mac}`,
+      "abc.def",
+      `${exp}.${mac}x`,
+      `-5.${mac}`,
+    ]) {
       expect(sessionValid(junk, now)).toBe(false);
     }
   });
@@ -55,12 +76,29 @@ describe("cross-site protection on state-changing admin requests", () => {
     expect(blockCrossSite(post("https://evil.example"))?.status).toBe(403);
     expect(blockCrossSite(post("https://foundry.example.evil.example"))?.status).toBe(403);
     expect(blockCrossSite(post("not a url"))?.status).toBe(403);
-    expect(blockCrossSite(new Request("https://foundry.example/x", { method: "GET", headers: { origin: "https://evil.example" } }))).toBeNull();
+    expect(
+      blockCrossSite(
+        new Request("https://foundry.example/x", {
+          method: "GET",
+          headers: { origin: "https://evil.example" },
+        }),
+      ),
+    ).toBeNull();
   });
 
   it("applies to login and to the actions, before anything else is checked", async () => {
-    const evil = { "content-type": "application/json", origin: "https://evil.example", host: "foundry.example" };
-    const l = await login(new Request("https://foundry.example/api/admin/login", { method: "POST", headers: evil, body: JSON.stringify({ token: TOKEN }) }));
+    const evil = {
+      "content-type": "application/json",
+      origin: "https://evil.example",
+      host: "foundry.example",
+    };
+    const l = await login(
+      new Request("https://foundry.example/api/admin/login", {
+        method: "POST",
+        headers: evil,
+        body: JSON.stringify({ token: TOKEN }),
+      }),
+    );
     expect(l.status).toBe(403);
     expect(l.headers.get("set-cookie")).toBeNull();
     const a = await actions(
@@ -76,14 +114,20 @@ describe("cross-site protection on state-changing admin requests", () => {
 
 describe("request body size cap", () => {
   const req = (body: string, headers: Record<string, string> = {}) =>
-    new Request("http://t/x", { method: "POST", headers: { "content-type": "application/json", ...headers }, body });
+    new Request("http://t/x", {
+      method: "POST",
+      headers: { "content-type": "application/json", ...headers },
+      body,
+    });
 
   it("reads small JSON, and refuses invalid JSON and oversize bodies with the right status", async () => {
     expect(await readJsonBody(req('{"a":1}'))).toEqual({ ok: true, body: { a: 1 } });
     expect(await readJsonBody(req("{nope"))).toMatchObject({ ok: false, status: 400 });
     const big = JSON.stringify({ x: "a".repeat(MAX_BODY_BYTES) });
     expect(await readJsonBody(req(big))).toMatchObject({ ok: false, status: 413 });
-    expect(await readJsonBody(req("{}", { "content-length": String(MAX_BODY_BYTES + 1) }))).toMatchObject({ ok: false, status: 413 });
+    expect(
+      await readJsonBody(req("{}", { "content-length": String(MAX_BODY_BYTES + 1) })),
+    ).toMatchObject({ ok: false, status: 413 });
   });
 
   it("counts bytes, not characters", async () => {
@@ -93,7 +137,8 @@ describe("request body size cap", () => {
 });
 
 describe("security headers", () => {
-  const map = (dev: boolean) => Object.fromEntries(securityHeaders(dev).map((h) => [h.key, h.value]));
+  const map = (dev: boolean) =>
+    Object.fromEntries(securityHeaders(dev).map((h) => [h.key, h.value]));
 
   it("sends the standard set in production", () => {
     const h = map(false);
@@ -106,7 +151,14 @@ describe("security headers", () => {
   });
 
   it("locks the policy to the site itself: no framing, no plugins, no other origins", () => {
-    for (const rule of ["default-src 'self'", "frame-ancestors 'none'", "object-src 'none'", "base-uri 'self'", "form-action 'self'", "connect-src 'self'"]) {
+    for (const rule of [
+      "default-src 'self'",
+      "frame-ancestors 'none'",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "connect-src 'self'",
+    ]) {
       expect(CONTENT_SECURITY_POLICY).toContain(rule);
     }
     expect(CONTENT_SECURITY_POLICY).not.toMatch(/https?:\/\/|\*/); // no allowed outside hosts or wildcards
@@ -123,7 +175,9 @@ describe("security headers", () => {
     expect(PREVIEW_CONTENT_SECURITY_POLICY).toContain("default-src 'none'");
     expect(PREVIEW_CONTENT_SECURITY_POLICY).toContain("connect-src 'none'");
     expect(PREVIEW_CONTENT_SECURITY_POLICY).toContain("frame-ancestors 'self'");
-    expect(PREVIEW_CONTENT_SECURITY_POLICY).not.toMatch(/'unsafe-eval'|wasm|blob:\s*'|https?:\/\/|\*/);
+    expect(PREVIEW_CONTENT_SECURITY_POLICY).not.toMatch(
+      /'unsafe-eval'|wasm|blob:\s*'|https?:\/\/|\*/,
+    );
     const h = Object.fromEntries(previewHeaders().map((x) => [x.key, x.value]));
     expect(h["X-Frame-Options"]).toBe("SAMEORIGIN");
   });

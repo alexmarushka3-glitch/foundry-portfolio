@@ -17,10 +17,17 @@ export function parseRequest(body: unknown): Parsed {
     const checked = validateIdea(b.idea);
     return checked.ok ? { ok: true, request: checked.idea } : checked;
   }
-  const raw = typeof b.request === "string" ? b.request.replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim() : "";
+  const raw =
+    typeof b.request === "string"
+      ? b.request
+          .replace(/[\u0000-\u001f\u007f]/g, " ")
+          .replace(/\s+/g, " ")
+          .trim()
+      : "";
   if (!raw) return { ok: false, error: "Describe an app first, or pick an example." };
   if (raw.length > MAX_INPUT) return { ok: false, error: `Keep it under ${MAX_INPUT} characters.` };
-  if (!findServerRecording(raw)) return { ok: false, error: "Describe an app in the box, or pick one of the examples." };
+  if (!findServerRecording(raw))
+    return { ok: false, error: "Describe an app in the box, or pick one of the examples." };
   return { ok: true, request: raw };
 }
 
@@ -59,14 +66,26 @@ export function browserId(headers: Headers): { id: string; setCookie?: string } 
     .find(([k]) => k === BROWSER_COOKIE)?.[1];
   if (sent && BROWSER_ID.test(sent)) return { id: sent };
   const id = crypto.randomUUID();
-  return { id, setCookie: `${BROWSER_COOKIE}=${id}; Path=/api; Max-Age=31536000; HttpOnly; Secure; SameSite=Lax` };
+  return {
+    id,
+    setCookie: `${BROWSER_COOKIE}=${id}; Path=/api; Max-Age=31536000; HttpOnly; Secure; SameSite=Lax`,
+  };
 }
 
 export function visitorAddress(headers: Headers): string {
-  return headers.get("x-forwarded-for")?.split(",")[0]?.trim() || headers.get("x-real-ip")?.trim() || "unknown";
+  return (
+    headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    headers.get("x-real-ip")?.trim() ||
+    "unknown"
+  );
 }
 
-type ApiError = { name?: string; status?: number; message?: string; error?: { error?: { type?: string } } };
+type ApiError = {
+  name?: string;
+  status?: number;
+  message?: string;
+  error?: { error?: { type?: string } };
+};
 
 /** Log why a run failed for the site owner: error type, status, and a trimmed message with anything key-shaped removed. */
 export function logRunFailure(err: unknown): void {
@@ -76,7 +95,9 @@ export function logRunFailure(err: unknown): void {
     e?.name ?? typeof err,
     e?.status ?? "",
     e?.error?.error?.type ?? "",
-    String(e?.message ?? "").replace(/sk-[A-Za-z0-9_-]{8,}/g, "[key]").slice(0, 200),
+    String(e?.message ?? "")
+      .replace(/sk-[A-Za-z0-9_-]{8,}/g, "[key]")
+      .slice(0, 200),
   );
   // Describe the key's shape (never its value) so a bad paste is easy to spot.
   const k = process.env.ANTHROPIC_API_KEY ?? "";
@@ -97,6 +118,7 @@ const GENERIC_FAILURE = "The run stopped before it finished. Try again in a mome
 
 /** What the visitor sees. Our own short messages pass through; raw API errors, which can include request details, never do. */
 export function visitorMessage(err: unknown): string {
-  if (err instanceof Error && err.message.length < 140 && !/api|key|auth|token/i.test(err.message)) return err.message;
+  if (err instanceof Error && err.message.length < 140 && !/api|key|auth|token/i.test(err.message))
+    return err.message;
   return GENERIC_FAILURE;
 }

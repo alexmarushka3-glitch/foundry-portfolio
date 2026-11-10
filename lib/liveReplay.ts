@@ -31,7 +31,10 @@ export function buildLiveReplayRun(rec: LiveRecording): Run {
   return { ...run, mode: "replay", source: "live-run", costUsd: rec.costUsd, pr: undefined };
 }
 
-export function findLiveRecording(recs: LiveRecording[], request: string): LiveRecording | undefined {
+export function findLiveRecording(
+  recs: LiveRecording[],
+  request: string,
+): LiveRecording | undefined {
   return recs.find((r) => normalizeRequest(r.request) === normalizeRequest(request));
 }
 
@@ -43,7 +46,10 @@ const loaded = new Map<string, Promise<LiveRecording>>();
  * Loads the one recording that matches `request`, on demand, so no recording lands in the first page load
  * and playing one example never downloads the others. Resolves undefined if the request isn't a recorded one.
  */
-export async function loadLiveRecording(request: string, chunks: Chunk[] = RECORDING_CHUNKS): Promise<LiveRecording | undefined> {
+export async function loadLiveRecording(
+  request: string,
+  chunks: Chunk[] = RECORDING_CHUNKS,
+): Promise<LiveRecording | undefined> {
   const key = normalizeRequest(request);
   const chunk = chunks.find((c) => normalizeRequest(c.request) === key);
   if (!chunk) return undefined;

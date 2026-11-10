@@ -15,7 +15,12 @@ export function formatClock(ms: number): string {
 }
 
 const usd = (digits: number) =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: digits, maximumFractionDigits: digits });
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  });
 const usd3 = usd(3);
 const usd2 = usd(2);
 

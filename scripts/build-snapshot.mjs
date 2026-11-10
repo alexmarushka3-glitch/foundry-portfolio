@@ -11,7 +11,9 @@ const repo = resolve(process.argv[2] ?? join(root, "..", "taskly-sample"));
 const git = (...args) => execFileSync("git", args, { cwd: repo, encoding: "utf8" }).trim();
 
 if (git("status", "--porcelain")) {
-  console.error("taskly-sample has uncommitted changes. Commit them first so the snapshot names a real commit.");
+  console.error(
+    "taskly-sample has uncommitted changes. Commit them first so the snapshot names a real commit.",
+  );
   process.exit(1);
 }
 
@@ -22,6 +24,10 @@ for (const path of git("ls-files").split("\n").filter(Boolean)) {
   files[path] = readFileSync(join(repo, path), "utf8").replace(/\r\n/g, "\n");
 }
 
-const snapshot = { repo: "alexmarushka3-glitch/taskly-sample", commit: git("rev-parse", "HEAD"), files };
+const snapshot = {
+  repo: "alexmarushka3-glitch/taskly-sample",
+  commit: git("rev-parse", "HEAD"),
+  files,
+};
 writeFileSync(join(root, "lib", "tasklySnapshot.json"), JSON.stringify(snapshot, null, 2) + "\n");
 console.log(`snapshot of ${Object.keys(files).length} files at ${snapshot.commit.slice(0, 7)}`);

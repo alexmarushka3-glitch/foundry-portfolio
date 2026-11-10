@@ -30,7 +30,8 @@ function fail(message: string): never {
   process.exit(1);
 }
 
-if (!process.env.ANTHROPIC_API_KEY) fail("ANTHROPIC_API_KEY is not set (expected in .env.local). Nothing was run.");
+if (!process.env.ANTHROPIC_API_KEY)
+  fail("ANTHROPIC_API_KEY is not set (expected in .env.local). Nothing was run.");
 if (!process.env.FOUNDRY_SANDBOX_SNAPSHOT) {
   fail(
     "FOUNDRY_SANDBOX_SNAPSHOT is not set (put it in .env.eval.local). Without it the real tests and browser do not run,\n" +
@@ -46,10 +47,19 @@ const plan = (() => {
   }
 })();
 
-console.log(`${plan.requests.length} live runs, at most about $${plan.maxCostUsd.toFixed(2)} ($${UPPER_COST_PER_RUN_USD} each, upper estimate).`);
+console.log(
+  `${plan.requests.length} live runs, at most about $${plan.maxCostUsd.toFixed(2)} ($${UPPER_COST_PER_RUN_USD} each, upper estimate).`,
+);
 if (!flag("--confirm")) fail("Add --confirm to spend that. Nothing was run.");
 
-type Stored = { at: string; request: string; approved: boolean; rounds: number; costUsd: number; ms: number };
+type Stored = {
+  at: string;
+  request: string;
+  approved: boolean;
+  rounds: number;
+  costUsd: number;
+  ms: number;
+};
 const stored: { runs: Stored[] } = JSON.parse(readFileSync(RESULTS, "utf8"));
 
 let skipped = 0;
@@ -73,9 +83,13 @@ for (const [i, request] of plan.requests.entries()) {
   }
   stored.runs.push({ at: new Date().toISOString(), request, ...run });
   writeFileSync(RESULTS, JSON.stringify(stored, null, 2) + "\n");
-  console.log(`run ${i + 1}: ${run.approved ? "approved" : "not approved"}, ${run.rounds} round(s), $${run.costUsd.toFixed(3)}, ${Math.round(run.ms / 1000)}s`);
+  console.log(
+    `run ${i + 1}: ${run.approved ? "approved" : "not approved"}, ${run.rounds} round(s), $${run.costUsd.toFixed(3)}, ${Math.round(run.ms / 1000)}s`,
+  );
 }
 
 const s = summarizeRuns(stored.runs);
-console.log(`\nAll recorded runs: ${s.approved} of ${s.total} approved (95% interval ${Math.round((s.low ?? 0) * 100)}% to ${Math.round((s.high ?? 0) * 100)}%).`);
+console.log(
+  `\nAll recorded runs: ${s.approved} of ${s.total} approved (95% interval ${Math.round((s.low ?? 0) * 100)}% to ${Math.round((s.high ?? 0) * 100)}%).`,
+);
 if (skipped) console.log(`${skipped} run(s) were not counted.`);

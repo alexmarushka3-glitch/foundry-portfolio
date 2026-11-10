@@ -28,7 +28,10 @@ export function securityHeaders(dev: boolean): Header[] {
     { key: "X-Content-Type-Options", value: "nosniff" },
     { key: "X-Frame-Options", value: "DENY" }, // older browsers; frame-ancestors covers the rest
     { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-    { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()" },
+    {
+      key: "Permissions-Policy",
+      value: "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
+    },
     { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
   ];
 }
