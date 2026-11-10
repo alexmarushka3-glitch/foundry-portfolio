@@ -42,7 +42,7 @@ export type RunContext = {
   testRunner?: TestRunner;
   /** Drives a real browser in a sandbox. Absent in simulations and in tests that do not need it. */
   browserRunner?: BrowserRunner;
-  /** What the E2E Verifier's browser runs found this run, so the pipeline can judge by the real result. */
+  /** What the Browser Tester's browser runs found this run, so the pipeline can judge by the real result. */
   browser?: { runs: number; last?: BrowserReport };
   /** Running total of what live calls have cost, in dollars. */
   spend: { usd: number };

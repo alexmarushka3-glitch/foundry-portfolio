@@ -7,6 +7,7 @@ import {
   type LiveBrake,
 } from "@/lib/server/liveBrake";
 import { LiveLimiter } from "@/lib/server/rateLimit";
+import { upstashTransaction } from "@/lib/server/upstash";
 
 /** A tiny fake of the Upstash REST pipeline endpoint: counters plus SCAN, GET and DEL. */
 function fakeUpstash() {
@@ -54,6 +55,34 @@ function fakeUpstash() {
 
 describe("RedisLiveBrake", () => {
   const T = Date.UTC(2026, 9, 27, 12);
+
+  it("sends the count and expiry together, and the refund, as transactions", async () => {
+    const fake = fakeUpstash();
+    const brake = new RedisLiveBrake({ perHour: 1, perDay: 100 }, fake.config, () => T);
+    await brake.check("203.0.113.9", "b1");
+    await brake.check("203.0.113.9", "b1"); // refused, so it also sends the refund
+    const urls = (fake.config.fetchFn as unknown as ReturnType<typeof vi.fn>).mock.calls.map((c) =>
+      String(c[0]),
+    );
+    expect(urls).toEqual(Array(3).fill("https://redis.test/multi-exec"));
+    const names = (i: number) => fake.calls[i].map(([cmd]) => cmd);
+    expect(names(0)).toEqual(["INCR", "INCR", "INCR", "EXPIRE", "EXPIRE", "EXPIRE"]);
+    expect(names(2)).toEqual(["DECR", "DECR", "DECR"]);
+  });
+
+  it("reports a rejected transaction as a database error, not a crash", async () => {
+    const fetchFn = vi.fn(
+      async () => new Response(JSON.stringify({ error: "EXECABORT nope" }), { status: 200 }),
+    );
+    const config = {
+      url: "https://redis.test",
+      token: "t",
+      fetchFn: fetchFn as unknown as typeof fetch,
+    };
+    await expect(upstashTransaction(config, [["INCR", "k"]])).rejects.toThrow(
+      "Database error: EXECABORT nope",
+    );
+  });
 
   it("allows perHour runs per visitor, then refuses with the hourly message", async () => {
     const { config } = fakeUpstash();

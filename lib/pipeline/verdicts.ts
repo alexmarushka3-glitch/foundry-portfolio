@@ -5,7 +5,7 @@
 const firstWord = (text: string, pattern: RegExp): string | undefined =>
   pattern.exec(text)?.[1]?.toUpperCase();
 
-/** True when the E2E Verifier's first verdict marker says PASS. No marker counts as a fail. */
+/** True when the Browser Tester's first verdict marker says PASS. No marker counts as a fail. */
 export const e2ePassed = (text: string): boolean =>
   firstWord(text, /E2E:\s*(PASS|FAIL)\b/i) === "PASS";
 
