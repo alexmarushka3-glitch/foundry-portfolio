@@ -2,22 +2,30 @@
 // Node port of mattpocock/skills git-guardrails-claude-code (no jq or bash needed).
 // Exit 2 = block and send stderr to Claude. Exit 0 = allow.
 //
-// git push is allowed only for a plain push of a branch that is not main or master.
-// Blocked pushes: main/master (it deploys the live site), force (--force, -f,
-// --force-with-lease, +refspec), delete (--delete, -d, :branch), --all, --mirror, --prune,
-// or anything this file cannot read with confidence.
-import { execFileSync } from 'node:child_process';
+// git push uses an exact allowlist. The only push that gets through is:
+//   git push [-u | --set-upstream] <remote> <branch>
+// where <branch> is plain letters, digits, . _ / - and is not main or master.
+// Anything else that mentions git and push is blocked: other options, refspecs (a:b),
+// HEAD, a bare "git push", variables, quotes, backslashes, ( ) ` $ and so on. The user
+// pushes main, forces and deletes themselves.
+//
+// Known limit: this reads the command text only. Scripts (npm run, node -e) can still run git.
+
+// "git", optional global options (-C dir, -c k=v, --no-pager, ...), then the subcommand.
+const GIT = String.raw`\bgit(?:\.exe)?(?:\s+(?:-[Cc]\s+\S+|--?[A-Za-z][\w-]*(?:=\S+)?))*\s+`;
 
 const BLOCKED = [
-  [/\bgit\s+reset\s+--hard\b/, 'git reset --hard'],
-  [/\bgit\s+clean\s+-\S*f/, 'git clean -f'],
-  [/\bgit\s+branch\s+-D\b/, 'git branch -D'],
-  [/\bgit\s+(?:checkout|restore)\s+\.(?:\s|$)/, 'git checkout . / git restore .'],
+  [new RegExp(GIT + String.raw`reset\s+--hard\b`), 'git reset --hard'],
+  [new RegExp(GIT + String.raw`clean\s+-\S*f`), 'git clean -f'],
+  [new RegExp(GIT + String.raw`branch\s+-D\b`), 'git branch -D'],
+  [new RegExp(GIT + String.raw`(?:checkout|restore)\s+\.(?:\s|$)`), 'git checkout . / git restore .'],
+  // Aliases could hide a push (git config alias.pm "push origin main"; git -c alias.p=push p).
+  [/\bgit\b.*\balias\./, 'git alias (could hide a push)'],
 ];
 
 const PROTECTED_BRANCHES = new Set(['main', 'master']);
-// "git", optional global options (-C dir, -c key=val), then "push".
-const PUSH = /\bgit((?:\s+-[Cc]\s+\S+)*)\s+push\b/;
+const ALLOWED_PUSH =
+  /^\s*git\s+push(?:\s+(?:-u|--set-upstream))?\s+([A-Za-z0-9._-]+)\s+([A-Za-z0-9._/-]+)\s*$/;
 
 function block(command, label, why) {
   console.error(
@@ -26,62 +34,23 @@ function block(command, label, why) {
   process.exit(2);
 }
 
-function currentBranch(dir) {
-  try {
-    return execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
-      cwd: dir,
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'ignore'],
-    }).trim();
-  } catch {
-    return null;
+// Returns a reason if this command segment is a push that must be blocked, else null.
+function pushProblem(segment) {
+  if (!/\bgit/i.test(segment) || !/\bpush\b/i.test(segment)) return null; // not a push
+  const m = segment.match(ALLOWED_PUSH);
+  if (!m) {
+    return 'only "git push [-u] <remote> <branch>" is allowed, with a plain branch name';
   }
-}
-
-// Returns a reason string if this one push command must be blocked, else null.
-function pushProblem(segment, cwd) {
-  const m = segment.match(PUSH);
-  const globals = m[1] ?? '';
-  const dirMatch = globals.match(/-C\s+(\S+)/);
-  const dir = (dirMatch ? dirMatch[1] : cwd || process.cwd()).replace(/^["']|["']$/g, '');
-
-  const after = segment.slice(m.index + m[0].length).trim();
-  const tokens = after.length ? after.split(/\s+/) : [];
-  const positional = [];
-  for (const t of tokens) {
-    if (t.startsWith('--')) {
-      if (/^--(force|force-with-lease|force-if-includes|delete|all|mirror|prune)(=|$)/.test(t)) {
-        return `option ${t}`;
-      }
-    } else if (t.startsWith('-') && t.length > 1) {
-      if (/[fd]/.test(t.slice(1))) return `option ${t}`;
-    } else {
-      positional.push(t.replace(/^["']|["']$/g, ''));
-    }
+  const [, remote, branch] = m;
+  if (remote.startsWith('-')) return 'bad remote';
+  if (branch.startsWith('-') || branch.startsWith('/') || branch.endsWith('/')) {
+    return 'bad branch name';
   }
-
-  const refspecs = positional.slice(1); // positional[0] is the remote
-  if (refspecs.length === 0) {
-    const branch = currentBranch(dir);
-    if (!branch) return 'cannot tell which branch this pushes';
-    if (PROTECTED_BRANCHES.has(branch) || branch === 'HEAD') return `would push ${branch}`;
-    return null;
+  if (branch.includes('..') || branch.split('/').some((part) => part === '' || part === '.')) {
+    return 'bad branch name';
   }
-  for (const spec of refspecs) {
-    if (spec.startsWith('+')) return `forced refspec ${spec}`;
-    if (spec.startsWith(':')) return `deletes ${spec.slice(1)}`;
-    const dst = spec.includes(':') ? spec.split(':')[1] : spec;
-    const name = dst.replace(/^refs\/heads\//, '');
-    if (name === 'HEAD' || name === '@') {
-      const branch = currentBranch(dir);
-      if (!branch || branch === 'HEAD' || PROTECTED_BRANCHES.has(branch)) {
-        return `HEAD is ${branch ?? 'unknown'}`;
-      }
-      continue;
-    }
-    if (PROTECTED_BRANCHES.has(name)) return `pushes ${name}`;
-    if (name === '' || name.includes('*') || name.startsWith('tag')) return `unclear target ${spec}`;
-  }
+  const name = branch.replace(/^refs\/heads\//, '').toLowerCase();
+  if (PROTECTED_BRANCHES.has(name) || name === 'head') return `pushes ${branch}`;
   return null;
 }
 
@@ -90,11 +59,8 @@ process.stdin.setEncoding('utf8');
 process.stdin.on('data', (chunk) => (raw += chunk));
 process.stdin.on('end', () => {
   let command = '';
-  let cwd = '';
   try {
-    const input = JSON.parse(raw);
-    command = input?.tool_input?.command ?? '';
-    cwd = input?.cwd ?? '';
+    command = JSON.parse(raw)?.tool_input?.command ?? '';
   } catch {
     // Unreadable input: allow, so a bad payload cannot lock Claude out of Bash.
     process.exit(0);
@@ -104,14 +70,13 @@ process.stdin.on('end', () => {
     if (pattern.test(command)) block(command, label);
   }
 
-  // Check each command in a chain (&&, ||, ;, |, newline) on its own.
-  for (const segment of command.split(/&&|\|\||;|\||\r?\n/)) {
-    if (!PUSH.test(segment)) continue;
+  // Check each command in a chain (; & | && || newline) on its own.
+  for (const segment of command.split(/[;&|\n]+/)) {
     let problem;
     try {
-      problem = pushProblem(segment, cwd);
+      problem = pushProblem(segment);
     } catch {
-      problem = 'could not read this push command';
+      problem = 'could not read this command';
     }
     if (problem) block(command, 'git push', problem);
   }
