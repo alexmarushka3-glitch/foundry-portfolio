@@ -4,28 +4,27 @@
 //
 // git push uses an exact allowlist. The only push that gets through is:
 //   git push [-u | --set-upstream] <remote> <branch>
-// where <branch> is plain letters, digits, . _ / - and is not main or master.
-// Anything else that mentions git and push is blocked: other options, refspecs (a:b),
-// HEAD, a bare "git push", variables, quotes, backslashes, ( ) ` $ and so on. The user
-// pushes main, forces and deletes themselves.
+// where <branch> is plain letters, digits, . _ / - and is not main or master, and the remote
+// has no remote.<name>.push setting. Anything else that mentions git (or a variable or backtick
+// that could hide it) next to the word push is blocked: other options, refspecs (a:b), HEAD,
+// a bare "git push", quotes, backslashes, ( ) $ and so on. The user pushes main, forces and
+// deletes themselves.
 //
-// Known limit: this reads the command text only. Scripts (npm run, node -e) can still run git.
-
-// "git", optional global options (-C dir, -c k=v, --no-pager, ...), then the subcommand.
-const GIT = String.raw`\bgit(?:\.exe)?(?:\s+(?:-[Cc]\s+\S+|--?[A-Za-z][\w-]*(?:=\S+)?))*\s+`;
-
-const BLOCKED = [
-  [new RegExp(GIT + String.raw`reset\s+--hard\b`), 'git reset --hard'],
-  [new RegExp(GIT + String.raw`clean\s+-\S*f`), 'git clean -f'],
-  [new RegExp(GIT + String.raw`branch\s+-D\b`), 'git branch -D'],
-  [new RegExp(GIT + String.raw`(?:checkout|restore)\s+\.(?:\s|$)`), 'git checkout . / git restore .'],
-  // Aliases could hide a push (git config alias.pm "push origin main"; git -c alias.p=push p).
-  [/\bgit\b.*\balias\./, 'git alias (could hide a push)'],
-];
+// Also blocked: reset --hard, clean with -f/--force, branch -D (or -d with -f), checkout/restore
+// of ".", git aliases, and git hidden behind a shell variable.
+//
+// A side effect: a commit message or PR body that contains the words "git push" is blocked.
+// Write the message to a file and use `git commit -F <file>` instead.
+//
+// Known limits: this reads the command text only. Scripts (npm run, node -e) can still run
+// git, and aliases already in ~/.gitconfig are not checked.
+import { execFileSync } from 'node:child_process';
 
 const PROTECTED_BRANCHES = new Set(['main', 'master']);
 const ALLOWED_PUSH =
   /^\s*git\s+push(?:\s+(?:-u|--set-upstream))?\s+([A-Za-z0-9._-]+)\s+([A-Za-z0-9._/-]+)\s*$/;
+// Global git options that take their value as the next word.
+const GLOBAL_WITH_VALUE = new Set(['-C', '-c', '--git-dir', '--work-tree', '--namespace', '--exec-path', '--super-prefix']);
 
 function block(command, label, why) {
   console.error(
@@ -34,9 +33,68 @@ function block(command, label, why) {
   process.exit(2);
 }
 
+const unquote = (s) => s.replace(/^["']+|["']+$/g, '');
+
+// Finds the git subcommand and its arguments in one command segment, or null if no git.
+function parseGit(segment) {
+  const words = segment.trim().split(/\s+/).map(unquote);
+  const at = words.findIndex((w) => /^git(\.exe)?$/i.test(w));
+  if (at === -1) return null;
+  let i = at + 1;
+  while (i < words.length && words[i].startsWith('-')) {
+    i += GLOBAL_WITH_VALUE.has(words[i]) ? 2 : 1;
+  }
+  if (i >= words.length) return null;
+  return { sub: words[i], args: words.slice(i + 1) };
+}
+
+// Flags in an argument list: short letters from clusters like -fd, and long names.
+function flagsOf(args) {
+  const letters = new Set();
+  const longs = new Set();
+  for (const a of args) {
+    if (a === '--') continue;
+    if (a.startsWith('--')) longs.add(a.split('=')[0]);
+    else if (a.startsWith('-') && a.length > 1) for (const c of a.slice(1)) letters.add(c);
+  }
+  return { letters, longs };
+}
+
+function destructiveProblem(segment) {
+  const git = parseGit(segment);
+  if (!git) return null;
+  const { sub, args } = git;
+  const { letters, longs } = flagsOf(args);
+  const force = letters.has('f') || longs.has('--force');
+  if (sub === 'reset' && longs.has('--hard')) return 'git reset --hard';
+  if (sub === 'clean' && force) return 'git clean -f';
+  if (sub === 'branch') {
+    if (letters.has('D')) return 'git branch -D';
+    if ((letters.has('d') || longs.has('--delete')) && force) return 'git branch -d -f';
+  }
+  if ((sub === 'checkout' || sub === 'restore') && args.includes('.')) {
+    return `git ${sub} .`;
+  }
+  return null;
+}
+
+function currentSetting(args, cwd) {
+  try {
+    return execFileSync('git', ['config', '--get-all', ...args], {
+      cwd: cwd || undefined,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+  } catch {
+    return ''; // git config exits 1 when nothing is set
+  }
+}
+
 // Returns a reason if this command segment is a push that must be blocked, else null.
-function pushProblem(segment) {
-  if (!/\bgit/i.test(segment) || !/\bpush\b/i.test(segment)) return null; // not a push
+function pushProblem(segment, cwd) {
+  const mentionsPush = /\bpush\b/i.test(segment);
+  const mentionsGit = /\bgit/i.test(segment) || /\$[A-Za-z_{(]/.test(segment) || /`/.test(segment);
+  if (!mentionsPush || !mentionsGit) return null; // not a push
   const m = segment.match(ALLOWED_PUSH);
   if (!m) {
     return 'only "git push [-u] <remote> <branch>" is allowed, with a plain branch name';
@@ -51,6 +109,9 @@ function pushProblem(segment) {
   }
   const name = branch.replace(/^refs\/heads\//, '').toLowerCase();
   if (PROTECTED_BRANCHES.has(name) || name === 'head') return `pushes ${branch}`;
+  if (currentSetting([`remote.${remote}.push`], cwd)) {
+    return `remote.${remote}.push is set in git config, which could send this to another branch`;
+  }
   return null;
 }
 
@@ -59,26 +120,41 @@ process.stdin.setEncoding('utf8');
 process.stdin.on('data', (chunk) => (raw += chunk));
 process.stdin.on('end', () => {
   let command = '';
+  let cwd = '';
   try {
-    command = JSON.parse(raw)?.tool_input?.command ?? '';
+    const input = JSON.parse(raw);
+    command = input?.tool_input?.command ?? '';
+    cwd = input?.cwd ?? '';
   } catch {
     // Unreadable input: allow, so a bad payload cannot lock Claude out of Bash.
     process.exit(0);
   }
 
-  for (const [pattern, label] of BLOCKED) {
-    if (pattern.test(command)) block(command, label);
+  // Join line continuations, and drop harmless redirects (2>&1, >/dev/null) so "&" in them
+  // is not read as a command separator.
+  const text = command
+    .replace(/\\\r?\n/g, ' ')
+    .replace(/\s*\d?>&\d\b/g, ' ')
+    .replace(/\s*\d?>>?\s*\/dev\/null\b/g, ' ');
+
+  if (/\bgit\b.*\balias\./.test(text)) block(command, 'git alias', 'could hide a push');
+  // git run through a variable: g=git; $g push ...  /  $g reset --hard
+  if (/=\s*["']?git(\.exe)?["']?(\s|;|&|\||$)/.test(text)) {
+    block(command, 'git hidden behind a variable');
   }
 
   // Check each command in a chain (; & | && || newline) on its own.
-  for (const segment of command.split(/[;&|\n]+/)) {
-    let problem;
+  for (const segment of text.split(/[;&|\n]+/)) {
+    let pushWhy = null;
+    let destructive = null;
     try {
-      problem = pushProblem(segment);
+      pushWhy = pushProblem(segment, cwd);
+      if (!pushWhy) destructive = destructiveProblem(segment);
     } catch {
-      problem = 'could not read this command';
+      pushWhy = 'could not read this command';
     }
-    if (problem) block(command, 'git push', problem);
+    if (pushWhy) block(command, 'git push', pushWhy);
+    if (destructive) block(command, destructive);
   }
   process.exit(0);
 });
