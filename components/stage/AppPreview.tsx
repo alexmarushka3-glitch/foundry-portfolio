@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { appFileName, appTitle, bundleApp } from "@/lib/bundle";
+import { SHARE_TTL_DAYS } from "@/lib/share";
 
 // The finished app from a real run, as one self-contained .html file. It opens right here in a sandboxed, offline frame
 // (public/preview/), and visitors can save the same file to keep and open later.
@@ -31,8 +32,52 @@ export default function AppPreview({
   const [status, setStatus] = useState<"starting" | "ready" | "failed">("starting");
   const [problem, setProblem] = useState("");
   const [note, setNote] = useState("");
+  // Hosted links: offered only when the server says it can keep them (it needs the database).
+  const [canShare, setCanShare] = useState(false);
+  const [sharing, setSharing] = useState(false);
+  const [link, setLink] = useState("");
   const frame = useRef<HTMLIFrameElement>(null);
   const fullTab = useRef<Window | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/share")
+      .then((r) => r.json())
+      .then((d: { available?: unknown }) => alive && setCanShare(d.available === true))
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+  useEffect(() => setLink(""), [html]);
+
+  const getLink = async () => {
+    setNote("");
+    setSharing(true);
+    try {
+      const res = await fetch("/api/share", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ html }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
+      if (res.ok && data.url) setLink(data.url);
+      else setNote(data.error ?? "Could not make a link right now. Try Save the app.");
+    } catch {
+      setNote("Could not make a link right now. Try Save the app.");
+    } finally {
+      setSharing(false);
+    }
+  };
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(link);
+      setNote("Link copied.");
+    } catch {
+      setNote("Your browser would not let the page copy. Select the link and copy it yourself.");
+    }
+  };
 
   useEffect(() => {
     setStatus("starting");
@@ -133,8 +178,33 @@ export default function AppPreview({
           <button type="button" className="btn btn-ghost" onClick={openFull}>
             Open full screen
           </button>
+          {canShare && (
+            <button type="button" className="btn btn-ghost" onClick={getLink} disabled={sharing}>
+              {sharing ? "Making a link…" : "Get a link"}
+            </button>
+          )}
         </div>
       </div>
+      {link && (
+        <div className="app-link">
+          <label>
+            Your link
+            <input
+              readOnly
+              value={link}
+              onFocus={(e) => e.currentTarget.select()}
+              aria-describedby="app-link-fine"
+            />
+          </label>
+          <button type="button" className="btn btn-ghost" onClick={copyLink}>
+            Copy link
+          </button>
+          <p className="fine" id="app-link-fine">
+            Anyone with this link can open the app in a browser for {SHARE_TTL_DAYS} days, then it
+            is deleted. On the link the app keeps nothing; save the app to keep your data.
+          </p>
+        </div>
+      )}
       <div className="app-next">
         <h4>What to do now</h4>
         <ol>

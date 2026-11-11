@@ -955,6 +955,37 @@ main,
   flex-wrap: wrap;
   gap: 10px;
 }
+.app-link {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 8px 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--iron-line);
+  border-radius: 8px;
+}
+.app-link label {
+  display: grid;
+  gap: 4px;
+  font-size: 0.85rem;
+}
+.app-link input {
+  min-height: 46px;
+  padding: 0 12px;
+  border: 1px solid var(--iron-line);
+  border-radius: 8px;
+  font: inherit;
+  background: transparent;
+  color: inherit;
+}
+.app-link .fine {
+  grid-column: 1 / -1;
+}
+@media (max-width: 520px) {
+  .app-link {
+    grid-template-columns: 1fr;
+  }
+}
 .link-button {
   /* a 44px-tall tap area without moving the surrounding text */
   padding: 14px 2px;

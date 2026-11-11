@@ -332,6 +332,74 @@ describe("Stage", () => {
       );
     });
 
+    /** Answers /api/share the way the server would, and the run itself with the approved run. */
+    const mockShare = (share: { available: boolean; post?: () => Response }) => {
+      const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
+        if (url === "/api/share")
+          return init?.method === "POST"
+            ? share.post!()
+            : Response.json({ available: share.available });
+        return init?.method === "POST" ? ndjson(approvedRun) : Response.json({ live: false });
+      });
+      vi.stubGlobal("fetch", fetchMock);
+      return fetchMock;
+    };
+
+    it("hides Get a link when the server cannot keep links", async () => {
+      mockShare({ available: false });
+      render(<Stage />);
+      typeIdea();
+      await screen.findByRole("button", { name: "Save the app" });
+      expect(screen.queryByRole("button", { name: "Get a link" })).toBeNull();
+    });
+
+    it("makes a link, shows it with how long it lasts, and copies it", async () => {
+      const writeText = vi.fn(async () => {});
+      Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
+      const fetchMock = mockShare({
+        available: true,
+        post: () => Response.json({ id: "x", url: "https://site.test/a/abc", expiresAt: "later" }),
+      });
+      render(<Stage />);
+      typeIdea();
+      fireEvent.click(await screen.findByRole("button", { name: "Get a link" }));
+      const input = (await screen.findByLabelText("Your link")) as HTMLInputElement;
+      expect(input.value).toBe("https://site.test/a/abc");
+      expect(
+        screen.getByText(/open the app in a browser for 7 days, then it is deleted/),
+      ).toBeTruthy();
+      const post = fetchMock.mock.calls.find(
+        ([url, init]) => url === "/api/share" && init?.method === "POST",
+      )!;
+      expect(JSON.parse(String(post[1]!.body)).html).toContain("<h1>Tip calculator</h1>");
+      fireEvent.click(screen.getByRole("button", { name: "Copy link" }));
+      await waitFor(() => expect(writeText).toHaveBeenCalledWith("https://site.test/a/abc"));
+      expect(await screen.findByText("Link copied.")).toBeTruthy();
+    });
+
+    it("shows why a link was refused, makes no link, and leaves the other ways to keep the app", async () => {
+      mockShare({
+        available: true,
+        post: () =>
+          Response.json(
+            {
+              error:
+                "This app can't get a link because it asks for a password. You can still save it.",
+            },
+            { status: 422 },
+          ),
+      });
+      render(<Stage />);
+      typeIdea();
+      fireEvent.click(await screen.findByRole("button", { name: "Get a link" }));
+      expect(
+        await screen.findByText(/can't get a link because it asks for a password/),
+      ).toBeTruthy();
+      expect(screen.queryByLabelText("Your link")).toBeNull();
+      expect(screen.getByRole("button", { name: "Save the app" })).toBeTruthy();
+      expect(screen.getByRole("button", { name: "Get a link" })).toBeTruthy(); // not stuck on "Making a link"
+    });
+
     it("keeps Copy the code available when the new tab is blocked", async () => {
       vi.stubGlobal(
         "open",
