@@ -138,12 +138,12 @@ describe("RedisShareBrake", () => {
     expect([...fake.data.keys()].some((k) => k.endsWith("2026-11-11"))).toBe(true);
   });
 
-  it("refuses over the hourly limit and refunds the refused count", async () => {
+  it("refuses over the hourly limit with one Redis call, so a flood cannot burn the database quota", async () => {
     const fake = fakeUpstash();
     const brake = new RedisShareBrake({ perHour: 1, perDay: 100 }, fake.config, () => T);
     expect(await brake.check("v")).toBeNull();
     expect(await brake.check("v")).toBe(addressUsedUp({ perHour: 1, perDay: 100 }));
-    expect(fake.calls[2].commands.map(([c]) => c)).toEqual(["DECR", "DECR"]);
+    expect(fake.calls).toHaveLength(2); // one transaction per request, no refund
     expect(await brake.check("other")).toBeNull();
   });
 

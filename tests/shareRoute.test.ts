@@ -105,6 +105,7 @@ describe("POST /api/share", () => {
     const res = await post({ html: APP });
     expect(res.status).toBe(503);
     expect((await res.json()).error).toMatch(/Try Save the app/);
+    expect(fake.data.size).toBe(0);
   });
 });
 

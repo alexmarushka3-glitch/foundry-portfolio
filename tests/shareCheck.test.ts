@@ -29,6 +29,20 @@ describe("checkSharedApp", () => {
   });
 
   it.each([
+    [
+      "a card number written in a flashcard app",
+      `<p>Card number 3 of 10</p><script>let cardNumber = 3; let location = "Kitchen"; task.location = input.value;</script>`,
+    ],
+    ["a timer that says security code", `<p>Your security code: 1234 (a cvc of the timer)</p>`],
+    [
+      "a weather app with a location field",
+      `<input name="location" placeholder="City"><script>const { location } = state; state.location = "Paris"; if (a.location == b.location) {}</script>`,
+    ],
+  ])("passes %s", (_name, body) => {
+    expect(checkSharedApp(page(body))).toEqual({ ok: true });
+  });
+
+  it.each([
     ["a password box", `<input type="password">`, /password/],
     [
       "a password box with other attributes first",
@@ -36,6 +50,22 @@ describe("checkSharedApp", () => {
       /password/,
     ],
     ["a card number field", `<input name="card number">`, /card/],
+    [
+      "a password box hidden behind a > in an earlier attribute",
+      `<input value="a>b" type=password>`,
+      /password/,
+    ],
+    ["a password type written with character codes", `<input type="&#112;assword">`, /password/],
+    [
+      "a card field with a > in an earlier attribute",
+      `<input placeholder="a>b" name="cvv">`,
+      /card/,
+    ],
+    [
+      "a form action hidden behind a > in an earlier attribute",
+      `<form title="a>b" action="https://x.example"></form>`,
+      /another site/,
+    ],
     ["a card autofill hint", `<input autocomplete="cc-number">`, /card/],
     ["a sign-in lure", `<p>Please verify your account to continue</p>`, /sign-in/],
     [

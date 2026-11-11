@@ -29,6 +29,7 @@ export class MemoryShareBrake implements ShareBrake {
   }
 
   async check(visitor: string): Promise<string | null> {
+    // A refused request is not counted here, and a Redis one is (see RedisShareBrake); both stay refused until the window ends.
     if (this.perDay.used("site") >= this.limits.perDay) return dayUsedUp;
     if (this.perAddress.used(visitor) >= this.limits.perHour) return addressUsedUp(this.limits);
     this.perDay.hit("site");
@@ -63,12 +64,8 @@ export class RedisShareBrake implements ShareBrake {
         : Number(a) > this.limits.perHour
           ? addressUsedUp(this.limits)
           : null;
-    // A refused link does not count against the limits.
-    if (reason)
-      await upstashTransaction(this.config, [
-        ["DECR", mine],
-        ["DECR", day],
-      ]);
+    // A refusal is not refunded. The counters only matter up to their limits, a refused request costs one Redis
+    // call instead of two, and an address that keeps hammering stays refused until its hour is up.
     return reason;
   }
 }

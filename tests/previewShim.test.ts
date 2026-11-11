@@ -19,8 +19,10 @@ describe("previewShim", () => {
     expect(out).toContain("localStorage");
   });
 
-  it("goes first when the page has no <head>", () => {
+  it("goes first when the page has no <head>, but after a doctype so the page is not put in quirks mode", () => {
     expect(withHostedShim("<h1>Hi</h1>").startsWith("<script>")).toBe(true);
+    const out = withHostedShim("<!DOCTYPE html><h1>Hi</h1>");
+    expect(out.startsWith("<!DOCTYPE html><script>")).toBe(true);
   });
 
   it("does not report errors to a parent window (a hosted page has none)", () => {

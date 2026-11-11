@@ -49,11 +49,22 @@ export default function AppPreview({
       alive = false;
     };
   }, []);
-  useEffect(() => setLink(""), [html]);
+  // A new app means any link, message or request for the old one is stale.
+  const latestHtml = useRef(html);
+  latestHtml.current = html;
+  useEffect(() => {
+    setLink("");
+    setNote("");
+  }, [html]);
+  const linkInput = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (link) linkInput.current?.focus(); // so a screen reader announces the new link
+  }, [link]);
 
   const getLink = async () => {
     setNote("");
     setSharing(true);
+    const sentFor = html;
     try {
       const res = await fetch("/api/share", {
         method: "POST",
@@ -61,6 +72,7 @@ export default function AppPreview({
         body: JSON.stringify({ html }),
       });
       const data = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
+      if (latestHtml.current !== sentFor) return; // another app was built while this one was waiting
       if (res.ok && data.url) setLink(data.url);
       else setNote(data.error ?? "Could not make a link right now. Try Save the app.");
     } catch {
@@ -190,6 +202,7 @@ export default function AppPreview({
           <label>
             Your link
             <input
+              ref={linkInput}
               readOnly
               value={link}
               onFocus={(e) => e.currentTarget.select()}

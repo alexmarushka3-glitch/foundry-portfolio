@@ -22,7 +22,12 @@ const HOSTED_SHIM = `<script>(function () {\n  ${STORAGE_SHIM_CODE}\n})();</scri
 /** Puts the storage stand-in first, so it exists before any of the app's own scripts run. */
 export function withHostedShim(html: string): string {
   const head = /<head\b[^>]*>/i.exec(html);
-  if (!head) return HOSTED_SHIM + html;
+  if (!head) {
+    // Keep a leading doctype first: anything before it puts the page into quirks mode.
+    const doctype = /^\s*<!doctype[^>]*>/i.exec(html);
+    const at = doctype ? doctype[0].length : 0;
+    return html.slice(0, at) + HOSTED_SHIM + html.slice(at);
+  }
   const end = head.index + head[0].length;
   return html.slice(0, end) + HOSTED_SHIM + html.slice(end);
 }
