@@ -71,6 +71,7 @@ Copy `.env.example` to `.env.local`. Nothing is required.
 | `FOUNDRY_LIVE_PER_HOUR` | `2` | Live runs per browser per hour (a random id in an HttpOnly cookie, used only for this limit). |
 | `FOUNDRY_LIVE_PER_NETWORK_HOUR` | `6` | Live runs per network (IP address) per hour, shared by every browser on it, so people on one Wi-Fi each get their own runs without cookie-clearing giving endless ones. |
 | `FOUNDRY_LIVE_PER_DAY` | `12` | Live runs per day for the whole site. |
+| `FOUNDRY_SHARE` | on | Set to `off` to stop making app links and stop opening existing ones (the off switch for abuse). |
 | `FOUNDRY_SHARE_PER_HOUR` | `5` | App links per address per hour. |
 | `FOUNDRY_SHARE_PER_DAY` | `40` | App links per day for the whole site (links last 7 days, so this bounds how many exist). |
 | `FOUNDRY_SANDBOX_SNAPSHOT` | none | Id of the prepared sandbox snapshot (repo, dependencies, Chromium). Without it the real browser step is skipped and unit tests use a slower plain clone. Build one with `scripts/build-sandbox-snapshot.mjs`. |

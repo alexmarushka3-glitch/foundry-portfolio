@@ -15,7 +15,10 @@ vi.mock("@/lib/liveRecordings.json", async () => {
 });
 
 import { GET, POST } from "@/app/api/run/route";
+import { HmacShareSigner } from "@/lib/server/shareSigner";
+import { MemoryShareStore, RedisShareStore } from "@/lib/server/shareStore";
 import { serverState } from "@/lib/server/state";
+import { fakeUpstash } from "./fixtures/fakeUpstash";
 
 const idea = (text: string) => ({ idea: text });
 const NICK = idea("A tip calculator for friends");
@@ -193,5 +196,58 @@ describe("POST /api/run cancellation", () => {
     await vi.waitFor(async () => expect(await serverState().runLog.list()).toHaveLength(1));
     expect(seen?.aborted).toBe(true);
     expect((await serverState().runLog.list())[0].status).toBe("cancelled");
+  });
+});
+
+describe("POST /api/run signs a finished app so it can get a link", () => {
+  const FILES = { "index.html": "<!doctype html><html><body><h1>Hi</h1></body></html>" };
+  const filesRun = async (_req: string, emit: (e: FoundryEvent) => void) => {
+    emit({ type: "mode", mode: "live" });
+    emit({ type: "files", files: FILES });
+    emit({ type: "finish", ms: 100, rounds: 1, approved: true });
+  };
+  const signer = new HmacShareSigner(async () => Buffer.alloc(32, 5));
+
+  beforeEach(() => {
+    pipeline.runPipeline.mockImplementation(filesRun);
+    delete process.env.FOUNDRY_SHARE;
+  });
+
+  it("adds a signature the link endpoint accepts, when links are on", async () => {
+    serverState().shares = new RedisShareStore(fakeUpstash().config);
+    serverState().shareSigner = signer;
+    const events = await readLines(await post(NICK));
+    const sent = events.find((e) => e.type === "files");
+    expect(sent && "sig" in sent && sent.sig).toMatch(/^[0-9a-f]{64}$/);
+    expect(signer.verify(FILES, sent && "sig" in sent ? sent.sig : undefined)).toBe(true);
+  });
+
+  it("keeps the signature out of the run log, so the log holds exactly what the run produced", async () => {
+    serverState().shares = new RedisShareStore(fakeUpstash().config);
+    serverState().shareSigner = signer;
+    await readLines(await post(NICK));
+    expect(JSON.stringify(await serverState().runLog.list())).not.toMatch(/[0-9a-f]{64}/);
+  });
+
+  it("adds none when there is no database, or when links are switched off", async () => {
+    serverState().shares = new MemoryShareStore();
+    serverState().shareSigner = signer;
+    let events = await readLines(await post(NICK));
+    expect(events.find((e) => e.type === "files")).toEqual({ type: "files", files: FILES });
+
+    serverState().shares = new RedisShareStore(fakeUpstash().config);
+    process.env.FOUNDRY_SHARE = "off";
+    events = await readLines(await post(NICK));
+    expect(events.find((e) => e.type === "files")).toEqual({ type: "files", files: FILES });
+  });
+
+  it("still streams the run, without a signature, when the signing key cannot be loaded", async () => {
+    serverState().shares = new RedisShareStore(fakeUpstash().config);
+    serverState().shareSigner = new HmacShareSigner(async () => {
+      throw new Error("database down");
+    });
+    const events = await readLines(await post(NICK));
+    expect(events.find((e) => e.type === "files")).toEqual({ type: "files", files: FILES });
+    expect(events.at(-1)).toMatchObject({ type: "finish", approved: true });
   });
 });

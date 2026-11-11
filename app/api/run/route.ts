@@ -10,6 +10,7 @@ import {
   visitorAddress,
   visitorMessage,
 } from "@/lib/server/runApi";
+import { shareEnabled } from "@/lib/server/env";
 import { serverState } from "@/lib/server/state";
 import type { FoundryEvent } from "@/lib/types";
 
@@ -29,6 +30,8 @@ export async function POST(req: Request) {
   const { request } = parsed;
 
   const state = serverState();
+  // When links are on, a finished app is signed so the link endpoint can tell it came from a real run.
+  const signing = shareEnabled() && state.shares.persistent && (await state.shareSigner.prepare());
   const address = visitorAddress(req.headers);
   const browser = browserId(req.headers);
 
@@ -49,7 +52,11 @@ export async function POST(req: Request) {
     async start(controller) {
       const emit = (e: FoundryEvent) => {
         recorder.observe(e);
-        if (!closed) controller.enqueue(encoder.encode(encodeEvent(e)));
+        if (closed) return;
+        const sig = e.type === "files" && signing ? state.shareSigner.sign(e.files) : null;
+        controller.enqueue(
+          encoder.encode(encodeEvent(sig && e.type === "files" ? { ...e, sig } : e)),
+        );
       };
       try {
         await runPipeline(request, emit, { allowLive, reason, signal: abort.signal });

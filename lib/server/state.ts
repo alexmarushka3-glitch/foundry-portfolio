@@ -2,6 +2,7 @@ import { envInt } from "./env";
 import { createLiveBrake, type LiveBrake } from "./liveBrake";
 import { SlidingWindowLimiter } from "./rateLimit";
 import { createShareBrake, type ShareBrake } from "./shareBrake";
+import { createShareSigner, type ShareSigner } from "./shareSigner";
 import { createShareStore, type ShareStore } from "./shareStore";
 import { FallbackRunStore, MemoryRunStore, createRunStore, type RunStore } from "./runStore";
 
@@ -16,6 +17,7 @@ type ServerState = {
   /** Hosted app links: where the apps are kept and how often links may be made. */
   shares: ShareStore;
   shareBrake: ShareBrake;
+  shareSigner: ShareSigner;
   /** Admin kill switch. `paused` turns live runs off until someone turns them back on. */
   admin: { livePaused: boolean };
 };
@@ -41,6 +43,7 @@ export function serverState(): ServerState {
     }),
     loginLimiter: new SlidingWindowLimiter(5, 15 * 60_000),
     shares: createShareStore(),
+    shareSigner: createShareSigner(),
     // Links last SHARE_TTL_SECONDS, so the day total (not a separate cap) is what bounds how many exist at once.
     shareBrake: createShareBrake({
       perHour: envInt("FOUNDRY_SHARE_PER_HOUR", 5),

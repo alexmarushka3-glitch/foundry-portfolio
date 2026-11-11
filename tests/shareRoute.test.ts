@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { GET as serveApp } from "@/app/a/[id]/app/route";
 import { GET as serveWrapper } from "@/app/a/[id]/route";
 import { GET as serveOther } from "@/app/a/[[...rest]]/route";
@@ -8,7 +8,10 @@ import {
   SHARED_WRAPPER_CONTENT_SECURITY_POLICY,
 } from "@/lib/securityHeaders";
 import { MemoryShareBrake, RedisShareBrake } from "@/lib/server/shareBrake";
+import { HmacShareSigner } from "@/lib/server/shareSigner";
 import { RedisShareStore } from "@/lib/server/shareStore";
+import { bundleApp } from "@/lib/bundle";
+import recordings from "@/lib/liveRecordings.json";
 import { resetServerState, serverState } from "@/lib/server/state";
 import { MAX_SHARE_BYTES, SHARE_TTL_SECONDS } from "@/lib/share";
 import { fakeUpstash } from "./fixtures/fakeUpstash";
@@ -16,13 +19,20 @@ import { fakeUpstash } from "./fixtures/fakeUpstash";
 const APP =
   "<!doctype html><html><head><title>Tip calculator</title></head><body><h1>Tip</h1><script>localStorage.setItem('a','1')</script></body></html>";
 
+const signer = new HmacShareSigner(async () => Buffer.alloc(32, 7));
+
 let fake: ReturnType<typeof fakeUpstash>;
-beforeEach(() => {
+beforeEach(async () => {
   resetServerState();
   fake = fakeUpstash();
   const state = serverState();
   state.shares = new RedisShareStore(fake.config);
   state.shareBrake = new MemoryShareBrake({ perHour: 3, perDay: 100 });
+  state.shareSigner = signer;
+  await signer.prepare();
+});
+afterEach(() => {
+  delete process.env.FOUNDRY_SHARE;
 });
 
 const post = (body: unknown, headers: Record<string, string> = {}) =>
@@ -33,6 +43,18 @@ const post = (body: unknown, headers: Record<string, string> = {}) =>
       body: typeof body === "string" ? body : JSON.stringify(body),
     }),
   );
+/** Posts an app the way the page does: its files, and the server's signature for them. */
+const postApp = (html: string, headers: Record<string, string> = {}) => {
+  const files = { "index.html": html };
+  return post({ files, sig: signer.sign(files) }, headers);
+};
+/** The apps in the shipped recordings. */
+const shipped = (
+  recordings as unknown as {
+    recordings: { events: { event: { type: string; files?: Record<string, string> } }[] }[];
+  }
+).recordings.map((r) => r.events.find((e) => e.event.type === "files")!.event.files!);
+
 /** The app page as the browser asks for it inside the wrapper's frame. */
 const open = (id: string, dest = "iframe") =>
   serveApp(
@@ -52,7 +74,7 @@ describe("GET /api/share", () => {
 
 describe("POST /api/share", () => {
   it("keeps the app for 7 days and returns a link on this site", async () => {
-    const res = await post({ html: APP });
+    const res = await postApp(APP);
     expect(res.status).toBe(200);
     expect(res.headers.get("cache-control")).toBe("no-store");
     const body = await res.json();
@@ -66,19 +88,23 @@ describe("POST /api/share", () => {
 
   it("refuses when the database is not connected", async () => {
     resetServerState();
-    expect((await post({ html: APP })).status).toBe(503);
+    expect((await postApp(APP)).status).toBe(503);
   });
 
   it("refuses something that is not a finished page, and a body that is not JSON", async () => {
-    expect((await post({ html: "hello" })).status).toBe(400);
-    expect((await post({ html: 42 })).status).toBe(400);
+    expect((await post({ files: "hello" })).status).toBe(400);
+    expect((await post({ files: 42 })).status).toBe(400);
+    expect((await post({ files: {} })).status).toBe(400);
+    expect((await post({ files: { "index.html": 42 } })).status).toBe(400);
+    expect((await post({ files: { ["x".repeat(500)]: "a" } })).status).toBe(400);
+    expect((await post({ html: APP })).status).toBe(400); // the old shape, with no files
     expect((await post({})).status).toBe(400);
     expect((await post("not json")).status).toBe(400);
   });
 
   it("accepts an app just under the cap even when its quotes and line breaks double its size as JSON", async () => {
-    const body = '"\n'.repeat(Math.floor((MAX_SHARE_BYTES - 100) / 2));
-    const res = await post({ html: `<!doctype html><html><body><!--${body}--></body></html>` });
+    const body = '"\n'.repeat(Math.floor((MAX_SHARE_BYTES - 400) / 2));
+    const res = await postApp(`<!doctype html><html><body><!--${body}--></body></html>`);
     expect(res.status).toBe(200);
   });
 
@@ -90,39 +116,34 @@ describe("POST /api/share", () => {
       token: "t",
       fetchFn: (async () => new Response("no", { status: 500 })) as unknown as typeof fetch,
     });
-    expect((await post({ html: APP })).status).toBe(503);
+    expect((await postApp(APP)).status).toBe(503);
     // the slot came back, so the next try is not told "paused for today" or "made 1 link this hour"
     state.shares = new RedisShareStore(fake.config);
-    expect((await post({ html: APP })).status).toBe(200);
+    expect((await postApp(APP)).status).toBe(200);
   });
 
   it("refuses an app over the size cap", async () => {
     const big = `<!doctype html><html><body>${"x".repeat(MAX_SHARE_BYTES)}</body></html>`;
-    expect((await post({ html: big })).status).toBe(413);
+    expect((await postApp(big)).status).toBe(413);
   });
 
   it("refuses a page that fails the content check, in plain words", async () => {
-    const res = await post({
-      html: "<!doctype html><html><body><input type='password'></body></html>",
-    });
+    const res = await postApp("<!doctype html><html><body><input type='password'></body></html>");
     expect(res.status).toBe(422);
     expect((await res.json()).error).toMatch(/can't get a link because it asks for a password/);
     expect(fake.data.size).toBe(0);
   });
 
   it("limits links per address, and another address is not affected", async () => {
-    for (let i = 0; i < 3; i++) expect((await post({ html: APP })).status).toBe(200);
-    const refused = await post({ html: APP });
+    for (let i = 0; i < 3; i++) expect((await postApp(APP)).status).toBe(200);
+    const refused = await postApp(APP);
     expect(refused.status).toBe(429);
     expect((await refused.json()).error).toMatch(/3 links this hour/);
-    expect((await post({ html: APP }, { "x-forwarded-for": "198.51.100.7" })).status).toBe(200);
+    expect((await postApp(APP, { "x-forwarded-for": "198.51.100.7" })).status).toBe(200);
   });
 
   it("blocks a request that a browser says came from another site", async () => {
-    const res = await post(
-      { html: APP },
-      { origin: "https://evil.example", host: "foundry.example" },
-    );
+    const res = await postApp(APP, { origin: "https://evil.example", host: "foundry.example" });
     expect(res.status).toBe(403);
   });
 
@@ -133,10 +154,89 @@ describe("POST /api/share", () => {
       token: "t",
       fetchFn: (async () => new Response("no", { status: 500 })) as unknown as typeof fetch,
     });
-    const res = await post({ html: APP });
+    const res = await postApp(APP);
     expect(res.status).toBe(503);
     expect((await res.json()).error).toMatch(/Try Save the app/);
     expect(fake.data.size).toBe(0);
+  });
+});
+
+describe("POST /api/share only takes apps that came from a Foundry run", () => {
+  it("refuses files that carry no signature, a wrong one, or one for other files", async () => {
+    const files = { "index.html": APP };
+    for (const sig of [
+      undefined,
+      "",
+      "nope",
+      "0".repeat(64),
+      signer.sign({ "index.html": "<h1>Other</h1>" }),
+    ]) {
+      const res = await post({ files, sig });
+      expect(res.status).toBe(403);
+      expect((await res.json()).error).toMatch(/Only apps built here on Foundry/);
+    }
+    expect(fake.data.size).toBe(0); // no page was stored
+  });
+
+  it("refuses a signature made with another key, and a page changed after it was signed", async () => {
+    const other = new HmacShareSigner(async () => Buffer.alloc(32, 9));
+    await other.prepare();
+    const files = { "index.html": APP };
+    expect((await post({ files, sig: other.sign(files) })).status).toBe(403);
+    const tampered = { "index.html": APP.replace("Tip", "Free money") };
+    expect((await post({ files: tampered, sig: signer.sign(files) })).status).toBe(403);
+  });
+
+  it("takes the same files in any order, because the signature covers their content", async () => {
+    const a = { "app.js": "1", "index.html": APP };
+    const b = { "index.html": APP, "app.js": "1" };
+    expect((await post({ files: b, sig: signer.sign(a) })).status).toBe(200);
+  });
+
+  it("builds the page itself from the files, so the stored page is never text the client chose", async () => {
+    const res = await postApp(APP);
+    const { id } = await res.json();
+    const stored = String(fake.data.get(`foundry:app:${id}`));
+    expect(stored).toBe(bundleApp({ "index.html": APP }));
+    expect(stored).toContain("Built by Foundry's AI agents");
+  });
+
+  it("accepts each shipped recording's app with no signature", async () => {
+    expect(shipped).toHaveLength(3);
+    for (const files of shipped) expect((await post({ files })).status).toBe(200);
+  });
+
+  it("does not accept a shipped app with one character changed", async () => {
+    const files = { ...shipped[0], "index.html": `${shipped[0]["index.html"] ?? ""} ` };
+    expect((await post({ files })).status).toBe(403);
+  });
+
+  it("says it could not make a link, not that the app is foreign, when the signing key cannot be loaded", async () => {
+    const down = new HmacShareSigner(async () => {
+      throw new Error("database down");
+    });
+    serverState().shareSigner = down;
+    const res = await postApp(APP);
+    expect(res.status).toBe(503);
+    expect((await res.json()).error).toMatch(/Try Save the app/);
+  });
+});
+
+describe("the off switch (FOUNDRY_SHARE=off)", () => {
+  it("stops offering links, stops making them, and stops opening the ones that exist", async () => {
+    const id = (await (await postApp(APP)).json()).id as string;
+    expect((await open(id)).status).toBe(200);
+    process.env.FOUNDRY_SHARE = "off";
+    expect(await (await available()).json()).toEqual({ available: false });
+    expect((await postApp(APP)).status).toBe(503);
+    const opened = await open(id);
+    expect(opened.status).toBe(503);
+    expect(await opened.text()).toContain("switched off");
+    expect(opened.headers.get("content-security-policy")).toBe(SHARED_APP_CONTENT_SECURITY_POLICY);
+    process.env.FOUNDRY_SHARE = " OFF ";
+    expect((await open(id)).status).toBe(503); // any case, with spaces
+    process.env.FOUNDRY_SHARE = "on";
+    expect((await open(id)).status).toBe(200); // anything but "off" leaves links on
   });
 });
 
@@ -189,7 +289,7 @@ describe("anything else under /a/", () => {
 });
 
 describe("GET /a/[id]/app (the sealed app)", () => {
-  const idOf = async () => (await (await post({ html: APP })).json()).id as string;
+  const idOf = async () => (await (await postApp(APP)).json()).id as string;
 
   it("serves the app with the sealed headers and the storage stand-in, to a frame", async () => {
     const res = await open(await idOf());

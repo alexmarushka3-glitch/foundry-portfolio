@@ -1,6 +1,7 @@
 import { withHostedShim } from "@/lib/previewShim";
 import { checkSharedApp } from "@/lib/server/shareCheck";
-import { appHeaders, gone, unavailable } from "@/lib/server/sharePage";
+import { shareEnabled } from "@/lib/server/env";
+import { appHeaders, gone, off, unavailable } from "@/lib/server/sharePage";
 import { SHARE_ID } from "@/lib/server/shareStore";
 import { serverState } from "@/lib/server/state";
 
@@ -14,6 +15,7 @@ export const runtime = "nodejs";
 export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }) {
   const { id } = await ctx.params;
   if (!SHARE_ID.test(id)) return gone();
+  if (!shareEnabled()) return off(); // the off switch also stops serving links that already exist
   // Browsers say how a page is being loaded. Anything but a frame goes to the wrapper. A browser that sends nothing
   // (Safari before 16.4, or a proxy that strips it) gets that redirect inside the wrapper's frame, where the wrapper's
   // frame-ancestors 'none' refuses it: a blank frame, never the unlocked app. That fails closed on purpose.

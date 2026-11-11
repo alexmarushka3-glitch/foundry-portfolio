@@ -22,9 +22,12 @@ type SaveWindow = Window & {
 
 export default function AppPreview({
   files,
+  sig,
   howTo = [],
 }: {
   files: Record<string, string>;
+  /** The server's signature for these files (a live run); a replay has none and is matched by the server instead. */
+  sig?: string;
   howTo?: string[];
 }) {
   const html = useMemo(() => bundleApp(files), [files]);
@@ -74,7 +77,7 @@ export default function AppPreview({
       const res = await fetch("/api/share", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ html }),
+        body: JSON.stringify({ files, sig }),
       });
       const data = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
       if (mine !== linkRequest.current) return; // another app was built while this one was waiting

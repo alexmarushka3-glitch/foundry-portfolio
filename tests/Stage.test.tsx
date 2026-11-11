@@ -205,6 +205,7 @@ describe("Stage", () => {
       { type: "done", agent: "researcher", round: 1, ms: 20 },
       {
         type: "files",
+        sig: "f".repeat(64),
         files: {
           "index.html":
             "<!doctype html><html><head><title>Tip calculator</title></head><body><h1>Tip calculator</h1></body></html>",
@@ -374,7 +375,10 @@ describe("Stage", () => {
       const post = fetchMock.mock.calls.find(
         ([url, init]) => url === "/api/share" && init?.method === "POST",
       )!;
-      expect(JSON.parse(String(post[1]!.body)).html).toContain("<h1>Tip calculator</h1>");
+      const sent = JSON.parse(String(post[1]!.body));
+      expect(sent.files["index.html"]).toContain("<h1>Tip calculator</h1>");
+      expect(sent.sig).toBe("f".repeat(64)); // the signature the server put on the run's files event
+      expect(sent.html).toBeUndefined();
       const posts = fetchMock.mock.calls.filter(
         ([url, init]) => url === "/api/share" && init?.method === "POST",
       );

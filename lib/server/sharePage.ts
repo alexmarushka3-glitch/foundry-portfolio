@@ -24,6 +24,13 @@ const UNAVAILABLE_BODY =
 
 /** Notices shown inside the frame, with the app page's sealed headers. */
 export const gone = () => page(sharedAppHeaders(), NOTICE_STYLE, GONE_BODY, 404);
+export const off = () =>
+  page(
+    sharedAppHeaders(),
+    NOTICE_STYLE,
+    "<h1>App links are switched off for now</h1><p>Ask the person who sent this link to share the app another way.</p>",
+    503,
+  );
 export const unavailable = () => page(sharedAppHeaders(), NOTICE_STYLE, UNAVAILABLE_BODY, 503);
 
 /** The page a link opens: one full-window frame onto the sealed app page. `id` must already match SHARE_ID. */

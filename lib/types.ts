@@ -38,7 +38,8 @@ export type FoundryEvent =
   | { type: "verdict"; gate: Gate; round: number; approved: boolean }
   | { type: "pr"; url: string; number: number }
   /** The files the engineers wrote, path -> content. Sent only by a live run that passed both checks. */
-  | { type: "files"; files: Record<string, string> }
+  /** `sig` is added by the server when links are on: it lets the link endpoint tell the files came from a real run. */
+  | { type: "files"; files: Record<string, string>; sig?: string }
   | { type: "finish"; ms: number; rounds: number; approved: boolean; costUsd?: number }
   | { type: "error"; message: string };
 

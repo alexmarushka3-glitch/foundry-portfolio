@@ -156,8 +156,8 @@ test("Get a link shows the link and how long it lasts (server answers mocked, so
   test.setTimeout(120_000);
   await page.route("**/api/share", async (route) => {
     if (route.request().method() === "POST") {
-      const sent = route.request().postDataJSON() as { html: string };
-      expect(sent.html).toContain("<!doctype html");
+      const sent = route.request().postDataJSON() as { files: Record<string, string> };
+      expect(Object.keys(sent.files).length).toBeGreaterThan(0); // the files, never page text the client wrote
       await route.fulfill({
         json: { id: "x", url: "https://example.test/a/abc", expiresAt: "later" },
       });

@@ -15,6 +15,7 @@ export function fakeUpstash() {
       const key = String(args[0]);
       switch (cmd) {
         case "SET": {
+          if (args[2] === "NX" && data.has(key)) return { result: null };
           data.set(key, String(args[1]));
           if (args[2] === "EX") ttls.set(key, Number(args[3]));
           return { result: "OK" };
