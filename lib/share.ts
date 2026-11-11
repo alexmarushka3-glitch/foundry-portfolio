@@ -4,6 +4,9 @@
 export const SHARE_TTL_DAYS = 7;
 export const SHARE_TTL_SECONDS = SHARE_TTL_DAYS * 24 * 3600;
 
+/** The most a link request may carry: an app's files as JSON, where every quote and line break takes two bytes. */
+export const MAX_SHARE_BODY_BYTES = 400 * 1024;
+
 /** The biggest app a link will keep. Real apps are 10 to 100 KB (each file the agents write is capped at 16 KB). */
 export const MAX_SHARE_BYTES = 128 * 1024;
 

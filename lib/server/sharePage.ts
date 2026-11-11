@@ -24,6 +24,12 @@ const UNAVAILABLE_BODY =
 
 /** Notices shown inside the frame, with the app page's sealed headers. */
 export const gone = () => page(sharedAppHeaders(), NOTICE_STYLE, GONE_BODY, 404);
+const OFF_BODY =
+  "<h1>App links are switched off for now</h1><p>Ask the person who sent this link to share the app another way.</p>";
+
+/** The wrapper's own "switched off" page: no frame at all. */
+export const wrapperOff = () => page(sharedWrapperHeaders(), NOTICE_STYLE, OFF_BODY, 503);
+
 export const off = () =>
   page(
     sharedAppHeaders(),

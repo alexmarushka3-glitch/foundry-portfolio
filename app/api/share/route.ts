@@ -1,10 +1,17 @@
 import { bundleApp } from "@/lib/bundle";
-import { MAX_SHARE_BYTES, MAX_SHARE_FILES, MAX_SHARE_NAME, SHARE_TTL_SECONDS } from "@/lib/share";
+import {
+  MAX_SHARE_BODY_BYTES,
+  MAX_SHARE_BYTES,
+  MAX_SHARE_FILES,
+  MAX_SHARE_NAME,
+  SHARE_TTL_SECONDS,
+} from "@/lib/share";
 import { blockCrossSite } from "@/lib/server/adminAuth";
 import { shareEnabled } from "@/lib/server/env";
 import { isShippedApp } from "@/lib/server/liveRecordings";
 import { readJsonBody, visitorAddress } from "@/lib/server/runApi";
 import { checkSharedApp, refusedMessage } from "@/lib/server/shareCheck";
+import { prepareWithin } from "@/lib/server/shareSigner";
 import { newShareId } from "@/lib/server/shareStore";
 import { serverState } from "@/lib/server/state";
 
@@ -43,20 +50,32 @@ export async function POST(req: Request) {
   if (!shareEnabled() || !state.shares.persistent)
     return json({ error: "Links aren't available right now." }, 503);
 
-  // The body is the files as a JSON string, where every quote and line break takes two bytes. Twice the apps's size
-  // (plus a little) lets a typical app under the cap through to the exact check below, which gives the friendly
-  // message. (Rare control characters take six bytes each; an app made mostly of them would still get the generic one.)
-  const read = await readJsonBody(req, MAX_SHARE_BYTES * 2 + 1024);
+  // The body is the app's files as JSON, where every quote and line break takes two bytes, so the cap is well above the
+  // app's own size and the exact check on the built page below gives the friendly message.
+  const read = await readJsonBody(req, MAX_SHARE_BODY_BYTES);
   if (!read.ok) return json({ error: read.error }, read.status);
   const body = read.body as { files?: unknown; sig?: unknown } | null;
   const files = asFiles(body?.files);
-  if (!files) return json({ error: "That doesn't look like a finished app." }, 400);
+  if (!files) {
+    // A page opened before an update still sends the old shape (the page's html); tell it to reload.
+    if (typeof (body as { html?: unknown } | null)?.html === "string")
+      return json(
+        { error: "This page is out of date. Reload it, build the app again, then get a link." },
+        400,
+      );
+    return json({ error: "That doesn't look like a finished app." }, 400);
+  }
 
   // Only apps that came from a real run: a recording the site ships, or files the server signed when the run ended.
   if (!isShippedApp(files)) {
-    if (!(await state.shareSigner.prepare()))
+    if (!(await prepareWithin(state.shareSigner, 3000)))
       return json({ error: "Could not make a link right now. Try Save the app." }, 503);
-    if (!state.shareSigner.verify(files, body?.sig))
+    // The key may have been replaced since this instance loaded it (deleted, or the database reset), so look again
+    // before saying no.
+    const signed =
+      state.shareSigner.verify(files, body?.sig) ||
+      ((await state.shareSigner.refresh()) && state.shareSigner.verify(files, body?.sig));
+    if (!signed)
       return json(
         { error: "Only apps built here on Foundry can get a link. Try Save the app." },
         403,

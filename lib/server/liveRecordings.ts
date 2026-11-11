@@ -13,14 +13,18 @@ export const findServerRecording = (request: string): LiveRecording | undefined 
  * The apps in the shipped recordings, as the canonical text of their files. A replay of a recording has no signature
  * (it was never produced by this server), so its files are recognised by matching a recording exactly.
  */
-const shippedApps = new Set<string>();
-for (const rec of recordings) {
-  for (const { event } of rec.events as unknown as {
-    event: { type: string; files?: Record<string, string> };
-  }[]) {
-    if (event.type === "files" && event.files) shippedApps.add(canonicalFiles(event.files));
+let shippedApps: Set<string> | null = null;
+function loadShippedApps(): Set<string> {
+  const found = new Set<string>();
+  for (const rec of recordings) {
+    for (const { event } of rec.events as unknown as {
+      event: { type: string; files?: Record<string, string> };
+    }[]) {
+      if (event.type === "files" && event.files) found.add(canonicalFiles(event.files));
+    }
   }
+  return found;
 }
 
 export const isShippedApp = (files: Record<string, string>): boolean =>
-  shippedApps.has(canonicalFiles(files));
+  (shippedApps ??= loadShippedApps()).has(canonicalFiles(files));

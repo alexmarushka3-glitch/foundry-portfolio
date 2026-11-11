@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { canonicalFiles } from "@/lib/share";
-import { HmacShareSigner, createShareSigner, redisKey } from "@/lib/server/shareSigner";
+import {
+  HmacShareSigner,
+  createShareSigner,
+  prepareWithin,
+  redisKey,
+} from "@/lib/server/shareSigner";
 import { fakeUpstash } from "./fixtures/fakeUpstash";
 
 const key = (n: number) => async () => Buffer.alloc(32, n);
@@ -77,5 +82,74 @@ describe("createShareSigner", () => {
     expect(await signer.prepare()).toBe(true);
     const files = { a: "1" };
     expect(signer.verify(files, signer.sign(files))).toBe(true);
+  });
+});
+
+describe("HmacShareSigner.refresh", () => {
+  it("picks up a key that was replaced elsewhere, so an old instance accepts new signatures", async () => {
+    const mine = new HmacShareSigner(key(1), () => 1_000_000);
+    const other = new HmacShareSigner(key(2));
+    await mine.prepare();
+    await other.prepare();
+    const files = { a: "1" };
+    const theirs = other.sign(files);
+    expect(mine.verify(files, theirs)).toBe(false);
+    // the shared key changed: the next load returns the new one
+    let current = 1;
+    const reloading = new HmacShareSigner(
+      async () => Buffer.alloc(32, current),
+      () => 1_000_000,
+    );
+    await reloading.prepare();
+    current = 2;
+    expect(await reloading.refresh()).toBe(true);
+    expect(reloading.verify(files, theirs)).toBe(true);
+  });
+
+  it("looks again at most once a minute, so forged signatures cannot make a database read each", async () => {
+    let loads = 0;
+    let now = 1_000_000;
+    const signer = new HmacShareSigner(
+      async () => {
+        loads++;
+        return Buffer.alloc(32, 1);
+      },
+      () => now,
+    );
+    await signer.prepare();
+    expect(await signer.refresh()).toBe(false); // same key
+    for (let i = 0; i < 20; i++) await signer.refresh();
+    expect(loads).toBe(2); // the first load and one refresh
+    now += 61_000;
+    await signer.refresh();
+    expect(loads).toBe(3);
+  });
+
+  it("keeps the old key when the database cannot be read", async () => {
+    let fail = false;
+    let now = 1_000_000;
+    const signer = new HmacShareSigner(
+      async () => {
+        if (fail) throw new Error("down");
+        return Buffer.alloc(32, 1);
+      },
+      () => now,
+    );
+    await signer.prepare();
+    const sig = signer.sign({ a: "1" })!;
+    fail = true;
+    now += 61_000;
+    expect(await signer.refresh()).toBe(false);
+    expect(signer.verify({ a: "1" }, sig)).toBe(true);
+  });
+});
+
+describe("prepareWithin", () => {
+  it("gives up after the wait when the key never loads, and returns at once when it does", async () => {
+    const never = new HmacShareSigner(() => new Promise<Buffer>(() => {}));
+    const started = Date.now();
+    expect(await prepareWithin(never, 30)).toBe(false);
+    expect(Date.now() - started).toBeLessThan(1000);
+    expect(await prepareWithin(new HmacShareSigner(key(1)), 5000)).toBe(true);
   });
 });

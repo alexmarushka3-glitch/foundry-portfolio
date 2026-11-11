@@ -1,5 +1,6 @@
 import { SHARE_ID } from "@/lib/server/shareStore";
-import { wrapper, wrapperGone } from "@/lib/server/sharePage";
+import { shareEnabled } from "@/lib/server/env";
+import { wrapper, wrapperGone, wrapperOff } from "@/lib/server/sharePage";
 
 export const runtime = "nodejs";
 
@@ -11,5 +12,6 @@ export const runtime = "nodejs";
 export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> }) {
   const { id } = await ctx.params;
   if (!SHARE_ID.test(id)) return wrapperGone();
+  if (!shareEnabled()) return wrapperOff(); // switched off: no frame, so nothing is asked of the database
   return wrapper(id);
 }

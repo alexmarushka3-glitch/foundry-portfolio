@@ -19,13 +19,48 @@ export interface ShareSigner {
   sign(files: Record<string, string>): string | null;
   /** True when `sig` was made by `sign` for exactly these files. */
   verify(files: Record<string, string>, sig: unknown): boolean;
+  /**
+   * Reads the key again, for when a signature does not match: the key may have been deleted and made anew by another
+   * instance. At most once a minute. Resolves true when the key changed.
+   */
+  refresh(): Promise<boolean>;
+}
+
+/** Waits for the key, but not longer than `ms`: a slow database must not hold up a run that does not need it yet. */
+export async function prepareWithin(signer: ShareSigner, ms: number): Promise<boolean> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const late = new Promise<boolean>((resolve) => {
+    timer = setTimeout(() => resolve(false), ms);
+  });
+  try {
+    return await Promise.race([signer.prepare(), late]);
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 export class HmacShareSigner implements ShareSigner {
   private key: Buffer | null = null;
   private loading: Promise<boolean> | null = null;
+  private lastRefresh = 0;
 
-  constructor(private loadKey: () => Promise<Buffer>) {}
+  constructor(
+    private loadKey: () => Promise<Buffer>,
+    private now: () => number = Date.now,
+  ) {}
+
+  async refresh(): Promise<boolean> {
+    if (this.now() - this.lastRefresh < 60_000) return false;
+    this.lastRefresh = this.now();
+    try {
+      const fresh = await this.loadKey();
+      const changed = !this.key || !this.key.equals(fresh);
+      this.key = fresh;
+      return changed;
+    } catch {
+      return false;
+    }
+  }
 
   prepare(): Promise<boolean> {
     if (this.key) return Promise.resolve(true);

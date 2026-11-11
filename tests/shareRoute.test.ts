@@ -187,6 +187,29 @@ describe("POST /api/share only takes apps that came from a Foundry run", () => {
     expect((await post({ files: tampered, sig: signer.sign(files) })).status).toBe(403);
   });
 
+  it("tells a page opened before an update to reload, instead of saying the app is not an app", async () => {
+    const res = await post({ html: APP });
+    expect(res.status).toBe(400);
+    expect((await res.json()).error).toMatch(/out of date\. Reload it/);
+  });
+
+  it("accepts a signature made after the key was replaced, by reading the key again", async () => {
+    let current = 7;
+    const mine = new HmacShareSigner(
+      async () => Buffer.alloc(32, current),
+      () => Date.now() + 10 ** 9,
+    );
+    await mine.prepare();
+    serverState().shareSigner = mine;
+    current = 8; // another instance made a new key and signed with it
+    const other = new HmacShareSigner(async () => Buffer.alloc(32, 8));
+    await other.prepare();
+    const files = { "index.html": APP };
+    expect((await post({ files, sig: other.sign(files) })).status).toBe(200);
+    // a forged signature is still refused after the second look
+    expect((await post({ files, sig: "0".repeat(64) })).status).toBe(403);
+  });
+
   it("takes the same files in any order, because the signature covers their content", async () => {
     const a = { "app.js": "1", "index.html": APP };
     const b = { "index.html": APP, "app.js": "1" };
@@ -233,6 +256,14 @@ describe("the off switch (FOUNDRY_SHARE=off)", () => {
     expect(opened.status).toBe(503);
     expect(await opened.text()).toContain("switched off");
     expect(opened.headers.get("content-security-policy")).toBe(SHARED_APP_CONTENT_SECURITY_POLICY);
+    const wrapperOff = await openWrapper(id);
+    expect(wrapperOff.status).toBe(503);
+    const wrapperHtml = await wrapperOff.text();
+    expect(wrapperHtml).toContain("switched off");
+    expect(wrapperHtml).not.toContain("<iframe"); // switched off means no frame, and no database call
+    expect(wrapperOff.headers.get("content-security-policy")).toBe(
+      SHARED_WRAPPER_CONTENT_SECURITY_POLICY,
+    );
     process.env.FOUNDRY_SHARE = " OFF ";
     expect((await open(id)).status).toBe(503); // any case, with spaces
     process.env.FOUNDRY_SHARE = "on";

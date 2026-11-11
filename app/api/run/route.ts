@@ -11,6 +11,7 @@ import {
   visitorMessage,
 } from "@/lib/server/runApi";
 import { shareEnabled } from "@/lib/server/env";
+import { prepareWithin } from "@/lib/server/shareSigner";
 import { serverState } from "@/lib/server/state";
 import type { FoundryEvent } from "@/lib/types";
 
@@ -30,8 +31,6 @@ export async function POST(req: Request) {
   const { request } = parsed;
 
   const state = serverState();
-  // When links are on, a finished app is signed so the link endpoint can tell it came from a real run.
-  const signing = shareEnabled() && state.shares.persistent && (await state.shareSigner.prepare());
   const address = visitorAddress(req.headers);
   const browser = browserId(req.headers);
 
@@ -43,6 +42,16 @@ export async function POST(req: Request) {
     allowLive = !reason;
   }
 
+  // When links are on, a live run's finished app is signed so the link endpoint can tell it came from a real run.
+  // Recorded examples and simulations need no signature (a recording is matched by its content), and the key is only
+  // waited for briefly: a slow database means this run just has no link.
+  const signing =
+    allowLive &&
+    liveEnabled() &&
+    !findServerRecording(request) &&
+    shareEnabled() &&
+    state.shares.persistent &&
+    (await prepareWithin(state.shareSigner, 1500));
   const recorder = createRecorder({ request, visitor: hashVisitor(address) });
   const abort = new AbortController();
   let closed = false;
@@ -53,10 +62,12 @@ export async function POST(req: Request) {
       const emit = (e: FoundryEvent) => {
         recorder.observe(e);
         if (closed) return;
-        const sig = e.type === "files" && signing ? state.shareSigner.sign(e.files) : null;
-        controller.enqueue(
-          encoder.encode(encodeEvent(sig && e.type === "files" ? { ...e, sig } : e)),
-        );
+        let out = e;
+        if (e.type === "files" && signing) {
+          const sig = state.shareSigner.sign(e.files);
+          if (sig) out = { ...e, sig };
+        }
+        controller.enqueue(encoder.encode(encodeEvent(out)));
       };
       try {
         await runPipeline(request, emit, { allowLive, reason, signal: abort.signal });

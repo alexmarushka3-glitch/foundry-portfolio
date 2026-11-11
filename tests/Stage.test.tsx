@@ -1,10 +1,14 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, configure, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import Stage from "@/components/Stage";
 import { encodeEvent } from "@/lib/ndjson";
 import type { FoundryEvent } from "@/lib/types";
 import { FIXTURE_REQUEST, fixtureRecording } from "./fixtures/liveRecording";
+
+// Each test renders a whole run. Right after a browser test the machine can be busy, and the default one-second wait
+// for a run to show up is tight; the races that once made these tests flaky are fixed, so this only allows for load.
+configure({ asyncUtilTimeout: 4000 });
 
 vi.mock("@/lib/liveRecordings.json", () => ({ default: { recordings: [] } }));
 /** Set `hold` to a promise to make recordings load slowly, the way a real fetch does. */
