@@ -148,3 +148,47 @@ test("the full-screen page is served with its own tight headers", async ({ reque
   expect(h["cross-origin-opener-policy"]).toBe("same-origin");
   expect(h["x-frame-options"]).toBe("DENY");
 });
+
+test("Get a link shows the link and how long it lasts (server answers mocked, so nothing is stored)", async ({
+  page,
+}) => {
+  test.setTimeout(120_000);
+  await page.route("**/api/share", async (route) => {
+    if (route.request().method() === "POST") {
+      const sent = route.request().postDataJSON() as { html: string };
+      expect(sent.html).toContain("<!doctype html");
+      await route.fulfill({
+        json: { id: "x", url: "https://example.test/a/abc", expiresAt: "later" },
+      });
+    } else await route.fulfill({ json: { available: true } });
+  });
+  await page.goto("/");
+  await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
+  await page.getByRole("button", { name: "Get a link" }).click({ timeout: 90_000 });
+  await expect(page.getByLabel("Your link")).toHaveValue("https://example.test/a/abc");
+  await expect(page.getByText(/for 7 days, then it is deleted/)).toBeVisible();
+});
+
+test("the button is hidden when the server cannot keep links", async ({ page }) => {
+  test.setTimeout(120_000);
+  await page.route("**/api/share", (route) => route.fulfill({ json: { available: false } }));
+  await page.goto("/");
+  await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
+  await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
+  await expect(page.getByRole("button", { name: "Get a link" })).toHaveCount(0);
+});
+
+test("an app link that does not exist answers with the same sealed page, never the site", async ({
+  request,
+}) => {
+  for (const id of ["A".repeat(22), "short", "..%2F..%2Fadmin"]) {
+    const res = await request.get(`/a/${id}`);
+    expect(res.status()).toBe(404);
+    const h = res.headers();
+    expect(h["content-security-policy"]).toContain("sandbox allow-scripts");
+    expect(h["content-security-policy"]).not.toContain("allow-same-origin");
+    expect(h["x-robots-tag"]).toBe("noindex, nofollow");
+    expect(h["cache-control"]).toBe("private, no-store");
+    expect(await res.text()).toContain("expired or was never saved");
+  }
+});

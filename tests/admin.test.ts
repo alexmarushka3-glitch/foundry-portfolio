@@ -203,3 +203,41 @@ describe("/api/admin/snapshot", async () => {
     delete process.env.FOUNDRY_SANDBOX_SNAPSHOT;
   });
 });
+
+describe("/api/admin/share (take a hosted app link down)", async () => {
+  const { POST: removeLink } = await import("@/app/api/admin/share/route");
+  const { MemoryShareStore, shareIdFrom } = await import("@/lib/server/shareStore");
+  const ID = "A".repeat(22);
+  const req = (body: unknown, headers: Record<string, string> = {}) =>
+    removeLink(new Request("http://t/api/admin/share", json(body, headers)));
+
+  it("is hidden without an admin token and closed to anyone not signed in", async () => {
+    expect((await req({ link: ID })).status).toBe(401);
+    delete process.env.ADMIN_TOKEN;
+    expect((await req({ link: ID }, asAdmin())).status).toBe(404);
+  });
+
+  it("finds the id in a pasted link or a bare id, and nothing else", () => {
+    expect(shareIdFrom(`https://foundry-portfolio.vercel.app/a/${ID}`)).toBe(ID);
+    expect(shareIdFrom(`https://x.test/a/${ID}?x=1`)).toBe(ID);
+    expect(shareIdFrom(`  ${ID}  `)).toBe(ID);
+    expect(shareIdFrom("https://x.test/a/short")).toBeNull();
+    expect(shareIdFrom("https://x.test/other")).toBeNull();
+    expect(shareIdFrom(42)).toBeNull();
+  });
+
+  it("removes a saved app and says so, then says there was nothing the second time", async () => {
+    const state = serverState();
+    state.shares = new MemoryShareStore();
+    await state.shares.put(ID, "<!doctype html><html></html>", 60);
+    const url = `https://x.test/a/${ID}`;
+    expect(await (await req({ link: url }, asAdmin())).json()).toEqual({ removed: true });
+    expect(await state.shares.get(ID)).toBeNull();
+    expect(await (await req({ link: url }, asAdmin())).json()).toEqual({ removed: false });
+  });
+
+  it("refuses something that is not a link from this site", async () => {
+    expect((await req({ link: "hello" }, asAdmin())).status).toBe(400);
+    expect((await req({}, asAdmin())).status).toBe(400);
+  });
+});

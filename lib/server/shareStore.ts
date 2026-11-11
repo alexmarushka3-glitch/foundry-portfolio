@@ -9,6 +9,14 @@ import { upstashConfig, upstashPipeline, type UpstashConfig } from "./upstash";
 /** A link id is 16 random bytes, base64url (22 characters). Anyone holding it can open the app, so it is unguessable. */
 export const SHARE_ID = /^[A-Za-z0-9_-]{22}$/;
 
+/** Pulls the link id out of a pasted link (https://…/a/<id>) or a bare id. Returns null when it is neither. */
+export function shareIdFrom(input: unknown): string | null {
+  if (typeof input !== "string") return null;
+  const text = input.trim();
+  const id = /\/a\/([A-Za-z0-9_-]{22})(?:[/?#]|$)/.exec(text)?.[1] ?? text;
+  return SHARE_ID.test(id) ? id : null;
+}
+
 export function newShareId(): string {
   return Buffer.from(crypto.getRandomValues(new Uint8Array(16))).toString("base64url");
 }
