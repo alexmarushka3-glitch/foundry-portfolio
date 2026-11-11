@@ -15,6 +15,7 @@ npm run typecheck
 npm test             # vitest, no network or key needed
 npm run build
 npm run test:ui      # Playwright UI tests in installed Chrome (e2e/); starts the dev server, or BASE_URL=https://foundry-portfolio.vercel.app to test the live site. Recorded examples only, no model calls
+npm run test:ui:browsers   # the @lock browser tests (hosted-link frame lock) in Firefox and WebKit; once: npx.cmd playwright install firefox webkit
 npx.cmd vite-node scripts/record-live-runs.ts -- --requests 3 --confirm   # record real live runs into recordings-src/live/, costs money
 npm run recordings:live   # rebuild lib/liveRecordings.json, the per-example lib/liveRecordings/*.json chunks and lib/exampleRequests.ts from recordings-src/live/
 npx.cmd vite-node scripts/run-eval.ts -- --runs 8 --confirm   # real live runs, costs money; appends to lib/eval/results.json
