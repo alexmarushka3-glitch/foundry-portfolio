@@ -20,7 +20,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
   if (req.headers.get("sec-fetch-dest") !== "iframe") {
     return new Response(null, {
       status: 302,
-      headers: { Location: `/a/${id}`, "Cache-Control": "no-store" },
+      headers: { Location: `/a/${id}`, "Cache-Control": "no-store", Vary: "Sec-Fetch-Dest" },
     });
   }
   const state = serverState();
@@ -37,6 +37,10 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
     return gone();
   }
   return new Response(withHostedShim(html), {
-    headers: { ...appHeaders(), "Content-Type": "text/html; charset=utf-8" },
+    headers: {
+      ...appHeaders(),
+      "Content-Type": "text/html; charset=utf-8",
+      Vary: "Sec-Fetch-Dest", // the redirect above depends on this header, so no cache may mix the two answers
+    },
   });
 }

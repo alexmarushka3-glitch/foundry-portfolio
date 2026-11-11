@@ -127,24 +127,42 @@ describe("MemoryShareBrake", () => {
 
 describe("RedisShareBrake", () => {
   const T = Date.UTC(2026, 10, 11, 12);
+  const dayKey = (fake: ReturnType<typeof fakeUpstash>) =>
+    [...fake.data.keys()].find((k) => k.startsWith("foundry:share:d:"));
 
-  it("counts and sets expiry in one transaction, and hashes the address", async () => {
+  it("counts each limit with its expiry in one transaction, and hashes the address", async () => {
     const fake = fakeUpstash();
     const brake = new RedisShareBrake({ perHour: 2, perDay: 100 }, fake.config, () => T);
     expect(await brake.check("203.0.113.9")).toBeNull();
-    expect(fake.calls[0].url).toBe("https://redis.test/multi-exec");
-    expect(fake.calls[0].commands.map(([c]) => c)).toEqual(["INCR", "INCR", "EXPIRE", "EXPIRE"]);
+    expect(fake.calls.map((c) => c.url)).toEqual([
+      "https://redis.test/multi-exec",
+      "https://redis.test/multi-exec",
+    ]);
+    expect(fake.calls[0].commands.map(([c]) => c)).toEqual(["INCR", "EXPIRE"]);
+    expect(fake.calls[1].commands.map(([c]) => c)).toEqual(["INCR", "EXPIRE"]);
     expect([...fake.data.keys()].join(" ")).not.toContain("203.0.113.9");
-    expect([...fake.data.keys()].some((k) => k.endsWith("2026-11-11"))).toBe(true);
+    expect(dayKey(fake)).toMatch(/2026-11-11$/);
   });
 
-  it("refuses over the hourly limit with one Redis call, so a flood cannot burn the database quota", async () => {
+  it("refuses over the hourly limit without touching the site's day total", async () => {
     const fake = fakeUpstash();
     const brake = new RedisShareBrake({ perHour: 1, perDay: 100 }, fake.config, () => T);
     expect(await brake.check("v")).toBeNull();
-    expect(await brake.check("v")).toBe(addressUsedUp({ perHour: 1, perDay: 100 }));
-    expect(fake.calls).toHaveLength(2); // one transaction per request, no refund
+    const callsBefore = fake.calls.length;
+    for (let i = 0; i < 20; i++)
+      expect(await brake.check("v")).toBe(addressUsedUp({ perHour: 1, perDay: 100 }));
+    // one Redis call per refusal, and the day total stays at the one link that was made
+    expect(fake.calls.length).toBe(callsBefore + 20);
+    expect(fake.data.get(dayKey(fake)!)).toBe(1);
     expect(await brake.check("other")).toBeNull();
+  });
+
+  it("cannot be used by one address to pause links for everyone", async () => {
+    const fake = fakeUpstash();
+    const brake = new RedisShareBrake({ perHour: 5, perDay: 40 }, fake.config, () => T);
+    for (let i = 0; i < 100; i++) await brake.check("attacker");
+    expect(fake.data.get(dayKey(fake)!)).toBe(5);
+    expect(await brake.check("someone else")).toBeNull();
   });
 
   it("refuses everyone once the day total is used", async () => {
@@ -152,6 +170,14 @@ describe("RedisShareBrake", () => {
     const brake = new RedisShareBrake({ perHour: 99, perDay: 1 }, fake.config, () => T);
     expect(await brake.check("a")).toBeNull();
     expect(await brake.check("b")).toBe(dayUsedUp);
+  });
+
+  it("gives a slot back when the link could not be saved", async () => {
+    const fake = fakeUpstash();
+    const brake = new RedisShareBrake({ perHour: 1, perDay: 1 }, fake.config, () => T);
+    expect(await brake.check("v")).toBeNull();
+    await brake.release("v");
+    expect(await brake.check("v")).toBeNull();
   });
 });
 

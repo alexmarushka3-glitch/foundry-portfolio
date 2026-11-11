@@ -1,66 +1,40 @@
 import { sharedAppHeaders, sharedWrapperHeaders, type Header } from "@/lib/securityHeaders";
+import { SHARE_TTL_DAYS } from "@/lib/share";
 
 // The small pages around a hosted app link: the wrapper that frames it, and the "gone" and "unavailable" notices.
 // Each carries the sealed headers (lib/securityHeaders.ts): the wrapper pages the wrapper's, the rest the app page's.
 // A well-formed id always gets the wrapper with a 200, even for an expired link; the notice shows inside its frame.
 
-const headersObject = (headers: Header[]) =>
-  Object.fromEntries(headers.map((h) => [h.key, h.value]));
-
-const SHELL = (body: string, style: string) =>
-  `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Foundry app</title><style>${style}</style></head><body>${body}</body></html>`;
+const page = (headers: Header[], head: string, body: string, status = 200) =>
+  new Response(
+    `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Foundry app</title><style>${head}</style></head><body>${body}</body></html>`,
+    {
+      status,
+      headers: {
+        ...Object.fromEntries(headers.map((h) => [h.key, h.value])),
+        "Content-Type": "text/html; charset=utf-8",
+      },
+    },
+  );
 
 const NOTICE_STYLE = "body{font:16px system-ui,sans-serif;padding:24px;max-width:36rem}";
+const GONE_BODY = `<h1>This link has expired or was never saved</h1><p>Links to apps built on Foundry last ${SHARE_TTL_DAYS} days.</p>`;
+const UNAVAILABLE_BODY =
+  "<h1>This link can't be opened right now</h1><p>Try again in a minute.</p>";
 
-/** A notice page that is shown inside the frame (or on its own), with the app page's sealed headers. */
-export function notice(body: string, status: number): Response {
-  return new Response(SHELL(body, NOTICE_STYLE), {
-    status,
-    headers: { ...headersObject(sharedAppHeaders()), "Content-Type": "text/html; charset=utf-8" },
-  });
-}
-
-export const gone = () =>
-  notice(
-    "<h1>This link has expired or was never saved</h1><p>Links to apps built on Foundry last 7 days.</p>",
-    404,
-  );
-
-export const unavailable = () =>
-  notice("<h1>This link can't be opened right now</h1><p>Try again in a minute.</p>", 503);
+/** Notices shown inside the frame, with the app page's sealed headers. */
+export const gone = () => page(sharedAppHeaders(), NOTICE_STYLE, GONE_BODY, 404);
+export const unavailable = () => page(sharedAppHeaders(), NOTICE_STYLE, UNAVAILABLE_BODY, 503);
 
 /** The page a link opens: one full-window frame onto the sealed app page. `id` must already match SHARE_ID. */
-export function wrapper(id: string): Response {
-  const body = `<iframe src="/a/${id}/app" title="App made on Foundry, running in your browser" sandbox="allow-scripts allow-forms allow-modals" allow="clipboard-write *"></iframe>`;
-  return new Response(
-    SHELL(
-      body,
-      "html,body{margin:0;height:100%}iframe{display:block;border:0;width:100%;height:100%}",
-    ),
-    {
-      headers: {
-        ...headersObject(sharedWrapperHeaders()),
-        "Content-Type": "text/html; charset=utf-8",
-      },
-    },
+export const wrapper = (id: string) =>
+  page(
+    sharedWrapperHeaders(),
+    "html,body{margin:0;height:100%}iframe{display:block;border:0;width:100%;height:100%}",
+    `<iframe src="/a/${id}/app" title="App made on Foundry, running in your browser" sandbox="allow-scripts allow-forms allow-modals" allow="clipboard-write *"></iframe>`,
   );
-}
 
-/** The wrapper's own "gone" page (an id that could never be a link). It has no frame, so it needs no frame permission. */
-export function wrapperGone(): Response {
-  return new Response(
-    SHELL(
-      "<h1>This link has expired or was never saved</h1><p>Links to apps built on Foundry last 7 days.</p>",
-      NOTICE_STYLE,
-    ),
-    {
-      status: 404,
-      headers: {
-        ...headersObject(sharedWrapperHeaders()),
-        "Content-Type": "text/html; charset=utf-8",
-      },
-    },
-  );
-}
+/** For a path that could never be a link. It has no frame, so it needs no frame permission. */
+export const wrapperGone = () => page(sharedWrapperHeaders(), NOTICE_STYLE, GONE_BODY, 404);
 
-export const appHeaders = () => headersObject(sharedAppHeaders());
+export const appHeaders = () => Object.fromEntries(sharedAppHeaders().map((h) => [h.key, h.value]));

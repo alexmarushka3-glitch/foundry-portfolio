@@ -51,12 +51,17 @@ export default function AppPreview({
   }, []);
   // A new app means any link, message or request for the old one is stale.
   const latestHtml = useRef(html);
-  latestHtml.current = html;
+  useEffect(() => {
+    latestHtml.current = html;
+  }, [html]);
+  const linkRequest = useRef(0);
   // Only when the app really changes: on the first run a click could already have set a message, and that would erase it.
   const shownHtml = useRef(html);
   useEffect(() => {
     if (shownHtml.current === html) return;
     shownHtml.current = html;
+    linkRequest.current++; // an answer still on its way belongs to the old app
+    setSharing(false);
     setLink("");
     setNote("");
   }, [html]);
@@ -69,6 +74,7 @@ export default function AppPreview({
     setNote("");
     setSharing(true);
     const sentFor = html;
+    const mine = ++linkRequest.current;
     try {
       const res = await fetch("/api/share", {
         method: "POST",
@@ -82,7 +88,7 @@ export default function AppPreview({
     } catch {
       setNote("Could not make a link right now. Try Save the app.");
     } finally {
-      setSharing(false);
+      if (mine === linkRequest.current) setSharing(false); // a newer request owns the button now
     }
   };
 
@@ -195,7 +201,12 @@ export default function AppPreview({
             Open full screen
           </button>
           {canShare && (
-            <button type="button" className="btn btn-ghost" onClick={getLink} disabled={sharing}>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={getLink}
+              disabled={sharing || link !== ""}
+            >
               {sharing ? "Making a link…" : "Get a link"}
             </button>
           )}

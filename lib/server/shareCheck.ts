@@ -3,9 +3,10 @@
 //
 // What it is: a guardrail against the obvious ways a page on this site's address could pass for something it is not
 // (a login or payment form, a redirect to another site, an embedded outside page). What it is not: a guarantee.
-// A determined person can write around any word list. The link page also runs in a sealed sandbox
-// (lib/securityHeaders.ts) that gives it no cookies, no storage and no network, but a sandbox cannot stop a page
-// from navigating itself, so a page that builds its redirect from pieces can get past the rules below.
+// A determined person can write around any word list (window['loc'+'ation'] gets past the redirect rule below). What
+// actually stops a hosted page leaving for another website is the browser: the link page frames the app and allows
+// only this site's own address in that frame (lib/securityHeaders.ts, SHARED_WRAPPER_CONTENT_SECURITY_POLICY), and the
+// sandbox gives the app no cookies, no storage and no network. These rules are an early, friendly refusal.
 
 export type ShareCheck = { ok: true } | { ok: false; reason: string };
 
@@ -61,7 +62,7 @@ const RULES: Rule[] = [
     // location.href = / .replace( / .assign( (alone, or on window, document, self, top or parent), and location = on its
     // own. A variable or field that happens to be called location (let location = "Kitchen", task.location = x) is fine.
     test: (html) =>
-      /\blocation\s*\.\s*(?:href|replace|assign)\s*(?:=(?!=)|\()|\b(?:window|document|self|top|parent)\s*\.\s*location\s*=(?!=)|(?<![.\w$])(?<!\b(?:let|const|var)\s+)location\s*=(?!=)/i.test(
+      /(?<![.\w$])location\s*\.\s*(?:href|replace|assign)\s*(?:=(?!=)|\()|\b(?:window|document|self|top|parent)\s*\.\s*location\s*(?:\.\s*(?:href|replace|assign)\s*(?:=(?!=)|\()|=(?!=))|(?<![.\w$])(?<!\b(?:let|const|var)\s+)location\s*=(?!=)/i.test(
         html,
       ),
     reason: "it sends the visitor to another page",

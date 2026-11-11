@@ -42,6 +42,13 @@ describe("checkSharedApp", () => {
     expect(checkSharedApp(page(body))).toEqual({ ok: true });
   });
 
+  it("passes a map or address book whose field is called location, even when it calls a method on it", () => {
+    const html = page(
+      `<script>task.location.assign(place); task.location.href(x); const { location } = item; item.location.replace("a", "b");</script>`,
+    );
+    expect(checkSharedApp(html)).toEqual({ ok: true });
+  });
+
   it.each([
     ["a password box", `<input type="password">`, /password/],
     [
@@ -85,6 +92,7 @@ describe("checkSharedApp", () => {
       `<script>location.href = "https://x.example"</script>`,
       /another page/,
     ],
+    ["document.location.href", `<script>document.location.href = "/x"</script>`, /another page/],
     ["window.location.replace", `<script>window.location.replace("/x")</script>`, /another page/],
     [
       "assigning location directly",

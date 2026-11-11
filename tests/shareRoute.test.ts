@@ -7,7 +7,7 @@ import {
   SHARED_APP_CONTENT_SECURITY_POLICY,
   SHARED_WRAPPER_CONTENT_SECURITY_POLICY,
 } from "@/lib/securityHeaders";
-import { MemoryShareBrake } from "@/lib/server/shareBrake";
+import { MemoryShareBrake, RedisShareBrake } from "@/lib/server/shareBrake";
 import { RedisShareStore } from "@/lib/server/shareStore";
 import { resetServerState, serverState } from "@/lib/server/state";
 import { MAX_SHARE_BYTES, SHARE_TTL_SECONDS } from "@/lib/share";
@@ -74,6 +74,26 @@ describe("POST /api/share", () => {
     expect((await post({ html: 42 })).status).toBe(400);
     expect((await post({})).status).toBe(400);
     expect((await post("not json")).status).toBe(400);
+  });
+
+  it("accepts an app just under the cap even when its quotes and line breaks double its size as JSON", async () => {
+    const body = '"\n'.repeat(Math.floor((MAX_SHARE_BYTES - 100) / 2));
+    const res = await post({ html: `<!doctype html><html><body><!--${body}--></body></html>` });
+    expect(res.status).toBe(200);
+  });
+
+  it("gives the slot back when the app could not be saved", async () => {
+    const state = serverState();
+    state.shareBrake = new RedisShareBrake({ perHour: 1, perDay: 1 }, fake.config);
+    state.shares = new RedisShareStore({
+      url: "https://redis.test",
+      token: "t",
+      fetchFn: (async () => new Response("no", { status: 500 })) as unknown as typeof fetch,
+    });
+    expect((await post({ html: APP })).status).toBe(503);
+    // the slot came back, so the next try is not told "paused for today" or "made 1 link this hour"
+    state.shares = new RedisShareStore(fake.config);
+    expect((await post({ html: APP })).status).toBe(200);
   });
 
   it("refuses an app over the size cap", async () => {
@@ -182,6 +202,7 @@ describe("GET /a/[id]/app (the sealed app)", () => {
     expect(res.headers.get("x-content-type-options")).toBe("nosniff");
     expect(res.headers.get("x-robots-tag")).toBe("noindex, nofollow");
     expect(res.headers.get("cache-control")).toBe("private, no-store");
+    expect(res.headers.get("vary")).toBe("Sec-Fetch-Dest");
     const html = await res.text();
     expect(html).toContain("<h1>Tip</h1>");
     expect(html.indexOf("new Map()")).toBeLessThan(html.indexOf("localStorage.setItem"));
@@ -194,6 +215,7 @@ describe("GET /a/[id]/app (the sealed app)", () => {
       expect(res.status).toBe(302);
       expect(res.headers.get("location")).toBe(`/a/${id}`);
       expect(await res.text()).toBe("");
+      expect(res.headers.get("vary")).toBe("Sec-Fetch-Dest");
     }
     // and with no header at all (an old browser)
     const bare = await serveApp(new Request(`https://foundry.example/a/${id}/app`), {

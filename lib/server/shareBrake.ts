@@ -14,6 +14,8 @@ export const dayUsedUp = "Links are paused for today. Use Save the app.";
 export interface ShareBrake {
   /** Counts one link for this address. Returns why it is refused, or null when it may go ahead. */
   check(visitor: string): Promise<string | null>;
+  /** Gives back the count of a link that was allowed but then could not be saved (the database failed). */
+  release(visitor: string): Promise<void>;
 }
 
 export class MemoryShareBrake implements ShareBrake {
@@ -29,12 +31,17 @@ export class MemoryShareBrake implements ShareBrake {
   }
 
   async check(visitor: string): Promise<string | null> {
-    // A refused request is not counted here, and a Redis one is (see RedisShareBrake); both stay refused until the window ends.
-    if (this.perDay.used("site") >= this.limits.perDay) return dayUsedUp;
+    // The address is counted first and the site's day only once the address passes, so one address that keeps
+    // asking cannot use up everyone's day (RedisShareBrake does the same).
     if (this.perAddress.used(visitor) >= this.limits.perHour) return addressUsedUp(this.limits);
-    this.perDay.hit("site");
+    if (this.perDay.used("site") >= this.limits.perDay) return dayUsedUp;
     this.perAddress.hit(visitor);
+    this.perDay.hit("site");
     return null;
+  }
+
+  async release(): Promise<void> {
+    // Memory counters are for local development only, where the database is never involved.
   }
 }
 
@@ -47,26 +54,37 @@ export class RedisShareBrake implements ShareBrake {
     private now: () => number = Date.now,
   ) {}
 
-  async check(visitor: string): Promise<string | null> {
+  private keys(visitor: string) {
     const hash = createHash("sha256").update(visitor).digest("hex").slice(0, 16);
-    const mine = `${PREFIX}a:${hash}`;
-    const day = `${PREFIX}d:${new Date(this.now()).toISOString().slice(0, 10)}`;
-    // One transaction, so a counter never exists without its expiry.
-    const [a, d] = await upstashTransaction(this.config, [
+    return {
+      mine: `${PREFIX}a:${hash}`,
+      day: `${PREFIX}d:${new Date(this.now()).toISOString().slice(0, 10)}`,
+    };
+  }
+
+  async check(visitor: string): Promise<string | null> {
+    const { mine, day } = this.keys(visitor);
+    // Each count and its expiry go in one transaction, so a counter never exists without its expiry.
+    const [a] = await upstashTransaction(this.config, [
       ["INCR", mine],
-      ["INCR", day],
       ["EXPIRE", mine, 3600, "NX"],
+    ]);
+    // An address that is over its hour is refused here, before it touches the site's day total. Otherwise one address
+    // asking again and again could use up the day for everyone.
+    if (Number(a) > this.limits.perHour) return addressUsedUp(this.limits);
+    const [d] = await upstashTransaction(this.config, [
+      ["INCR", day],
       ["EXPIRE", day, 172_800, "NX"],
     ]);
-    const reason =
-      Number(d) > this.limits.perDay
-        ? dayUsedUp
-        : Number(a) > this.limits.perHour
-          ? addressUsedUp(this.limits)
-          : null;
-    // A refusal is not refunded. The counters only matter up to their limits, a refused request costs one Redis
-    // call instead of two, and an address that keeps hammering stays refused until its hour is up.
-    return reason;
+    return Number(d) > this.limits.perDay ? dayUsedUp : null;
+  }
+
+  async release(visitor: string): Promise<void> {
+    const { mine, day } = this.keys(visitor);
+    await upstashTransaction(this.config, [
+      ["DECR", mine],
+      ["DECR", day],
+    ]);
   }
 }
 

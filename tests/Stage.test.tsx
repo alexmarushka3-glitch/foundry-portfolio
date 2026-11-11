@@ -363,7 +363,9 @@ describe("Stage", () => {
       });
       render(<Stage />);
       typeIdea();
-      fireEvent.click(await screen.findByRole("button", { name: "Get a link" }));
+      const getLink = await screen.findByRole("button", { name: "Get a link" });
+      fireEvent.click(getLink);
+      fireEvent.click(getLink); // a second click while it works must not make a second link
       const input = (await screen.findByLabelText("Your link")) as HTMLInputElement;
       expect(input.value).toBe("https://site.test/a/abc");
       expect(
@@ -373,6 +375,14 @@ describe("Stage", () => {
         ([url, init]) => url === "/api/share" && init?.method === "POST",
       )!;
       expect(JSON.parse(String(post[1]!.body)).html).toContain("<h1>Tip calculator</h1>");
+      const posts = fetchMock.mock.calls.filter(
+        ([url, init]) => url === "/api/share" && init?.method === "POST",
+      );
+      expect(posts).toHaveLength(1);
+      // with a link already made, the button cannot make another copy
+      expect(screen.getByRole("button", { name: "Get a link" }).hasAttribute("disabled")).toBe(
+        true,
+      );
       fireEvent.click(screen.getByRole("button", { name: "Copy link" }));
       await waitFor(() => expect(writeText).toHaveBeenCalledWith("https://site.test/a/abc"));
       expect(await screen.findByText("Link copied.")).toBeTruthy();
