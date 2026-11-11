@@ -51,6 +51,31 @@ export const PREVIEW_CONTENT_SECURITY_POLICY = [
   "frame-ancestors 'self'",
 ].join("; ");
 
+/**
+ * The page that shows a finished app full screen in its own tab (public/preview/full.html). It holds only the site's
+ * own script and one frame onto the sealed preview. COOP stays same-origin, like the page that opens it, so the two
+ * can still talk.
+ */
+export const FULLSCREEN_CONTENT_SECURITY_POLICY = [
+  "default-src 'none'",
+  "script-src 'self'",
+  "style-src 'unsafe-inline'",
+  "frame-src 'self'",
+  "base-uri 'none'",
+  "form-action 'none'",
+  "frame-ancestors 'none'",
+].join("; ");
+
+export function fullscreenHeaders(): Header[] {
+  return [
+    { key: "Content-Security-Policy", value: FULLSCREEN_CONTENT_SECURITY_POLICY },
+    { key: "X-Content-Type-Options", value: "nosniff" },
+    { key: "X-Frame-Options", value: "DENY" },
+    { key: "Referrer-Policy", value: "no-referrer" },
+    { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+  ];
+}
+
 export function previewHeaders(): Header[] {
   return [
     { key: "Content-Security-Policy", value: PREVIEW_CONTENT_SECURITY_POLICY },

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Your app</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+      }
+      iframe {
+        display: block;
+        width: 100%;
+        height: 100%;
+        border: 0;
+      }
+      p {
+        font: 14px system-ui, sans-serif;
+        color: #555;
+        padding: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <iframe
+      id="app"
+      title="Your app, running in your browser"
+      sandbox="allow-scripts allow-forms allow-modals"
+      allow="clipboard-write"
+    ></iframe>
+    <script src="/preview/full.js"></script>
+  </body>
+</html>

@@ -183,6 +183,178 @@ describe("Stage", () => {
     expect(screen.queryByRole("button", { name: "Save the app" })).toBeNull();
   });
 
+  describe("ways to keep or open a finished app", () => {
+    /** jsdom has no object URLs; this stands in for them so a test can tell whether a download started. */
+    const realUrl = { create: URL.createObjectURL, revoke: URL.revokeObjectURL };
+    afterEach(() => {
+      URL.createObjectURL = realUrl.create;
+      URL.revokeObjectURL = realUrl.revoke;
+      delete (navigator as unknown as { clipboard?: unknown }).clipboard;
+    });
+    const stubObjectUrl = () => {
+      const created = vi.fn(() => "blob:test");
+      URL.createObjectURL = created;
+      URL.revokeObjectURL = vi.fn();
+      return created;
+    };
+    /** Let promises that are already settled run their callbacks before the test looks. */
+    const settle = () => new Promise((r) => setTimeout(r, 0));
+    const approvedRun: FoundryEvent[] = [
+      { type: "mode", mode: "live" },
+      { type: "start", agent: "researcher", round: 1, model: "m" },
+      { type: "done", agent: "researcher", round: 1, ms: 20 },
+      {
+        type: "files",
+        files: {
+          "index.html":
+            "<!doctype html><html><head><title>Tip calculator</title></head><body><h1>Tip calculator</h1></body></html>",
+        },
+      },
+      { type: "finish", ms: 100, rounds: 1, approved: true },
+    ];
+
+    it("saves through the Save as window when the browser has one, with no download", async () => {
+      const write = vi.fn(async () => {});
+      const close = vi.fn(async () => {});
+      const picker = vi.fn(async () => ({ createWritable: async () => ({ write, close }) }));
+      vi.stubGlobal("showSaveFilePicker", picker);
+      const created = stubObjectUrl();
+      mockApi(() => ndjson(approvedRun));
+      render(<Stage />);
+      typeIdea();
+      fireEvent.click(await screen.findByRole("button", { name: "Save the app" }));
+      await waitFor(() => expect(close).toHaveBeenCalled());
+      expect(picker).toHaveBeenCalledWith(
+        expect.objectContaining({ suggestedName: "tip-calculator.html" }),
+      );
+      expect(String((write.mock.calls[0] as unknown[])[0])).toContain("<h1>Tip calculator</h1>");
+      expect(created).not.toHaveBeenCalled();
+      expect(await screen.findByText("Saved.")).toBeTruthy();
+    });
+
+    it("does nothing more when the visitor closes the Save as window", async () => {
+      const picker = vi.fn(async () => {
+        throw Object.assign(new Error("closed"), { name: "AbortError" });
+      });
+      vi.stubGlobal("showSaveFilePicker", picker);
+      const created = stubObjectUrl();
+      mockApi(() => ndjson(approvedRun));
+      render(<Stage />);
+      typeIdea();
+      fireEvent.click(await screen.findByRole("button", { name: "Save the app" }));
+      await waitFor(() => expect(picker).toHaveBeenCalled());
+      await settle();
+      expect(created).not.toHaveBeenCalled();
+      expect(screen.queryByText(/Download started/)).toBeNull();
+    });
+
+    it("downloads instead when the Save as window is refused, and says so", async () => {
+      const picker = vi.fn(async () => {
+        throw Object.assign(new Error("blocked"), { name: "SecurityError" });
+      });
+      vi.stubGlobal("showSaveFilePicker", picker);
+      const created = stubObjectUrl();
+      vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+      mockApi(() => ndjson(approvedRun));
+      render(<Stage />);
+      typeIdea();
+      fireEvent.click(await screen.findByRole("button", { name: "Save the app" }));
+      await waitFor(() => expect(created).toHaveBeenCalled());
+      expect(await screen.findByText(/Download started/)).toBeTruthy();
+    });
+
+    it("does not also download when the file was chosen but could not be written", async () => {
+      const picker = vi.fn(async () => ({
+        createWritable: async () => {
+          throw new Error("disk full");
+        },
+      }));
+      vi.stubGlobal("showSaveFilePicker", picker);
+      const created = stubObjectUrl();
+      mockApi(() => ndjson(approvedRun));
+      render(<Stage />);
+      typeIdea();
+      fireEvent.click(await screen.findByRole("button", { name: "Save the app" }));
+      expect(await screen.findByText(/could not be written/)).toBeTruthy();
+      expect(created).not.toHaveBeenCalled();
+    });
+
+    it("falls back to a normal download when there is no Save as window", async () => {
+      vi.stubGlobal("showSaveFilePicker", undefined);
+      const created = stubObjectUrl();
+      vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+      mockApi(() => ndjson(approvedRun));
+      render(<Stage />);
+      typeIdea();
+      fireEvent.click(await screen.findByRole("button", { name: "Save the app" }));
+      await waitFor(() => expect(created).toHaveBeenCalled());
+    });
+
+    it("copies the whole page to the clipboard and says what to do with it", async () => {
+      const writeText = vi.fn(async () => {});
+      Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
+      mockApi(() => ndjson(approvedRun));
+      render(<Stage />);
+      typeIdea();
+      fireEvent.click(await screen.findByRole("button", { name: "Copy the code" }));
+      await waitFor(() => expect(writeText).toHaveBeenCalled());
+      expect(String((writeText.mock.calls[0] as unknown[])[0])).toContain("Tip calculator");
+      expect(await screen.findByText(/name the file app\.html/)).toBeTruthy();
+    });
+
+    it("opens the app full screen in a new tab and hands it the page when that tab asks", async () => {
+      const tab = { postMessage: vi.fn() };
+      const open = vi.fn(() => tab);
+      vi.stubGlobal("open", open);
+      mockApi(() => ndjson(approvedRun));
+      render(<Stage />);
+      typeIdea();
+      fireEvent.click(await screen.findByRole("button", { name: "Open full screen" }));
+      expect(open).toHaveBeenCalledWith("/preview/full.html", "_blank");
+      // a message from some other window is ignored
+      window.dispatchEvent(
+        new MessageEvent("message", {
+          data: { type: "full-loaded" },
+          origin: window.location.origin,
+        }),
+      );
+      expect(tab.postMessage).not.toHaveBeenCalled();
+      window.dispatchEvent(
+        new MessageEvent("message", {
+          data: { type: "full-loaded" },
+          origin: window.location.origin,
+          source: tab as unknown as Window,
+        }),
+      );
+      expect(tab.postMessage).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "full-start", title: "Tip calculator" }),
+        window.location.origin,
+      );
+    });
+
+    it("keeps Copy the code available when the new tab is blocked", async () => {
+      vi.stubGlobal(
+        "open",
+        vi.fn(() => null),
+      );
+      mockApi(() => ndjson(approvedRun));
+      render(<Stage />);
+      typeIdea();
+      fireEvent.click(await screen.findByRole("button", { name: "Open full screen" }));
+      expect(await screen.findByText(/blocked the new tab/)).toBeTruthy();
+      expect(screen.getByRole("button", { name: "Copy the code" })).toBeTruthy();
+    });
+
+    it("offers none of these after a simulation", async () => {
+      mockApi(() => ndjson(simulatedRun));
+      render(<Stage />);
+      typeIdea();
+      expect(await screen.findByText(/This was scripted text/)).toBeTruthy();
+      expect(screen.queryByRole("button", { name: "Open full screen" })).toBeNull();
+      expect(screen.queryByRole("button", { name: "Copy the code" })).toBeNull();
+    });
+  });
+
   it("shows the server's error and lets the visitor try again (the button must not stay stuck)", async () => {
     mockApi(() =>
       ndjson([

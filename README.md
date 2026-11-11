@@ -35,7 +35,7 @@ The page labels the mode on every run.
 - The three recorded examples are real live runs, recorded with `scripts/record-live-runs.ts` and kept as they came out (`recordings-src/live/`, collected into `lib/liveRecordings.json` by `npm run recordings:live`). The site replays them faster than they ran, and each ends with its finished app.
 - The agents work on an in-memory copy of the starter kit (`lib/pipeline/workspace.ts`), each allowed to write only its own files. In a live run the app's unit tests (`npm test`, `node --test`) run in a Vercel Sandbox (`lib/pipeline/sandbox.ts`) with the network off; a failing suite fails the gate.
 - With `FOUNDRY_SANDBOX_SNAPSHOT` set, the files are bundled into one .html file (`lib/bundle.ts`) and a real headless Chromium runs a smoke test and the Browser Tester's test against it in the sandbox; pictures show in its panel and the real result decides the gate.
-- The finished app runs on the page in a sandboxed iframe with no network (`public/preview/`) and an in-memory storage stand-in, so nothing is kept there. The saved file is the same bundle and uses the browser's own storage.
+- The finished app runs on the page in a sandboxed iframe with no network (`public/preview/`) and an in-memory storage stand-in, so nothing is kept there. The saved file is the same bundle and uses the browser's own storage. Where downloads are blocked (some company laptops), "Open full screen" and "Copy the code" work without one.
 - No human reviews the apps. Runs no longer open pull requests; the old GitHub App code (`lib/pipeline/github.ts`) is only used by a daily cron that closes old drafts on taskly-sample.
 
 ## Getting started

@@ -111,3 +111,40 @@ test("GET /api/run says whether live runs are on, and a bad body is refused", as
   expect(bad.status()).toBeGreaterThanOrEqual(400);
   expect(bad.status()).toBeLessThan(500);
 });
+
+test("Open full screen shows the finished app in its own sealed tab", async ({ page, context }) => {
+  test.setTimeout(120_000);
+  await page.goto("/");
+  await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
+  await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
+  const [tab] = await Promise.all([
+    context.waitForEvent("page"),
+    page.getByRole("button", { name: "Open full screen" }).click(),
+  ]);
+  const app = tab.frameLocator("#app");
+  await expect(app.locator("body")).not.toBeEmpty({ timeout: 15_000 });
+  await expect(app.locator("h1, h2").first()).toBeVisible({ timeout: 15_000 });
+  // The app is sealed: it cannot read the site's cookies or storage.
+  const appFrame = tab
+    .frames()
+    .find((f) => f !== tab.mainFrame() && f.url().endsWith("/preview/frame.html"))!;
+  const outcome = await appFrame.evaluate(() => {
+    try {
+      void document.cookie;
+      return "could read cookies";
+    } catch (e) {
+      return (e as Error).name;
+    }
+  });
+  expect(outcome).toBe("SecurityError");
+});
+
+test("the full-screen page is served with its own tight headers", async ({ request }) => {
+  const res = await request.get("/preview/full.html");
+  expect(res.ok()).toBe(true);
+  const h = res.headers();
+  expect(h["content-security-policy"]).toContain("frame-ancestors 'none'");
+  expect(h["content-security-policy"]).not.toMatch(/script-src[^;]*unsafe-inline/);
+  expect(h["cross-origin-opener-policy"]).toBe("same-origin");
+  expect(h["x-frame-options"]).toBe("DENY");
+});
