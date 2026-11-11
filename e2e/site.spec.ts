@@ -23,13 +23,14 @@ test("home page loads with the main sections and no browser errors", async ({ pa
 });
 
 test("a recorded example replays to the end and offers the app", async ({ page }) => {
+  test.setTimeout(120_000); // a replay takes about 15 s; a cold dev server compiles first
   const errors = watchErrors(page);
   await page.goto("/");
   const examples = page.getByRole("group", { name: "Examples" }).getByRole("button");
   await expect(examples).toHaveCount(3);
   await examples.nth(1).click();
   await expect(examples.nth(1)).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 45_000 });
+  await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
   // The page must say which mode ran (honesty rule), and a replay must never be passed off as a typed live run.
   await expect(page.getByText(/replay of a real live run/i).first()).toBeVisible();
   expect(errors).toEqual([]);
@@ -51,17 +52,23 @@ test("the pipeline shows all eight agents", async ({ page }) => {
   }
 });
 
-test("dark mode toggle switches the theme and the choice survives a reload", async ({ page }) => {
-  await page.goto("/");
-  const toggle = page.getByRole("switch", { name: "Dark mode" });
-  const before = await toggle.getAttribute("aria-checked");
-  await toggle.click();
-  const after = await toggle.getAttribute("aria-checked");
-  expect(after).not.toBe(before);
-  const theme = await page.locator("html").getAttribute("data-theme");
-  expect(["light", "dark"]).toContain(theme);
-  await page.reload();
-  await expect(page.locator("html")).toHaveAttribute("data-theme", theme!);
+test.describe("dark mode", () => {
+  // The toggle follows the system setting first, so pin it: the start state is then always light.
+  test.use({ colorScheme: "light" });
+
+  test("toggle switches the theme and the choice survives a reload", async ({ page }) => {
+    await page.goto("/");
+    const toggle = page.getByRole("switch", { name: "Dark mode" });
+    await expect(toggle).toHaveAttribute("aria-checked", "false");
+    // A click made before the page finishes loading does nothing, so click again until it takes.
+    await expect(async () => {
+      if ((await toggle.getAttribute("aria-checked")) === "false") await toggle.click();
+      await expect(toggle).toHaveAttribute("aria-checked", "true", { timeout: 1_000 });
+    }).toPass({ timeout: 15_000 });
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  });
 });
 
 test("the sample admin page says its numbers are made up and is not indexed", async ({ page }) => {
@@ -73,8 +80,11 @@ test("the sample admin page says its numbers are made up and is not indexed", as
 test("the private admin page is not open to visitors", async ({ page }) => {
   const res = await page.goto("/admin");
   // 404 when ADMIN_TOKEN is unset, or a login form when it is set. Never the dashboard itself.
-  expect(res?.status()).toBeLessThan(500);
-  await expect(page.getByText(/run log|recent runs/i)).toHaveCount(0);
+  if (res?.status() !== 404) {
+    expect(res?.status()).toBe(200);
+    await expect(page.locator('input[type="password"]')).toBeVisible();
+  }
+  await expect(page.getByRole("button", { name: /clear the run log/i })).toHaveCount(0);
 });
 
 test("an unknown page shows the 404 page", async ({ page }) => {
