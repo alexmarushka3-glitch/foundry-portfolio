@@ -1,7 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { GET as serve } from "@/app/a/[id]/route";
+import { GET as serveApp } from "@/app/a/[id]/app/route";
+import { GET as serveWrapper } from "@/app/a/[id]/route";
 import { GET as available, POST as create } from "@/app/api/share/route";
-import { SHARED_APP_CONTENT_SECURITY_POLICY } from "@/lib/securityHeaders";
+import {
+  SHARED_APP_CONTENT_SECURITY_POLICY,
+  SHARED_WRAPPER_CONTENT_SECURITY_POLICY,
+} from "@/lib/securityHeaders";
 import { MemoryShareBrake } from "@/lib/server/shareBrake";
 import { RedisShareStore } from "@/lib/server/shareStore";
 import { resetServerState, serverState } from "@/lib/server/state";
@@ -28,8 +32,14 @@ const post = (body: unknown, headers: Record<string, string> = {}) =>
       body: typeof body === "string" ? body : JSON.stringify(body),
     }),
   );
-const open = (id: string) =>
-  serve(new Request(`https://foundry.example/a/${id}`), { params: Promise.resolve({ id }) });
+/** The app page as the browser asks for it inside the wrapper's frame. */
+const open = (id: string, dest = "iframe") =>
+  serveApp(
+    new Request(`https://foundry.example/a/${id}/app`, { headers: { "sec-fetch-dest": dest } }),
+    { params: Promise.resolve({ id }) },
+  );
+const openWrapper = (id: string) =>
+  serveWrapper(new Request(`https://foundry.example/a/${id}`), { params: Promise.resolve({ id }) });
 
 describe("GET /api/share", () => {
   it("says links are available when the database is connected, and not otherwise", async () => {
@@ -109,21 +119,72 @@ describe("POST /api/share", () => {
   });
 });
 
-describe("GET /a/[id]", () => {
+describe("GET /a/[id] (the page a link opens)", () => {
+  it("is the site's own page with one frame onto the sealed app, and a lock on what the frame may load", async () => {
+    const id = "B".repeat(22);
+    const res = await openWrapper(id);
+    expect(res.status).toBe(200);
+    const csp = res.headers.get("content-security-policy")!;
+    expect(csp).toBe(SHARED_WRAPPER_CONTENT_SECURITY_POLICY);
+    expect(csp).toContain("frame-src 'self'"); // an app that tries to leave for another website is stopped here
+    expect(csp).toContain("frame-ancestors 'none'");
+    expect(res.headers.get("x-frame-options")).toBe("DENY");
+    expect(res.headers.get("x-robots-tag")).toBe("noindex, nofollow");
+    expect(res.headers.get("cache-control")).toBe("private, no-store");
+    const html = await res.text();
+    expect(html).toContain(`<iframe src="/a/${id}/app"`);
+    expect(html).toContain('sandbox="allow-scripts allow-forms allow-modals"');
+    expect(html).not.toContain("allow-same-origin");
+    expect(html).not.toContain("<script"); // only the site's own markup, no code of its own
+  });
+
+  it("asks the database nothing, and answers an id that could never be a link with a plain 404", async () => {
+    const before = fake.fetchFn.mock.calls.length;
+    await openWrapper("B".repeat(22));
+    for (const id of ["short", "../../etc/passwd", "a".repeat(40), "%00"]) {
+      const res = await openWrapper(id);
+      expect(res.status).toBe(404);
+      expect(res.headers.get("content-security-policy")).toBe(
+        SHARED_WRAPPER_CONTENT_SECURITY_POLICY,
+      );
+      expect(await res.text()).not.toContain("<iframe");
+    }
+    expect(fake.fetchFn.mock.calls.length).toBe(before);
+  });
+});
+
+describe("GET /a/[id]/app (the sealed app)", () => {
   const idOf = async () => (await (await post({ html: APP })).json()).id as string;
 
-  it("serves the app with the sealed headers and the storage stand-in", async () => {
+  it("serves the app with the sealed headers and the storage stand-in, to a frame", async () => {
     const res = await open(await idOf());
     expect(res.status).toBe(200);
     expect(res.headers.get("content-type")).toBe("text/html; charset=utf-8");
     expect(res.headers.get("content-security-policy")).toBe(SHARED_APP_CONTENT_SECURITY_POLICY);
     expect(res.headers.get("content-security-policy")).not.toContain("allow-same-origin");
+    expect(res.headers.get("content-security-policy")).toContain("frame-ancestors 'self'");
+    expect(res.headers.get("x-frame-options")).toBe("SAMEORIGIN");
     expect(res.headers.get("x-content-type-options")).toBe("nosniff");
     expect(res.headers.get("x-robots-tag")).toBe("noindex, nofollow");
     expect(res.headers.get("cache-control")).toBe("private, no-store");
     const html = await res.text();
     expect(html).toContain("<h1>Tip</h1>");
     expect(html.indexOf("new Map()")).toBeLessThan(html.indexOf("localStorage.setItem"));
+  });
+
+  it("sends anything that is not a frame to the wrapper, so the lock cannot be skipped", async () => {
+    const id = await idOf();
+    for (const dest of ["document", "script", "", "empty"]) {
+      const res = await open(id, dest);
+      expect(res.status).toBe(302);
+      expect(res.headers.get("location")).toBe(`/a/${id}`);
+      expect(await res.text()).toBe("");
+    }
+    // and with no header at all (an old browser)
+    const bare = await serveApp(new Request(`https://foundry.example/a/${id}/app`), {
+      params: Promise.resolve({ id }),
+    });
+    expect(bare.status).toBe(302);
   });
 
   it("answers an unknown, malformed or expired id with the same sealed 404, without asking the database for bad ids", async () => {

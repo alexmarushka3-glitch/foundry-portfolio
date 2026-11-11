@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { sharedAppHeaders } from "../lib/securityHeaders";
 
 // Baseline UI checks. Recorded examples only: no test types an idea, so no model is called and nothing costs money.
 
@@ -178,17 +179,67 @@ test("the button is hidden when the server cannot keep links", async ({ page }) 
   await expect(page.getByRole("button", { name: "Get a link" })).toHaveCount(0);
 });
 
-test("an app link that does not exist answers with the same sealed page, never the site", async ({
+const GONE_ID = "A".repeat(22);
+
+test("an app link that does not exist shows a sealed notice inside the locked frame, never the site", async ({
+  page,
   request,
 }) => {
-  for (const id of ["A".repeat(22), "short", "..%2F..%2Fadmin"]) {
+  // The page a link opens is only a frame; the notice comes from the app page, sealed like any app.
+  const wrapper = await request.get(`/a/${GONE_ID}`);
+  expect(wrapper.status()).toBe(200);
+  expect(wrapper.headers()["content-security-policy"]).toContain("frame-src 'self'");
+  const app = await page.request.get(`/a/${GONE_ID}/app`, {
+    headers: { "sec-fetch-dest": "iframe" },
+  });
+  expect(app.status()).toBe(404);
+  const h = app.headers();
+  expect(h["content-security-policy"]).toContain("sandbox allow-scripts");
+  expect(h["content-security-policy"]).not.toContain("allow-same-origin");
+  expect(h["x-robots-tag"]).toBe("noindex, nofollow");
+  expect(h["cache-control"]).toBe("private, no-store");
+  expect(await app.text()).toContain("expired or was never saved");
+  // an id that could never be a link gets a plain 404 page with no frame at all
+  for (const id of ["short", "..%2F..%2Fadmin"]) {
     const res = await request.get(`/a/${id}`);
     expect(res.status()).toBe(404);
-    const h = res.headers();
-    expect(h["content-security-policy"]).toContain("sandbox allow-scripts");
-    expect(h["content-security-policy"]).not.toContain("allow-same-origin");
-    expect(h["x-robots-tag"]).toBe("noindex, nofollow");
-    expect(h["cache-control"]).toBe("private, no-store");
-    expect(await res.text()).toContain("expired or was never saved");
+    expect(await res.text()).not.toContain("<iframe");
   }
+  // in a real browser the notice appears inside the frame
+  await page.goto(`/a/${GONE_ID}`);
+  await expect(page.frameLocator("iframe").getByText("expired or was never saved")).toBeVisible();
+});
+
+test("opening the app page on its own sends the visitor to the locked wrapper", async ({
+  page,
+}) => {
+  await page.goto(`/a/${GONE_ID}/app`);
+  expect(new URL(page.url()).pathname).toBe(`/a/${GONE_ID}`);
+  await expect(page.locator("iframe")).toHaveCount(1);
+});
+
+test("an app that tries to send the visitor to another website is stopped by the browser", async ({
+  page,
+}) => {
+  // The app page is faked here (this site has no stored link to use without a database), with the real sealed
+  // headers. The wrapper is the real one, so the lock under test is the one visitors get.
+  const sealed = Object.fromEntries(sharedAppHeaders().map((x) => [x.key, x.value]));
+  await page.route(`**/a/${GONE_ID}/app`, (route) =>
+    route.fulfill({
+      status: 200,
+      headers: { ...sealed, "Content-Type": "text/html; charset=utf-8" },
+      body: '<!doctype html><title>x</title><h1 id="stayed">Still here</h1><script>setTimeout(function () { location.href = "https://example.com/"; }, 200);</script>',
+    }),
+  );
+  const reached: string[] = [];
+  const messages: string[] = [];
+  page.on("request", (r) => {
+    if (r.url().startsWith("https://example.com")) reached.push(r.url());
+  });
+  page.on("console", (m) => messages.push(m.text()));
+  await page.goto(`/a/${GONE_ID}`);
+  await expect(page.frameLocator("iframe").locator("#stayed")).toBeVisible();
+  await expect.poll(() => messages.join("\n"), { timeout: 10_000 }).toMatch(/frame-src|violates/i);
+  expect(page.frames().some((f) => f.url().startsWith("https://example.com"))).toBe(false);
+  expect(reached).toEqual([]);
 });

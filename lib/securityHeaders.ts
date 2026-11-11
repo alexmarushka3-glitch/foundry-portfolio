@@ -91,18 +91,44 @@ export const SHARED_APP_CONTENT_SECURITY_POLICY = [
   "connect-src 'none'",
   "base-uri 'none'",
   "form-action 'none'",
+  "frame-ancestors 'self'", // only the wrapper page below may frame it
+].join("; ");
+
+/**
+ * The page at /a/<id> that a hosted link opens. It holds only the site's own markup and one frame onto the sealed app
+ * page (/a/<id>/app). `frame-src 'self'` is the lock: the app can run scripts, but if it tries to send the visitor to
+ * another website the browser refuses to load it in that frame. A sandbox alone cannot stop a page navigating itself.
+ */
+export const SHARED_WRAPPER_CONTENT_SECURITY_POLICY = [
+  "default-src 'none'",
+  "frame-src 'self'",
+  "style-src 'unsafe-inline'",
+  "base-uri 'none'",
+  "form-action 'none'",
   "frame-ancestors 'none'",
 ].join("; ");
+
+const SHARED_COMMON: Header[] = [
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "X-Robots-Tag", value: "noindex, nofollow" },
+  { key: "Referrer-Policy", value: "no-referrer" },
+  // Links expire and can be removed, so no browser or shared cache may keep a copy.
+  { key: "Cache-Control", value: "private, no-store" },
+];
+
+export function sharedWrapperHeaders(): Header[] {
+  return [
+    { key: "Content-Security-Policy", value: SHARED_WRAPPER_CONTENT_SECURITY_POLICY },
+    { key: "X-Frame-Options", value: "DENY" },
+    ...SHARED_COMMON,
+  ];
+}
 
 export function sharedAppHeaders(): Header[] {
   return [
     { key: "Content-Security-Policy", value: SHARED_APP_CONTENT_SECURITY_POLICY },
-    { key: "X-Content-Type-Options", value: "nosniff" },
-    { key: "X-Frame-Options", value: "DENY" },
-    { key: "X-Robots-Tag", value: "noindex, nofollow" },
-    { key: "Referrer-Policy", value: "no-referrer" },
-    // Links expire and can be removed, so no browser or shared cache may keep a copy.
-    { key: "Cache-Control", value: "private, no-store" },
+    { key: "X-Frame-Options", value: "SAMEORIGIN" },
+    ...SHARED_COMMON,
   ];
 }
 
