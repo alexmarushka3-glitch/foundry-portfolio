@@ -5,9 +5,9 @@ const nextConfig: NextConfig = {
   poweredByHeader: false, // don't announce the framework on every response
   async headers() {
     return [
-      // Every page but the app preview files, which get their own, tighter policies below.
+      // Every page but the app preview files and hosted app links (/a/<id>, which set their own headers in the route).
       {
-        source: "/((?!preview/).*)",
+        source: "/((?!preview/|a/).*)",
         headers: securityHeaders(process.env.NODE_ENV !== "production"),
       },
       // The full-screen page (its own tab) and its script; the frame and runner it embeds keep the preview policy.
