@@ -262,7 +262,9 @@ export default function Stage() {
       {run && atEnd && (
         <div className="summary">
           <p>{runSummary(run)}</p>
-          {run.files && run.approved && <AppPreview files={run.files} howTo={howToUse(run)} />}
+          {run.files && run.approved && (
+            <AppPreview files={run.files} sig={run.filesSig} howTo={howToUse(run)} />
+          )}
           {evidence && <EvidenceCard evidence={evidence} />}
         </div>
       )}

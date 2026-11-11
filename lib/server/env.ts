@@ -8,3 +8,10 @@ export function envInt(name: string, fallback: number): number {
   const n = Number(raw);
   return Number.isFinite(n) && n >= 0 ? Math.floor(n) : fallback;
 }
+
+/**
+ * The off switch for hosted app links. Set FOUNDRY_SHARE=off in Vercel and redeploy (or just redeploy) to stop making
+ * links and to stop serving every link that exists. Anything else, or nothing, leaves links on.
+ */
+export const shareEnabled = (): boolean =>
+  process.env.FOUNDRY_SHARE?.trim().toLowerCase() !== "off";

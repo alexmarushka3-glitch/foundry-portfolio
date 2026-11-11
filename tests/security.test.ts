@@ -13,8 +13,12 @@ import {
   CONTENT_SECURITY_POLICY,
   FULLSCREEN_CONTENT_SECURITY_POLICY,
   PREVIEW_CONTENT_SECURITY_POLICY,
+  SHARED_APP_CONTENT_SECURITY_POLICY,
+  SHARED_WRAPPER_CONTENT_SECURITY_POLICY,
   fullscreenHeaders,
   previewHeaders,
+  sharedAppHeaders,
+  sharedWrapperHeaders,
   securityHeaders,
 } from "@/lib/securityHeaders";
 
@@ -182,6 +186,37 @@ describe("security headers", () => {
     );
     const h = Object.fromEntries(previewHeaders().map((x) => [x.key, x.value]));
     expect(h["X-Frame-Options"]).toBe("SAMEORIGIN");
+  });
+
+  it("serves a hosted app link sealed: opaque origin, no network, no framing, never cached or indexed", async () => {
+    const csp = SHARED_APP_CONTENT_SECURITY_POLICY;
+    expect(csp).toContain("sandbox allow-scripts allow-forms allow-modals");
+    expect(csp).not.toContain("allow-same-origin"); // that would give the app this site's origin
+    expect(csp).not.toMatch(/allow-(popups|top-navigation|downloads)/);
+    expect(csp).toContain("default-src 'none'");
+    expect(csp).toContain("connect-src 'none'");
+    expect(csp).toContain("frame-ancestors 'self'"); // only the wrapper page may frame it
+    expect(csp).not.toMatch(/'unsafe-eval'|https?:\/\/|\*/);
+    const wrapper = SHARED_WRAPPER_CONTENT_SECURITY_POLICY;
+    expect(wrapper).toContain("frame-src 'self'"); // the lock: a framed app cannot send the visitor to another website
+    expect(wrapper).toContain("frame-ancestors 'none'");
+    expect(wrapper).toContain("default-src 'none'");
+    expect(wrapper).not.toMatch(/script-src|unsafe-eval|https?:\/\/|\*/);
+    const wrapperHeaders = Object.fromEntries(sharedWrapperHeaders().map((x) => [x.key, x.value]));
+    expect(wrapperHeaders["X-Frame-Options"]).toBe("DENY");
+    expect(wrapperHeaders["Cache-Control"]).toBe("private, no-store");
+    const h = Object.fromEntries(sharedAppHeaders().map((x) => [x.key, x.value]));
+    expect(h["X-Robots-Tag"]).toBe("noindex, nofollow");
+    expect(h["Cache-Control"]).toBe("private, no-store");
+    expect(h["X-Content-Type-Options"]).toBe("nosniff");
+    expect(h["Referrer-Policy"]).toBe("no-referrer");
+    // the site-wide policy skips /a/ (the route sets its own), so the two never stack
+    const config = (await import("../next.config")).default;
+    const rules = await config.headers!();
+    const site = rules.find((r) => r.source.startsWith("/((?!"));
+    expect(site).toBeDefined();
+    expect(new RegExp(`^${site!.source}$`).test("/a/abc")).toBe(false);
+    expect(new RegExp(`^${site!.source}$`).test("/about")).toBe(true);
   });
 
   it("serves the full-screen page with its own policy: own script only, one frame onto the preview, no framing", async () => {

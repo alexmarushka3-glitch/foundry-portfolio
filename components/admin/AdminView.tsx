@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import "./admin.css";
 import { Donut, HBars, Legend, MODE_COLOR, StackedBars } from "./charts";
 import ControlPanel from "./ControlPanel";
+import LinksPanel from "./LinksPanel";
 import SandboxPanel from "./SandboxPanel";
 import FilterBar from "./FilterBar";
 import KpiCards from "./KpiCards";
@@ -230,6 +231,7 @@ export default function AdminView({
                 exportCount={shown.length}
               />
 
+              {!sample && <LinksPanel />}
               {!sample && <SandboxPanel />}
             </div>
 

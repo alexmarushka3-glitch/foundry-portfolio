@@ -26,6 +26,8 @@ export async function upstashPipeline(
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
     body: JSON.stringify(commands),
     cache: "no-store",
+    // A database that accepts the connection and never answers must not hold a request until the platform gives up.
+    signal: AbortSignal.timeout(8_000),
   });
   if (!res.ok) throw new Error(`Database answered ${res.status}.`);
   const body: unknown = await res.json();

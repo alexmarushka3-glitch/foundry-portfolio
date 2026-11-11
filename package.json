@@ -11,7 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "format": "prettier --write .",
-    "test:ui": "playwright test",
+    "test:ui": "playwright test --project=chrome",
+    "test:ui:browsers": "playwright test --project=firefox --project=webkit",
     "format:check": "prettier --check ."
   },
   "dependencies": {

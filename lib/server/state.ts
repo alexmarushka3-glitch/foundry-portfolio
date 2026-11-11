@@ -1,6 +1,9 @@
 import { envInt } from "./env";
 import { createLiveBrake, type LiveBrake } from "./liveBrake";
 import { SlidingWindowLimiter } from "./rateLimit";
+import { createShareBrake, type ShareBrake } from "./shareBrake";
+import { createShareSigner, type ShareSigner } from "./shareSigner";
+import { createShareStore, type ShareStore } from "./shareStore";
 import { FallbackRunStore, MemoryRunStore, createRunStore, type RunStore } from "./runStore";
 
 // Everything the server remembers between requests, in one place. It hangs off globalThis so that
@@ -11,6 +14,10 @@ type ServerState = {
   runLog: RunStore;
   liveLimiter: LiveBrake;
   loginLimiter: SlidingWindowLimiter;
+  /** Hosted app links: where the apps are kept and how often links may be made. */
+  shares: ShareStore;
+  shareBrake: ShareBrake;
+  shareSigner: ShareSigner;
   /** Admin kill switch. `paused` turns live runs off until someone turns them back on. */
   admin: { livePaused: boolean };
 };
@@ -35,6 +42,13 @@ export function serverState(): ServerState {
       perDay: envInt("FOUNDRY_LIVE_PER_DAY", 12),
     }),
     loginLimiter: new SlidingWindowLimiter(5, 15 * 60_000),
+    shares: createShareStore(),
+    shareSigner: createShareSigner(),
+    // Links last SHARE_TTL_SECONDS, so the day total (not a separate cap) is what bounds how many exist at once.
+    shareBrake: createShareBrake({
+      perHour: envInt("FOUNDRY_SHARE_PER_HOUR", 5),
+      perDay: envInt("FOUNDRY_SHARE_PER_DAY", 40),
+    }),
     admin: { livePaused: false },
   };
   return g.__foundry;

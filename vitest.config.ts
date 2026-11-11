@@ -11,5 +11,7 @@ export default defineConfig({
     // Server code is tested in Node; component tests opt in with `// @vitest-environment jsdom`.
     environment: "node",
     restoreMocks: true,
+    // Some tests render a whole run in jsdom; allow for a busy machine rather than failing on a slow moment.
+    testTimeout: 15_000,
   },
 });

@@ -35,7 +35,7 @@ The page labels the mode on every run.
 - The three recorded examples are real live runs, recorded with `scripts/record-live-runs.ts` and kept as they came out (`recordings-src/live/`, collected into `lib/liveRecordings.json` by `npm run recordings:live`). The site replays them faster than they ran, and each ends with its finished app.
 - The agents work on an in-memory copy of the starter kit (`lib/pipeline/workspace.ts`), each allowed to write only its own files. In a live run the app's unit tests (`npm test`, `node --test`) run in a Vercel Sandbox (`lib/pipeline/sandbox.ts`) with the network off; a failing suite fails the gate.
 - With `FOUNDRY_SANDBOX_SNAPSHOT` set, the files are bundled into one .html file (`lib/bundle.ts`) and a real headless Chromium runs a smoke test and the Browser Tester's test against it in the sandbox; pictures show in its panel and the real result decides the gate.
-- The finished app runs on the page in a sandboxed iframe with no network (`public/preview/`) and an in-memory storage stand-in, so nothing is kept there. The saved file is the same bundle and uses the browser's own storage. Where downloads are blocked (some company laptops), "Open full screen" and "Copy the code" work without one.
+- The finished app runs on the page in a sandboxed iframe with no network (`public/preview/`) and an in-memory storage stand-in, so nothing is kept there. The saved file is the same bundle and uses the browser's own storage. Where downloads are blocked (some company laptops), "Open full screen" and "Copy the code" work without one, and "Get a link" (needs the Redis database) gives a link that opens the app in a browser tab for 7 days. It runs sealed and keeps nothing.
 - No human reviews the apps. Runs no longer open pull requests; the old GitHub App code (`lib/pipeline/github.ts`) is only used by a daily cron that closes old drafts on taskly-sample.
 
 ## Getting started
@@ -71,6 +71,9 @@ Copy `.env.example` to `.env.local`. Nothing is required.
 | `FOUNDRY_LIVE_PER_HOUR` | `2` | Live runs per browser per hour (a random id in an HttpOnly cookie, used only for this limit). |
 | `FOUNDRY_LIVE_PER_NETWORK_HOUR` | `6` | Live runs per network (IP address) per hour, shared by every browser on it, so people on one Wi-Fi each get their own runs without cookie-clearing giving endless ones. |
 | `FOUNDRY_LIVE_PER_DAY` | `12` | Live runs per day for the whole site. |
+| `FOUNDRY_SHARE` | on | Set to `off` to stop making app links and stop opening existing ones (the off switch for abuse). |
+| `FOUNDRY_SHARE_PER_HOUR` | `5` | App links per address per hour. |
+| `FOUNDRY_SHARE_PER_DAY` | `40` | App links per day for the whole site (links last 7 days, so this bounds how many exist). |
 | `FOUNDRY_SANDBOX_SNAPSHOT` | none | Id of the prepared sandbox snapshot (repo, dependencies, Chromium). Without it the real browser step is skipped and unit tests use a slower plain clone. Build one with `scripts/build-sandbox-snapshot.mjs`. |
 | `GITHUB_APP_ID`, `GITHUB_APP_INSTALLATION_ID`, `GITHUB_APP_PRIVATE_KEY` | none | The GitHub App the daily cron uses to close old draft pull requests on taskly-sample (runs open none now). The key is the .pem text or its base64. |
 | `CRON_SECRET` | none | Lets Vercel Cron call `/api/cron/close-stale-prs` to close pull requests older than a day. Without it that route returns 404. |

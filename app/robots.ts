@@ -7,7 +7,7 @@ import { profile } from "@/lib/profile";
  */
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: { userAgent: "*", allow: "/", disallow: "/api/" },
+    rules: { userAgent: "*", allow: "/", disallow: ["/api/", "/a/"] },
     sitemap: `${profile.siteUrl}/sitemap.xml`,
   };
 }

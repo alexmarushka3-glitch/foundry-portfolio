@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { appFileName, appTitle, bundleApp } from "@/lib/bundle";
+import { SHARE_TTL_DAYS } from "@/lib/share";
 
 // The finished app from a real run, as one self-contained .html file. It opens right here in a sandboxed, offline frame
 // (public/preview/), and visitors can save the same file to keep and open later.
@@ -21,9 +22,12 @@ type SaveWindow = Window & {
 
 export default function AppPreview({
   files,
+  sig,
   howTo = [],
 }: {
   files: Record<string, string>;
+  /** The server's signature for these files (a live run); a replay has none and is matched by the server instead. */
+  sig?: string;
   howTo?: string[];
 }) {
   const html = useMemo(() => bundleApp(files), [files]);
@@ -31,8 +35,70 @@ export default function AppPreview({
   const [status, setStatus] = useState<"starting" | "ready" | "failed">("starting");
   const [problem, setProblem] = useState("");
   const [note, setNote] = useState("");
+  // Hosted links: offered only when the server says it can keep them (it needs the database).
+  const [canShare, setCanShare] = useState(false);
+  const [sharing, setSharing] = useState(false);
+  const [link, setLink] = useState("");
   const frame = useRef<HTMLIFrameElement>(null);
   const fullTab = useRef<Window | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/share")
+      .then((r) => r.json())
+      .then((d: { available?: unknown }) => alive && setCanShare(d.available === true))
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+  // A new app means any link, message or request for the old one is stale.
+  const linkRequest = useRef(0);
+  // Only when the app really changes: on the first run a click could already have set a message, and that would erase it.
+  const shownHtml = useRef(html);
+  useEffect(() => {
+    if (shownHtml.current === html) return;
+    shownHtml.current = html;
+    linkRequest.current++; // an answer still on its way belongs to the old app
+    setSharing(false);
+    setLink("");
+    setNote("");
+  }, [html]);
+  const linkInput = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (link) linkInput.current?.focus(); // so a screen reader announces the new link
+  }, [link]);
+
+  const getLink = async () => {
+    setNote("Making a link…"); // read out by the status line below
+    setSharing(true);
+    const mine = ++linkRequest.current;
+    try {
+      const res = await fetch("/api/share", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ files, sig }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
+      if (mine !== linkRequest.current) return; // another app was built while this one was waiting
+      if (res.ok && data.url) setLink(data.url);
+      else setNote(data.error ?? "Could not make a link right now. Try Save the app.");
+    } catch {
+      if (mine === linkRequest.current)
+        setNote("Could not make a link right now. Try Save the app.");
+    } finally {
+      if (mine === linkRequest.current) setSharing(false); // a newer request owns the button now
+    }
+  };
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(link);
+      setNote("Link copied.");
+    } catch {
+      setNote("Your browser would not let the page copy. Select the link and copy it yourself.");
+    }
+  };
 
   useEffect(() => {
     setStatus("starting");
@@ -133,8 +199,39 @@ export default function AppPreview({
           <button type="button" className="btn btn-ghost" onClick={openFull}>
             Open full screen
           </button>
+          {canShare && (
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={getLink}
+              disabled={sharing || link !== ""}
+            >
+              {sharing ? "Making a link…" : "Get a link"}
+            </button>
+          )}
         </div>
       </div>
+      {link && (
+        <div className="app-link">
+          <label>
+            Your link
+            <input
+              ref={linkInput}
+              readOnly
+              value={link}
+              onFocus={(e) => e.currentTarget.select()}
+              aria-describedby="app-link-fine"
+            />
+          </label>
+          <button type="button" className="btn btn-ghost" onClick={copyLink}>
+            Copy link
+          </button>
+          <p className="fine" id="app-link-fine">
+            Anyone with this link can open the app in a browser for {SHARE_TTL_DAYS} days, then it
+            is deleted. On the link the app keeps nothing; save the app to keep your data.
+          </p>
+        </div>
+      )}
       <div className="app-next">
         <h4>What to do now</h4>
         <ol>

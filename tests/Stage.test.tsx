@@ -1,10 +1,14 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, configure, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import Stage from "@/components/Stage";
 import { encodeEvent } from "@/lib/ndjson";
 import type { FoundryEvent } from "@/lib/types";
 import { FIXTURE_REQUEST, fixtureRecording } from "./fixtures/liveRecording";
+
+// Each test renders a whole run. Right after a browser test the machine can be busy, and the default one-second wait
+// for a run to show up is tight; the races that once made these tests flaky are fixed, so this only allows for load.
+configure({ asyncUtilTimeout: 4000 });
 
 vi.mock("@/lib/liveRecordings.json", () => ({ default: { recordings: [] } }));
 /** Set `hold` to a promise to make recordings load slowly, the way a real fetch does. */
@@ -205,6 +209,7 @@ describe("Stage", () => {
       { type: "done", agent: "researcher", round: 1, ms: 20 },
       {
         type: "files",
+        sig: "f".repeat(64),
         files: {
           "index.html":
             "<!doctype html><html><head><title>Tip calculator</title></head><body><h1>Tip calculator</h1></body></html>",
@@ -311,25 +316,107 @@ describe("Stage", () => {
       typeIdea();
       fireEvent.click(await screen.findByRole("button", { name: "Open full screen" }));
       expect(open).toHaveBeenCalledWith("/preview/full.html", "_blank");
+      const ask = (source?: Window) =>
+        window.dispatchEvent(
+          new MessageEvent("message", {
+            data: { type: "full-loaded" },
+            origin: window.location.origin,
+            source,
+          }),
+        );
+      // The page listens from a passive effect that can lag a moment behind what the test sees, so ask until it answers.
+      await waitFor(() => {
+        ask(tab as unknown as Window);
+        expect(tab.postMessage).toHaveBeenCalledWith(
+          expect.objectContaining({ type: "full-start", title: "Tip calculator" }),
+          window.location.origin,
+        );
+      });
       // a message from some other window is ignored
-      window.dispatchEvent(
-        new MessageEvent("message", {
-          data: { type: "full-loaded" },
-          origin: window.location.origin,
-        }),
+      const answered = tab.postMessage.mock.calls.length;
+      ask();
+      expect(tab.postMessage.mock.calls.length).toBe(answered);
+    });
+
+    /** Answers /api/share the way the server would, and the run itself with the approved run. */
+    const mockShare = (share: { available: boolean; post?: () => Response }) => {
+      const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
+        if (url === "/api/share")
+          return init?.method === "POST"
+            ? share.post!()
+            : Response.json({ available: share.available });
+        return init?.method === "POST" ? ndjson(approvedRun) : Response.json({ live: false });
+      });
+      vi.stubGlobal("fetch", fetchMock);
+      return fetchMock;
+    };
+
+    it("hides Get a link when the server cannot keep links", async () => {
+      mockShare({ available: false });
+      render(<Stage />);
+      typeIdea();
+      await screen.findByRole("button", { name: "Save the app" });
+      expect(screen.queryByRole("button", { name: "Get a link" })).toBeNull();
+    });
+
+    it("makes a link, shows it with how long it lasts, and copies it", async () => {
+      const writeText = vi.fn(async () => {});
+      Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
+      const fetchMock = mockShare({
+        available: true,
+        post: () => Response.json({ id: "x", url: "https://site.test/a/abc", expiresAt: "later" }),
+      });
+      render(<Stage />);
+      typeIdea();
+      const getLink = await screen.findByRole("button", { name: "Get a link" });
+      fireEvent.click(getLink);
+      fireEvent.click(getLink); // a second click while it works must not make a second link
+      const input = (await screen.findByLabelText("Your link")) as HTMLInputElement;
+      expect(input.value).toBe("https://site.test/a/abc");
+      expect(
+        screen.getByText(/open the app in a browser for 7 days, then it is deleted/),
+      ).toBeTruthy();
+      const post = fetchMock.mock.calls.find(
+        ([url, init]) => url === "/api/share" && init?.method === "POST",
+      )!;
+      const sent = JSON.parse(String(post[1]!.body));
+      expect(sent.files["index.html"]).toContain("<h1>Tip calculator</h1>");
+      expect(sent.sig).toBe("f".repeat(64)); // the signature the server put on the run's files event
+      expect(sent.html).toBeUndefined();
+      const posts = fetchMock.mock.calls.filter(
+        ([url, init]) => url === "/api/share" && init?.method === "POST",
       );
-      expect(tab.postMessage).not.toHaveBeenCalled();
-      window.dispatchEvent(
-        new MessageEvent("message", {
-          data: { type: "full-loaded" },
-          origin: window.location.origin,
-          source: tab as unknown as Window,
-        }),
+      expect(posts).toHaveLength(1);
+      // with a link already made, the button cannot make another copy
+      expect(screen.getByRole("button", { name: "Get a link" }).hasAttribute("disabled")).toBe(
+        true,
       );
-      expect(tab.postMessage).toHaveBeenCalledWith(
-        expect.objectContaining({ type: "full-start", title: "Tip calculator" }),
-        window.location.origin,
-      );
+      fireEvent.click(screen.getByRole("button", { name: "Copy link" }));
+      await waitFor(() => expect(writeText).toHaveBeenCalledWith("https://site.test/a/abc"));
+      expect(await screen.findByText("Link copied.")).toBeTruthy();
+    });
+
+    it("shows why a link was refused, makes no link, and leaves the other ways to keep the app", async () => {
+      mockShare({
+        available: true,
+        post: () =>
+          Response.json(
+            {
+              error:
+                "This app can't get a link because it asks for a password. You can still save it.",
+            },
+            { status: 422 },
+          ),
+      });
+      render(<Stage />);
+      typeIdea();
+      fireEvent.click(await screen.findByRole("button", { name: "Get a link" }));
+      expect(
+        await screen.findByText(/can't get a link because it asks for a password/),
+      ).toBeTruthy();
+      expect(screen.queryByLabelText("Your link")).toBeNull();
+      expect(screen.getByRole("button", { name: "Save the app" })).toBeTruthy();
+      expect(screen.getByRole("button", { name: "Get a link" })).toBeTruthy(); // not stuck on "Making a link"
     });
 
     it("keeps Copy the code available when the new tab is blocked", async () => {

@@ -84,6 +84,16 @@ describe("toRun", () => {
       100,
     )!;
     expect(run.files).toEqual(files);
+    expect(run.filesSig).toBeUndefined();
+    const signed = toRun(
+      play([
+        ...finished.slice(0, -1),
+        [{ type: "files", files, sig: "a".repeat(64) }, 58],
+        finished.at(-1)!,
+      ]),
+      100,
+    )!;
+    expect(signed.filesSig).toBe("a".repeat(64));
     expect(toRun(play(finished), 100)!.files).toBeUndefined();
   });
 

@@ -15,6 +15,8 @@ export type LiveState = {
   pr?: { url: string; number: number };
   /** The approved run's changed files, path -> content. */
   files?: Record<string, string>;
+  /** The server's signature for those files, when it sent one. */
+  filesSig?: string;
   /** Set when the server sent its closing "finish" event. */
   result?: { approved: boolean; rounds: number; realMs: number };
   /** Set when the server sent an "error" event. */
@@ -91,7 +93,7 @@ export function applyEvent(state: LiveState, e: FoundryEvent, at: number): LiveS
     case "pr":
       return { ...state, pr: { url: e.url, number: e.number } };
     case "files":
-      return { ...state, files: e.files };
+      return { ...state, files: e.files, filesSig: e.sig };
     case "finish":
       return { ...state, result: { approved: e.approved, rounds: e.rounds, realMs: e.ms } };
     case "error":
@@ -127,6 +129,7 @@ export function toRun(state: LiveState, now: number): Run | null {
     costUsd: mode === "live" ? state.costUsd : undefined,
     pr: state.pr,
     files: state.files,
+    filesSig: state.filesSig,
     reason: state.reason,
   };
 }
