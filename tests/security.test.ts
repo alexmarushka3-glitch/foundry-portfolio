@@ -11,7 +11,9 @@ import {
 import { MAX_BODY_BYTES, readJsonBody } from "@/lib/server/runApi";
 import {
   CONTENT_SECURITY_POLICY,
+  FULLSCREEN_CONTENT_SECURITY_POLICY,
   PREVIEW_CONTENT_SECURITY_POLICY,
+  fullscreenHeaders,
   previewHeaders,
   securityHeaders,
 } from "@/lib/securityHeaders";
@@ -180,5 +182,26 @@ describe("security headers", () => {
     );
     const h = Object.fromEntries(previewHeaders().map((x) => [x.key, x.value]));
     expect(h["X-Frame-Options"]).toBe("SAMEORIGIN");
+  });
+
+  it("serves the full-screen page with its own policy: own script only, one frame onto the preview, no framing", async () => {
+    expect(FULLSCREEN_CONTENT_SECURITY_POLICY).toContain("default-src 'none'");
+    expect(FULLSCREEN_CONTENT_SECURITY_POLICY).toContain("script-src 'self'");
+    expect(FULLSCREEN_CONTENT_SECURITY_POLICY).not.toMatch(/script-src[^;]*unsafe-inline/);
+    expect(FULLSCREEN_CONTENT_SECURITY_POLICY).toContain("frame-src 'self'");
+    expect(FULLSCREEN_CONTENT_SECURITY_POLICY).toContain("frame-ancestors 'none'");
+    const h = Object.fromEntries(fullscreenHeaders().map((x) => [x.key, x.value]));
+    expect(h["X-Frame-Options"]).toBe("DENY");
+    // same as the page that opens it, so the two keep their link
+    expect(h["Cross-Origin-Opener-Policy"]).toBe("same-origin");
+    // next.config sends it only for full.html, and the other preview files keep the preview policy
+    const config = (await import("../next.config")).default;
+    const rules = await config.headers!();
+    const forFull = rules.filter((r) => new RegExp(`^${r.source}$`).test("/preview/full.html"));
+    const forFrame = rules.filter((r) => new RegExp(`^${r.source}$`).test("/preview/frame.html"));
+    const csp = (r: { headers: { key: string; value: string }[] }) =>
+      r.headers.find((x) => x.key === "Content-Security-Policy")?.value;
+    expect(forFull.map(csp)).toEqual([FULLSCREEN_CONTENT_SECURITY_POLICY]);
+    expect(forFrame.map(csp)).toEqual([PREVIEW_CONTENT_SECURITY_POLICY]);
   });
 });

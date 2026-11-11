@@ -6,6 +6,19 @@ import { appFileName, appTitle, bundleApp } from "@/lib/bundle";
 // The finished app from a real run, as one self-contained .html file. It opens right here in a sandboxed, offline frame
 // (public/preview/), and visitors can save the same file to keep and open later.
 
+// The "Save as" window (Chrome and Edge only), so it is not in TypeScript's built-in types for every setup.
+type SaveWindow = Window & {
+  showSaveFilePicker?: (options: {
+    suggestedName: string;
+    types: { description: string; accept: Record<string, string[]> }[];
+  }) => Promise<{
+    createWritable: () => Promise<{
+      write: (d: string) => Promise<void>;
+      close: () => Promise<void>;
+    }>;
+  }>;
+};
+
 export default function AppPreview({
   files,
   howTo = [],
@@ -17,13 +30,26 @@ export default function AppPreview({
   const title = useMemo(() => appTitle(html), [html]);
   const [status, setStatus] = useState<"starting" | "ready" | "failed">("starting");
   const [problem, setProblem] = useState("");
+  const [note, setNote] = useState("");
   const frame = useRef<HTMLIFrameElement>(null);
+  const fullTab = useRef<Window | null>(null);
 
   useEffect(() => {
     setStatus("starting");
     setProblem("");
     const onMessage = (e: MessageEvent) => {
-      if (e.source !== frame.current?.contentWindow || !e.data) return;
+      if (!e.data) return;
+      // The full-screen tab (public/preview/full.js) asks for the app each time it loads, so a refresh works too.
+      if (
+        e.source &&
+        e.source === fullTab.current &&
+        e.origin === window.location.origin &&
+        e.data.type === "full-loaded"
+      ) {
+        fullTab.current?.postMessage({ type: "full-start", html, title }, window.location.origin);
+        return;
+      }
+      if (e.source !== frame.current?.contentWindow) return;
       if (e.data.type === "preview-loaded")
         frame.current?.contentWindow?.postMessage({ type: "preview-start", html }, "*");
       else if (e.data.type === "preview-ready") setStatus((s) => (s === "failed" ? s : "ready"));
@@ -34,9 +60,9 @@ export default function AppPreview({
     };
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
-  }, [html]);
+  }, [html, title]);
 
-  const save = () => {
+  const download = () => {
     const url = URL.createObjectURL(new Blob([html], { type: "text/html" }));
     const a = document.createElement("a");
     a.href = url;
@@ -45,13 +71,69 @@ export default function AppPreview({
     setTimeout(() => URL.revokeObjectURL(url), 10_000);
   };
 
+  // Chrome and Edge can open the normal "Save as" window with the name filled in; it saves the file without a
+  // browser download, which some company computers block. Other browsers (and any failure) fall back to a download.
+  const save = async () => {
+    setNote("");
+    const picker = (window as SaveWindow).showSaveFilePicker;
+    if (picker) {
+      let handle: Awaited<ReturnType<NonNullable<SaveWindow["showSaveFilePicker"]>>> | null = null;
+      try {
+        handle = await picker.call(window, {
+          suggestedName: appFileName(html),
+          types: [{ description: "Web page", accept: { "text/html": [".html"] } }],
+        });
+      } catch (err) {
+        if ((err as Error).name === "AbortError") return; // the visitor closed the window
+        // any other refusal (not allowed here, blocked by policy): try a normal download below
+      }
+      if (handle) {
+        // The file now exists, so a failed write must not fall through to a second copy by download.
+        try {
+          const out = await handle.createWritable();
+          await out.write(html);
+          await out.close();
+          setNote("Saved.");
+        } catch {
+          setNote("The file could not be written. Try Open full screen or Copy the code instead.");
+        }
+        return;
+      }
+    }
+    download();
+    setNote(
+      "Download started. If your computer blocks downloads, use Open full screen or Copy the code.",
+    );
+  };
+
+  const openFull = () => {
+    setNote("");
+    fullTab.current = window.open("/preview/full.html", "_blank");
+    if (!fullTab.current)
+      setNote("Your browser blocked the new tab. Allow pop-ups for this site and try again.");
+  };
+
+  const copyCode = async () => {
+    try {
+      await navigator.clipboard.writeText(html);
+      setNote("Copied. Paste it into a text file and name the file app.html.");
+    } catch {
+      setNote("Your browser would not let the page copy. Try Save the app instead.");
+    }
+  };
+
   return (
     <section className="app-preview" aria-label="Your app">
       <div className="app-preview-head">
         <h3>Your app: {title}</h3>
-        <button type="button" className="btn btn-primary" onClick={save}>
-          Save the app
-        </button>
+        <div className="app-actions">
+          <button type="button" className="btn btn-primary" onClick={save}>
+            Save the app
+          </button>
+          <button type="button" className="btn btn-ghost" onClick={openFull}>
+            Open full screen
+          </button>
+        </div>
       </div>
       <div className="app-next">
         <h4>What to do now</h4>
@@ -82,8 +164,18 @@ export default function AppPreview({
         {status === "failed" && (
           <span className="error-inline">The app hit an error: {problem} </span>
         )}
-        Use it here (nothing is kept), or save it: one file that opens in any browser, works offline
-        and remembers your data on your device.
+        Use it here or full screen (nothing is kept), or save it: one file that opens in any
+        browser, works offline and remembers your data on your device.
+      </p>
+      <p className="fine">
+        Can't save on this computer?{" "}
+        <button type="button" className="link-button" onClick={copyCode}>
+          Copy the code
+        </button>{" "}
+        instead and paste it into a text file named app.html.
+      </p>
+      <p className="fine" role="status" aria-live="polite">
+        {note}
       </p>
     </section>
   );
