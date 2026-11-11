@@ -14,8 +14,9 @@ export const runtime = "nodejs";
 export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }) {
   const { id } = await ctx.params;
   if (!SHARE_ID.test(id)) return gone();
-  // Browsers say how a page is being loaded. Anything but a frame goes to the wrapper (an old browser that sends
-  // nothing does too; the wrapper cannot be framed, so that never loops).
+  // Browsers say how a page is being loaded. Anything but a frame goes to the wrapper. A browser that sends nothing
+  // (Safari before 16.4, or a proxy that strips it) gets that redirect inside the wrapper's frame, where the wrapper's
+  // frame-ancestors 'none' refuses it: a blank frame, never the unlocked app. That fails closed on purpose.
   if (req.headers.get("sec-fetch-dest") !== "iframe") {
     return new Response(null, {
       status: 302,

@@ -311,25 +311,26 @@ describe("Stage", () => {
       typeIdea();
       fireEvent.click(await screen.findByRole("button", { name: "Open full screen" }));
       expect(open).toHaveBeenCalledWith("/preview/full.html", "_blank");
+      const ask = (source?: Window) =>
+        window.dispatchEvent(
+          new MessageEvent("message", {
+            data: { type: "full-loaded" },
+            origin: window.location.origin,
+            source,
+          }),
+        );
+      // The page listens from a passive effect that can lag a moment behind what the test sees, so ask until it answers.
+      await waitFor(() => {
+        ask(tab as unknown as Window);
+        expect(tab.postMessage).toHaveBeenCalledWith(
+          expect.objectContaining({ type: "full-start", title: "Tip calculator" }),
+          window.location.origin,
+        );
+      });
       // a message from some other window is ignored
-      window.dispatchEvent(
-        new MessageEvent("message", {
-          data: { type: "full-loaded" },
-          origin: window.location.origin,
-        }),
-      );
-      expect(tab.postMessage).not.toHaveBeenCalled();
-      window.dispatchEvent(
-        new MessageEvent("message", {
-          data: { type: "full-loaded" },
-          origin: window.location.origin,
-          source: tab as unknown as Window,
-        }),
-      );
-      expect(tab.postMessage).toHaveBeenCalledWith(
-        expect.objectContaining({ type: "full-start", title: "Tip calculator" }),
-        window.location.origin,
-      );
+      const answered = tab.postMessage.mock.calls.length;
+      ask();
+      expect(tab.postMessage.mock.calls.length).toBe(answered);
     });
 
     /** Answers /api/share the way the server would, and the run itself with the approved run. */

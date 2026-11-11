@@ -200,7 +200,7 @@ test("an app link that does not exist shows a sealed notice inside the locked fr
   expect(h["cache-control"]).toBe("private, no-store");
   expect(await app.text()).toContain("expired or was never saved");
   // an id that could never be a link gets a plain 404 page with no frame at all
-  for (const id of ["short", "..%2F..%2Fadmin"]) {
+  for (const id of ["short", "..%2F..%2Fadmin", `${GONE_ID}/other`, ""]) {
     const res = await request.get(`/a/${id}`);
     expect(res.status()).toBe(404);
     expect(await res.text()).not.toContain("<iframe");
@@ -239,7 +239,9 @@ test("an app that tries to send the visitor to another website is stopped by the
   page.on("console", (m) => messages.push(m.text()));
   await page.goto(`/a/${GONE_ID}`);
   await expect(page.frameLocator("iframe").locator("#stayed")).toBeVisible();
-  await expect.poll(() => messages.join("\n"), { timeout: 10_000 }).toMatch(/frame-src|violates/i);
+  await expect
+    .poll(() => messages.join("\n"), { timeout: 10_000 })
+    .toMatch(/Framing 'https:\/\/example\.com\/' violates[^]*frame-src 'self'/i);
   expect(page.frames().some((f) => f.url().startsWith("https://example.com"))).toBe(false);
   expect(reached).toEqual([]);
 });

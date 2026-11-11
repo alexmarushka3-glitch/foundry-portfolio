@@ -52,7 +52,11 @@ export default function AppPreview({
   // A new app means any link, message or request for the old one is stale.
   const latestHtml = useRef(html);
   latestHtml.current = html;
+  // Only when the app really changes: on the first run a click could already have set a message, and that would erase it.
+  const shownHtml = useRef(html);
   useEffect(() => {
+    if (shownHtml.current === html) return;
+    shownHtml.current = html;
     setLink("");
     setNote("");
   }, [html]);

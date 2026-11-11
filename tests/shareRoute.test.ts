@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { GET as serveApp } from "@/app/a/[id]/app/route";
 import { GET as serveWrapper } from "@/app/a/[id]/route";
+import { GET as serveOther } from "@/app/a/[[...rest]]/route";
 import { GET as available, POST as create } from "@/app/api/share/route";
 import {
   SHARED_APP_CONTENT_SECURITY_POLICY,
@@ -150,6 +151,20 @@ describe("GET /a/[id] (the page a link opens)", () => {
       expect(await res.text()).not.toContain("<iframe");
     }
     expect(fake.fetchFn.mock.calls.length).toBe(before);
+  });
+});
+
+describe("anything else under /a/", () => {
+  it("answers with a plain 404 that still carries the sealed headers", async () => {
+    const res = await serveOther();
+    expect(res.status).toBe(404);
+    expect(res.headers.get("content-security-policy")).toBe(SHARED_WRAPPER_CONTENT_SECURITY_POLICY);
+    expect(res.headers.get("x-content-type-options")).toBe("nosniff");
+    expect(await res.text()).not.toContain("<iframe");
+  });
+
+  it("lets the wrapper's frame use the clipboard even though the app has an opaque origin", async () => {
+    expect(await (await openWrapper("B".repeat(22))).text()).toContain('allow="clipboard-write *"');
   });
 });
 

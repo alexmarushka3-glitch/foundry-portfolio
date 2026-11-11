@@ -1,7 +1,8 @@
 import { sharedAppHeaders, sharedWrapperHeaders, type Header } from "@/lib/securityHeaders";
 
 // The small pages around a hosted app link: the wrapper that frames it, and the "gone" and "unavailable" notices.
-// Every one carries the sealed headers (lib/securityHeaders.ts), so nothing under /a/ is ever served without them.
+// Each carries the sealed headers (lib/securityHeaders.ts): the wrapper pages the wrapper's, the rest the app page's.
+// A well-formed id always gets the wrapper with a 200, even for an expired link; the notice shows inside its frame.
 
 const headersObject = (headers: Header[]) =>
   Object.fromEntries(headers.map((h) => [h.key, h.value]));
@@ -30,7 +31,7 @@ export const unavailable = () =>
 
 /** The page a link opens: one full-window frame onto the sealed app page. `id` must already match SHARE_ID. */
 export function wrapper(id: string): Response {
-  const body = `<iframe src="/a/${id}/app" title="App made on Foundry, running in your browser" sandbox="allow-scripts allow-forms allow-modals" allow="clipboard-write"></iframe>`;
+  const body = `<iframe src="/a/${id}/app" title="App made on Foundry, running in your browser" sandbox="allow-scripts allow-forms allow-modals" allow="clipboard-write *"></iframe>`;
   return new Response(
     SHELL(
       body,

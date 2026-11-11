@@ -79,8 +79,7 @@ export function fullscreenHeaders(): Header[] {
 /**
  * A hosted app link (/a/<id>): the finished app opened as its own page. It is written by an agent from a visitor's
  * idea, so it must never act as this site. `sandbox` without allow-same-origin gives the page an opaque origin: no
- * cookies, no site storage, no calls to /api. It is a header (not a meta tag), so it holds even when the page is
- * opened directly. The app is one file with inline scripts and styles, and may connect nowhere.
+ * cookies, no site storage, no calls to /api. It is a header (not a meta tag), so the browser enforces it. The app is one file with inline scripts and styles, and may connect nowhere.
  */
 export const SHARED_APP_CONTENT_SECURITY_POLICY = [
   "sandbox allow-scripts allow-forms allow-modals",
