@@ -13,7 +13,9 @@ export type ShareCheck = { ok: true } | { ok: false; reason: string };
 type Rule = { test: (html: string) => boolean; reason: string };
 
 // Whole tags, read with quoted values kept together: a value may contain ">", so a plain [^>]* would stop too early and
-// miss what follows it.
+// miss what follows it. Every pattern here must run in linear time: this runs on a page of up to 128 KB, before any
+// limit applies, and again on every open (tests/shareCheck.test.ts times it on adversarial pages). So no two \s* around
+// an optional character, and no unbounded [^>]* that restarts at every match.
 const TAG_ATTRS = String.raw`(?:"[^"]*"|'[^']*'|[^>"'])*`;
 const tags = (name: string, html: string) =>
   html.match(new RegExp(String.raw`<${name}\b${TAG_ATTRS}>?`, "gi")) ?? [];
@@ -24,13 +26,13 @@ const RULES: Rule[] = [
     test: (html) =>
       inInputs(
         html,
-        /\btype\s*=\s*["']?\s*password|autocomplete\s*=\s*["']?(?:current|new)-password/i,
+        /\btype\s*=\s*["']?password|autocomplete\s*=\s*["']?(?:current|new)-password/i,
       ),
     reason: "it asks for a password",
   },
   {
     // A type written with character codes (&#112;assword) is still read by the browser as a password box.
-    test: (html) => inInputs(html, /\btype\s*=\s*["']?[^"'\s>]*&/i),
+    test: (html) => inInputs(html, /\btype\s*=\s*["']?[^"'\s>&]{0,24}&/i),
     reason: "it asks for a password",
   },
   {
@@ -50,12 +52,11 @@ const RULES: Rule[] = [
     reason: "it looks like a sign-in or account page",
   },
   {
-    test: (html) =>
-      tags("form", html).some((t) => /\baction\s*=\s*["']?\s*(?:https?:)?\/\//i.test(t)),
+    test: (html) => tags("form", html).some((t) => /\baction\s*=\s*["']?(?:https?:)?\/\//i.test(t)),
     reason: "it has a form that sends data to another site",
   },
   {
-    test: (html) => /<meta\b[^>]*http-equiv\s*=\s*["']?refresh/i.test(html),
+    test: (html) => tags("meta", html).some((t) => /http-equiv\s*=\s*["']?refresh/i.test(t)),
     reason: "it redirects to another page",
   },
   {

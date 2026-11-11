@@ -172,6 +172,46 @@ describe("RedisShareBrake", () => {
     expect(await brake.check("b")).toBe(dayUsedUp);
   });
 
+  it("leaves both counters exactly as they were when the day total refuses a request", async () => {
+    const fake = fakeUpstash();
+    const brake = new RedisShareBrake({ perHour: 5, perDay: 1 }, fake.config, () => T);
+    expect(await brake.check("a")).toBeNull();
+    for (let i = 0; i < 3; i++) expect(await brake.check("b")).toBe(dayUsedUp);
+    expect(fake.data.get(dayKey(fake)!)).toBe(1); // still just the one link that was made
+    const addressCounts = [...fake.data.entries()]
+      .filter(([k]) => k.startsWith("foundry:share:a:"))
+      .map(([, v]) => v)
+      .sort();
+    expect(addressCounts).toEqual([0, 1]); // "a" made a link; "b" was not charged for the refused tries
+    await brake.release("a");
+    expect(await brake.check("b")).toBeNull(); // the slot a saved link gave back is really free
+  });
+
+  it("undoes the address count when the day step fails, then reports the failure", async () => {
+    const fake = fakeUpstash();
+    let calls = 0;
+    const flaky = {
+      ...fake.config,
+      fetchFn: (async (url: string | URL | Request, init?: RequestInit) => {
+        calls++;
+        if (calls === 2) return new Response("no", { status: 500 }); // the day transaction
+        return (fake.fetchFn as unknown as typeof fetch)(url, init);
+      }) as unknown as typeof fetch,
+    };
+    const brake = new RedisShareBrake({ perHour: 5, perDay: 10 }, flaky, () => T);
+    await expect(brake.check("v")).rejects.toThrow(/500/);
+    const mine = [...fake.data.entries()].find(([k]) => k.startsWith("foundry:share:a:"));
+    expect(mine?.[1]).toBe(0);
+  });
+
+  it("does not leave a negative counter when a slot is given back after the counter expired", async () => {
+    const fake = fakeUpstash();
+    const brake = new RedisShareBrake({ perHour: 1, perDay: 1 }, fake.config, () => T);
+    await brake.release("never counted");
+    for (const [key, value] of fake.data) expect(value, key).toBeGreaterThanOrEqual(0);
+    expect(await brake.check("never counted")).toBeNull();
+  });
+
   it("gives a slot back when the link could not be saved", async () => {
     const fake = fakeUpstash();
     const brake = new RedisShareBrake({ perHour: 1, perDay: 1 }, fake.config, () => T);

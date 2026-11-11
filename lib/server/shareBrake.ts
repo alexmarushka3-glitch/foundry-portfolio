@@ -72,19 +72,35 @@ export class RedisShareBrake implements ShareBrake {
     // An address that is over its hour is refused here, before it touches the site's day total. Otherwise one address
     // asking again and again could use up the day for everyone.
     if (Number(a) > this.limits.perHour) return addressUsedUp(this.limits);
-    const [d] = await upstashTransaction(this.config, [
-      ["INCR", day],
-      ["EXPIRE", day, 172_800, "NX"],
-    ]);
-    return Number(d) > this.limits.perDay ? dayUsedUp : null;
+    let d: unknown;
+    try {
+      [d] = await upstashTransaction(this.config, [
+        ["INCR", day],
+        ["EXPIRE", day, 172_800, "NX"],
+      ]);
+    } catch (err) {
+      // The address was counted but the link will not go ahead, so give that back before reporting the failure.
+      await upstashTransaction(this.config, [["DECR", mine]]).catch(() => {});
+      throw err;
+    }
+    if (Number(d) <= this.limits.perDay) return null;
+    // Over the day's total: neither counter should keep this request, or the address would stay charged and the
+    // total would read full even after a saved link is given back.
+    await this.release(visitor);
+    return dayUsedUp;
   }
 
   async release(visitor: string): Promise<void> {
     const { mine, day } = this.keys(visitor);
-    await upstashTransaction(this.config, [
+    const [a, d] = await upstashTransaction(this.config, [
       ["DECR", mine],
       ["DECR", day],
     ]);
+    // A counter that already expired (or rolled over at midnight) would now sit at -1 with no expiry. Put it back.
+    const repair: (string | number)[][] = [];
+    if (Number(a) < 0) repair.push(["INCR", mine], ["EXPIRE", mine, 3600, "NX"]);
+    if (Number(d) < 0) repair.push(["INCR", day], ["EXPIRE", day, 172_800, "NX"]);
+    if (repair.length) await upstashTransaction(this.config, repair);
   }
 }
 

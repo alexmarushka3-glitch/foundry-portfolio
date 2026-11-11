@@ -23,7 +23,8 @@ export async function POST(req: Request) {
   if (!state.shares.persistent) return json({ error: "Links aren't available right now." }, 503);
 
   // The body is the app's html as a JSON string, where every quote and line break takes two bytes. Twice the app's size
-  // (plus a little) lets any app under the cap through to the exact check below, which gives the friendly message.
+  // (plus a little) lets a typical app under the cap through to the exact check below, which gives the friendly message. (Rare control
+  // characters take six bytes each; an app made mostly of them would still get the generic "too large".)
   const read = await readJsonBody(req, MAX_SHARE_BYTES * 2 + 1024);
   if (!read.ok) return json({ error: read.error }, read.status);
   const html = (read.body as { html?: unknown } | null)?.html;

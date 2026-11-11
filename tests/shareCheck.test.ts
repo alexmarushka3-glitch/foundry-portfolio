@@ -6,6 +6,27 @@ import { checkSharedApp, refusedMessage } from "@/lib/server/shareCheck";
 const page = (body: string, head = "") =>
   `<!doctype html><html><head><title>T</title>${head}</head><body>${body}</body></html>`;
 
+describe("checkSharedApp on hostile pages", () => {
+  const N = 125_000; // just under the 128 KB cap
+  const cases: Record<string, string> = {
+    "an input type= followed by spaces": `<!doctype html><html><input type=${" ".repeat(N)}`,
+    "a form action= followed by spaces": `<!doctype html><html><form action=${" ".repeat(N)}`,
+    "type= repeated inside one input": `<!doctype html><html><input ${"type=".repeat(N / 5)}`,
+    "meta tags repeated": `<!doctype html><html>${"<meta".repeat(N / 5)}`,
+    "unterminated quotes": `<!doctype html><html><input ${'"'.repeat(N)}`,
+    "input tags repeated": `<!doctype html><html>${"<input ".repeat(N / 7)}`,
+    "location followed by spaces": `<script>location${" ".repeat(N)}`,
+    "password-like words repeated": `<input ${"type=pass ".repeat(N / 10)}`,
+  };
+
+  it.each(Object.entries(cases))("checks %s in well under a second", (_name, html) => {
+    const started = performance.now();
+    checkSharedApp(html);
+    // These took 1 to 5 seconds each when two \s* sat around an optional quote; now they take a few milliseconds.
+    expect(performance.now() - started).toBeLessThan(500);
+  });
+});
+
 describe("checkSharedApp", () => {
   it("passes every recorded example app (no false alarms on real builds)", () => {
     type Recording = { events: { event: { type: string; files?: Record<string, string> } }[] };
