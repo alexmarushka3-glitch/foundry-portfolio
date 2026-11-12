@@ -25,11 +25,10 @@ export const ICON_PATHS: Record<AgentName, string[]> = {
     "M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z",
     "M3 9h18M9 9v11",
   ],
-  // globe: a real browser
+  // browser window with a check: a real browser test
   e2e: [
-    "M12 3a9 9 0 1 0 0 18a9 9 0 0 0 0-18z",
-    "M3 12h18",
-    "M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18",
+    "M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z",
+    "M3 8.5h18M8.5 14.5l2.5 2.5l4.5-5",
   ],
   // shield with a check
   validator: ["M12 3l8 3v6c0 4.5-3.2 7.8-8 9c-4.8-1.2-8-4.5-8-9V6z", "M8.5 12l2.5 2.5l4.5-5"],

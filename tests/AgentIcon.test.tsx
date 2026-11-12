@@ -57,6 +57,30 @@ describe("agent icons", () => {
     expect(container.querySelectorAll(".node.done.failed .node-icon")).toHaveLength(8);
   });
 
+  it("renders a node in each of the four states with the class that colours its icon", () => {
+    const states: [AgentFrame["status"], boolean | undefined, string][] = [
+      ["pending", undefined, "node pending"],
+      ["active", undefined, "node active"],
+      ["done", true, "node done"],
+      ["done", false, "node done failed"],
+    ];
+    for (const [status, passed, expected] of states) {
+      const { container } = render(
+        <PipelineSvg
+          frames={frames(status, passed)}
+          layout="wide"
+          selected={null}
+          onSelect={() => {}}
+          sentBack={false}
+        />,
+      );
+      const node = container.querySelector(".node");
+      expect(node?.getAttribute("class")).toBe(expected);
+      expect(node?.querySelector(".node-icon")).not.toBeNull();
+      cleanup();
+    }
+  });
+
   it("never animates the icons themselves", async () => {
     const { readFileSync } = await import("node:fs");
     const css = readFileSync("app/globals.css", "utf8");
