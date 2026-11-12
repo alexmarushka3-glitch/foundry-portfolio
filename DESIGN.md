@@ -204,7 +204,7 @@ Rounded rectangles in a short scale: 8px for small controls, 10px for buttons an
 - **Panels:** Console Iron Raised, 1px Console Divider, 12px radius, 16px padding. The active panel has an amber outline. Agent output sits in a darker mono block inside.
 
 ### Agent nodes (signature component)
-Rounded rectangles in the pipeline drawing, each with a 24px glyph (`components/AgentIcon.tsx`: magnifier, page, checklist, braces, window, globe, shield, package), a name and a status line. The glyph is muted while waiting, Forge Amber while working, Verdigris Lit when done and Brick Lit when sent back, and it never moves. Waiting nodes are quiet; the working node has a pulsing amber ring; finished nodes turn Verdigris Lit and gain a checkmark that pops in over 280ms; failed nodes turn Brick Lit. Keyboard focus draws a near-white 3px outline.
+Rounded rectangles in the pipeline drawing, each with a 24px glyph (`components/AgentIcon.tsx`: magnifier, page, checklist, braces, window, browser window with a check, shield, package), a name and a status line. The glyph is muted while waiting, Forge Amber while working, Verdigris Lit when done and Brick Lit when sent back, and it never moves. Waiting nodes are quiet; the working node has a pulsing amber ring; finished nodes turn Verdigris Lit and gain a checkmark that pops in over 280ms; failed nodes turn Brick Lit. Keyboard focus draws a near-white 3px outline.
 
 ### Result card
 A 12px-radius card with a faint verdigris tint, a plain result sentence and, after a live run, an amber button to the draft pull request. It rises into place once when the run finishes.

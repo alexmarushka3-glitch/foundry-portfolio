@@ -615,7 +615,6 @@ main,
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
-  transition: stroke 250ms var(--ease-out);
 }
 /* 16px on phones: a 3 unit stroke in the 24 grid draws as 2px */
 .node-icon.small path {
@@ -1403,8 +1402,7 @@ main,
   .edge-fill,
   .sendback path,
   .sendback text,
-  .node-bg,
-  .node-icon path {
+  .node-bg {
     transition: none;
   }
 }
