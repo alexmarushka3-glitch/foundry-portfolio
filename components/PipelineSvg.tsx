@@ -1,6 +1,7 @@
 "use client";
 
 import type { KeyboardEvent } from "react";
+import AgentIcon from "./AgentIcon";
 import { AGENT_BY_ID } from "@/lib/agents";
 import { formatDuration } from "@/lib/format";
 import type { AgentFrame } from "@/lib/run";
@@ -15,9 +16,9 @@ const GEOMETRY: Record<
 > = {
   wide: {
     // tight to the boxes: the "sent back" arcs are drawn outside it (the svg lets them overflow into the margin)
-    viewBox: "0 30 1000 190",
+    viewBox: "0 14 1000 222",
     w: 122,
-    h: 58,
+    h: 84,
     pos: {
       researcher: { x: 65, y: 125 },
       story: { x: 200, y: 125 },
@@ -30,26 +31,31 @@ const GEOMETRY: Record<
     },
   },
   narrow: {
-    viewBox: "0 0 340 540",
-    w: 138,
+    viewBox: "0 0 360 540",
+    w: 190,
     h: 54,
     pos: {
-      researcher: { x: 170, y: 34 },
-      story: { x: 170, y: 106 },
-      pm: { x: 170, y: 178 },
-      backend: { x: 92, y: 268 },
-      frontend: { x: 248, y: 268 },
-      e2e: { x: 170, y: 358 },
-      validator: { x: 170, y: 430 },
-      release: { x: 170, y: 502 },
+      researcher: { x: 180, y: 34 },
+      story: { x: 180, y: 106 },
+      pm: { x: 180, y: 178 },
+      backend: { x: 94, y: 268 },
+      frontend: { x: 266, y: 268 },
+      e2e: { x: 180, y: 358 },
+      validator: { x: 180, y: 430 },
+      release: { x: 180, y: 502 },
     },
   },
 };
 
-/** Box width. In the wide layout "Project Manager" needs a wider box than the rest, or its label touches the edge. */
+/**
+ * Box width. In the wide layout "Project Manager" needs a wider box than the rest, or its label
+ * touches the edge. In the narrow layout the two side by side boxes are narrower than the rest,
+ * because the icon sits left of the text there.
+ */
 function nodeWidth(layout: Layout, agent: AgentName): number {
   const g = GEOMETRY[layout];
-  return layout === "wide" && agent === "pm" ? g.w + 14 : g.w;
+  if (layout === "wide") return agent === "pm" ? g.w + 14 : g.w;
+  return agent === "backend" || agent === "frontend" ? 156 : g.w;
 }
 
 const EDGES: [AgentName, AgentName][] = [
@@ -130,9 +136,9 @@ export default function PipelineSvg({
 
       {layout === "wide" && (
         <g className={`sendback${sentBack ? " on" : ""}`} aria-hidden={!sentBack}>
-          <path d="M640 96 C640 4 490 -8 490 37" />
-          <path d="M780 154 C780 262 490 262 490 211" />
-          <text x="620" y="-6">
+          <path d="M640 83 C640 -9 490 -21 490 26" />
+          <path d="M780 167 C780 275 490 275 490 224" />
+          <text x="620" y="-18">
             sent back for another round
           </text>
         </g>
@@ -143,6 +149,10 @@ export default function PipelineSvg({
         const info = AGENT_BY_ID[f.agent];
         const failed = f.status === "done" && f.passed === false;
         const w = nodeWidth(layout, f.agent);
+        // wide: icon on top, text under it; narrow: icon left, text beside it
+        const textX = layout === "wide" ? 14 : 48;
+        const labelY = layout === "wide" ? 58 : g.h / 2 - 3;
+        const markPos = layout === "wide" ? `${w - 28} 14` : `${w - 25} ${g.h - 27}`;
         return (
           <g
             key={f.agent}
@@ -157,15 +167,16 @@ export default function PipelineSvg({
           >
             <rect className="node-ring" x={-4} y={-4} width={w + 8} height={g.h + 8} rx={14} />
             <rect className="node-bg" width={w} height={g.h} rx={10} />
-            <text className="node-label" x={14} y={g.h / 2 - 3}>
+            <AgentIcon agent={f.agent} x={12} y={layout === "wide" ? 10 : (g.h - 24) / 2} />
+            <text className="node-label" x={textX} y={labelY}>
               {info.label}
             </text>
-            <text className="node-sub" x={14} y={g.h / 2 + 15}>
+            <text className="node-sub" x={textX} y={labelY + 18}>
               {subtitle(f)}
               {f.round > 1 ? `, round ${f.round}` : ""}
             </text>
             {f.status === "done" && (
-              <g className="node-mark" transform={`translate(${w - 25} ${g.h - 27})`}>
+              <g className="node-mark" transform={`translate(${markPos})`}>
                 {failed ? (
                   <path d="M3 3 L13 13 M13 3 L3 13" />
                 ) : (

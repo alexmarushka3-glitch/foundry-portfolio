@@ -605,6 +605,27 @@ main,
     opacity: 0.9;
   }
 }
+/* 24px agent glyph: quiet while waiting, then the colour of the node's state; never animated */
+.node-icon {
+  overflow: visible;
+}
+.node-icon path {
+  fill: none;
+  stroke: var(--on-iron-muted);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke 250ms var(--ease-out);
+}
+.node.active .node-icon path {
+  stroke: var(--amber);
+}
+.node.done .node-icon path {
+  stroke: var(--verdigris-lit);
+}
+.node.failed .node-icon path {
+  stroke: var(--brick-lit);
+}
 .node-label {
   fill: var(--on-iron);
   font-size: 14px;
@@ -1371,7 +1392,8 @@ main,
   .edge-fill,
   .sendback path,
   .sendback text,
-  .node-bg {
+  .node-bg,
+  .node-icon path {
     transition: none;
   }
 }

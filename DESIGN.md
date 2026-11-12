@@ -204,7 +204,7 @@ Rounded rectangles in a short scale: 8px for small controls, 10px for buttons an
 - **Panels:** Console Iron Raised, 1px Console Divider, 12px radius, 16px padding. The active panel has an amber outline. Agent output sits in a darker mono block inside.
 
 ### Agent nodes (signature component)
-Rounded rectangles in the pipeline drawing, each with a name and a status line. Waiting nodes are quiet; the working node has a pulsing amber ring; finished nodes turn Verdigris Lit and gain a checkmark that pops in over 280ms; failed nodes turn Brick Lit. Keyboard focus draws a near-white 3px outline.
+Rounded rectangles in the pipeline drawing, each with a 24px glyph (`components/AgentIcon.tsx`: magnifier, page, checklist, braces, window, globe, shield, package), a name and a status line. The glyph is muted while waiting, Forge Amber while working, Verdigris Lit when done and Brick Lit when sent back, and it never moves. Waiting nodes are quiet; the working node has a pulsing amber ring; finished nodes turn Verdigris Lit and gain a checkmark that pops in over 280ms; failed nodes turn Brick Lit. Keyboard focus draws a near-white 3px outline.
 
 ### Result card
 A 12px-radius card with a faint verdigris tint, a plain result sentence and, after a live run, an amber button to the draft pull request. It rises into place once when the run finishes.
@@ -228,5 +228,5 @@ A sticky bar over Cool Paper with the logo and name on the left and four text li
 - **Don't** put amber text on Cool Paper or use amber as a background wash.
 - **Don't** use the page versions of the status colors on the console or the lit versions on the page.
 - **Don't** use all-caps eyebrow labels, numbered markers on content that is not a sequence, or monospace for headings.
-- **Don't** add icons, emoji or decorative imagery; the screenshots from the real browser are the only pictures.
+- **Don't** add emoji or decorative imagery. The only icons are the eight agent glyphs in the pipeline drawing (24px, 2px stroke, round ends, colored by run state, never animated); the screenshots from the real browser are the only pictures.
 - **Don't** claim anything the product does not do; follow the wording rules in CLAUDE.md.
