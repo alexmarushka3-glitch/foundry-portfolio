@@ -81,6 +81,30 @@ describe("agent icons", () => {
     }
   });
 
+  it("keeps the phone text near 11px or more at 320px wide", async () => {
+    const { readFileSync } = await import("node:fs");
+    const css = readFileSync("app/globals.css", "utf8");
+    const size = (sel: string) =>
+      Number(
+        new RegExp(`\\.pipeline-narrow ${sel}\\s*\\{[^}]*font-size:\\s*([\\d.]+)px`).exec(css)?.[1],
+      );
+    const { container } = render(
+      <PipelineSvg
+        frames={frames("pending")}
+        layout="narrow"
+        selected={null}
+        onSelect={() => {}}
+        sentBack={false}
+      />,
+    );
+    const svg = container.querySelector("svg.pipeline");
+    expect(svg?.getAttribute("class")).toContain("pipeline-narrow");
+    // on a 320px phone the drawing is about 237px wide (the page gutters and stage padding come off 320)
+    const scale = 237 / Number(svg?.getAttribute("viewBox")?.split(" ")[2]);
+    expect(size("\\.node-label") * scale).toBeGreaterThanOrEqual(11);
+    expect(size("\\.node-sub") * scale).toBeGreaterThanOrEqual(11);
+  });
+
   it("never animates the icons themselves", async () => {
     const { readFileSync } = await import("node:fs");
     const css = readFileSync("app/globals.css", "utf8");

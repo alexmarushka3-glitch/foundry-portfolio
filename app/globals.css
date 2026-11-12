@@ -617,6 +617,17 @@ main,
   stroke-linejoin: round;
   transition: stroke 250ms var(--ease-out);
 }
+/* 16px on phones: a 3 unit stroke in the 24 grid draws as 2px */
+.node-icon.small path {
+  stroke-width: 3;
+}
+/* phones: the drawing is scaled down to about 0.8, so the text is set larger to stay near 11px at 320px wide */
+.pipeline-narrow .node-label {
+  font-size: 14.5px;
+}
+.pipeline-narrow .node-sub {
+  font-size: 14px;
+}
 .node.active .node-icon path {
   stroke: var(--amber);
 }

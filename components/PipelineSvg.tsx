@@ -31,18 +31,19 @@ const GEOMETRY: Record<
     },
   },
   narrow: {
-    viewBox: "0 0 360 540",
-    w: 190,
-    h: 54,
+    // 300 wide so the 14px text shows at about 11px on a 320px phone
+    viewBox: "0 0 300 540",
+    w: 184,
+    h: 58,
     pos: {
-      researcher: { x: 180, y: 34 },
-      story: { x: 180, y: 106 },
-      pm: { x: 180, y: 178 },
-      backend: { x: 94, y: 268 },
-      frontend: { x: 266, y: 268 },
-      e2e: { x: 180, y: 358 },
-      validator: { x: 180, y: 430 },
-      release: { x: 180, y: 502 },
+      researcher: { x: 150, y: 34 },
+      story: { x: 150, y: 106 },
+      pm: { x: 150, y: 178 },
+      backend: { x: 76, y: 268 },
+      frontend: { x: 224, y: 268 },
+      e2e: { x: 150, y: 358 },
+      validator: { x: 150, y: 430 },
+      release: { x: 150, y: 502 },
     },
   },
 };
@@ -55,7 +56,7 @@ const GEOMETRY: Record<
 function nodeWidth(layout: Layout, agent: AgentName): number {
   const g = GEOMETRY[layout];
   if (layout === "wide") return agent === "pm" ? g.w + 14 : g.w;
-  return agent === "backend" || agent === "frontend" ? 156 : g.w;
+  return agent === "backend" || agent === "frontend" ? 140 : g.w;
 }
 
 const EDGES: [AgentName, AgentName][] = [
@@ -118,7 +119,7 @@ export default function PipelineSvg({
 
   return (
     <svg
-      className="pipeline"
+      className={layout === "narrow" ? "pipeline pipeline-narrow" : "pipeline"}
       viewBox={g.viewBox}
       role="group"
       aria-label="Pipeline of eight agents"
@@ -150,9 +151,10 @@ export default function PipelineSvg({
         const failed = f.status === "done" && f.passed === false;
         const w = nodeWidth(layout, f.agent);
         // wide: icon on top, text under it; narrow: icon left, text beside it
-        const textX = layout === "wide" ? 14 : 48;
-        const labelY = layout === "wide" ? 58 : g.h / 2 - 3;
-        const markPos = layout === "wide" ? `${w - 28} 14` : `${w - 25} ${g.h - 27}`;
+        const iconSize = layout === "wide" ? 24 : 16;
+        const textX = layout === "wide" ? 14 : 36;
+        const labelY = layout === "wide" ? 58 : g.h / 2 - 4;
+        const markPos = layout === "wide" ? `${w - 28} 14` : `${w - 26} 9`;
         return (
           <g
             key={f.agent}
@@ -167,7 +169,12 @@ export default function PipelineSvg({
           >
             <rect className="node-ring" x={-4} y={-4} width={w + 8} height={g.h + 8} rx={14} />
             <rect className="node-bg" width={w} height={g.h} rx={10} />
-            <AgentIcon agent={f.agent} x={12} y={layout === "wide" ? 10 : (g.h - 24) / 2} />
+            <AgentIcon
+              agent={f.agent}
+              size={iconSize}
+              x={12}
+              y={layout === "wide" ? 10 : (g.h - iconSize) / 2}
+            />
             <text className="node-label" x={textX} y={labelY}>
               {info.label}
             </text>

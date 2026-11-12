@@ -1,7 +1,7 @@
 import type { AgentName } from "@/lib/types";
 
 /**
- * One 24px glyph per agent: 2px stroke, round ends and joins, no fill. The colour comes from the
+ * One glyph per agent, 24px (16px on phones): 2px stroke, round ends and joins, no fill. The colour comes from the
  * node's run state (see `.node-icon` in globals.css), so an icon only changes when a real run
  * (or a replay of one) is playing. Drawn on a 24 x 24 grid.
  */
@@ -37,14 +37,24 @@ export const ICON_PATHS: Record<AgentName, string[]> = {
 };
 
 /** Draws an agent's glyph inside a parent <svg>, with its top left corner at (x, y). */
-export default function AgentIcon({ agent, x, y }: { agent: AgentName; x: number; y: number }) {
+export default function AgentIcon({
+  agent,
+  x,
+  y,
+  size = 24,
+}: {
+  agent: AgentName;
+  x: number;
+  y: number;
+  size?: number;
+}) {
   return (
     <svg
-      className="node-icon"
+      className={size < 24 ? "node-icon small" : "node-icon"}
       x={x}
       y={y}
-      width={24}
-      height={24}
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       aria-hidden="true"
       focusable="false"
