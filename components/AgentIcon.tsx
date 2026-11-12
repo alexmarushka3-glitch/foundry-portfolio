@@ -3,7 +3,7 @@ import type { AgentName } from "@/lib/types";
 /**
  * One 24px glyph per agent: 2px stroke, round ends and joins, no fill. The colour comes from the
  * node's run state (see `.node-icon` in globals.css), so an icon only changes when a real run
- * (or a replay of one) is playing. Drawn on a 24 x 24 grid; the same paths are in the Figma file.
+ * (or a replay of one) is playing. Drawn on a 24 x 24 grid.
  */
 export const ICON_PATHS: Record<AgentName, string[]> = {
   // magnifier
