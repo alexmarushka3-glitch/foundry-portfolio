@@ -49,6 +49,12 @@ export const profile = {
       text: "I designed and built it on my own with Claude Code: the agent roles, the tests, the spending limits and this site.",
     },
   ],
+  /** The "How it works" picture under the case study: its text description for screen readers and its caption. */
+  diagram: {
+    alt: "Diagram of how Foundry works. Your idea goes to eight agents in four groups. Researcher, Story Writer and Project Manager read and plan. Logic and Interface build. Browser Tester and Validator check. Release writes it up. The result is your app, one .html file. A failed check sends the work back to Logic and Interface for another round.",
+    caption:
+      "Real unit tests in a sandbox and a real browser test decide the gate, and a failed check sends the work back. No human reviews the apps.",
+  },
   /** "Decisions that mattered", under the case study: each item is a decision made in the code, stated as it is. */
   lessons: [
     {

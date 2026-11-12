@@ -37,6 +37,21 @@ test("a recorded example replays to the end and offers the app", async ({ page }
   expect(errors).toEqual([]);
 });
 
+test("the How it works picture shows one drawing at a time and fits the phone", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const fig = page.locator("figure.hiw");
+  await fig.scrollIntoViewIfNeeded();
+  await expect(fig.locator("svg.hiw-wide")).toBeVisible();
+  await expect(fig.locator("svg.hiw-narrow")).toBeHidden();
+  await page.setViewportSize({ width: 390, height: 800 });
+  await expect(fig.locator("svg.hiw-narrow")).toBeVisible();
+  await expect(fig.locator("svg.hiw-wide")).toBeHidden();
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth);
+  expect(overflow).toBe(false);
+});
+
 test("the pipeline shows all eight agents", async ({ page }) => {
   await page.goto("/");
   for (const name of [
