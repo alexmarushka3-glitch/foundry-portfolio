@@ -605,6 +605,37 @@ main,
     opacity: 0.9;
   }
 }
+/* 24px agent glyph: quiet while waiting, then the colour of the node's state; never animated */
+.node-icon {
+  overflow: visible;
+}
+.node-icon path {
+  fill: none;
+  stroke: var(--on-iron-muted);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* 16px on phones: a 3 unit stroke in the 24 grid draws as 2px */
+.node-icon.small path {
+  stroke-width: 3;
+}
+/* phones: the drawing is scaled down to about 0.8, so the text is set larger to stay near 11px at 320px wide */
+.pipeline-narrow .node-label {
+  font-size: 14.5px;
+}
+.pipeline-narrow .node-sub {
+  font-size: 14px;
+}
+.node.active .node-icon path {
+  stroke: var(--amber);
+}
+.node.done .node-icon path {
+  stroke: var(--verdigris-lit);
+}
+.node.failed .node-icon path {
+  stroke: var(--brick-lit);
+}
 .node-label {
   fill: var(--on-iron);
   font-size: 14px;
