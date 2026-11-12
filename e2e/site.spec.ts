@@ -200,11 +200,16 @@ test(
     expect(h["cache-control"]).toBe("private, no-store");
     expect(await app.text()).toContain("expired or was never saved");
     // an id that could never be a link gets a plain 404 page with no frame at all
-    for (const id of ["short", "..%2F..%2Fadmin", `${GONE_ID}/other`, ""]) {
+    for (const id of ["short", `${GONE_ID}/other`, ""]) {
       const res = await request.get(`/a/${id}`);
       expect(res.status()).toBe(404);
       expect(await res.text()).not.toContain("<iframe");
     }
+    // An encoded slash (a path-traversal look-alike) is refused: by our code (404), or by Vercel's edge, which answers 400
+    // before the request reaches the app. Either way it never shows a frame or the app.
+    const traversal = await request.get(`/a/..%2F..%2Fadmin`);
+    expect([400, 404]).toContain(traversal.status());
+    expect(await traversal.text()).not.toContain("<iframe");
     // in a real browser the notice appears inside the frame
     await page.goto(`/a/${GONE_ID}`);
     await expect(page.frameLocator("iframe").getByText("expired or was never saved")).toBeVisible();
