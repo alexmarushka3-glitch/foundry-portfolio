@@ -21,6 +21,21 @@ describe("How it works picture", () => {
     }
   });
 
+  it("draws the loop arrowhead as its own solid line in both drawings, and keeps the app box inside the narrow one", async () => {
+    const { container } = render(<HowItWorks />);
+    for (const cls of ["hiw-wide", "hiw-narrow"]) {
+      const svg = container.querySelector(`svg.${cls}`)!;
+      expect(svg.querySelectorAll("path.hiw-loop-arrow")).toHaveLength(1);
+      expect(svg.querySelector("path.hiw-loop")?.getAttribute("d")).not.toMatch(
+        /L[\d.]+ [\d.]+ L[\d.]+ [\d.]+$/m,
+      );
+    }
+    expect(container.querySelector("svg.hiw-narrow")?.getAttribute("viewBox")).toBe("0 -2 300 750");
+    const { readFileSync } = await import("node:fs");
+    const css = readFileSync("app/globals.css", "utf8");
+    expect(css.match(/\.hiw-loop-arrow\s*\{[^}]*\}/)?.[0]).not.toMatch(/dasharray/);
+  });
+
   it("describes itself to screen readers and says no human reviews the apps", () => {
     const { container } = render(<HowItWorks />);
     for (const svg of container.querySelectorAll("svg.hiw-svg")) {

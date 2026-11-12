@@ -119,8 +119,9 @@ function WideDrawing({ label }: { label: string }) {
   const loop =
     `M${check} ${brY - 6} L${check} ${brY} L${check + 140} ${brY} L${check + 140} ${brY - 6} ` +
     `M${build} ${brY - 6} L${build} ${brY} L${build + 140} ${brY} L${build + 140} ${brY - 6} ` +
-    `M${vx} ${brY} L${vx} ${ly - 16} Q${vx} ${ly} ${vx - 16} ${ly} L${bx + 16} ${ly} Q${bx} ${ly} ${bx} ${ly - 16} L${bx} ${brY + 3} ` +
-    `M${bx - 5} ${brY + 10} L${bx} ${brY + 3} L${bx + 5} ${brY + 10}`;
+    `M${vx} ${brY} L${vx} ${ly - 16} Q${vx} ${ly} ${vx - 16} ${ly} L${bx + 16} ${ly} Q${bx} ${ly} ${bx} ${ly - 16} L${bx} ${brY + 3}`;
+  // the arrowhead is a solid line: dashes would break it up
+  const arrow = `M${bx - 5} ${brY + 10} L${bx} ${brY + 3} L${bx + 5} ${brY + 10}`;
   return (
     <svg
       className="hiw-svg hiw-wide"
@@ -150,6 +151,7 @@ function WideDrawing({ label }: { label: string }) {
         );
       })}
       <path className="hiw-loop" d={loop} />
+      <path className="hiw-loop-arrow" d={arrow} />
       <text className="hiw-loop-label" x={(bx + vx) / 2} y={ly + 24} textAnchor="middle">
         Sent back for another round
       </text>
@@ -212,16 +214,16 @@ const NARROW_DOWN: [number, number][] = [
 ];
 
 function NarrowDrawing({ label }: { label: string }) {
-  const lane = 278;
+  const lane = 276; // the dashed line; the rotated label sits further right, clear of it
   const yCheck = 412 + 76; // right edge, middle of the Check box
   const yBuild = 302 + 46; // right edge, middle of the Build box
-  const loop =
-    `M268 ${yCheck} L272 ${yCheck} Q${lane} ${yCheck} ${lane} ${yCheck - 6} L${lane} ${yBuild + 6} Q${lane} ${yBuild} 272 ${yBuild} L270 ${yBuild} ` +
-    `M274 ${yBuild - 5} L268 ${yBuild} L274 ${yBuild + 5}`;
+  const loop = `M268 ${yCheck} L271 ${yCheck} Q${lane} ${yCheck} ${lane} ${yCheck - 5} L${lane} ${yBuild + 5} Q${lane} ${yBuild} 271 ${yBuild} L269 ${yBuild}`;
+  // the arrowhead is a solid line: dashes would break it up
+  const arrow = `M273 ${yBuild - 5} L268 ${yBuild} L273 ${yBuild + 5}`;
   return (
     <svg
       className="hiw-svg hiw-narrow"
-      viewBox="0 0 300 746"
+      viewBox="0 -2 300 750"
       role="img"
       aria-label={label}
       preserveAspectRatio="xMidYMid meet"
@@ -242,12 +244,13 @@ function NarrowDrawing({ label }: { label: string }) {
         />
       ))}
       <path className="hiw-loop" d={loop} />
+      <path className="hiw-loop-arrow" d={arrow} />
       <text
         className="hiw-loop-label"
-        x={295}
+        x={296}
         y={(yCheck + yBuild) / 2}
         textAnchor="middle"
-        transform={`rotate(-90 295 ${(yCheck + yBuild) / 2})`}
+        transform={`rotate(-90 296 ${(yCheck + yBuild) / 2})`}
       >
         Sent back for another round
       </text>

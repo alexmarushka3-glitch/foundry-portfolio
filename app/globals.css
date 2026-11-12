@@ -1256,6 +1256,13 @@ main,
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+.hiw-loop-arrow {
+  fill: none;
+  stroke: var(--brick-lit);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 .hiw-label {
   fill: var(--on-iron);
   font-size: 14px;
