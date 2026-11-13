@@ -86,7 +86,7 @@ describe("Home page", () => {
     expect(link.getAttribute("target")).toBe("_blank");
     expect(link.getAttribute("rel")).toMatch(/noreferrer|noopener/);
     expect(container.querySelector("footer")!.textContent).toContain(
-      "The icons, diagram and share picture were designed in the Figma file.",
+      "The Figma file holds the icons, the diagram and the share picture.",
     );
   });
 

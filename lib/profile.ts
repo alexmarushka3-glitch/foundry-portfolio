@@ -26,7 +26,7 @@ export const profile = {
   figma: {
     label: "Design in Figma",
     href: "https://www.figma.com/design/v5zPLfGAnzLqH8NKEcKDdN",
-    note: "The icons, diagram and share picture were designed in the Figma file.",
+    note: "The Figma file holds the icons, the diagram and the share picture.",
   },
   about: [
     "I'm a Business Economics student at the University of Chicago. I built Foundry with Claude Code to see how much of a software job a team of AI agents can do on its own, and how to check their work.",
