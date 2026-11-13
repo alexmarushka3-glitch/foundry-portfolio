@@ -77,6 +77,19 @@ describe("Home page", () => {
     }
   });
 
+  it("links the Figma file from the footer in a new tab and says only what was designed there", () => {
+    const { container } = render(<Home />);
+    const link = container.querySelector(
+      "footer a[href='https://www.figma.com/design/v5zPLfGAnzLqH8NKEcKDdN']",
+    )!;
+    expect(link.textContent).toBe("Design in Figma");
+    expect(link.getAttribute("target")).toBe("_blank");
+    expect(link.getAttribute("rel")).toMatch(/noreferrer|noopener/);
+    expect(container.querySelector("footer")!.textContent).toContain(
+      "The icons, diagram and share picture were designed there.",
+    );
+  });
+
   it("repeats the contact links in the footer", () => {
     const { container } = render(<Home />);
     const footer = container.querySelector("footer")!;

@@ -22,6 +22,12 @@ export const profile = {
     { label: "GitHub", href: "https://github.com/alexmarushka3-glitch" },
     { label: "LinkedIn", href: "https://www.linkedin.com/in/alex-marushka-4bb1113b9/" },
   ],
+  /** The footer link to the Figma file. The note says only what was designed there: nothing else is in that file. */
+  figma: {
+    label: "Design in Figma",
+    href: "https://www.figma.com/design/v5zPLfGAnzLqH8NKEcKDdN",
+    note: "The icons, diagram and share picture were designed there.",
+  },
   about: [
     "I'm a Business Economics student at the University of Chicago. I built Foundry with Claude Code to see how much of a software job a team of AI agents can do on its own, and how to check their work.",
     "The apps are small on purpose: one page, no accounts, no internet. That keeps them safe to run and quick to build.",
