@@ -1,5 +1,6 @@
 import ContactLinks from "@/components/ContactLinks";
 import DemoLink from "@/components/DemoLink";
+import HowItWorks from "@/components/HowItWorks";
 import Logo from "@/components/Logo";
 import Stage from "@/components/Stage";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -65,6 +66,7 @@ export default function Home() {
               </div>
             ))}
           </dl>
+          <HowItWorks />
           <h3 className="case-sub">Decisions that mattered</h3>
           <ul className="lessons">
             {profile.lessons.map((l) => (

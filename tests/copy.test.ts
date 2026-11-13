@@ -15,6 +15,8 @@ const allCopy = () =>
     ...profile.about,
     ...profile.lessons.flatMap((l) => [l.title, l.body]),
     ...profile.caseStudy.flatMap((r) => [r.term, r.text]),
+    profile.diagram.alt,
+    profile.diagram.caption,
     ...REALITY.flatMap((c) => [c.heading, ...c.items, ...c.short]),
   ].join("\n");
 const column = (tone: string) => REALITY.find((c) => c.tone === tone)!.items.join(" ");

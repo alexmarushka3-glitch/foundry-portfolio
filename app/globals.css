@@ -1208,6 +1208,106 @@ main,
   background: var(--brick);
 }
 
+/* "How it works" picture: a still diagram on the dark stage; the wide drawing above 960px, the narrow one below */
+.hiw {
+  margin: 28px 0 0;
+  padding: 28px;
+  background: var(--iron);
+  border-radius: 18px;
+}
+.hiw-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.hiw-narrow {
+  display: none;
+  max-width: 420px;
+  margin: 0 auto;
+}
+.hiw-box {
+  fill: var(--iron-2);
+  stroke: var(--iron-line);
+  stroke-width: 1.5;
+}
+.hiw-node.idea .hiw-box {
+  stroke: var(--amber);
+}
+.hiw-node.app .hiw-box {
+  stroke: var(--verdigris-lit);
+}
+.hiw-group {
+  fill: none;
+  stroke: var(--iron-line);
+  stroke-width: 1.5;
+}
+.hiw-edge {
+  fill: none;
+  stroke: var(--iron-line);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.hiw-loop {
+  fill: none;
+  stroke: var(--brick-lit);
+  stroke-width: 2;
+  stroke-dasharray: 6 6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.hiw-loop-arrow {
+  fill: none;
+  stroke: var(--brick-lit);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.hiw-label {
+  fill: var(--on-iron);
+  font-size: 14px;
+  font-weight: 600;
+}
+.hiw-sub {
+  fill: var(--on-iron-muted);
+  font-size: 14px;
+}
+.hiw-phase {
+  fill: var(--on-iron-muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+.hiw-loop-label {
+  fill: var(--brick-lit);
+  font-size: 14px;
+  font-weight: 600;
+}
+.hiw figcaption {
+  margin: 18px 0 0;
+  max-width: var(--measure);
+  font-size: 0.9rem;
+  color: var(--on-iron-muted);
+}
+@media (max-width: 960px) {
+  .hiw {
+    padding: 18px;
+  }
+  .hiw-wide {
+    display: none;
+  }
+  .hiw-narrow {
+    display: block;
+  }
+  /* the narrow drawing is scaled to about 0.85 on a phone, so its text is a little larger to stay near 12px */
+  .hiw-narrow .hiw-label {
+    font-size: 14.5px;
+  }
+  .hiw-narrow .hiw-sub,
+  .hiw-narrow .hiw-phase,
+  .hiw-narrow .hiw-loop-label {
+    font-size: 14px;
+  }
+}
 .lessons {
   list-style: none;
   padding: 0;
