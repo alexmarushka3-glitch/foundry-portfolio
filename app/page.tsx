@@ -126,14 +126,12 @@ export default function Home() {
             rel="noreferrer"
           >
             Site code
-          </a>
-        </p>
-        <p className="contact">
+          </a>{" "}
           <a href={profile.figma.href} target="_blank" rel="noreferrer">
             {profile.figma.label}
           </a>
-          : {profile.figma.note}
         </p>
+        <p className="contact">{profile.figma.note}</p>
       </footer>
     </>
   );
