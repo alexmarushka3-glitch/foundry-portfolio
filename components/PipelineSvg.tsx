@@ -163,7 +163,7 @@ export default function PipelineSvg({
             role="button"
             tabIndex={0}
             aria-pressed={selected === f.agent}
-            aria-label={`${info.label}: ${subtitle(f)}. Show its output.`}
+            aria-label={`${info.label}: ${subtitle(f)}${f.round > 1 ? `, round ${f.round}` : ""}. Show its output.`}
             onClick={() => onSelect(f.agent)}
             onKeyDown={(e) => onKey(e, f.agent)}
           >
@@ -180,7 +180,11 @@ export default function PipelineSvg({
             </text>
             <text className="node-sub" x={textX} y={labelY + 18}>
               {subtitle(f)}
-              {f.round > 1 ? `, round ${f.round}` : ""}
+              {f.round > 1
+                ? layout === "narrow" && w < 184
+                  ? ` R${f.round}`
+                  : `, round ${f.round}`
+                : ""}
             </text>
             {f.status === "done" && (
               <g className="node-mark" transform={`translate(${markPos})`}>

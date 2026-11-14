@@ -11,13 +11,13 @@ export const REALITY: { tone: RealityTone; heading: string; items: string[]; sho
     items: [
       "Your idea goes to eight Claude agents in turn. Each one works from the previous one's actual output, and every file it reads or writes is shown.",
       "The app's unit tests and a browser test the agents write run in a real headless Chrome, in an isolated sandbox with no internet. If either fails, the work goes back for one more round.",
-      "When both pass, the app appears on the page. You can use it there or save it as one .html file that works offline.",
+      "When both pass and the Validator agent approves, the app appears on the page. You can use it there or save it as one .html file that works offline.",
       "The three examples are recordings of real live runs, recorded once each on Nov 5, 2026 and kept as they came out, played back faster. All three passed both checks in the first round, in 54 to 60 seconds, for $0.15 to $0.17 each.",
     ],
     short: [
       "Eight Claude agents build your idea, each from the last one's real output.",
       "Real unit tests and a real browser test check the app, and a failure sends it back.",
-      "If it passes, you can use the app here or save it as one file.",
+      "If it is approved, you can use the app here or save it as one file.",
       "The examples are recordings of real runs: about a minute and under 20 cents each.",
     ],
   },
@@ -37,12 +37,14 @@ export const REALITY: { tone: RealityTone; heading: string; items: string[]; sho
       "No human reviews the apps. Passing the agents' tests doesn't mean an app has no bugs.",
       "Some ideas fail or are refused, such as anything that asks for passwords or payment details. Three examples are a demo, not a success rate.",
       "On this page the app runs in a sealed frame that keeps nothing. The saved file uses your browser's normal storage.",
+      "If you press Get a link, the app file is kept on the server for 7 days and then deleted. The app on that link keeps nothing.",
     ],
     short: [
       "Apps are one page: no accounts, no internet, no server.",
       "No human reviews them, and tests don't catch every bug.",
       "Some ideas fail or are refused. Three examples are a demo, not a success rate.",
       "Here the app keeps nothing; the saved file remembers your data.",
+      "A shared link lasts 7 days, then the app is deleted.",
     ],
   },
 ];

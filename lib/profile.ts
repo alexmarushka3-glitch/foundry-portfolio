@@ -44,7 +44,7 @@ export const profile = {
     },
     {
       term: "What I built",
-      text: "Eight Claude agents in a pipeline: one reads the starter kit, two plan, two build, two test and one writes it up. Real tests, not the agents, decide whether an app passes.",
+      text: "Eight Claude agents in a pipeline: one reads the starter kit, two plan, two build, two test and one writes it up. Real tests can fail an app and send it back; a Validator agent, not a person, approves it.",
     },
     {
       term: "What happened",
@@ -57,15 +57,15 @@ export const profile = {
   ],
   /** The "How it works" picture under the case study: its text description for screen readers and its caption. */
   diagram: {
-    alt: "Diagram of how Foundry works. Your idea goes to eight agents in four groups. Researcher, Story Writer and Project Manager read and plan. Logic and Interface build. Browser Tester and Validator check. Release writes it up. The result is your app, one .html file. A failed check sends the work back to Logic and Interface for another round.",
+    alt: "Diagram of how Foundry works. Your idea goes to eight agents in four groups. Researcher, Story Writer and Project Manager read and plan. Logic and Interface build. Browser Tester and Validator check. Release writes it up. The result is your app, one .html file. A failed check sends the work back to Logic and Interface for another round. The picture shows a live run that ends in an app; a simulation, a refusal or two failed rounds ends with no app.",
     caption:
-      "Real unit tests in a sandbox and a real browser test decide the gate, and a failed check sends the work back. No human reviews the apps.",
+      "A live run that ends in an app. Real unit tests and a real browser test can fail it and send it back; an AI Validator approves it. A simulation, a refusal or two failed rounds ends with no app. No human reviews the apps.",
   },
   /** "Decisions that mattered", under the case study: each item is a decision made in the code, stated as it is. */
   lessons: [
     {
-      title: "Let the tests decide, not the agents",
-      body: "An agent saying it's done proves nothing. Real unit tests and a real browser test decide, and a failure sends the work back.",
+      title: "Let real tests check, not just the agents",
+      body: "An agent saying it's done proves nothing. Real unit tests and a real browser test can fail an app and send it back. Only then does an AI Validator approve it.",
     },
     {
       title: "Put limits on everything",
