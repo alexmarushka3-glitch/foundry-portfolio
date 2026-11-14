@@ -15,6 +15,6 @@ export function runSummary(run: Run): string {
       return `${verdict} Took ${formatDuration(run.realMs)}.${cost}`;
     }
     case "simulated":
-      return `${verdict} This was scripted text, so no model ran.`;
+      return "Scripted run. No tests ran, no model ran, no app built.";
   }
 }

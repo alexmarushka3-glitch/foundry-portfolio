@@ -132,7 +132,9 @@ describe("Stage", () => {
     render(<Stage />);
     typeIdea();
     release();
-    expect(await screen.findByText(/This was scripted text, so no model ran/)).toBeTruthy();
+    expect(
+      await screen.findByText(/Scripted run. No tests ran, no model ran, no app built/),
+    ).toBeTruthy();
     expect(screen.queryByText("Replay of a real live run")).toBeNull();
   });
 
@@ -149,7 +151,9 @@ describe("Stage", () => {
     typeIdea();
 
     expect(await screen.findByText("Simulated")).toBeTruthy();
-    expect(await screen.findByText(/This was scripted text, so no model ran/)).toBeTruthy();
+    expect(
+      await screen.findByText(/Scripted run. No tests ran, no model ran, no app built/),
+    ).toBeTruthy();
     const post = fetchMock.mock.calls.find(([, init]) => init?.method === "POST")!;
     expect(JSON.parse(String(post[1]!.body))).toEqual({ idea: IDEA });
     // the finished run can be scrubbed
@@ -183,7 +187,7 @@ describe("Stage", () => {
     mockApi(() => ndjson(simulatedRun));
     render(<Stage />);
     typeIdea();
-    expect(await screen.findByText(/This was scripted text/)).toBeTruthy();
+    expect(await screen.findByText(/Scripted run/)).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Save the app" })).toBeNull();
   });
 
@@ -436,7 +440,7 @@ describe("Stage", () => {
       mockApi(() => ndjson(simulatedRun));
       render(<Stage />);
       typeIdea();
-      expect(await screen.findByText(/This was scripted text/)).toBeTruthy();
+      expect(await screen.findByText(/Scripted run/)).toBeTruthy();
       expect(screen.queryByRole("button", { name: "Open full screen" })).toBeNull();
       expect(screen.queryByRole("button", { name: "Copy the code" })).toBeNull();
     });
