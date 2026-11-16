@@ -1,4 +1,4 @@
-import { defineConfig } from "@playwright/test";
+import { defineConfig, devices } from "@playwright/test";
 
 // UI tests in a real browser. They never call a live model: they use the recorded examples and static pages.
 //   npm run test:ui                                   Chrome (the one installed on this machine); starts `next dev`
@@ -18,6 +18,8 @@ export default defineConfig({
     { name: "chrome", use: { channel: "chrome" } },
     { name: "firefox", use: { browserName: "firefox" }, grep: /@lock/ },
     { name: "webkit", use: { browserName: "webkit" }, grep: /@lock/ },
+    // WebKit with an iPhone's screen and touch, for the phone-only paths (Open full screen, install).
+    { name: "iphone", use: { ...devices["iPhone 14"] }, grep: /@phone/ },
   ],
   webServer: process.env.BASE_URL
     ? undefined

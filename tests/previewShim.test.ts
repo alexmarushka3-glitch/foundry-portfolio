@@ -5,8 +5,8 @@ import { STORAGE_SHIM_CODE, withHostedShim } from "@/lib/previewShim";
 const squash = (s: string) => s.replace(/\s+/g, "");
 
 describe("previewShim", () => {
-  it("is the same storage stand-in that public/preview/runner.js carries", () => {
-    const runner = readFileSync("public/preview/runner.js", "utf8");
+  it("is the same storage stand-in that public/preview/frame.html carries", () => {
+    const runner = readFileSync("public/preview/frame.html", "utf8");
     expect(squash(runner)).toContain(squash(STORAGE_SHIM_CODE));
   });
 
@@ -27,5 +27,12 @@ describe("previewShim", () => {
 
   it("does not report errors to a parent window (a hosted page has none)", () => {
     expect(withHostedShim("<head></head>")).not.toContain("postMessage");
+  });
+});
+
+describe("preview frame", () => {
+  it("has no external script (iPhone Safari refuses one inside the sandboxed frame, and the app never opens)", () => {
+    const frame = readFileSync("public/preview/frame.html", "utf8");
+    expect(frame).not.toMatch(/<script[^>]*\ssrc=/i);
   });
 });

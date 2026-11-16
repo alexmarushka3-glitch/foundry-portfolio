@@ -2,8 +2,8 @@
 // localStorage, so an app that touches it would crash. This gives it an in-memory one first: the app works and
 // nothing is kept after the page closes.
 //
-// public/preview/runner.js carries the same code for the on-page preview (it is a plain file the browser loads, so
-// it cannot import this). tests/previewShim.test.ts checks the two stay identical.
+// public/preview/frame.html carries the same code for the on-page preview (it is a plain inline script in a file the
+// browser loads, so it cannot import this). tests/previewShim.test.ts checks the two stay identical.
 
 export const STORAGE_SHIM_CODE = `var data = new Map();
   var store = {

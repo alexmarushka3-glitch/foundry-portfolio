@@ -42,7 +42,7 @@ export function securityHeaders(dev: boolean): Header[] {
  */
 export const PREVIEW_CONTENT_SECURITY_POLICY = [
   "default-src 'none'",
-  "script-src 'self' 'unsafe-inline'",
+  "script-src 'unsafe-inline'",
   "style-src 'unsafe-inline'",
   "img-src data: blob:",
   "connect-src 'none'",
