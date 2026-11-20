@@ -181,6 +181,8 @@ describe("security headers", () => {
     expect(PREVIEW_CONTENT_SECURITY_POLICY).toContain("default-src 'none'");
     expect(PREVIEW_CONTENT_SECURITY_POLICY).toContain("connect-src 'none'");
     expect(PREVIEW_CONTENT_SECURITY_POLICY).toContain("frame-ancestors 'self'");
+    // The frame's own script is inline. No site script (full.js and the rest) may load into the app's frame.
+    expect(PREVIEW_CONTENT_SECURITY_POLICY).not.toMatch(/script-src[^;]*'self'/);
     expect(PREVIEW_CONTENT_SECURITY_POLICY).not.toMatch(
       /'unsafe-eval'|wasm|blob:\s*'|https?:\/\/|\*/,
     );

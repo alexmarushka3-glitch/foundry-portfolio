@@ -159,29 +159,132 @@ test(
   },
 );
 
-test("Open full screen says so, with a way out, when the frame never opens the app", async ({
-  page,
-  context,
-}) => {
-  test.setTimeout(120_000);
-  // A frame that loads but never starts the app (what iPhone Safari did before the script was inlined).
+test(
+  "Open full screen says so, with a way out, when the frame never opens the app",
+  { tag: "@phone" },
+  async ({ page, context }) => {
+    test.setTimeout(120_000);
+    // A frame that loads but never starts the app (what iPhone Safari did before the script was inlined).
+    await context.route("**/preview/frame.html", (route) =>
+      route.fulfill({ contentType: "text/html", body: "<p>Opening the app…</p>" }),
+    );
+    await page.goto("/");
+    await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
+    await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
+    // The stub never answers, so the page itself needs no frame to announce itself; the full-screen tab does the work.
+    const [tab] = await Promise.all([
+      context.waitForEvent("page"),
+      page.getByRole("button", { name: "Open full screen" }).click(),
+    ]);
+    await expect(tab.getByText("The app did not open in this browser")).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(tab.getByRole("button", { name: "Save the app" })).toBeVisible();
+    await expect(tab.getByRole("button", { name: "Copy the code" })).toBeVisible();
+  },
+);
+
+// The frame stub below stands in for /preview/frame.html. It runs inside the sealed frame, so it can only talk to
+// the page with postMessage, the same way the real frame does.
+async function openFullWithFrame(
+  page: import("@playwright/test").Page,
+  context: import("@playwright/test").BrowserContext,
+  frameBody: string,
+) {
   await context.route("**/preview/frame.html", (route) =>
-    route.fulfill({ contentType: "text/html", body: "<p>Opening the app…</p>" }),
+    route.fulfill({ contentType: "text/html", body: frameBody }),
   );
   await page.goto("/");
   await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
   await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
-  // The stub never answers, so the page itself needs no frame to announce itself; the full-screen tab does the work.
   const [tab] = await Promise.all([
     context.waitForEvent("page"),
     page.getByRole("button", { name: "Open full screen" }).click(),
   ]);
-  await expect(tab.getByText("The app did not open in this browser")).toBeVisible({
-    timeout: 15_000,
-  });
-  await expect(tab.getByRole("button", { name: "Save the app" })).toBeVisible();
-  await expect(tab.getByRole("button", { name: "Copy the code" })).toBeVisible();
-});
+  return tab;
+}
+
+test(
+  "Open full screen says so, with all three buttons, when the frame loads but the app never starts",
+  { tag: "@phone" },
+  async ({ page, context }) => {
+    test.setTimeout(120_000);
+    const tab = await openFullWithFrame(
+      page,
+      context,
+      `<p>Opening the app…</p><script>parent.postMessage({ type: "preview-loaded" }, "*");</script>`,
+    );
+    await expect(tab.getByText("The app did not open in this browser")).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(tab.getByRole("button", { name: "Save the app" })).toBeVisible();
+    await expect(tab.getByRole("button", { name: "Copy the code" })).toBeVisible();
+    await expect(tab.getByRole("button", { name: "Try again" })).toBeVisible();
+  },
+);
+
+test(
+  "Open full screen takes the message away again when the app opens, only slowly",
+  { tag: "@phone" },
+  async ({ page, context }) => {
+    test.setTimeout(120_000);
+    const tab = await openFullWithFrame(
+      page,
+      context,
+      `<p>Slow app</p><script>
+      parent.postMessage({ type: "preview-loaded" }, "*");
+      setTimeout(() => parent.postMessage({ type: "preview-ready" }, "*"), 8000);
+    </script>`,
+    );
+    await expect(tab.getByText("The app did not open in this browser")).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(tab.getByText("The app did not open in this browser")).toBeHidden({
+      timeout: 15_000,
+    });
+    await expect(tab.frameLocator("#app").getByText("Slow app")).toBeVisible();
+  },
+);
+
+test(
+  "Open full screen keeps the message when the app says it could not start",
+  { tag: "@phone" },
+  async ({ page, context }) => {
+    test.setTimeout(120_000);
+    const tab = await openFullWithFrame(
+      page,
+      context,
+      `<p>Broken</p><script>
+      parent.postMessage({ type: "preview-loaded" }, "*");
+      parent.postMessage({ type: "preview-error", fatal: true, message: "boom" }, "*");
+      setTimeout(() => parent.postMessage({ type: "preview-ready" }, "*"), 500);
+    </script>`,
+    );
+    await expect(tab.getByText("The app did not open in this browser")).toBeVisible({
+      timeout: 15_000,
+    });
+    await tab.waitForTimeout(1500); // a "ready" after a failure must not take the message away
+    await expect(tab.getByText("The app did not open in this browser")).toBeVisible();
+  },
+);
+
+test(
+  "the on-page preview says so, with ways out, when the frame never starts the app",
+  { tag: "@phone" },
+  async ({ page, context }) => {
+    test.setTimeout(120_000);
+    await context.route("**/preview/frame.html", (route) =>
+      route.fulfill({ contentType: "text/html", body: "<p>Opening the app…</p>" }),
+    );
+    await page.goto("/");
+    await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
+    await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
+    await expect(page.getByText("the preview did not start in this browser")).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.getByRole("button", { name: "Open full screen" })).toBeVisible();
+  },
+);
 
 test("the full-screen page is served with its own tight headers", async ({ request }) => {
   const res = await request.get("/preview/full.html");

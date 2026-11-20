@@ -33,6 +33,6 @@ describe("previewShim", () => {
 describe("preview frame", () => {
   it("has no external script (iPhone Safari refuses one inside the sandboxed frame, and the app never opens)", () => {
     const frame = readFileSync("public/preview/frame.html", "utf8");
-    expect(frame).not.toMatch(/<script[^>]*\ssrc=/i);
+    expect(frame).not.toMatch(/<script\b[^>]*\bsrc\s*=/i);
   });
 });
