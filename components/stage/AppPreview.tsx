@@ -24,10 +24,10 @@ type Device = "ios" | "android" | "desktop";
 
 /** How to put a link on a home screen (or install it), for the device the visitor is on. */
 const ADD_STEPS: Record<Device, string> = {
-  ios: "Open the link in Safari, tap ⋯, then Share, then Add to Home Screen.",
-  android: "Open the link in Chrome and tap Install app.",
+  ios: "Open the link in Safari, tap Share (or ⋯, then Share), then Add to Home Screen.",
+  android: "Open the link in Chrome and tap Install app (or ⋮, then Install app).",
   desktop:
-    "Open the link in Chrome or Edge and click Install app. In Safari on a Mac: File, then Add to Dock.",
+    "Open the link in Chrome or Edge and click Install app, or the install icon at the right end of the address bar. In Safari on macOS 14 or newer: File, then Add to Dock.",
 };
 
 /** How long the preview frame gets to show the app before the page says it did not start. */
@@ -287,14 +287,14 @@ export default function AppPreview({
           </div>
           <p className="fine" id="app-link-fine">
             Anyone with this link can open it in a browser. The link works for {SHARE_IDLE_DAYS}{" "}
-            days after it is last opened, and {SHARE_MAX_DAYS} days at most, then the app is deleted
-            from our server. The app keeps its data on your device, usually until you clear your
-            browser data. An app added to the home screen does not share data with the same link
-            opened in the browser.
+            days after it is last opened, and {SHARE_MAX_DAYS} days at most, then it is deleted from
+            our server. It keeps its data on your device, usually until you clear your browser data.
+            Added to the home screen, it does not share data with the same link opened in the
+            browser.
           </p>
           <p className="fine">
-            <strong>Make it an app.</strong> {ADD_STEPS[device]} That adds a web app that sits next
-            to your other apps. It is not an App Store app, and it needs an internet connection.
+            <strong>Add it to your device.</strong> {ADD_STEPS[device]} That puts a web app next to
+            your other apps. It is not an App Store app, and it needs an internet connection.
           </p>
         </div>
       )}
@@ -325,7 +325,7 @@ export default function AppPreview({
       />
       <p className="fine" aria-live="polite">
         {status === "failed" && (
-          <span className="error-inline">The app hit an error: {problem} </span>
+          <span className="error-inline">The web app hit an error: {problem} </span>
         )}
         Use it here or full screen (nothing is kept), or save it: one file that opens in any
         browser, works offline and remembers your data on your device.

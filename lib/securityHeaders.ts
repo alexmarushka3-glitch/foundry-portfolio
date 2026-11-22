@@ -103,7 +103,7 @@ export const SHARED_APP_CONTENT_SECURITY_POLICY = [
 export const SHARED_WRAPPER_CONTENT_SECURITY_POLICY = [
   "default-src 'none'",
   "frame-src 'self'",
-  "script-src 'self'", // only /app-bridge.js, the site's own code that keeps the app's data (no inline script)
+  "script-src 'self'", // only the site's own /app-bridge.js and /app-install.js (no inline script)
   "manifest-src 'self'", // lets the link be added to a home screen or installed
   "img-src 'self'",
   "style-src 'unsafe-inline'",

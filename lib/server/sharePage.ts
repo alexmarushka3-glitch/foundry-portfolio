@@ -47,8 +47,8 @@ export const unavailable = () => page(sharedAppHeaders(), NOTICE_STYLE, UNAVAILA
 export const wrapper = (id: string) =>
   page(
     sharedWrapperHeaders(),
-    "html,body{margin:0;height:100%;background:#1e252b}iframe{display:block;border:0;width:100%;height:100%}",
-    `<script src="/app-bridge.js"></script><script src="/app-install.js"></script><iframe src="/a/${id}/app" title="Web app made on Foundry, running in your browser" sandbox="allow-scripts allow-forms allow-modals" allow="clipboard-write *"></iframe>`,
+    "html,body{margin:0;height:100%;background:#1e252b}body{display:flex;flex-direction:column}iframe{display:block;border:0;width:100%;flex:1 1 auto;min-height:0}",
+    `<script src="/app-bridge.js"></script><script src="/app-install.js" defer></script><iframe src="/a/${id}/app" title="Web app made on Foundry, running in your browser" sandbox="allow-scripts allow-forms allow-modals" allow="clipboard-write *"></iframe>`,
     200,
     `<link rel="manifest" href="/a/${id}/manifest.webmanifest"><link rel="apple-touch-icon" href="/pwa-icon/180"><meta name="theme-color" content="#1e252b"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">`,
   );

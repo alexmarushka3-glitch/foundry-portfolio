@@ -27,12 +27,18 @@ function load(
     standaloneMedia?: boolean;
     standaloneIos?: boolean;
     stored?: Record<string, string>;
+    withFrame?: boolean;
   } = {},
 ) {
-  const dom = new JSDOM("<!doctype html><body></body>", {
-    url: `https://foundry.test${opts.path ?? `/a/${ID}`}`,
-    runScripts: "outside-only", // lets the test run the script inside the page
-  });
+  const dom = new JSDOM(
+    opts.withFrame
+      ? "<!doctype html><body><iframe></iframe></body>"
+      : "<!doctype html><body></body>",
+    {
+      url: `https://foundry.test${opts.path ?? `/a/${ID}`}`,
+      runScripts: "outside-only", // lets the test run the script inside the page
+    },
+  );
   const w = dom.window as unknown as Window & Record<string, unknown>;
   // jsdom only takes a user agent through a resource loader, so set what the page reads directly
   Object.defineProperty(w.navigator, "userAgent", { value: opts.ua ?? CHROME });
@@ -49,11 +55,15 @@ function load(
       | HTMLButtonElement
       | undefined;
   /** What Chrome and Edge fire when the page can be installed. */
-  const offerInstall = () => {
+  const offerInstall = (
+    behaviour: { prompt?: () => unknown; userChoice?: Promise<{ outcome: string }> } = {},
+  ) => {
     const e = new dom.window.Event("beforeinstallprompt", { cancelable: true }) as Event & {
       prompt: ReturnType<typeof vi.fn>;
+      userChoice?: Promise<{ outcome: string }>;
     };
-    e.prompt = vi.fn();
+    e.prompt = vi.fn(behaviour.prompt ?? (() => undefined));
+    if (behaviour.userChoice) e.userChoice = behaviour.userChoice;
     w.dispatchEvent(e);
     return e;
   };
@@ -70,8 +80,8 @@ describe("app-install.js on Chrome and Edge", () => {
     const page = load();
     const event = page.offerInstall();
     expect(event.defaultPrevented).toBe(true); // kept for the button instead of the browser's own bar
-    expect(page.bar()?.textContent).toContain("Install this as an app");
-    expect(page.bar()?.textContent).toContain("sits next to your other apps");
+    expect(page.bar()?.textContent).toContain("Install this web app");
+    expect(page.bar()?.textContent).toContain("next to your other apps");
     expect(page.button("Install app")).toBeTruthy();
   });
 
@@ -124,13 +134,87 @@ describe("app-install.js on Chrome and Edge", () => {
   });
 });
 
+describe("app-install.js install question", () => {
+  const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
+  const key = `foundry:install-dismissed:${ID}`;
+
+  it("saying no to the browser's question counts as Not now, so the note does not come straight back", async () => {
+    const page = load();
+    page.offerInstall({ userChoice: Promise.resolve({ outcome: "dismissed" }) });
+    page.button("Install app")!.click();
+    await tick();
+    expect(page.w.localStorage.getItem(key)).toMatch(/^\d+$/);
+    page.offerInstall(); // Chrome may offer again after a cancel
+    expect(page.bar()).toBeNull();
+  });
+
+  it("accepting it is not a dismissal", async () => {
+    const page = load();
+    page.offerInstall({ userChoice: Promise.resolve({ outcome: "accepted" }) });
+    page.button("Install app")!.click();
+    await tick();
+    expect(page.w.localStorage.getItem(key)).toBeNull();
+  });
+
+  it("copes with a prompt that fails, without an unhandled rejection", async () => {
+    const page = load();
+    page.offerInstall({ prompt: () => Promise.reject(new Error("no gesture")) });
+    expect(() => page.button("Install app")!.click()).not.toThrow();
+    await tick(); // an unhandled rejection would fail the run here
+  });
+
+  it("uses the newest offer when the browser offers a second time before the tap", () => {
+    const page = load();
+    const first = page.offerInstall();
+    const second = page.offerInstall();
+    page.button("Install app")!.click();
+    expect(first.prompt).not.toHaveBeenCalled();
+    expect(second.prompt).toHaveBeenCalledTimes(1);
+  });
+
+  it("puts the note before the app's frame in the page, so the app is never covered and the note is reached first", () => {
+    const page = load({ withFrame: true });
+    page.offerInstall();
+    const frame = page.w.document.querySelector("iframe")!;
+    expect(page.bar()!.nextElementSibling).toBe(frame);
+    expect(page.bar()!.style.position).not.toBe("fixed");
+  });
+
+  it("works on Android Chrome too", () => {
+    const page = load({
+      ua: "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36",
+      touchPoints: 5,
+    });
+    expect(page.bar()).toBeNull();
+    page.offerInstall();
+    expect(page.button("Install app")).toBeTruthy();
+  });
+});
+
 describe("app-install.js on Apple devices, which let no website start an install", () => {
   it("tells an iPhone what to tap, right away, and says what it adds", () => {
     const page = load({ ua: IPHONE, touchPoints: 5 });
     const text = page.bar()!.textContent!;
-    expect(text).toContain("tap ⋯, then Share, then Add to Home Screen");
-    expect(text).toContain("sits next to your other apps");
+    expect(text).toContain("tap Share (or ⋯, then Share), then Add to Home Screen");
+    expect(text).toContain("not an App Store app");
+    expect(text).toContain("needs a connection");
+    expect(text).toContain("next to your other apps");
     expect(page.button("Install app")).toBeUndefined(); // there is no such button on iOS
+  });
+
+  it("tells Chrome, Firefox and in-app browsers on an iPhone to open the link in Safari first", () => {
+    const chromeOnIos = IPHONE.replace("Version/17.5 Mobile", "CriOS/130.0.0.0 Mobile");
+    const instagram = IPHONE + " Instagram 330.0.0.0";
+    for (const ua of [chromeOnIos, instagram]) {
+      const text = load({ ua, touchPoints: 5 }).bar()!.textContent!;
+      expect(text).toContain("open this link in Safari");
+    }
+    // a web view inside another app (LinkedIn, X, Gmail...) is not named in any list: it simply has no Safari token
+    const webView = IPHONE.replace(" Safari/604.1", "") + " LinkedInApp";
+    expect(load({ ua: webView, touchPoints: 5 }).bar()!.textContent).toContain(
+      "open this link in Safari",
+    );
+    expect(load({ ua: IPHONE, touchPoints: 5 }).bar()!.textContent).not.toContain("in Safari,");
   });
 
   it("does the same on an iPad that asks for the computer site", () => {
@@ -156,7 +240,9 @@ describe("app-install.js on Apple devices, which let no website start an install
   });
 
   it("tells Safari 17 or newer on a Mac to use Add to Dock", () => {
-    expect(load({ ua: MAC_SAFARI_17 }).bar()?.textContent).toContain("File, then Add to Dock");
+    expect(load({ ua: MAC_SAFARI_17 }).bar()?.textContent).toContain(
+      "in Safari on macOS 14 or newer, choose File, then Add to Dock",
+    );
   });
 
   it("says nothing on an older Safari, or on Chrome for a Mac until it offers the install", () => {

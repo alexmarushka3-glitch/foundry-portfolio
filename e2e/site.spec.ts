@@ -307,7 +307,7 @@ test(
     await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
     await expect(page.getByText("Save the web app").first()).toBeVisible({ timeout: 90_000 });
     await page.waitForTimeout(1500);
-    await expect(page.getByText("The app hit an error")).toHaveCount(0);
+    await expect(page.getByText("The web app hit an error")).toHaveCount(0);
   },
 );
 
@@ -347,7 +347,7 @@ test("Get a link shows the link, how long it lasts and how to add it as an app (
   await expect(
     page.getByText(/30 days after it is last opened, and 60 days at most/),
   ).toBeVisible();
-  await expect(page.getByText("Make it an app.")).toBeVisible();
+  await expect(page.getByText("Add it to your device.")).toBeVisible();
   expect(posts).toBe(1);
 });
 
@@ -509,20 +509,78 @@ test(
   async ({ page, isMobile }) => {
     // The wrapper page is the real one; the app inside is not needed (an unknown id shows its notice in the frame).
     await page.goto(`/a/${GONE_ID}`);
-    const note = page.getByRole("region", { name: "Add this app to your device" });
+    const note = page.getByRole("region", { name: "Add this web app to your device" });
     if (!isMobile) {
       // Chrome on a computer only offers an install once the browser says the page can be installed (not in a test profile)
       await page.waitForTimeout(1000);
       await expect(note).toHaveCount(0);
       return;
     }
-    await expect(note).toContainText("tap ⋯, then Share, then Add to Home Screen");
-    await expect(note).toContainText("sits next to your other apps");
+    await expect(note).toContainText("tap Share (or ⋯, then Share), then Add to Home Screen");
+    await expect(note).toContainText("next to your other apps");
+    // the note sits above the app's frame in the layout and never covers it
+    const noteBox = (await note.boundingBox())!;
+    const frameBox = (await page.locator("iframe").boundingBox())!;
+    expect(noteBox.y + noteBox.height).toBeLessThanOrEqual(frameBox.y + 1);
+    expect(frameBox.height).toBeGreaterThan(100);
+    const before = frameBox.height;
     await note.getByRole("button", { name: "Got it" }).click();
     await expect(note).toHaveCount(0);
+    // with the note gone, the frame takes its space back
+    await expect
+      .poll(async () => (await page.locator("iframe").boundingBox())!.height)
+      .toBeGreaterThan(before);
     await page.reload();
     await page.waitForTimeout(500);
     await expect(note).toHaveCount(0); // it stays quiet after being dismissed
+  },
+);
+
+test(
+  "the preview frame tells an app that fails to start from one that only hits a later error, in every engine",
+  { tag: ["@lock", "@phone"] },
+  async ({ page }) => {
+    // The real frame page, opened on its own: its parent is itself. Messages it sends to its parent are collected by
+    // replacing postMessage, and the "start" message is delivered the way the page around it would.
+    const run = async (appHtml: string) => {
+      await page.goto("/preview/frame.html");
+      await page.evaluate((html) => {
+        const sent: { type: string; fatal?: boolean; message?: string }[] = [];
+        (window as unknown as { __sent: typeof sent }).__sent = sent;
+        window.postMessage = ((m: (typeof sent)[number]) =>
+          void sent.push(m)) as typeof window.postMessage;
+        window.dispatchEvent(
+          new MessageEvent("message", { data: { type: "preview-start", html }, source: window }),
+        );
+      }, appHtml);
+      await page.waitForTimeout(500);
+    };
+    const sent = () =>
+      page.evaluate(
+        () =>
+          (window as unknown as { __sent: { type: string; fatal?: boolean; message?: string }[] })
+            .__sent,
+      );
+
+    // a script that throws as the app starts, and one that throws in its own load handler: both fatal
+    await run(
+      "<!doctype html><html><head></head><body><script>throw new Error('at start');</script></body></html>",
+    );
+    expect((await sent()).find((m) => m.type === "preview-error")?.fatal).toBe(true);
+    await run(
+      "<!doctype html><html><head></head><body><script>window.addEventListener('load', function () { throw new Error('in load'); });</script></body></html>",
+    );
+    expect((await sent()).find((m) => m.type === "preview-error")?.fatal).toBe(true);
+
+    // a click handler that throws once the app is running: not fatal, and the app still counts as started
+    await run(
+      '<!doctype html><html><head></head><body><button id="b" onclick="throw new Error(\'on click\')">x</button></body></html>',
+    );
+    expect((await sent()).find((m) => m.type === "preview-error")).toBeUndefined();
+    await page.locator("#b").click();
+    const error = (await sent()).find((m) => m.type === "preview-error");
+    expect(error?.message).toContain("on click");
+    expect(error?.fatal).toBe(false);
   },
 );
 

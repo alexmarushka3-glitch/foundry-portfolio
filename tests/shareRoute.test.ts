@@ -296,7 +296,7 @@ describe("GET /a/[id] (the page a link opens)", () => {
     // the only scripts are the site's own bridge and install prompt, loaded from the site (never inline or from elsewhere)
     expect(html.match(/<script\b[^>]*>/g)).toEqual([
       '<script src="/app-bridge.js">',
-      '<script src="/app-install.js">',
+      '<script src="/app-install.js" defer>',
     ]);
   });
 

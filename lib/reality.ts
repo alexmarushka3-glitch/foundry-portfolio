@@ -34,7 +34,7 @@ export const REALITY: { tone: RealityTone; heading: string; items: string[]; sho
     heading: "Limits",
     items: [
       "Web apps are one page with no accounts, no internet and no server. Data is saved only in your own browser.",
-      "No human reviews them. Passing the agents' tests doesn't mean it has no bugs.",
+      "No human reviews them. Passing the agents' tests doesn't mean they have no bugs.",
       "Some ideas fail or are refused, such as anything that asks for passwords or payment details. Three examples are a demo, not a success rate.",
       "On this page it runs in a sealed frame that keeps nothing. The saved file uses your browser's normal storage.",
       "A real run makes a link to its web app by itself. The file stays on the server 30 days after the link is last opened (60 at most), then it is deleted. What you save in it stays on your own device.",
