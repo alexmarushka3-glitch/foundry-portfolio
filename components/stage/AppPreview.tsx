@@ -226,7 +226,7 @@ export default function AppPreview({
     }
     download();
     setNote(
-      "Download started. Find the file in your Downloads (in Safari, the arrow in the toolbar; on an iPhone, the Files app). If your computer blocks downloads, use Open full screen or Copy the code.",
+      "Download started. Look in your Downloads (Safari: the arrow in the toolbar; iPhone: the Files app). If it is blocked, use Open full screen or Copy the code.",
     );
   };
 
@@ -269,12 +269,10 @@ export default function AppPreview({
           )}
         </div>
       </div>
-      <p className="fine app-status" role="status" aria-live="polite">
+      <div className="fine app-status" role="status" aria-live="polite">
         {note}
-      </p>
-      <p className="fine app-status error-inline" role="status" aria-live="polite">
-        {linkError}
-      </p>
+        {linkError && <span className="error-inline"> {linkError}</span>}
+      </div>
       {link && (
         <div className="app-link">
           <label>
