@@ -293,8 +293,11 @@ describe("GET /a/[id] (the page a link opens)", () => {
     expect(html).toContain(`<iframe src="/a/${id}/app"`);
     expect(html).toContain('sandbox="allow-scripts allow-forms allow-modals"');
     expect(html).not.toContain("allow-same-origin");
-    // the only script is the site's own bridge, loaded from the site (never inline, never from anywhere else)
-    expect(html.match(/<script\b[^>]*>/g)).toEqual(['<script src="/app-bridge.js">']);
+    // the only scripts are the site's own bridge and install prompt, loaded from the site (never inline or from elsewhere)
+    expect(html.match(/<script\b[^>]*>/g)).toEqual([
+      '<script src="/app-bridge.js">',
+      '<script src="/app-install.js">',
+    ]);
   });
 
   it("carries what a phone or computer needs to add the link as an app", async () => {

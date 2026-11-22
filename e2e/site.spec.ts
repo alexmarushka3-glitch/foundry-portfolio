@@ -504,6 +504,29 @@ test(
 );
 
 test(
+  "a hosted link tells an iPhone what to tap to add it, once, and says nothing on a computer",
+  { tag: "@phone" },
+  async ({ page, isMobile }) => {
+    // The wrapper page is the real one; the app inside is not needed (an unknown id shows its notice in the frame).
+    await page.goto(`/a/${GONE_ID}`);
+    const note = page.getByRole("region", { name: "Add this app to your device" });
+    if (!isMobile) {
+      // Chrome on a computer only offers an install once the browser says the page can be installed (not in a test profile)
+      await page.waitForTimeout(1000);
+      await expect(note).toHaveCount(0);
+      return;
+    }
+    await expect(note).toContainText("tap ⋯, then Share, then Add to Home Screen");
+    await expect(note).toContainText("sits next to your other apps");
+    await note.getByRole("button", { name: "Got it" }).click();
+    await expect(note).toHaveCount(0);
+    await page.reload();
+    await page.waitForTimeout(500);
+    await expect(note).toHaveCount(0); // it stays quiet after being dismissed
+  },
+);
+
+test(
   "the on-page preview shows the finished app, on a phone too",
   { tag: "@phone" },
   async ({ page }) => {

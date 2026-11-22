@@ -24,11 +24,10 @@ type Device = "ios" | "android" | "desktop";
 
 /** How to put a link on a home screen (or install it), for the device the visitor is on. */
 const ADD_STEPS: Record<Device, string> = {
-  ios: "On iPhone or iPad: open the link in Safari, tap the Share button, then Add to Home Screen.",
-  android:
-    "On Android: open the link in Chrome, tap the ⋮ menu, then Install app (or Add to Home screen).",
+  ios: "Open the link in Safari, tap ⋯, then Share, then Add to Home Screen.",
+  android: "Open the link in Chrome and tap Install app.",
   desktop:
-    "On a computer: open the link in Chrome or Edge, then click the install icon at the right end of the address bar. In Safari on a Mac: File, then Add to Dock.",
+    "Open the link in Chrome or Edge and click Install app. In Safari on a Mac: File, then Add to Dock.",
 };
 
 /** How long the preview frame gets to show the app before the page says it did not start. */
@@ -294,8 +293,8 @@ export default function AppPreview({
             the same link opened in the browser.
           </p>
           <p className="fine">
-            <strong>Make it an app.</strong> {ADD_STEPS[device]} It opens full screen like an app,
-            but it is a web page, not an App Store app, and it needs an internet connection.
+            <strong>Make it an app.</strong> {ADD_STEPS[device]} That adds a web app that sits next
+            to your other apps. It is not an App Store app, and it needs an internet connection.
           </p>
         </div>
       )}

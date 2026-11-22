@@ -379,7 +379,8 @@ describe("Stage", () => {
         screen.getByText(/works for 30 days after it is last opened, and 60 days at most/),
       ).toBeTruthy();
       expect(screen.getByText("Make it an app.")).toBeTruthy();
-      expect(screen.getByText(/click the install icon/)).toBeTruthy(); // this test browser is a computer
+      expect(screen.getByText(/click Install app/)).toBeTruthy(); // this test browser is a computer
+      expect(screen.getByText(/sits next to your other apps/)).toBeTruthy();
       expect(screen.getByText(/not an App Store app/)).toBeTruthy();
       expect(screen.getByRole("link", { name: "Open it" }).getAttribute("href")).toBe(
         "https://site.test/a/abc",
