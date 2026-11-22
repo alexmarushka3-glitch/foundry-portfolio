@@ -301,6 +301,40 @@ describe("Stage", () => {
       await waitFor(() => expect(created).toHaveBeenCalled());
     });
 
+    // The order that hid the message: Save is pressed first, and the automatic link starts (and finishes) afterwards.
+    // The answer to "can links be made?" is held back so the test controls that order.
+    const savePressedBeforeTheLinkStarts = async (post: () => Response) => {
+      vi.stubGlobal("showSaveFilePicker", undefined);
+      const created = stubObjectUrl();
+      vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+      let open!: () => void;
+      mockShare({ available: true, post, gate: new Promise<void>((r) => (open = r)) });
+      render(<Stage />);
+      typeIdea();
+      fireEvent.click(await screen.findByRole("button", { name: "Save the web app" }));
+      await waitFor(() => expect(created).toHaveBeenCalled());
+      expect(await screen.findByText(/Download started/)).toBeTruthy();
+      open(); // now the automatic link starts
+    };
+
+    it("keeps saying that the download started when the automatic link starts and finishes afterwards", async () => {
+      await savePressedBeforeTheLinkStarts(() =>
+        Response.json({ id: "x", url: "https://site.test/a/abc", expiresAt: "later" }),
+      );
+      await screen.findByLabelText("Your link");
+      expect(screen.getByText(/Download started/)).toBeTruthy();
+      expect(screen.queryByText("Making a link…")).toBeNull(); // not as a message, and nothing left over
+    });
+
+    it("shows a link error next to, not instead of, the download message", async () => {
+      await savePressedBeforeTheLinkStarts(() =>
+        Response.json({ error: "Too many links today. Try Save the web app." }, { status: 429 }),
+      );
+      expect(await screen.findByText(/Too many links today/)).toBeTruthy();
+      expect(screen.getByText(/Download started/)).toBeTruthy();
+      expect(screen.queryByLabelText("Your link")).toBeNull();
+    });
+
     it("copies the whole page to the clipboard and says what to do with it", async () => {
       const writeText = vi.fn(async () => {});
       Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
@@ -345,12 +379,18 @@ describe("Stage", () => {
     });
 
     /** Answers /api/share the way the server would, and the run itself with the approved run. */
-    const mockShare = (share: { available: boolean; post?: () => Response }) => {
+    const mockShare = (share: {
+      available: boolean;
+      post?: () => Response;
+      /** Holds back the answer to "can links be made?" until it is resolved, to control the order of events. */
+      gate?: Promise<void>;
+    }) => {
       const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
-        if (url === "/api/share")
-          return init?.method === "POST"
-            ? share.post!()
-            : Response.json({ available: share.available });
+        if (url === "/api/share") {
+          if (init?.method === "POST") return share.post!();
+          await share.gate;
+          return Response.json({ available: share.available });
+        }
         return init?.method === "POST" ? ndjson(approvedRun) : Response.json({ live: false });
       });
       vi.stubGlobal("fetch", fetchMock);

@@ -585,6 +585,53 @@ test(
 );
 
 test(
+  "Save the web app downloads the file and says so right under the buttons, in every engine",
+  { tag: ["@lock", "@phone"] },
+  async ({ page }) => {
+    test.setTimeout(120_000);
+    // Safari and Firefox have no Save as window; make every engine take the plain download path
+    await page.addInitScript(() => {
+      delete (window as unknown as { showSaveFilePicker?: unknown }).showSaveFilePicker;
+    });
+    await page.goto("/");
+    await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
+    const save = page.getByRole("button", { name: "Save the web app" });
+    await expect(save).toBeVisible({ timeout: 90_000 });
+    // with nothing to say yet, the status line takes no room: only the normal gap between the buttons and the steps
+    // (measured by polling: the page may still be settling for a moment after the app appears, on a busy machine)
+    await expect
+      .poll(
+        async () => {
+          const head = (await page.locator(".app-preview-head").boundingBox())!;
+          const steps = (await page.locator(".app-next").boundingBox())!;
+          return steps.y - (head.y + head.height);
+        },
+        { timeout: 10_000 },
+      )
+      .toBeLessThan(16);
+    const [download] = await Promise.all([
+      page.waitForEvent("download", { timeout: 30_000 }),
+      save.click(),
+    ]);
+    expect(download.suggestedFilename()).toMatch(/\.html$/);
+    const message = page.locator(".app-status");
+    await expect(message).toContainText("Download started", { timeout: 15_000 });
+    await expect(message).toContainText("Downloads"); // says where to look
+    // right under the buttons, not at the far bottom of the box where it is easy to miss
+    await expect
+      .poll(
+        async () => {
+          const buttonBox = (await save.boundingBox())!;
+          const messageBox = (await message.boundingBox())!;
+          return messageBox.y - (buttonBox.y + buttonBox.height);
+        },
+        { timeout: 10_000 },
+      )
+      .toBeLessThan(200);
+  },
+);
+
+test(
   "the on-page preview shows the finished app, on a phone too",
   { tag: "@phone" },
   async ({ page }) => {

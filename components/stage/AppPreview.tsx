@@ -47,7 +47,10 @@ export default function AppPreview({
   const title = useMemo(() => appTitle(html), [html]);
   const [status, setStatus] = useState<"starting" | "ready" | "failed">("starting");
   const [problem, setProblem] = useState("");
+  // What the last button press said (saved, copied, blocked). The automatic link has its own line below, so the two can
+  // never overwrite each other.
   const [note, setNote] = useState("");
+  const [linkError, setLinkError] = useState("");
   // Hosted links: offered only when the server says it can keep them (it needs the database).
   const [canShare, setCanShare] = useState(false);
   const [sharing, setSharing] = useState(false);
@@ -85,6 +88,7 @@ export default function AppPreview({
     setSharing(false);
     setLink("");
     setNote("");
+    setLinkError("");
   }, [html]);
   const linkInput = useRef<HTMLInputElement>(null);
   useEffect(() => {
@@ -92,8 +96,8 @@ export default function AppPreview({
   }, [link]);
 
   const getLink = async () => {
-    setNote("Making a link…"); // read out by the status line below
-    setSharing(true);
+    setLinkError("");
+    setSharing(true); // the button says "Making a link…" while it works
     const mine = ++linkRequest.current;
     try {
       const res = await fetch("/api/share", {
@@ -104,10 +108,10 @@ export default function AppPreview({
       const data = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
       if (mine !== linkRequest.current) return; // another app was built while this one was waiting
       if (res.ok && data.url) setLink(data.url);
-      else setNote(data.error ?? "Could not make a link right now. Try Save the web app.");
+      else setLinkError(data.error ?? "Could not make a link right now. Try Save the web app.");
     } catch {
       if (mine === linkRequest.current)
-        setNote("Could not make a link right now. Try Save the web app.");
+        setLinkError("Could not make a link right now. Try Save the web app.");
     } finally {
       if (mine === linkRequest.current) setSharing(false); // a newer request owns the button now
     }
@@ -222,7 +226,7 @@ export default function AppPreview({
     }
     download();
     setNote(
-      "Download started. If your computer blocks downloads, use Open full screen or Copy the code.",
+      "Download started. Look in your Downloads (Safari: the arrow in the toolbar; iPhone: the Files app). If it is blocked, use Open full screen or Copy the code.",
     );
   };
 
@@ -264,6 +268,10 @@ export default function AppPreview({
             </button>
           )}
         </div>
+      </div>
+      <div className="fine app-status" role="status" aria-live="polite">
+        {note}
+        {linkError && <span className="error-inline"> {linkError}</span>}
       </div>
       {link && (
         <div className="app-link">
@@ -336,9 +344,6 @@ export default function AppPreview({
           Copy the code
         </button>{" "}
         instead and paste it into a text file named app.html.
-      </p>
-      <p className="fine" role="status" aria-live="polite">
-        {note}
       </p>
     </section>
   );

@@ -1012,6 +1012,11 @@ main,
 .app-link .fine {
   grid-column: 1 / -1;
 }
+.app-status:empty {
+  /* The live region is always there for screen readers, but while it is empty it takes out of the layout, so it leaves no
+     gap in the grid until it has something to say. */
+  position: absolute;
+}
 .app-link-buttons {
   display: flex;
   gap: 8px;
