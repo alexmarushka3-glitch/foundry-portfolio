@@ -1,6 +1,6 @@
 # Foundry Portfolio
 
-A personal portfolio site built around **Foundry**, an eight-agent app builder. Visitors type an idea for a small one-page app and watch eight agents plan, build and test it. Then they use the app on the page or save it as one .html file.
+A personal portfolio site built around **Foundry**, an eight-agent web app builder. Visitors type an idea for a small one-page app and watch eight agents plan, build and test it. Then they use the app on the page or save it as one .html file.
 
 Live site: https://alexmarushka.vercel.app (the old address, https://foundry-portfolio.vercel.app, still works)
 

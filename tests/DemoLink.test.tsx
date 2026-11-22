@@ -23,11 +23,11 @@ function setup() {
   drawing.id = "demo-drawing";
   drawing.scrollIntoView = vi.fn();
   document.body.appendChild(drawing);
-  render(<DemoLink>Build an app</DemoLink>);
-  return { link: screen.getByRole("link", { name: "Build an app" }), drawing };
+  render(<DemoLink>Build a web app</DemoLink>);
+  return { link: screen.getByRole("link", { name: "Build a web app" }), drawing };
 }
 
-describe("the hero's Build an app link", () => {
+describe("the hero's Build a web app link", () => {
   it("is a real link to #demo", () => {
     media(false);
     expect(setup().link.getAttribute("href")).toBe("#demo");

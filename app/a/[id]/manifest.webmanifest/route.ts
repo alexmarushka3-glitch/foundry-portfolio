@@ -34,7 +34,7 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
     name,
     short_name: name.slice(0, 12),
     description:
-      "An app made on Foundry. It runs in your browser and keeps its data on this device.",
+      "A web app made on Foundry. It runs in your browser and keeps its data on this device.",
     start_url: `/a/${id}`,
     scope: `/a/${id}`,
     display: "standalone",

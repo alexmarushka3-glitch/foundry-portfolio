@@ -71,7 +71,9 @@ const simulatedRun: FoundryEvent[] = [
 
 const IDEA = "A tip calculator for friends";
 const typeIdea = (idea = IDEA) => {
-  fireEvent.change(screen.getByLabelText(/describe your own app/i), { target: { value: idea } });
+  fireEvent.change(screen.getByLabelText(/describe your own web app/i), {
+    target: { value: idea },
+  });
   fireEvent.click(screen.getByRole("button", { name: "Build it" }));
 };
 
@@ -178,8 +180,8 @@ describe("Stage", () => {
     );
     render(<Stage />);
     typeIdea();
-    expect(await screen.findByRole("button", { name: "Save the app" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Your app: Tip calculator" })).toBeTruthy();
+    expect(await screen.findByRole("button", { name: "Save the web app" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Your web app: Tip calculator" })).toBeTruthy();
     const frame = screen.getByTitle("Tip calculator, running in your browser");
     expect(frame.getAttribute("sandbox")).toBe("allow-scripts allow-forms allow-modals");
     cleanup();
@@ -188,7 +190,7 @@ describe("Stage", () => {
     render(<Stage />);
     typeIdea();
     expect(await screen.findByText(/Scripted run/)).toBeTruthy();
-    expect(screen.queryByRole("button", { name: "Save the app" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Save the web app" })).toBeNull();
   });
 
   describe("ways to keep or open a finished app", () => {
@@ -231,7 +233,7 @@ describe("Stage", () => {
       mockApi(() => ndjson(approvedRun));
       render(<Stage />);
       typeIdea();
-      fireEvent.click(await screen.findByRole("button", { name: "Save the app" }));
+      fireEvent.click(await screen.findByRole("button", { name: "Save the web app" }));
       await waitFor(() => expect(close).toHaveBeenCalled());
       expect(picker).toHaveBeenCalledWith(
         expect.objectContaining({ suggestedName: "tip-calculator.html" }),
@@ -250,7 +252,7 @@ describe("Stage", () => {
       mockApi(() => ndjson(approvedRun));
       render(<Stage />);
       typeIdea();
-      fireEvent.click(await screen.findByRole("button", { name: "Save the app" }));
+      fireEvent.click(await screen.findByRole("button", { name: "Save the web app" }));
       await waitFor(() => expect(picker).toHaveBeenCalled());
       await settle();
       expect(created).not.toHaveBeenCalled();
@@ -267,7 +269,7 @@ describe("Stage", () => {
       mockApi(() => ndjson(approvedRun));
       render(<Stage />);
       typeIdea();
-      fireEvent.click(await screen.findByRole("button", { name: "Save the app" }));
+      fireEvent.click(await screen.findByRole("button", { name: "Save the web app" }));
       await waitFor(() => expect(created).toHaveBeenCalled());
       expect(await screen.findByText(/Download started/)).toBeTruthy();
     });
@@ -283,7 +285,7 @@ describe("Stage", () => {
       mockApi(() => ndjson(approvedRun));
       render(<Stage />);
       typeIdea();
-      fireEvent.click(await screen.findByRole("button", { name: "Save the app" }));
+      fireEvent.click(await screen.findByRole("button", { name: "Save the web app" }));
       expect(await screen.findByText(/could not be written/)).toBeTruthy();
       expect(created).not.toHaveBeenCalled();
     });
@@ -295,7 +297,7 @@ describe("Stage", () => {
       mockApi(() => ndjson(approvedRun));
       render(<Stage />);
       typeIdea();
-      fireEvent.click(await screen.findByRole("button", { name: "Save the app" }));
+      fireEvent.click(await screen.findByRole("button", { name: "Save the web app" }));
       await waitFor(() => expect(created).toHaveBeenCalled());
     });
 
@@ -359,7 +361,7 @@ describe("Stage", () => {
       mockShare({ available: false });
       render(<Stage />);
       typeIdea();
-      await screen.findByRole("button", { name: "Save the app" });
+      await screen.findByRole("button", { name: "Save the web app" });
       expect(screen.queryByRole("button", { name: "Get a link" })).toBeNull();
     });
 
@@ -412,7 +414,7 @@ describe("Stage", () => {
           Response.json(
             {
               error:
-                "This app can't get a link because it asks for a password. You can still save it.",
+                "This web app can't get a link because it asks for a password. You can still save it.",
             },
             { status: 422 },
           ),
@@ -424,7 +426,7 @@ describe("Stage", () => {
         await screen.findByText(/can't get a link because it asks for a password/),
       ).toBeTruthy();
       expect(screen.queryByLabelText("Your link")).toBeNull();
-      expect(screen.getByRole("button", { name: "Save the app" })).toBeTruthy();
+      expect(screen.getByRole("button", { name: "Save the web app" })).toBeTruthy();
       expect(screen.getByRole("button", { name: "Get a link" })).toBeTruthy(); // not stuck on "Making a link"
     });
 
@@ -507,14 +509,14 @@ describe("the idea box", () => {
     const build = screen.getByRole("button", { name: "Build it" }) as HTMLButtonElement;
     expect(build.disabled).toBe(false);
     fireEvent.click(build);
-    expect(await screen.findByText(/Describe the app in a few words first/)).toBeTruthy();
-    const box = screen.getByLabelText(/describe your own app/i);
+    expect(await screen.findByText(/Describe the web app in a few words first/)).toBeTruthy();
+    const box = screen.getByLabelText(/describe your own web app/i);
     expect(document.activeElement).toBe(box);
     expect(box.getAttribute("aria-invalid")).toBe("true");
     expect(fetchMock.mock.calls.some(([, init]) => init?.method === "POST")).toBe(false);
     // typing clears the message
     fireEvent.change(box, { target: { value: IDEA } });
-    expect(screen.queryByText(/Describe the app in a few words first/)).toBeNull();
+    expect(screen.queryByText(/Describe the web app in a few words first/)).toBeNull();
   });
 
   it("turns down login and payment apps in the browser, before anything is sent", async () => {
@@ -522,7 +524,7 @@ describe("the idea box", () => {
     render(<Stage />);
     typeIdea("A login page that saves passwords");
     expect(
-      await screen.findByText(/doesn't build apps that ask for logins or payment details/),
+      await screen.findByText(/doesn't build web apps that ask for logins or payment details/),
     ).toBeTruthy();
     expect(fetchMock.mock.calls.some(([, init]) => init?.method === "POST")).toBe(false);
   });
@@ -534,7 +536,7 @@ describe("the idea box", () => {
     vi.stubGlobal("fetch", fetchMock);
     render(<Stage />);
     expect(await screen.findByText(/runs live on real AI models/)).toBeTruthy();
-    const box = screen.getByLabelText(/describe your own app/i);
+    const box = screen.getByLabelText(/describe your own web app/i);
     fireEvent.change(box, { target: { value: IDEA } });
     fireEvent.keyDown(box, { key: "Enter" });
     await waitFor(() =>

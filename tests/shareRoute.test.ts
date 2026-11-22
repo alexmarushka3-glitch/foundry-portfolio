@@ -162,7 +162,7 @@ describe("POST /api/share", () => {
     });
     const res = await postApp(APP);
     expect(res.status).toBe(503);
-    expect((await res.json()).error).toMatch(/Try Save the app/);
+    expect((await res.json()).error).toMatch(/Try Save the web app/);
     expect(fake.data.size).toBe(0);
   });
 });
@@ -179,7 +179,7 @@ describe("POST /api/share only takes apps that came from a Foundry run", () => {
     ]) {
       const res = await post({ files, sig });
       expect(res.status).toBe(403);
-      expect((await res.json()).error).toMatch(/Only apps built here on Foundry/);
+      expect((await res.json()).error).toMatch(/Only web apps built here on Foundry/);
     }
     expect(fake.data.size).toBe(0); // no page was stored
   });
@@ -247,7 +247,7 @@ describe("POST /api/share only takes apps that came from a Foundry run", () => {
     serverState().shareSigner = down;
     const res = await postApp(APP);
     expect(res.status).toBe(503);
-    expect((await res.json()).error).toMatch(/Try Save the app/);
+    expect((await res.json()).error).toMatch(/Try Save the web app/);
   });
 });
 

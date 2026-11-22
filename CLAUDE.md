@@ -1,6 +1,6 @@
 # Foundry Portfolio
 
-Portfolio site built around Foundry, an eight-agent app builder. Visitors type an idea for a small one-page app (or pick a recorded example), watch eight agents plan, build and test it, then use the finished app on the page or save it as one .html file. Live at https://alexmarushka.vercel.app.
+Portfolio site built around Foundry, an eight-agent web app builder. Visitors type an idea for a small one-page app (or pick a recorded example), watch eight agents plan, build and test it, then use the finished app on the page or save it as one .html file. Live at https://alexmarushka.vercel.app.
 
 ## Workflow
 
@@ -59,6 +59,7 @@ Full map and recipes: `docs/ARCHITECTURE.md`. Short version:
 
 ## Honesty rules
 
+- Wording: call what the visitor gets a "web app" (once per section, then "it"; changed Nov 21, 2026). Keep "sample app", "taskly-sample" and "no app built" (simulations) as they are, never call it an App Store app, and say it is a web page that can be added to a home screen. The diagram box and the share picture still say "Your app" and "Describe a small app" on purpose (the Figma frames and LinkedIn's cached preview need to change together).
 - The page must always say which mode ran. Never present simulated text as model output.
 - Never hand-edit `recordings-src/live/` events or the archive folders. Replay is only honest if it is the real output. Each example recording is kept as it came out.
 - In a live run the agents work on an in-memory copy of the starter kit; its unit tests and one Playwright browser test (written by the Browser Tester, run in real headless Chromium against the bundled file) run in a Vercel Sandbox started from `FOUNDRY_SANDBOX_SNAPSHOT`, network off. The simulation runs no code and builds no app. No human reviews the apps; never say "reviewed", "success rate" or "reliable". Three examples are a demo, not a success rate.

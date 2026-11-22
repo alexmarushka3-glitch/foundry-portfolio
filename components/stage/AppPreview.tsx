@@ -104,10 +104,10 @@ export default function AppPreview({
       const data = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
       if (mine !== linkRequest.current) return; // another app was built while this one was waiting
       if (res.ok && data.url) setLink(data.url);
-      else setNote(data.error ?? "Could not make a link right now. Try Save the app.");
+      else setNote(data.error ?? "Could not make a link right now. Try Save the web app.");
     } catch {
       if (mine === linkRequest.current)
-        setNote("Could not make a link right now. Try Save the app.");
+        setNote("Could not make a link right now. Try Save the web app.");
     } finally {
       if (mine === linkRequest.current) setSharing(false); // a newer request owns the button now
     }
@@ -142,7 +142,7 @@ export default function AppPreview({
     const stuckTimer = window.setTimeout(() => {
       // Cleared as soon as the app says ready or failed, so reaching here means it said nothing.
       setProblem(
-        "the preview did not start in this browser. Try Open full screen, Save the app or Copy the code.",
+        "the preview did not start in this browser. Try Open full screen, Save the web app or Copy the code.",
       );
       setStatus("failed");
     }, PREVIEW_START_MS);
@@ -238,17 +238,17 @@ export default function AppPreview({
       await navigator.clipboard.writeText(html);
       setNote("Copied. Paste it into a text file and name the file app.html.");
     } catch {
-      setNote("Your browser would not let the page copy. Try Save the app instead.");
+      setNote("Your browser would not let the page copy. Try Save the web app instead.");
     }
   };
 
   return (
-    <section className="app-preview" aria-label="Your app">
+    <section className="app-preview" aria-label="Your web app">
       <div className="app-preview-head">
-        <h3>Your app: {title}</h3>
+        <h3>Your web app: {title}</h3>
         <div className="app-actions">
           <button type="button" className="btn btn-primary" onClick={save}>
-            Save the app
+            Save the web app
           </button>
           <button type="button" className="btn btn-ghost" onClick={openFull}>
             Open full screen
@@ -286,11 +286,11 @@ export default function AppPreview({
             </a>
           </div>
           <p className="fine" id="app-link-fine">
-            Anyone with this link can open the app in a browser. The link works for{" "}
-            {SHARE_IDLE_DAYS} days after it is last opened, and {SHARE_MAX_DAYS} days at most, then
-            the app is deleted from our server. The app keeps its data on your device, usually until
-            you clear your browser data. An app added to the home screen does not share data with
-            the same link opened in the browser.
+            Anyone with this link can open it in a browser. The link works for {SHARE_IDLE_DAYS}{" "}
+            days after it is last opened, and {SHARE_MAX_DAYS} days at most, then the app is deleted
+            from our server. The app keeps its data on your device, usually until you clear your
+            browser data. An app added to the home screen does not share data with the same link
+            opened in the browser.
           </p>
           <p className="fine">
             <strong>Make it an app.</strong> {ADD_STEPS[device]} That adds a web app that sits next
@@ -307,7 +307,7 @@ export default function AppPreview({
           ).map((h) => (
             <li key={h}>{h}</li>
           ))}
-          <li>Like it? Press Save the app to keep it on your device.</li>
+          <li>Like it? Press Save the web app to keep it on your device.</li>
         </ol>
         {howTo.length > 0 && (
           <p className="fine">These steps were written by the Release agent for this app.</p>

@@ -18,7 +18,7 @@ test("home page loads with the main sections and no browser errors", async ({ pa
   await page.goto("/");
   await expect(page).toHaveTitle(/Foundry/);
   await expect(page.getByRole("heading", { level: 1, name: "Foundry" })).toBeVisible();
-  for (const h of ["Build an app", "The project in short", "Scope and limits", "About"]) {
+  for (const h of ["Build a web app", "The project in short", "Scope and limits", "About"]) {
     await expect(page.getByRole("heading", { level: 2, name: h })).toBeVisible();
   }
   expect(errors).toEqual([]);
@@ -32,7 +32,7 @@ test("a recorded example replays to the end and offers the app", async ({ page }
   await expect(examples).toHaveCount(3);
   await examples.nth(1).click();
   await expect(examples.nth(1)).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
+  await expect(page.getByText("Save the web app").first()).toBeVisible({ timeout: 90_000 });
   // The page must say which mode ran (honesty rule), and a replay must never be passed off as a typed live run.
   await expect(page.getByText(/replay of a real live run/i).first()).toBeVisible();
   expect(errors).toEqual([]);
@@ -136,7 +136,7 @@ test(
     test.setTimeout(120_000);
     await page.goto("/");
     await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
-    await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
+    await expect(page.getByText("Save the web app").first()).toBeVisible({ timeout: 90_000 });
     const [tab] = await Promise.all([
       context.waitForEvent("page"),
       page.getByRole("button", { name: "Open full screen" }).click(),
@@ -171,16 +171,16 @@ test(
     );
     await page.goto("/");
     await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
-    await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
+    await expect(page.getByText("Save the web app").first()).toBeVisible({ timeout: 90_000 });
     // The stub never answers, so the page itself needs no frame to announce itself; the full-screen tab does the work.
     const [tab] = await Promise.all([
       context.waitForEvent("page"),
       page.getByRole("button", { name: "Open full screen" }).click(),
     ]);
-    await expect(tab.getByText("The app did not open in this browser")).toBeVisible({
+    await expect(tab.getByText("The web app did not open in this browser")).toBeVisible({
       timeout: 15_000,
     });
-    await expect(tab.getByRole("button", { name: "Save the app" })).toBeVisible();
+    await expect(tab.getByRole("button", { name: "Save the web app" })).toBeVisible();
     await expect(tab.getByRole("button", { name: "Copy the code" })).toBeVisible();
   },
 );
@@ -197,7 +197,7 @@ async function openFullWithFrame(
   );
   await page.goto("/");
   await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
-  await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
+  await expect(page.getByText("Save the web app").first()).toBeVisible({ timeout: 90_000 });
   const [tab] = await Promise.all([
     context.waitForEvent("page"),
     page.getByRole("button", { name: "Open full screen" }).click(),
@@ -215,10 +215,10 @@ test(
       context,
       `<p>Opening the app…</p><script>parent.postMessage({ type: "preview-loaded" }, "*");</script>`,
     );
-    await expect(tab.getByText("The app did not open in this browser")).toBeVisible({
+    await expect(tab.getByText("The web app did not open in this browser")).toBeVisible({
       timeout: 15_000,
     });
-    await expect(tab.getByRole("button", { name: "Save the app" })).toBeVisible();
+    await expect(tab.getByRole("button", { name: "Save the web app" })).toBeVisible();
     await expect(tab.getByRole("button", { name: "Copy the code" })).toBeVisible();
     await expect(tab.getByRole("button", { name: "Try again" })).toBeVisible();
   },
@@ -237,10 +237,10 @@ test(
       setTimeout(() => parent.postMessage({ type: "preview-ready" }, "*"), 8000);
     </script>`,
     );
-    await expect(tab.getByText("The app did not open in this browser")).toBeVisible({
+    await expect(tab.getByText("The web app did not open in this browser")).toBeVisible({
       timeout: 15_000,
     });
-    await expect(tab.getByText("The app did not open in this browser")).toBeHidden({
+    await expect(tab.getByText("The web app did not open in this browser")).toBeHidden({
       timeout: 15_000,
     });
     await expect(tab.frameLocator("#app").getByText("Slow app")).toBeVisible();
@@ -261,11 +261,11 @@ test(
       setTimeout(() => parent.postMessage({ type: "preview-ready" }, "*"), 500);
     </script>`,
     );
-    await expect(tab.getByText("The app did not open in this browser")).toBeVisible({
+    await expect(tab.getByText("The web app did not open in this browser")).toBeVisible({
       timeout: 15_000,
     });
     await tab.waitForTimeout(1500); // a "ready" after a failure must not take the message away
-    await expect(tab.getByText("The app did not open in this browser")).toBeVisible();
+    await expect(tab.getByText("The web app did not open in this browser")).toBeVisible();
   },
 );
 
@@ -279,7 +279,7 @@ test(
     );
     await page.goto("/");
     await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
-    await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
+    await expect(page.getByText("Save the web app").first()).toBeVisible({ timeout: 90_000 });
     await expect(page.getByText("the preview did not start in this browser")).toBeVisible({
       timeout: 20_000,
     });
@@ -305,7 +305,7 @@ test(
     );
     await page.goto("/");
     await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
-    await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
+    await expect(page.getByText("Save the web app").first()).toBeVisible({ timeout: 90_000 });
     await page.waitForTimeout(1500);
     await expect(page.getByText("The app hit an error")).toHaveCount(0);
   },
@@ -356,7 +356,7 @@ test("the button is hidden when the server cannot keep links", async ({ page }) 
   await page.route("**/api/share", (route) => route.fulfill({ json: { available: false } }));
   await page.goto("/");
   await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
-  await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
+  await expect(page.getByText("Save the web app").first()).toBeVisible({ timeout: 90_000 });
   await expect(page.getByRole("button", { name: "Get a link" })).toHaveCount(0);
 });
 
@@ -533,7 +533,7 @@ test(
     test.setTimeout(120_000);
     await page.goto("/");
     await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
-    await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
+    await expect(page.getByText("Save the web app").first()).toBeVisible({ timeout: 90_000 });
     const app = page.frameLocator('iframe[src="/preview/frame.html"]');
     await expect(app.locator("h1, h2").first()).toBeVisible({ timeout: 15_000 });
   },

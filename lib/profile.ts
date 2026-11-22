@@ -6,16 +6,16 @@ export const profile = {
   /** The big title at the top of the page. */
   headline: "Foundry",
   /** The one line under the title: what it does, in plain verbs. */
-  tagline: "Describe a small app. Eight AI agents build it, test it, and hand it to you.",
+  tagline: "Describe a small web app. Eight AI agents build it, test it, and hand it to you.",
   /** The paragraph under it. Keep it honest: small one-page apps, checked by real tests, no human review. */
   intro:
-    "Type an idea like “a tip calculator” and watch them plan, write and test it in about a minute. Then use the app right on the page, or save it as one file that opens in any browser.",
+    "Type an idea like “a tip calculator” and watch them plan, write and test it in about a minute. Then use it right on the page, or save it as one file that opens in any browser.",
   /** Who does what, shown as the caption under the pipeline drawing. */
   how: "One agent reads the starter kit, two plan, two build, two check the work (and can send it back), and one writes it up.",
   /** The one-line version, used for the page description in search results and link previews. */
   title: "Student at the University of Chicago",
   pitch:
-    "Describe a small app and eight AI agents build it, test it in a real browser, and hand it to you as one file.",
+    "Describe a small web app and eight AI agents build it, test it in a real browser, and hand it to you as one file.",
   email: "alex.marushka3@gmail.com",
   links: [
     { label: "Resume", href: "/Alex-Marushka-Resume.pdf" },
@@ -30,7 +30,7 @@ export const profile = {
   },
   about: [
     "I'm a Business Economics student at the University of Chicago. I built Foundry with Claude Code to see how much of a software job a team of AI agents can do on its own, and how to check their work.",
-    "The apps are small on purpose: one page, no accounts, no internet. That keeps them safe to run and quick to build.",
+    "The web apps are small on purpose: one page, no accounts, no internet. That keeps them safe to run and quick to build.",
     "I'm recruiting for consulting and tech roles.",
   ],
   /**
@@ -40,11 +40,11 @@ export const profile = {
   caseStudy: [
     {
       term: "The question",
-      text: "Can a team of AI agents build a small app that works, and how do you know without checking each one by hand?",
+      text: "Can a team of AI agents build a small web app that works, and how do you know without checking each one by hand?",
     },
     {
       term: "What I built",
-      text: "Eight Claude agents in a pipeline: one reads the starter kit, two plan, two build, two test and one writes it up. Real tests can fail an app and send it back; a Validator agent, not a person, approves it.",
+      text: "Eight Claude agents in a pipeline: one reads the starter kit, two plan, two build, two test and one writes it up. Real tests can fail the build and send it back; a Validator agent, not a person, approves it.",
     },
     {
       term: "What happened",
@@ -57,15 +57,15 @@ export const profile = {
   ],
   /** The "How it works" picture under the case study: its text description for screen readers and its caption. */
   diagram: {
-    alt: "Diagram of how Foundry works. Your idea goes to eight agents in four groups. Researcher, Story Writer and Project Manager read and plan. Logic and Interface build. Browser Tester and Validator check. Release writes it up. The result is your app, one .html file. A failed check sends the work back to Logic and Interface for another round. The picture shows a live run that ends in an app; a simulation, a refusal or two failed rounds ends with no app.",
+    alt: "Diagram of how Foundry works. Your idea goes to eight agents in four groups. Researcher, Story Writer and Project Manager read and plan. Logic and Interface build. Browser Tester and Validator check. Release writes it up. The result is your web app, one .html file. A failed check sends the work back to Logic and Interface for another round. The picture shows a live run that ends in a web app; a simulation, a refusal or two failed rounds ends with no app.",
     caption:
-      "A live run that ends in an app. Real unit tests and a real browser test can fail it and send it back; an AI Validator approves it. A simulation, a refusal or two failed rounds ends with no app. No human reviews the apps.",
+      "A live run that ends in a web app. Real unit tests and a real browser test can fail it and send it back; an AI Validator approves it. A simulation, a refusal or two failed rounds ends with no app. No human reviews the apps.",
   },
   /** "Decisions that mattered", under the case study: each item is a decision made in the code, stated as it is. */
   lessons: [
     {
       title: "Let real tests check, not just the agents",
-      body: "An agent saying it's done proves nothing. Real unit tests and a real browser test can fail an app and send it back. Only then does an AI Validator approve it.",
+      body: "An agent saying it's done proves nothing. Real unit tests and a real browser test can fail the build and send it back. Only then does an AI Validator approve it.",
     },
     {
       title: "Put limits on everything",

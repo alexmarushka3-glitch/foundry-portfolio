@@ -14,7 +14,7 @@ Three audiences, confirmed by Alex on Oct 26, 2026. The first is the one the sit
 - **Classmates, professors and personal contacts** following the project.
 
 ## Product Purpose
-A portfolio site whose centerpiece is Foundry, an eight-agent app builder. A visitor types an idea for a small one-page app (or replays a recorded example), watches eight Claude agents plan, build and test it, and, in a live run that passes both checks, uses the finished app on the page and can save it as one .html file. (Changed Nov 1, 2026, after friends and family said the old to-do-app demo gave visitors nothing real and was too wordy.) The site exists to show what Alex can build and how honestly he measures it. Success: a visitor can say what Foundry does and what it does not do after a short visit, and contacts Alex.
+A portfolio site whose centerpiece is Foundry, an eight-agent web app builder. A visitor types an idea for a small one-page app (or replays a recorded example), watches eight Claude agents plan, build and test it, and, in a live run that passes both checks, uses the finished app on the page and can save it as one .html file. (Changed Nov 1, 2026, after friends and family said the old to-do-app demo gave visitors nothing real and was too wordy.) The site exists to show what Alex can build and how honestly he measures it. Success: a visitor can say what Foundry does and what it does not do after a short visit, and contacts Alex.
 
 ## Positioning
 The checks are real and the work can be sent back. In a live run the app's unit tests run in an isolated sandbox, a real headless browser runs a Playwright test, and the result decides the gate regardless of what the agents say; a failing check sends the work back for another round. (Alex named these two as what sets Foundry apart. Openness about limits is a standing project rule, see Constraints, but he did not pick it as the differentiator.)
@@ -41,7 +41,7 @@ Undecided: a custom domain; a measured success rate; whether to keep the run log
 Name: Foundry. Mark: the F with an amber dot (components/Logo.tsx, app/icon.svg). Written voice is short and plain.
 
 ## Evidence on Hand
-- Three recordings of real live runs of the app builder (recordings-src/live/), kept as they came out. The older to-do-app recordings are in recordings-src/archive-taskly/.
+- Three recordings of real live runs of the web app builder (recordings-src/live/), kept as they came out. The older to-do-app recordings are in recordings-src/archive-taskly/.
 - The 23 measured runs in lib/eval/results.json are of the old to-do version, so the card is off the page.
 - No testimonials, customers, benchmarks or success rate exist. Do not invent any. No human reviews the apps.
 

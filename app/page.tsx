@@ -43,7 +43,7 @@ export default function Home() {
           <p className="hero-tagline">{profile.tagline}</p>
           <p className="hero-lede">{profile.intro}</p>
           <div className="hero-actions">
-            <DemoLink className="btn btn-primary">Build an app</DemoLink>
+            <DemoLink className="btn btn-primary">Build a web app</DemoLink>
             <a className="btn btn-ghost" href="#reality">
               Scope and limits
             </a>

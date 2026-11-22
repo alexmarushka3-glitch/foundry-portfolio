@@ -61,16 +61,16 @@ export async function POST(req: Request) {
     // A page opened before an update still sends the old shape (the page's html); tell it to reload.
     if (typeof (body as { html?: unknown } | null)?.html === "string")
       return json(
-        { error: "This page is out of date. Reload it, build the app again, then get a link." },
+        { error: "This page is out of date. Reload it, build the web app again, then get a link." },
         400,
       );
-    return json({ error: "That doesn't look like a finished app." }, 400);
+    return json({ error: "That doesn't look like a finished web app." }, 400);
   }
 
   // Only apps that came from a real run: a recording the site ships, or files the server signed when the run ended.
   if (!isShippedApp(files)) {
     if (!(await prepareWithin(state.shareSigner, 3000)))
-      return json({ error: "Could not make a link right now. Try Save the app." }, 503);
+      return json({ error: "Could not make a link right now. Try Save the web app." }, 503);
     // The key may have been replaced since this instance loaded it (deleted, or the database reset), so look again
     // before saying no.
     const signed =
@@ -78,7 +78,7 @@ export async function POST(req: Request) {
       ((await state.shareSigner.refresh()) && state.shareSigner.verify(files, body?.sig));
     if (!signed)
       return json(
-        { error: "Only apps built here on Foundry can get a link. Try Save the app." },
+        { error: "Only web apps built here on Foundry can get a link. Try Save the web app." },
         403,
       );
   }
@@ -87,10 +87,10 @@ export async function POST(req: Request) {
   try {
     html = bundleApp(files);
   } catch {
-    return json({ error: "That doesn't look like a finished app." }, 400);
+    return json({ error: "That doesn't look like a finished web app." }, 400);
   }
   if (new TextEncoder().encode(html).length > MAX_SHARE_BYTES)
-    return json({ error: "That app is too large for a link. Save it instead." }, 413);
+    return json({ error: "That web app is too large for a link. Save it instead." }, 413);
 
   const checked = checkSharedApp(html);
   if (!checked.ok) return json({ error: refusedMessage(checked.reason) }, 422);
@@ -116,6 +116,6 @@ export async function POST(req: Request) {
     console.warn(
       `share: could not make a link (${err instanceof Error ? err.message : "unknown"})`,
     );
-    return json({ error: "Could not make a link right now. Try Save the app." }, 503);
+    return json({ error: "Could not make a link right now. Try Save the web app." }, 503);
   }
 }
