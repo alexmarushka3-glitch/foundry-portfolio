@@ -425,10 +425,10 @@ test(
 );
 
 const NOTES_APP =
-  '<!doctype html><html><head><title>Counter</title></head><body><p id="n"></p><button id="b">add</button><script>' +
+  '<!doctype html><html><head><title>Counter</title></head><body><p id="n"></p><p id="p"></p><button id="b">add</button><script>' +
   'var c = Number(localStorage.getItem("count") || "0"); var n = document.getElementById("n");' +
-  'function show() { n.textContent = "count:" + c; } show();' +
-  'document.getElementById("b").onclick = function () { c++; localStorage.setItem("count", String(c)); show(); };' +
+  'function show() { n.textContent = "count:" + c; document.getElementById("p").textContent = "p:" + localStorage.getItem("__proto__"); } show();' +
+  'document.getElementById("b").onclick = function () { c++; localStorage.setItem("count", String(c)); localStorage.setItem("__proto__", String(c)); show(); };' +
   "</script></body></html>";
 
 test(
@@ -462,10 +462,14 @@ test(
 
     await page.reload();
     await expect(app.locator("#n")).toHaveText("count:2", { timeout: 10_000 }); // kept on this device
+    await expect(app.locator("#p")).toHaveText("p:2"); // even under the key __proto__
 
     // the data sits in the wrapper's storage under this link's own prefix, and nothing else of the site is touched
     const keys = await page.evaluate(() => Object.keys(localStorage).sort());
-    expect(keys.filter((k) => k.startsWith("foundry:app:"))).toEqual([`foundry:app:${MINE}:count`]);
+    expect(keys.filter((k) => k.startsWith("foundry:app:"))).toEqual([
+      `foundry:app:${MINE}:__proto__`,
+      `foundry:app:${MINE}:count`,
+    ]);
 
     // another link has its own, empty, data
     await page.goto(`/a/${OTHER}`);

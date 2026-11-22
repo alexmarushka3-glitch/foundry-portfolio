@@ -48,7 +48,10 @@ export interface ShareStore {
 
 export class MemoryShareStore implements ShareStore {
   readonly persistent = false;
-  private items = new Map<string, { html: string; createdAt: number; expiresAt: number }>();
+  private items = new Map<
+    string,
+    { html: string; createdAt: number; expiresAt: number; limits: ShareLimits }
+  >();
 
   constructor(
     private capacity = 50,
@@ -57,11 +60,11 @@ export class MemoryShareStore implements ShareStore {
   ) {}
 
   async put(id: string, html: string, limits: ShareLimits = this.limits): Promise<void> {
-    this.limits = limits;
     this.items.delete(id);
     const now = this.now();
     this.items.set(id, {
       html,
+      limits, // each app keeps the limits it was made with
       createdAt: now,
       expiresAt: now + Math.min(limits.idleSeconds, limits.maxSeconds) * 1000,
     });
@@ -87,8 +90,8 @@ export class MemoryShareStore implements ShareStore {
     if (!item) return null;
     // Starts the idle clock again, but never past the hard cap.
     item.expiresAt = Math.min(
-      this.now() + this.limits.idleSeconds * 1000,
-      item.createdAt + this.limits.maxSeconds * 1000,
+      this.now() + item.limits.idleSeconds * 1000,
+      item.createdAt + item.limits.maxSeconds * 1000,
     );
     return item.html;
   }

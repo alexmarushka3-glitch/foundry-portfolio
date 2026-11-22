@@ -89,7 +89,7 @@ const LOADER = String.raw`(function () {
   }
 
   function withShim(html, items, persist) {
-    var src = "(" + shim.toString() + ")(" + escapeJson(JSON.stringify(items)) + "," + (persist ? "true" : "false") + "," + MAX + ");";
+    var src = "(" + shim.toString() + ")(JSON.parse(" + escapeJson(JSON.stringify(JSON.stringify(items))) + ")," + (persist ? "true" : "false") + "," + MAX + ");";
     var tag = "<script>" + src + "<\/script>";
     var head = /<head\b[^>]*>/i.exec(html);
     if (head) return html.slice(0, head.index + head[0].length) + tag + html.slice(head.index + head[0].length);
