@@ -287,6 +287,30 @@ test(
   },
 );
 
+test(
+  "the on-page preview keeps running when the app throws a harmless error after it started",
+  { tag: "@phone" },
+  async ({ page, context }) => {
+    test.setTimeout(120_000);
+    // A stand-in frame: it opens the app, then reports an uncaught error the way frame.html does (not marked fatal).
+    await context.route("**/preview/frame.html", (route) =>
+      route.fulfill({
+        contentType: "text/html",
+        body: `<p>Stand-in</p><script>
+          parent.postMessage({ type: "preview-loaded" }, "*");
+          parent.postMessage({ type: "preview-ready" }, "*");
+          setTimeout(() => parent.postMessage({ type: "preview-error", message: "a click handler threw" }, "*"), 300);
+        </script>`,
+      }),
+    );
+    await page.goto("/");
+    await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
+    await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
+    await page.waitForTimeout(1500);
+    await expect(page.getByText("The app hit an error")).toHaveCount(0);
+  },
+);
+
 test("the full-screen page is served with its own tight headers", async ({ request }) => {
   const res = await request.get("/preview/full.html");
   expect(res.ok()).toBe(true);

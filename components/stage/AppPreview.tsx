@@ -167,7 +167,9 @@ export default function AppPreview({
         window.clearTimeout(stuckTimer);
         setProblem("");
         setStatus("ready"); // also takes back the "did not start" notice when the app only opened slowly
-      } else if (e.data.type === "preview-error") {
+      } else if (e.data.type === "preview-error" && e.data.fatal === true) {
+        // Only a failure to start the app (marked fatal by the frame). The frame also forwards every uncaught error the
+        // app throws later, such as in a click handler; the app is still running then, as it is in the full-screen tab.
         reported = true;
         window.clearTimeout(stuckTimer);
         setStatus("failed");
