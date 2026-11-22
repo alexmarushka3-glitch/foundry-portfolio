@@ -32,7 +32,8 @@ describe("page copy", () => {
 
   it("says plainly what visitors get: an app they can use on the page and save", () => {
     expect(profile.tagline).toMatch(/build it, test it/i);
-    expect(profile.intro).toMatch(/use the app/i);
+    expect(profile.tagline).toMatch(/small web app/i); // "web app" once, then "it" (decided Nov 21, 2026)
+    expect(profile.intro).toMatch(/use it right on the page/i);
     expect(profile.intro).toMatch(/save it as one file/i);
   });
 

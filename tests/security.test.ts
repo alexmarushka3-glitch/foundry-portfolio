@@ -203,7 +203,12 @@ describe("security headers", () => {
     expect(wrapper).toContain("frame-src 'self'"); // the lock: a framed app cannot send the visitor to another website
     expect(wrapper).toContain("frame-ancestors 'none'");
     expect(wrapper).toContain("default-src 'none'");
-    expect(wrapper).not.toMatch(/script-src|unsafe-eval|https?:\/\/|\*/);
+    // the wrapper may run only the site's own bridge script, and load only its own manifest and icons
+    expect(wrapper).toContain("script-src 'self'");
+    expect(wrapper).toContain("manifest-src 'self'");
+    expect(wrapper).toContain("img-src 'self'");
+    expect(wrapper.split("; ").find((d) => d.startsWith("script-src"))).toBe("script-src 'self'");
+    expect(wrapper).not.toMatch(/unsafe-inline'? *(;|$)(?=.*script)|unsafe-eval|https?:\/\/|\*/);
     const wrapperHeaders = Object.fromEntries(sharedWrapperHeaders().map((x) => [x.key, x.value]));
     expect(wrapperHeaders["X-Frame-Options"]).toBe("DENY");
     expect(wrapperHeaders["Cache-Control"]).toBe("private, no-store");

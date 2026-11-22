@@ -61,7 +61,7 @@ export default function IdeaForm({ onSubmit, busy, activeExample, liveAvailable 
       </div>
 
       <label className="idea-step" htmlFor="idea-box">
-        Or describe your own app:
+        Or describe your own web app:
       </label>
       <div className="idea-row">
         <textarea

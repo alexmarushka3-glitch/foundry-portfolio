@@ -83,4 +83,4 @@ export function checkSharedApp(html: string): ShareCheck {
 
 /** The sentence shown when a page is refused. */
 export const refusedMessage = (reason: string) =>
-  `This app can't get a link because ${reason}. You can still save it or open it full screen.`;
+  `This web app can't get a link because ${reason}. You can still save it or open it full screen.`;

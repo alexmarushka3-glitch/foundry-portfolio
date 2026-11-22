@@ -174,7 +174,7 @@ export default function Stage() {
   return (
     <section ref={sectionRef} className="stage" id="demo" aria-labelledby="stage-title">
       <div className="stage-head">
-        <h2 id="stage-title">Build an app</h2>
+        <h2 id="stage-title">Build a web app</h2>
         {modeCopy && (
           <p className={`badge ${mode}`} role="status">
             <span className="dot" aria-hidden="true" />
@@ -231,7 +231,7 @@ export default function Stage() {
       <div className="panels">
         {focus.length === 0 ? (
           <p className="empty">
-            Pick an example or describe your own app. You can watch the agents work.
+            Pick an example or describe your own. You can watch the agents work.
           </p>
         ) : (
           focus.map((f) => <OutputPanel key={f.agent} frame={f} />)

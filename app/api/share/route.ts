@@ -4,7 +4,8 @@ import {
   MAX_SHARE_BYTES,
   MAX_SHARE_FILES,
   MAX_SHARE_NAME,
-  SHARE_TTL_SECONDS,
+  SHARE_IDLE_SECONDS,
+  SHARE_MAX_SECONDS,
 } from "@/lib/share";
 import { blockCrossSite } from "@/lib/server/adminAuth";
 import { shareEnabled } from "@/lib/server/env";
@@ -39,7 +40,7 @@ export async function GET() {
 }
 
 /**
- * Keeps a finished app for a week and returns its link. The page sends the app's files and the signature the server
+ * Keeps a finished app (30 days after each open, 60 days at most) and returns its link. The page sends the app's files and the signature the server
  * gave them when the run finished; the server checks it and builds the page itself, so only apps that really came from
  * a Foundry run (or match a shipped recording) can get a link.
  */
@@ -60,16 +61,16 @@ export async function POST(req: Request) {
     // A page opened before an update still sends the old shape (the page's html); tell it to reload.
     if (typeof (body as { html?: unknown } | null)?.html === "string")
       return json(
-        { error: "This page is out of date. Reload it, build the app again, then get a link." },
+        { error: "This page is out of date. Reload it, build the web app again, then get a link." },
         400,
       );
-    return json({ error: "That doesn't look like a finished app." }, 400);
+    return json({ error: "That doesn't look like a finished web app." }, 400);
   }
 
   // Only apps that came from a real run: a recording the site ships, or files the server signed when the run ended.
   if (!isShippedApp(files)) {
     if (!(await prepareWithin(state.shareSigner, 3000)))
-      return json({ error: "Could not make a link right now. Try Save the app." }, 503);
+      return json({ error: "Could not make a link right now. Try Save the web app." }, 503);
     // The key may have been replaced since this instance loaded it (deleted, or the database reset), so look again
     // before saying no.
     const signed =
@@ -77,7 +78,7 @@ export async function POST(req: Request) {
       ((await state.shareSigner.refresh()) && state.shareSigner.verify(files, body?.sig));
     if (!signed)
       return json(
-        { error: "Only apps built here on Foundry can get a link. Try Save the app." },
+        { error: "Only web apps built here on Foundry can get a link. Try Save the web app." },
         403,
       );
   }
@@ -86,10 +87,10 @@ export async function POST(req: Request) {
   try {
     html = bundleApp(files);
   } catch {
-    return json({ error: "That doesn't look like a finished app." }, 400);
+    return json({ error: "That doesn't look like a finished web app." }, 400);
   }
   if (new TextEncoder().encode(html).length > MAX_SHARE_BYTES)
-    return json({ error: "That app is too large for a link. Save it instead." }, 413);
+    return json({ error: "That web app is too large for a link. Save it instead." }, 413);
 
   const checked = checkSharedApp(html);
   if (!checked.ok) return json({ error: refusedMessage(checked.reason) }, 422);
@@ -101,11 +102,13 @@ export async function POST(req: Request) {
     if (refused) return json({ error: refused }, 429);
     counted = true;
     const id = newShareId();
-    await state.shares.put(id, html, SHARE_TTL_SECONDS);
+    await state.shares.put(id, html);
     return json({
       id,
       url: `${new URL(req.url).origin}/a/${id}`,
-      expiresAt: new Date(Date.now() + SHARE_TTL_SECONDS * 1000).toISOString(),
+      // When it ends if nobody opens it, and the latest it can last however often it is opened.
+      expiresAt: new Date(Date.now() + SHARE_IDLE_SECONDS * 1000).toISOString(),
+      lastsUntil: new Date(Date.now() + SHARE_MAX_SECONDS * 1000).toISOString(),
     });
   } catch (err) {
     // The link was allowed but could not be saved, so it must not cost the visitor or the site a slot.
@@ -113,6 +116,6 @@ export async function POST(req: Request) {
     console.warn(
       `share: could not make a link (${err instanceof Error ? err.message : "unknown"})`,
     );
-    return json({ error: "Could not make a link right now. Try Save the app." }, 503);
+    return json({ error: "Could not make a link right now. Try Save the web app." }, 503);
   }
 }

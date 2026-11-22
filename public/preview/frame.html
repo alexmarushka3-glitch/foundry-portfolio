@@ -35,7 +35,12 @@
   };
   try { Object.defineProperty(window, "localStorage", { value: store, configurable: true }); } catch (e) {}
   try { Object.defineProperty(window, "sessionStorage", { value: store, configurable: true }); } catch (e) {}
-  window.addEventListener("error", function (e) { parent.postMessage({ type: "preview-error", message: String(e.message || e) }, "*"); });
+  var loaded = false;
+  // (a timer, so an app that starts inside its own load handler is still counted as starting)
+  window.addEventListener("load", function () { setTimeout(function () { loaded = true; }, 0); });
+  // An error before the page has loaded means the app did not start (a script that throws as it runs): that is fatal. One
+  // after that (a click handler, say) is the app's own business while it keeps running.
+  window.addEventListener("error", function (e) { parent.postMessage({ type: "preview-error", fatal: !loaded, message: String(e.message || e) }, "*"); });
 })();<\/script>`;
 
         /** Put the storage stand-in first, so it exists before any of the app's own scripts run. */

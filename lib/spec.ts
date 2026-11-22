@@ -21,13 +21,15 @@ export type IdeaResult = { ok: true; idea: string } | { ok: false; error: string
 
 export function validateIdea(raw: unknown): IdeaResult {
   const idea = cleanIdea(raw);
-  if (idea.length < IDEA_MIN) return { ok: false, error: "Describe the app in a few words first." };
+  if (idea.length < IDEA_MIN)
+    return { ok: false, error: "Describe the web app in a few words first." };
   if (idea.length > IDEA_MAX) return { ok: false, error: `Keep it under ${IDEA_MAX} characters.` };
-  if (!/[a-z]{3}/i.test(idea)) return { ok: false, error: "Describe the app in words." };
+  if (!/[a-z]{3}/i.test(idea)) return { ok: false, error: "Describe the web app in words." };
   if (BLOCKED.test(idea))
     return {
       ok: false,
-      error: "Foundry doesn't build apps that ask for logins or payment details. Try another idea.",
+      error:
+        "Foundry doesn't build web apps that ask for logins or payment details. Try another idea.",
     };
   return { ok: true, idea };
 }

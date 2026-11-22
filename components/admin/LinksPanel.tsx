@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-/** Takes one hosted app link down: paste the link, press Remove. Links also delete themselves after 7 days. */
+/** Takes one hosted app link down: paste the link, press Remove. Links also delete themselves: 30 days after the last open, and 60 days after they were made at most. */
 export default function LinksPanel() {
   const [link, setLink] = useState("");
   const [busy, setBusy] = useState(false);
@@ -35,8 +35,8 @@ export default function LinksPanel() {
     <section className="card controls" aria-labelledby="links-title">
       <h2 id="links-title">App links</h2>
       <p className="fine">
-        Paste a link to an app (https://…/a/…) to take it down now. They delete themselves after 7
-        days.
+        Paste a link to a web app (https://…/a/…) to take it down now. They delete themselves 30
+        days after the last open, and 60 days after they were made at most.
       </p>
       <form className="actions" onSubmit={(e) => void remove(e)}>
         <label className="fine">

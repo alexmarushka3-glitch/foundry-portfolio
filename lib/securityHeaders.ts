@@ -97,10 +97,15 @@ export const SHARED_APP_CONTENT_SECURITY_POLICY = [
  * The page at /a/<id> that a hosted link opens. It holds only the site's own markup and one frame onto the sealed app
  * page (/a/<id>/app). `frame-src 'self'` is the lock: the app can run scripts, but if it tries to send the visitor to
  * another website the browser refuses to load it in that frame. A sandbox alone cannot stop a page navigating itself.
+ * It also holds the site's own bridge script, the only script it may run, which keeps the app's saved data (the app
+ * itself, in its sealed frame, cannot touch storage) under a key that carries this link's id.
  */
 export const SHARED_WRAPPER_CONTENT_SECURITY_POLICY = [
   "default-src 'none'",
   "frame-src 'self'",
+  "script-src 'self'", // only the site's own /app-bridge.js and /app-install.js (no inline script)
+  "manifest-src 'self'", // lets the link be added to a home screen or installed
+  "img-src 'self'",
   "style-src 'unsafe-inline'",
   "base-uri 'none'",
   "form-action 'none'",

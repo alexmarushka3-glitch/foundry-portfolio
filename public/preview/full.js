@@ -38,10 +38,10 @@
       "font: 14px system-ui, sans-serif; padding: 16px; max-width: none";
     const p = document.createElement("p");
     p.textContent =
-      "The app did not open in this browser. You can still use it: save it as a file, or copy the code into a text file named app.html.";
+      "The web app did not open in this browser. You can still use it: save it as a file, or copy the code into a text file named app.html.";
     const save = document.createElement("button");
     save.type = "button";
-    save.textContent = "Save the app";
+    save.textContent = "Save the web app";
     save.onclick = () => {
       const url = URL.createObjectURL(new Blob([html], { type: "text/html" }));
       const a = document.createElement("a");

@@ -1012,6 +1012,10 @@ main,
 .app-link .fine {
   grid-column: 1 / -1;
 }
+.app-link-buttons {
+  display: flex;
+  gap: 8px;
+}
 @media (max-width: 520px) {
   .app-link {
     grid-template-columns: 1fr;

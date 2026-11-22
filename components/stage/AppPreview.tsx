@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { appFileName, appTitle, bundleApp } from "@/lib/bundle";
-import { SHARE_TTL_DAYS } from "@/lib/share";
+import { SHARE_IDLE_DAYS, SHARE_MAX_DAYS } from "@/lib/share";
 
 // The finished app from a real run, as one self-contained .html file. It opens right here in a sandboxed, offline frame
 // (public/preview/), and visitors can save the same file to keep and open later.
@@ -18,6 +18,16 @@ type SaveWindow = Window & {
       close: () => Promise<void>;
     }>;
   }>;
+};
+
+type Device = "ios" | "android" | "desktop";
+
+/** How to put a link on a home screen (or install it), for the device the visitor is on. */
+const ADD_STEPS: Record<Device, string> = {
+  ios: "Open the link in Safari, tap Share (or ⋯, then Share), then Add to Home Screen.",
+  android: "Open the link in Chrome and tap Install app (or ⋮, then Install app).",
+  desktop:
+    "Open the link in Chrome or Edge and click Install app, or the install icon at the right end of the address bar. In Safari on macOS 14 or newer: File, then Add to Dock.",
 };
 
 /** How long the preview frame gets to show the app before the page says it did not start. */
@@ -42,8 +52,17 @@ export default function AppPreview({
   const [canShare, setCanShare] = useState(false);
   const [sharing, setSharing] = useState(false);
   const [link, setLink] = useState("");
+  const [device, setDevice] = useState<Device>("desktop");
   const frame = useRef<HTMLIFrameElement>(null);
   const fullTab = useRef<Window | null>(null);
+
+  useEffect(() => {
+    const ua = navigator.userAgent;
+    // An iPad asks for the desktop site and says it is a Mac, but it has a touch screen.
+    if (/iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1))
+      setDevice("ios");
+    else if (/Android/.test(ua)) setDevice("android");
+  }, []);
 
   useEffect(() => {
     let alive = true;
@@ -85,14 +104,25 @@ export default function AppPreview({
       const data = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
       if (mine !== linkRequest.current) return; // another app was built while this one was waiting
       if (res.ok && data.url) setLink(data.url);
-      else setNote(data.error ?? "Could not make a link right now. Try Save the app.");
+      else setNote(data.error ?? "Could not make a link right now. Try Save the web app.");
     } catch {
       if (mine === linkRequest.current)
-        setNote("Could not make a link right now. Try Save the app.");
+        setNote("Could not make a link right now. Try Save the web app.");
     } finally {
       if (mine === linkRequest.current) setSharing(false); // a newer request owns the button now
     }
   };
+
+  // A real run gets its link as soon as the app is ready, so it can be put on a home screen without another click.
+  // (A recorded example keeps the button: replays are free and unlimited, and each link uses up the site's daily limit.)
+  const autoFor = useRef("");
+  useEffect(() => {
+    if (!canShare || !sig || autoFor.current === html) return;
+    autoFor.current = html;
+    void getLink();
+    // getLink only reads this render's files and sig, which are what html and sig change with
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canShare, sig, html]);
 
   const copyLink = async () => {
     try {
@@ -112,7 +142,7 @@ export default function AppPreview({
     const stuckTimer = window.setTimeout(() => {
       // Cleared as soon as the app says ready or failed, so reaching here means it said nothing.
       setProblem(
-        "the preview did not start in this browser. Try Open full screen, Save the app or Copy the code.",
+        "the preview did not start in this browser. Try Open full screen, Save the web app or Copy the code.",
       );
       setStatus("failed");
     }, PREVIEW_START_MS);
@@ -208,17 +238,17 @@ export default function AppPreview({
       await navigator.clipboard.writeText(html);
       setNote("Copied. Paste it into a text file and name the file app.html.");
     } catch {
-      setNote("Your browser would not let the page copy. Try Save the app instead.");
+      setNote("Your browser would not let the page copy. Try Save the web app instead.");
     }
   };
 
   return (
-    <section className="app-preview" aria-label="Your app">
+    <section className="app-preview" aria-label="Your web app">
       <div className="app-preview-head">
-        <h3>Your app: {title}</h3>
+        <h3>Your web app: {title}</h3>
         <div className="app-actions">
           <button type="button" className="btn btn-primary" onClick={save}>
-            Save the app
+            Save the web app
           </button>
           <button type="button" className="btn btn-ghost" onClick={openFull}>
             Open full screen
@@ -247,12 +277,24 @@ export default function AppPreview({
               aria-describedby="app-link-fine"
             />
           </label>
-          <button type="button" className="btn btn-ghost" onClick={copyLink}>
-            Copy link
-          </button>
+          <div className="app-link-buttons">
+            <button type="button" className="btn btn-ghost" onClick={copyLink}>
+              Copy link
+            </button>
+            <a className="btn btn-ghost" href={link} target="_blank" rel="noopener">
+              Open it
+            </a>
+          </div>
           <p className="fine" id="app-link-fine">
-            Anyone with this link can open the app in a browser for {SHARE_TTL_DAYS} days, then it
-            is deleted. On the link the app keeps nothing; save the app to keep your data.
+            Anyone with this link can open it in a browser. The link works for {SHARE_IDLE_DAYS}{" "}
+            days after it is last opened, and {SHARE_MAX_DAYS} days at most, then it is deleted from
+            our server. It keeps its data on your device, usually until you clear your browser data.
+            Added to the home screen, it does not share data with the same link opened in the
+            browser.
+          </p>
+          <p className="fine">
+            <strong>Add it to your device.</strong> {ADD_STEPS[device]} That puts a web app next to
+            your other apps. It is not an App Store app, and it needs an internet connection.
           </p>
         </div>
       )}
@@ -265,7 +307,7 @@ export default function AppPreview({
           ).map((h) => (
             <li key={h}>{h}</li>
           ))}
-          <li>Like it? Press Save the app to keep it on your device.</li>
+          <li>Like it? Press Save the web app to keep it on your device.</li>
         </ol>
         {howTo.length > 0 && (
           <p className="fine">These steps were written by the Release agent for this app.</p>
@@ -283,7 +325,7 @@ export default function AppPreview({
       />
       <p className="fine" aria-live="polite">
         {status === "failed" && (
-          <span className="error-inline">The app hit an error: {problem} </span>
+          <span className="error-inline">The web app hit an error: {problem} </span>
         )}
         Use it here or full screen (nothing is kept), or save it: one file that opens in any
         browser, works offline and remembers your data on your device.

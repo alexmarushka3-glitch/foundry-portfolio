@@ -44,7 +44,7 @@ export function serverState(): ServerState {
     loginLimiter: new SlidingWindowLimiter(5, 15 * 60_000),
     shares: createShareStore(),
     shareSigner: createShareSigner(),
-    // Links last SHARE_TTL_SECONDS, so the day total (not a separate cap) is what bounds how many exist at once.
+    // Links last up to SHARE_MAX_SECONDS, so the day total (not a separate cap) is what bounds how many exist at once.
     shareBrake: createShareBrake({
       perHour: envInt("FOUNDRY_SHARE_PER_HOUR", 5),
       perDay: envInt("FOUNDRY_SHARE_PER_DAY", 40),

@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { hostedAppPage } from "../lib/previewShim";
 import { sharedAppHeaders } from "../lib/securityHeaders";
 
 // Baseline UI checks. Recorded examples only: no test types an idea, so no model is called and nothing costs money.
@@ -17,7 +18,7 @@ test("home page loads with the main sections and no browser errors", async ({ pa
   await page.goto("/");
   await expect(page).toHaveTitle(/Foundry/);
   await expect(page.getByRole("heading", { level: 1, name: "Foundry" })).toBeVisible();
-  for (const h of ["Build an app", "The project in short", "Scope and limits", "About"]) {
+  for (const h of ["Build a web app", "The project in short", "Scope and limits", "About"]) {
     await expect(page.getByRole("heading", { level: 2, name: h })).toBeVisible();
   }
   expect(errors).toEqual([]);
@@ -31,7 +32,7 @@ test("a recorded example replays to the end and offers the app", async ({ page }
   await expect(examples).toHaveCount(3);
   await examples.nth(1).click();
   await expect(examples.nth(1)).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
+  await expect(page.getByText("Save the web app").first()).toBeVisible({ timeout: 90_000 });
   // The page must say which mode ran (honesty rule), and a replay must never be passed off as a typed live run.
   await expect(page.getByText(/replay of a real live run/i).first()).toBeVisible();
   expect(errors).toEqual([]);
@@ -135,7 +136,7 @@ test(
     test.setTimeout(120_000);
     await page.goto("/");
     await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
-    await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
+    await expect(page.getByText("Save the web app").first()).toBeVisible({ timeout: 90_000 });
     const [tab] = await Promise.all([
       context.waitForEvent("page"),
       page.getByRole("button", { name: "Open full screen" }).click(),
@@ -170,16 +171,16 @@ test(
     );
     await page.goto("/");
     await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
-    await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
+    await expect(page.getByText("Save the web app").first()).toBeVisible({ timeout: 90_000 });
     // The stub never answers, so the page itself needs no frame to announce itself; the full-screen tab does the work.
     const [tab] = await Promise.all([
       context.waitForEvent("page"),
       page.getByRole("button", { name: "Open full screen" }).click(),
     ]);
-    await expect(tab.getByText("The app did not open in this browser")).toBeVisible({
+    await expect(tab.getByText("The web app did not open in this browser")).toBeVisible({
       timeout: 15_000,
     });
-    await expect(tab.getByRole("button", { name: "Save the app" })).toBeVisible();
+    await expect(tab.getByRole("button", { name: "Save the web app" })).toBeVisible();
     await expect(tab.getByRole("button", { name: "Copy the code" })).toBeVisible();
   },
 );
@@ -196,7 +197,7 @@ async function openFullWithFrame(
   );
   await page.goto("/");
   await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
-  await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
+  await expect(page.getByText("Save the web app").first()).toBeVisible({ timeout: 90_000 });
   const [tab] = await Promise.all([
     context.waitForEvent("page"),
     page.getByRole("button", { name: "Open full screen" }).click(),
@@ -214,10 +215,10 @@ test(
       context,
       `<p>Opening the app…</p><script>parent.postMessage({ type: "preview-loaded" }, "*");</script>`,
     );
-    await expect(tab.getByText("The app did not open in this browser")).toBeVisible({
+    await expect(tab.getByText("The web app did not open in this browser")).toBeVisible({
       timeout: 15_000,
     });
-    await expect(tab.getByRole("button", { name: "Save the app" })).toBeVisible();
+    await expect(tab.getByRole("button", { name: "Save the web app" })).toBeVisible();
     await expect(tab.getByRole("button", { name: "Copy the code" })).toBeVisible();
     await expect(tab.getByRole("button", { name: "Try again" })).toBeVisible();
   },
@@ -236,10 +237,10 @@ test(
       setTimeout(() => parent.postMessage({ type: "preview-ready" }, "*"), 8000);
     </script>`,
     );
-    await expect(tab.getByText("The app did not open in this browser")).toBeVisible({
+    await expect(tab.getByText("The web app did not open in this browser")).toBeVisible({
       timeout: 15_000,
     });
-    await expect(tab.getByText("The app did not open in this browser")).toBeHidden({
+    await expect(tab.getByText("The web app did not open in this browser")).toBeHidden({
       timeout: 15_000,
     });
     await expect(tab.frameLocator("#app").getByText("Slow app")).toBeVisible();
@@ -260,11 +261,11 @@ test(
       setTimeout(() => parent.postMessage({ type: "preview-ready" }, "*"), 500);
     </script>`,
     );
-    await expect(tab.getByText("The app did not open in this browser")).toBeVisible({
+    await expect(tab.getByText("The web app did not open in this browser")).toBeVisible({
       timeout: 15_000,
     });
     await tab.waitForTimeout(1500); // a "ready" after a failure must not take the message away
-    await expect(tab.getByText("The app did not open in this browser")).toBeVisible();
+    await expect(tab.getByText("The web app did not open in this browser")).toBeVisible();
   },
 );
 
@@ -278,7 +279,7 @@ test(
     );
     await page.goto("/");
     await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
-    await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
+    await expect(page.getByText("Save the web app").first()).toBeVisible({ timeout: 90_000 });
     await expect(page.getByText("the preview did not start in this browser")).toBeVisible({
       timeout: 20_000,
     });
@@ -304,9 +305,9 @@ test(
     );
     await page.goto("/");
     await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
-    await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
+    await expect(page.getByText("Save the web app").first()).toBeVisible({ timeout: 90_000 });
     await page.waitForTimeout(1500);
-    await expect(page.getByText("The app hit an error")).toHaveCount(0);
+    await expect(page.getByText("The web app hit an error")).toHaveCount(0);
   },
 );
 
@@ -320,12 +321,14 @@ test("the full-screen page is served with its own tight headers", async ({ reque
   expect(h["x-frame-options"]).toBe("DENY");
 });
 
-test("Get a link shows the link and how long it lasts (server answers mocked, so nothing is stored)", async ({
+test("Get a link shows the link, how long it lasts and how to add it as an app (server answers mocked, so nothing is stored)", async ({
   page,
 }) => {
   test.setTimeout(120_000);
+  let posts = 0;
   await page.route("**/api/share", async (route) => {
     if (route.request().method() === "POST") {
+      posts++;
       const sent = route.request().postDataJSON() as { files: Record<string, string> };
       expect(Object.keys(sent.files).length).toBeGreaterThan(0); // the files, never page text the client wrote
       await route.fulfill({
@@ -335,9 +338,17 @@ test("Get a link shows the link and how long it lasts (server answers mocked, so
   });
   await page.goto("/");
   await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
-  await page.getByRole("button", { name: "Get a link" }).click({ timeout: 90_000 });
+  const button = page.getByRole("button", { name: "Get a link" });
+  await expect(button).toBeVisible({ timeout: 90_000 });
+  // a recorded example is a free replay, so it keeps the button and makes no link until it is pressed
+  expect(posts).toBe(0);
+  await button.click();
   await expect(page.getByLabel("Your link")).toHaveValue("https://example.test/a/abc");
-  await expect(page.getByText(/for 7 days, then it is deleted/)).toBeVisible();
+  await expect(
+    page.getByText(/30 days after it is last opened, and 60 days at most/),
+  ).toBeVisible();
+  await expect(page.getByText("Add it to your device.")).toBeVisible();
+  expect(posts).toBe(1);
 });
 
 test("the button is hidden when the server cannot keep links", async ({ page }) => {
@@ -345,7 +356,7 @@ test("the button is hidden when the server cannot keep links", async ({ page }) 
   await page.route("**/api/share", (route) => route.fulfill({ json: { available: false } }));
   await page.goto("/");
   await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
-  await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
+  await expect(page.getByText("Save the web app").first()).toBeVisible({ timeout: 90_000 });
   await expect(page.getByRole("button", { name: "Get a link" })).toHaveCount(0);
 });
 
@@ -437,6 +448,142 @@ test(
   },
 );
 
+const NOTES_APP =
+  '<!doctype html><html><head><title>Counter</title></head><body><p id="n"></p><p id="p"></p><button id="b">add</button><script>' +
+  'var c = Number(localStorage.getItem("count") || "0"); var n = document.getElementById("n");' +
+  'function show() { n.textContent = "count:" + c; document.getElementById("p").textContent = "p:" + localStorage.getItem("__proto__"); } show();' +
+  'document.getElementById("b").onclick = function () { c++; localStorage.setItem("count", String(c)); localStorage.setItem("__proto__", String(c)); show(); };' +
+  "</script></body></html>";
+
+test(
+  "a hosted app keeps its data on this device through the wrapper, and only for its own link",
+  { tag: ["@lock", "@phone"] },
+  async ({ page }) => {
+    // The app page is faked with the real loader and the real sealed headers (this site has no stored link to use
+    // without a database); the wrapper and its bridge script are the real ones. The app is the sealed frame's only
+    // way to keep anything, so a count that survives a reload proves the whole path.
+    const sealed = Object.fromEntries(sharedAppHeaders().map((x) => [x.key, x.value]));
+    const serve = (id: string) =>
+      page.route(`**/a/${id}/app`, (route) =>
+        route.fulfill({
+          status: 200,
+          headers: { ...sealed, "Content-Type": "text/html; charset=utf-8" },
+          body: hostedAppPage(NOTES_APP),
+        }),
+      );
+    const MINE = "M".repeat(22);
+    const OTHER = "O".repeat(22);
+    await serve(MINE);
+    await serve(OTHER);
+
+    await page.goto(`/a/${MINE}`);
+    const app = page.frameLocator("iframe");
+    await expect(app.locator("#n")).toHaveText("count:0", { timeout: 10_000 });
+    await app.locator("#b").click();
+    await app.locator("#b").click();
+    await expect(app.locator("#n")).toHaveText("count:2");
+    await expect(page).toHaveTitle("Counter"); // the window is named after the app
+
+    await page.reload();
+    await expect(app.locator("#n")).toHaveText("count:2", { timeout: 10_000 }); // kept on this device
+    await expect(app.locator("#p")).toHaveText("p:2"); // even under the key __proto__
+
+    // the data sits in the wrapper's storage under this link's own prefix, and nothing else of the site is touched
+    const keys = await page.evaluate(() => Object.keys(localStorage).sort());
+    expect(keys.filter((k) => k.startsWith("foundry:app:"))).toEqual([
+      `foundry:app:${MINE}:__proto__`,
+      `foundry:app:${MINE}:count`,
+    ]);
+
+    // another link has its own, empty, data
+    await page.goto(`/a/${OTHER}`);
+    await expect(page.frameLocator("iframe").locator("#n")).toHaveText("count:0", {
+      timeout: 10_000,
+    });
+  },
+);
+
+test(
+  "a hosted link tells an iPhone what to tap to add it, once, and says nothing on a computer",
+  { tag: "@phone" },
+  async ({ page, isMobile }) => {
+    // The wrapper page is the real one; the app inside is not needed (an unknown id shows its notice in the frame).
+    await page.goto(`/a/${GONE_ID}`);
+    const note = page.getByRole("region", { name: "Add this web app to your device" });
+    if (!isMobile) {
+      // Chrome on a computer only offers an install once the browser says the page can be installed (not in a test profile)
+      await page.waitForTimeout(1000);
+      await expect(note).toHaveCount(0);
+      return;
+    }
+    await expect(note).toContainText("tap Share (or ⋯, then Share), then Add to Home Screen");
+    await expect(note).toContainText("next to your other apps");
+    // the note sits above the app's frame in the layout and never covers it
+    const noteBox = (await note.boundingBox())!;
+    const frameBox = (await page.locator("iframe").boundingBox())!;
+    expect(noteBox.y + noteBox.height).toBeLessThanOrEqual(frameBox.y + 1);
+    expect(frameBox.height).toBeGreaterThan(100);
+    const before = frameBox.height;
+    await note.getByRole("button", { name: "Got it" }).click();
+    await expect(note).toHaveCount(0);
+    // with the note gone, the frame takes its space back
+    await expect
+      .poll(async () => (await page.locator("iframe").boundingBox())!.height)
+      .toBeGreaterThan(before);
+    await page.reload();
+    await page.waitForTimeout(500);
+    await expect(note).toHaveCount(0); // it stays quiet after being dismissed
+  },
+);
+
+test(
+  "the preview frame tells an app that fails to start from one that only hits a later error, in every engine",
+  { tag: ["@lock", "@phone"] },
+  async ({ page }) => {
+    // The real frame page, opened on its own: its parent is itself. Messages it sends to its parent are collected by
+    // replacing postMessage, and the "start" message is delivered the way the page around it would.
+    const run = async (appHtml: string) => {
+      await page.goto("/preview/frame.html");
+      await page.evaluate((html) => {
+        const sent: { type: string; fatal?: boolean; message?: string }[] = [];
+        (window as unknown as { __sent: typeof sent }).__sent = sent;
+        window.postMessage = ((m: (typeof sent)[number]) =>
+          void sent.push(m)) as typeof window.postMessage;
+        window.dispatchEvent(
+          new MessageEvent("message", { data: { type: "preview-start", html }, source: window }),
+        );
+      }, appHtml);
+      await page.waitForTimeout(500);
+    };
+    const sent = () =>
+      page.evaluate(
+        () =>
+          (window as unknown as { __sent: { type: string; fatal?: boolean; message?: string }[] })
+            .__sent,
+      );
+
+    // a script that throws as the app starts, and one that throws in its own load handler: both fatal
+    await run(
+      "<!doctype html><html><head></head><body><script>throw new Error('at start');</script></body></html>",
+    );
+    expect((await sent()).find((m) => m.type === "preview-error")?.fatal).toBe(true);
+    await run(
+      "<!doctype html><html><head></head><body><script>window.addEventListener('load', function () { throw new Error('in load'); });</script></body></html>",
+    );
+    expect((await sent()).find((m) => m.type === "preview-error")?.fatal).toBe(true);
+
+    // a click handler that throws once the app is running: not fatal, and the app still counts as started
+    await run(
+      '<!doctype html><html><head></head><body><button id="b" onclick="throw new Error(\'on click\')">x</button></body></html>',
+    );
+    expect((await sent()).find((m) => m.type === "preview-error")).toBeUndefined();
+    await page.locator("#b").click();
+    const error = (await sent()).find((m) => m.type === "preview-error");
+    expect(error?.message).toContain("on click");
+    expect(error?.fatal).toBe(false);
+  },
+);
+
 test(
   "the on-page preview shows the finished app, on a phone too",
   { tag: "@phone" },
@@ -444,7 +591,7 @@ test(
     test.setTimeout(120_000);
     await page.goto("/");
     await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
-    await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
+    await expect(page.getByText("Save the web app").first()).toBeVisible({ timeout: 90_000 });
     const app = page.frameLocator('iframe[src="/preview/frame.html"]');
     await expect(app.locator("h1, h2").first()).toBeVisible({ timeout: 15_000 });
   },
