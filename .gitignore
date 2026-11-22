@@ -11,7 +11,8 @@ next-env.d.ts
 
 CLAUDE.local.md
 
-.claude/skills/
+.claude/skills/*
+!.claude/skills/add-recorded-example/
 
 # Design skills installed for this project only (impeccable, ui-ux-pro-max): keep them and their lock file out of git
 skills-lock.json

@@ -7,19 +7,30 @@ How the code is organised, how a run flows through it, and where to change thing
 ```
 app/                     Next.js routes only: pages and HTTP handlers. Thin; they call into lib/.
   page.tsx               The public page.
+  layout.tsx, globals.css  The page shell and styles. layout.tsx loads Vercel Web Analytics (/_vercel/insights/script.js, page views only, no cookies) on Vercel builds; it needs Analytics enabled in the Vercel project.
+  icon.svg, apple-icon.tsx, opengraph-image.tsx   Tab icon (same drawing as components/Logo.tsx), home-screen icon, and the share-preview picture.
   admin/                 The admin dashboard page (server-gated) and its CSS.
-  api/run/               GET: is live on? POST: stream a run as NDJSON.
+  api/run/               GET: is live on? POST: stream a run as NDJSON (see "A run, end to end" and "Reference notes").
+  api/share/             POST: make a hosted app link (see step 4 of "A run, end to end").
+  api/cron/close-stale-prs/   Daily cron (vercel.json) that closes old drafts on taskly-sample; the only user of lib/pipeline/github.ts.
+  a/[id]/                Hosted app links: wrapper page, sealed app, manifest. pwa-icon/ makes the install icons.
   admin-demo/            Public sample-data copy of the dashboard. No token, no server data.
   api/admin/{login,logout,stats,actions}/   Admin API. Every route except login needs the session cookie.
+  api/admin/{share,snapshot}/   Remove a pasted app link; build the sandbox snapshot.
 
 components/              React UI.
   Stage.tsx              The live agent view. Owns the state and wires the pieces below together.
-  stage/                 Its parts: IdeaForm, OutputPanel, PlayerControls, and hooks
+  stage/                 Its parts: IdeaForm, OutputPanel, PlayerControls, AppPreview, and hooks
                          (usePlayback, useLiveRun, useMediaQuery, useLiveAvailability, useOnceInView).
   PipelineSvg.tsx        Draws the eight-agent pipeline.
+  HowItWorks.tsx         The still "How it works" diagram in the case study (see "Reference notes").
+  AgentIcon.tsx          The eight 24px agent glyphs used in the pipeline drawing and the diagram.
+  Logo.tsx               The mark, used in the nav and hero.
+  EvalCard.tsx           Measured-runs card. Off the page since Nov 1, 2026 (see "Reference notes").
   admin/                 Dashboard: AdminDashboard, KpiCards, FilterBar, RunsTable, ControlPanel, charts, useAdminData.
 
 lib/                     Everything that isn't React or HTTP.
+  profile.ts, reality.ts All the page copy (see "Reference notes").
   types.ts               Shared types: AgentName, FoundryEvent (the stream protocol), Mode.
   agents.ts              Labels and one-line jobs for the eight agents (what the page shows).
   run.ts                 Run and step types, frames at a moment. Browser and server safe.
@@ -33,12 +44,22 @@ lib/                     Everything that isn't React or HTTP.
   starter.ts             The starter kit every run begins from, and which files each engineer may write.
   bundle.ts              Inlines the app's files into one self-contained .html file (preview, save, browser test).
   spec.ts                validateIdea: checks the visitor's idea (length, words, no login or payment apps).
+  share.ts, previewShim.ts, securityHeaders.ts   Hosted-link rules and limits (128 KB cap), the storage stand-in and loader page, and every response's headers.
+  eval/                  Measured runs: collect.ts, summarize.ts, plan.ts, results.json (see "Reference notes").
+  recorder/              The code behind scripts/record-live-runs.ts.
   liveRecordings.json    GENERATED from recordings-src/live/ (npm run recordings:live). Never hand-edit.
+  liveRecordings/<slug>.json, liveRecordingChunks.ts   GENERATED with it: one chunk per example for the browser (loadLiveRecording fetches only the example it plays, about 90 KB).
   exampleRequests.ts     GENERATED with it: the three example requests.
 
+public/                  Static files.
+  preview/               frame.html and full.html: the sealed preview frame and the full-screen page (see step 4 of "A run, end to end").
+  app-bridge.js, app-install.js   Hosted-link wrapper scripts: the per-link storage bridge and the install button or note.
+
 tests/                   Vitest. One file per area; see "Tests" below.
-recordings-src/live/     The three real recorded live runs (full event streams). archive-taskly/ (the old to-do-app runs) and archive-text-only/ are kept for history.
-scripts/                 record-live-runs.ts, build-live-recordings.mjs.
+e2e/                     Playwright browser tests (npm run test:ui, test:ui:browsers).
+recordings-src/live/     The three real recorded live runs (full event streams). archive-taskly/ (the old to-do-app runs) and archive-text-only/ are kept for history, never edited, not shown anywhere.
+scripts/                 record-live-runs.ts, build-live-recordings.mjs, build-snapshot.mjs, build-sandbox-snapshot.mjs, run-eval.ts.
+DESIGN.md, PRODUCT.md    The design system ("The Control Room") and who the site is for. Read both before design work.
 ```
 
 Rule of thumb: `lib/` files marked "browser safe" import nothing from `lib/server/` or `node:*`. The admin dashboard imports only *types* from `lib/server/runLog`, which TypeScript erases.
@@ -86,9 +107,29 @@ The route aborts an `AbortController` when the visitor disconnects. The signal r
 - Every mode is labelled on the page. Simulated text is never shown as model output (`MODE_COPY` in `Stage.tsx`, `runSummary` in `lib/summary.ts`).
 - `lib/reality.ts` and the project copy in `lib/profile.ts` must keep the caveats listed in `CLAUDE.md`.
 
+## Reference notes (moved from CLAUDE.md)
+
+Facts about specific files that the layer map and the run walkthrough above do not hold.
+
+- **Page copy:** `lib/profile.ts` and `lib/reality.ts` hold all the page copy (name, hero title `headline`, `tagline` and `intro`, the "Project in short" case study `caseStudy` and its decisions `lessons`, About, "Scope and limits"). Keep it short: friends and family found the old copy too wordy (Nov 1, 2026). Edit these to change the site text. `tests/copy.test.ts` enforces the wording rules in `CLAUDE.md` on this copy.
+- **Stage:** recorded runs replay in the browser as a pure function of time, so they can be scrubbed. A typed idea (one text box, checked by `validateIdea` in `lib/spec.ts`, sent as `{ idea }`) streams from the server and becomes a scrubbable run. Replays and simulations are free; only live runs count against the brakes.
+- **How it works diagram:** `components/HowItWorks.tsx` shows the idea, the eight agents in four groups, the sent-back loop and the app. It is two drawings, wide above 960px and narrow below, with the text in `profile.diagram` (covered by `tests/copy.test.ts`). It was designed in the Figma file "Foundry: agent icons" and never animates.
+- **Starter kit:** `lib/starter.ts` holds index.html, style.css, app.js, ui.js, tests/app.test.js, README and package.json. The Logic engineer may write `app.js` and `tests/*.test.js`; the Interface engineer `index.html`, `style.css` and `ui.js`. `lib/bundle.ts` inlines the files into one self-contained .html file.
+- **Agent tools:** `lib/pipeline/workspace.ts` serves the starter kit to the agents and keeps their writes in an overlay. `lib/pipeline/tools.ts` defines the tools: Researcher read-only; Logic `app.js` and `tests/`; Interface `index.html`, `style.css` and `ui.js`; Browser Tester read plus `run_browser_test`. No agent has a shell, so the Researcher is read-only by construction and nothing leaves memory. `lib/tasklySnapshot.json` now only names the repo the sandbox clones when no snapshot is set (its files are cleared before the app goes in).
+- **Pipeline files:** `index.ts` is the run (it stops early when the Story Writer answers `REFUSE:`), `prompts.ts` the eight agents, `config.ts` models, prices, caps and `modelParams`, then `agentRunner.ts`, `simulate.ts`, `replay.ts` and `verdicts.ts`.
+- **Hosted-link details:** the preview frame has an opaque origin and `connect-src 'none'`; `full.html` has its own CSP, `fullscreenHeaders` and COOP same-origin. A replay of a shipped recording is matched against the recordings instead of a signature; unsigned or altered files get a 403. `lib/server/shareCheck.ts` re-runs on every open and looks for password or card fields, sign-in lures, outside forms, redirects and embedded pages. Never serve agent-written html from any other route or without those headers.
+- **Sandbox:** `lib/pipeline/sandbox.ts` runs the unit tests (`npm test`, which is `node --test`) and the real browser in a Vercel Sandbox. It clears the old taskly files from the snapshot, writes the app, serves the bundled single file with a tiny Node server (`serve.cjs`) and runs a smoke test plus the Browser Tester's spec. `node scripts/build-sandbox-snapshot.mjs` builds the snapshot id for `FOUNDRY_SANDBOX_SNAPSHOT`. It needs `.env.sandbox.local` (gitignored) from `npx.cmd vercel@latest env pull .env.sandbox.local --environment=development`, and only needs `node_modules` with `@playwright/test` and Chromium. Rebuild it after 30 days unused.
+- **Two snapshot scripts, different jobs:** `scripts/build-snapshot.mjs` copies the taskly-sample repo (current commit) into `lib/tasklySnapshot.json`; `scripts/build-sandbox-snapshot.mjs` builds the Vercel Sandbox snapshot id from that commit. Run the first, then the second, after taskly-sample changes. `POST /api/admin/snapshot` builds from the `lib/tasklySnapshot.json` bundled in the deployment, so commit and redeploy the first script's output before using it.
+- **GitHub App client:** `lib/pipeline/github.ts` is left from the old to-do version. Runs no longer open pull requests (since Nov 1, 2026); only the daily cron (`app/api/cron/close-stale-prs`, `vercel.json`) still uses it to close old drafts on taskly-sample.
+- **Measured runs:** `lib/eval/` and `scripts/run-eval.ts`. `collect.ts` counts only finished live runs (never simulations or replays), `summarize.ts` adds a 95% interval, `plan.ts` fixes the four requests and the spend cap. Results go to `lib/eval/results.json` (append-only, real runs only; never hand-edit). `components/EvalCard.tsx` is off the page since Nov 1, 2026: the 23 measured runs were of the old to-do version. Show it again only with runs of the app builder. The script needs `--confirm`, `ANTHROPIC_API_KEY` in `.env.local`, the sandbox login in `.env.sandbox.local` and `FOUNDRY_SANDBOX_SNAPSHOT` in either that file or `.env.eval.local`.
+- **Recordings:** `recordings-src/live/` holds one JSON file per recorded real live run (the full event stream with timings), written by `scripts/record-live-runs.ts` (`lib/recorder/`). `lib/liveRecordings.json`, `lib/liveRecordings/<slug>.json`, `lib/liveRecordingChunks.ts` and `lib/exampleRequests.ts` are generated from it by `npm run recordings:live`. Do not edit any of them by hand.
+- **Sample dashboard:** `app/admin-demo/` only (taken off the home page Nov 1, 2026), with `lib/admin/sampleData.ts`. All numbers are made up; keep the banner and the `sample-` ids. Never present it as real traffic.
+- **Admin dashboard:** off unless `ADMIN_TOKEN` is set. The run log (`lib/server/runStore.ts`) is in memory per server instance, or in Upstash Redis when `KV_REST_API_URL` and `KV_REST_API_TOKEN` are set (falls back to memory if the database errors).
+- **Design:** light page, dark stage; Schibsted Grotesk and JetBrains Mono (mono only for agent output). The full design system is in `DESIGN.md` ("The Control Room"); who the site is for and what must be kept is in `PRODUCT.md`. Read both before design work. Motion answers a user action, respects reduced motion, and animates only transform and opacity.
+
 ## Tests
 
-`npm test` runs everything in about three seconds. No test calls a real model or needs a key.
+`npm test` runs everything in about three seconds. Run it before pushing. No test calls a real model or needs a key; pipeline tests inject a fake model client.
 
 | File | Covers |
 | --- | --- |
@@ -111,7 +152,7 @@ Pipeline tests pass `pace: 0` to skip the simulation's delays and `client` to in
 
 **Add an agent:** add its name to `AgentName` (`types.ts`), a row to `AGENT_LIST`, a spec in `prompts.ts`, a case in `simulate.ts`, a node and edges in `PipelineSvg.tsx`, and a step in `runPipeline` and `buildLiveReplayRun`. Replay uses the same shared reducer as live runs, so adding an agent means re-recording the recordings.
 
-**Add a recorded example:** see "Adding a recorded example" in `CLAUDE.md`.
+**Add a recorded example:** use the `add-recorded-example` skill (`.claude/skills/add-recorded-example/SKILL.md`).
 
 **Add an admin card or chart:** compute it in `lib/admin/aggregate.ts` with a test, then render it in `AdminDashboard.tsx`.
 
