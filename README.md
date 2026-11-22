@@ -47,18 +47,26 @@ npm install
 npm run dev        # http://localhost:3000
 ```
 
-With no configuration the site works: the examples replay and typed ideas run the labelled simulation.
+With no configuration the site works. You should see:
+
+- **An example:** pick one and it replays a recorded run.
+- **A typed idea:** it runs the simulation and says "Scripted run".
+
+Live runs are optional and cost money. Put `ANTHROPIC_API_KEY` in `.env.local` (copied from `.env.example`; see Configuration below). Set `FOUNDRY_LIVE=off` to be sure nothing is spent.
 
 | Command | What it does |
 | --- | --- |
 | `npm run dev` | Dev server with hot reload. |
 | `npm run build` / `npm start` | Production build and server. |
 | `npm run typecheck` | TypeScript, no emit. |
-| `npm test` | The whole test suite (about 3 seconds, no network, no API key). |
+| `npm test` | Unit tests (about 3 seconds, no network, no API key). |
 | `npm run test:watch` | Tests in watch mode. |
+| `npm run test:ui` | Browser tests in Chrome (Playwright), recorded examples only. |
+| `npm run test:ui:browsers` | The same kind of browser tests in Firefox and WebKit. Run `npx playwright install firefox webkit` once first. |
+| `npm run format:check` | Prettier check. |
 | `npm run recordings:live` | Rebuild `lib/liveRecordings.json` and `lib/exampleRequests.ts` from `recordings-src/live/`. |
 
-On Windows PowerShell, run `npx.cmd` instead of `npx`.
+Tip: on Windows PowerShell, run `npx.cmd` instead of `npx`.
 
 ### Configuration
 
