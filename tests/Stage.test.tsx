@@ -301,6 +301,23 @@ describe("Stage", () => {
       await waitFor(() => expect(created).toHaveBeenCalled());
     });
 
+    it("says what happened when Save is pressed while the automatic link is being made, and the link message does not linger", async () => {
+      vi.stubGlobal("showSaveFilePicker", undefined);
+      const created = stubObjectUrl();
+      vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+      mockShare({
+        available: true,
+        post: () => Response.json({ id: "x", url: "https://site.test/a/abc", expiresAt: "later" }),
+      });
+      render(<Stage />);
+      typeIdea();
+      fireEvent.click(await screen.findByRole("button", { name: "Save the web app" }));
+      await waitFor(() => expect(created).toHaveBeenCalled());
+      expect(await screen.findByText(/Download started/)).toBeTruthy();
+      await screen.findByLabelText("Your link"); // the link arrives afterwards
+      expect(screen.queryByText("Making a link…")).toBeNull();
+    });
+
     it("copies the whole page to the clipboard and says what to do with it", async () => {
       const writeText = vi.fn(async () => {});
       Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });

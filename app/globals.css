@@ -1012,6 +1012,9 @@ main,
 .app-link .fine {
   grid-column: 1 / -1;
 }
+.app-status:empty {
+  margin: 0; /* the line is always there for screen readers, but takes no room until it has something to say */
+}
 .app-link-buttons {
   display: flex;
   gap: 8px;

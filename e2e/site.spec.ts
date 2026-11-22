@@ -585,6 +585,31 @@ test(
 );
 
 test(
+  "Save the web app downloads the file and says so right under the buttons, in every engine",
+  { tag: ["@lock", "@phone"] },
+  async ({ page }) => {
+    test.setTimeout(120_000);
+    // Safari and Firefox have no Save as window; make every engine take the plain download path
+    await page.addInitScript(() => {
+      delete (window as unknown as { showSaveFilePicker?: unknown }).showSaveFilePicker;
+    });
+    await page.goto("/");
+    await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
+    const save = page.getByRole("button", { name: "Save the web app" });
+    await expect(save).toBeVisible({ timeout: 90_000 });
+    const [download] = await Promise.all([page.waitForEvent("download"), save.click()]);
+    expect(download.suggestedFilename()).toMatch(/\.html$/);
+    const message = page.getByText(/Download started/);
+    await expect(message).toBeVisible();
+    await expect(message).toContainText("Downloads"); // says where to look
+    // right under the buttons, not at the far bottom of the box where it is easy to miss
+    const buttonBox = (await save.boundingBox())!;
+    const messageBox = (await message.boundingBox())!;
+    expect(messageBox.y - (buttonBox.y + buttonBox.height)).toBeLessThan(200);
+  },
+);
+
+test(
   "the on-page preview shows the finished app, on a phone too",
   { tag: "@phone" },
   async ({ page }) => {
