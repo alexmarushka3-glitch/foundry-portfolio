@@ -20,6 +20,9 @@ type SaveWindow = Window & {
   }>;
 };
 
+/** How long the preview frame gets to show the app before the page says it did not start. */
+const PREVIEW_START_MS = 8000;
+
 export default function AppPreview({
   files,
   sig,
@@ -103,6 +106,16 @@ export default function AppPreview({
   useEffect(() => {
     setStatus("starting");
     setProblem("");
+    let reported = false; // the app itself said it failed: a late "ready" must not hide that
+    // The preview frame has a few seconds to show the app. If it never does (a browser that blocks the frame's
+    // script), say so with ways out instead of leaving "Opening the app…" on screen forever.
+    const stuckTimer = window.setTimeout(() => {
+      // Cleared as soon as the app says ready or failed, so reaching here means it said nothing.
+      setProblem(
+        "the preview did not start in this browser. Try Open full screen, Save the app or Copy the code.",
+      );
+      setStatus("failed");
+    }, PREVIEW_START_MS);
     const onMessage = (e: MessageEvent) => {
       if (!e.data) return;
       // The full-screen tab (public/preview/full.js) asks for the app each time it loads, so a refresh works too.
@@ -118,14 +131,25 @@ export default function AppPreview({
       if (e.source !== frame.current?.contentWindow) return;
       if (e.data.type === "preview-loaded")
         frame.current?.contentWindow?.postMessage({ type: "preview-start", html }, "*");
-      else if (e.data.type === "preview-ready") setStatus((s) => (s === "failed" ? s : "ready"));
-      else if (e.data.type === "preview-error") {
+      else if (e.data.type === "preview-ready") {
+        if (reported) return;
+        window.clearTimeout(stuckTimer);
+        setProblem("");
+        setStatus("ready"); // also takes back the "did not start" notice when the app only opened slowly
+      } else if (e.data.type === "preview-error" && e.data.fatal === true) {
+        // Only a failure to start the app (marked fatal by the frame). The frame also forwards every uncaught error the
+        // app throws later, such as in a click handler; the app is still running then, as it is in the full-screen tab.
+        reported = true;
+        window.clearTimeout(stuckTimer);
         setStatus("failed");
-        setProblem(String(e.data.message).slice(0, 200));
+        setProblem(String(e.data.message ?? "unknown error").slice(0, 200));
       }
     };
     window.addEventListener("message", onMessage);
-    return () => window.removeEventListener("message", onMessage);
+    return () => {
+      window.clearTimeout(stuckTimer);
+      window.removeEventListener("message", onMessage);
+    };
   }, [html, title]);
 
   const download = () => {

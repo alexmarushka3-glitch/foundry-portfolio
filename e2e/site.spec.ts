@@ -128,8 +128,72 @@ test("GET /api/run says whether live runs are on, and a bad body is refused", as
   expect(bad.status()).toBeLessThan(500);
 });
 
-test("Open full screen shows the finished app in its own sealed tab", async ({ page, context }) => {
-  test.setTimeout(120_000);
+test(
+  "Open full screen shows the finished app in its own sealed tab",
+  { tag: "@phone" },
+  async ({ page, context }) => {
+    test.setTimeout(120_000);
+    await page.goto("/");
+    await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
+    await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
+    const [tab] = await Promise.all([
+      context.waitForEvent("page"),
+      page.getByRole("button", { name: "Open full screen" }).click(),
+    ]);
+    const app = tab.frameLocator("#app");
+    await expect(app.locator("body")).not.toBeEmpty({ timeout: 15_000 });
+    await expect(app.locator("h1, h2").first()).toBeVisible({ timeout: 15_000 });
+    // The app is sealed: it cannot read the site's cookies or storage.
+    const appFrame = tab
+      .frames()
+      .find((f) => f !== tab.mainFrame() && f.url().endsWith("/preview/frame.html"))!;
+    const outcome = await appFrame.evaluate(() => {
+      try {
+        void document.cookie;
+        return "could read cookies";
+      } catch (e) {
+        return (e as Error).name;
+      }
+    });
+    expect(outcome).toBe("SecurityError");
+  },
+);
+
+test(
+  "Open full screen says so, with a way out, when the frame never opens the app",
+  { tag: "@phone" },
+  async ({ page, context }) => {
+    test.setTimeout(120_000);
+    // A frame that loads but never starts the app (what iPhone Safari did before the script was inlined).
+    await context.route("**/preview/frame.html", (route) =>
+      route.fulfill({ contentType: "text/html", body: "<p>Opening the app…</p>" }),
+    );
+    await page.goto("/");
+    await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
+    await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
+    // The stub never answers, so the page itself needs no frame to announce itself; the full-screen tab does the work.
+    const [tab] = await Promise.all([
+      context.waitForEvent("page"),
+      page.getByRole("button", { name: "Open full screen" }).click(),
+    ]);
+    await expect(tab.getByText("The app did not open in this browser")).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(tab.getByRole("button", { name: "Save the app" })).toBeVisible();
+    await expect(tab.getByRole("button", { name: "Copy the code" })).toBeVisible();
+  },
+);
+
+// The frame stub below stands in for /preview/frame.html. It runs inside the sealed frame, so it can only talk to
+// the page with postMessage, the same way the real frame does.
+async function openFullWithFrame(
+  page: import("@playwright/test").Page,
+  context: import("@playwright/test").BrowserContext,
+  frameBody: string,
+) {
+  await context.route("**/preview/frame.html", (route) =>
+    route.fulfill({ contentType: "text/html", body: frameBody }),
+  );
   await page.goto("/");
   await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
   await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
@@ -137,23 +201,114 @@ test("Open full screen shows the finished app in its own sealed tab", async ({ p
     context.waitForEvent("page"),
     page.getByRole("button", { name: "Open full screen" }).click(),
   ]);
-  const app = tab.frameLocator("#app");
-  await expect(app.locator("body")).not.toBeEmpty({ timeout: 15_000 });
-  await expect(app.locator("h1, h2").first()).toBeVisible({ timeout: 15_000 });
-  // The app is sealed: it cannot read the site's cookies or storage.
-  const appFrame = tab
-    .frames()
-    .find((f) => f !== tab.mainFrame() && f.url().endsWith("/preview/frame.html"))!;
-  const outcome = await appFrame.evaluate(() => {
-    try {
-      void document.cookie;
-      return "could read cookies";
-    } catch (e) {
-      return (e as Error).name;
-    }
-  });
-  expect(outcome).toBe("SecurityError");
-});
+  return tab;
+}
+
+test(
+  "Open full screen says so, with all three buttons, when the frame loads but the app never starts",
+  { tag: "@phone" },
+  async ({ page, context }) => {
+    test.setTimeout(120_000);
+    const tab = await openFullWithFrame(
+      page,
+      context,
+      `<p>Opening the app…</p><script>parent.postMessage({ type: "preview-loaded" }, "*");</script>`,
+    );
+    await expect(tab.getByText("The app did not open in this browser")).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(tab.getByRole("button", { name: "Save the app" })).toBeVisible();
+    await expect(tab.getByRole("button", { name: "Copy the code" })).toBeVisible();
+    await expect(tab.getByRole("button", { name: "Try again" })).toBeVisible();
+  },
+);
+
+test(
+  "Open full screen takes the message away again when the app opens, only slowly",
+  { tag: "@phone" },
+  async ({ page, context }) => {
+    test.setTimeout(120_000);
+    const tab = await openFullWithFrame(
+      page,
+      context,
+      `<p>Slow app</p><script>
+      parent.postMessage({ type: "preview-loaded" }, "*");
+      setTimeout(() => parent.postMessage({ type: "preview-ready" }, "*"), 8000);
+    </script>`,
+    );
+    await expect(tab.getByText("The app did not open in this browser")).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(tab.getByText("The app did not open in this browser")).toBeHidden({
+      timeout: 15_000,
+    });
+    await expect(tab.frameLocator("#app").getByText("Slow app")).toBeVisible();
+  },
+);
+
+test(
+  "Open full screen keeps the message when the app says it could not start",
+  { tag: "@phone" },
+  async ({ page, context }) => {
+    test.setTimeout(120_000);
+    const tab = await openFullWithFrame(
+      page,
+      context,
+      `<p>Broken</p><script>
+      parent.postMessage({ type: "preview-loaded" }, "*");
+      parent.postMessage({ type: "preview-error", fatal: true, message: "boom" }, "*");
+      setTimeout(() => parent.postMessage({ type: "preview-ready" }, "*"), 500);
+    </script>`,
+    );
+    await expect(tab.getByText("The app did not open in this browser")).toBeVisible({
+      timeout: 15_000,
+    });
+    await tab.waitForTimeout(1500); // a "ready" after a failure must not take the message away
+    await expect(tab.getByText("The app did not open in this browser")).toBeVisible();
+  },
+);
+
+test(
+  "the on-page preview says so, with ways out, when the frame never starts the app",
+  { tag: "@phone" },
+  async ({ page, context }) => {
+    test.setTimeout(120_000);
+    await context.route("**/preview/frame.html", (route) =>
+      route.fulfill({ contentType: "text/html", body: "<p>Opening the app…</p>" }),
+    );
+    await page.goto("/");
+    await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
+    await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
+    await expect(page.getByText("the preview did not start in this browser")).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.getByRole("button", { name: "Open full screen" })).toBeVisible();
+  },
+);
+
+test(
+  "the on-page preview keeps running when the app throws a harmless error after it started",
+  { tag: "@phone" },
+  async ({ page, context }) => {
+    test.setTimeout(120_000);
+    // A stand-in frame: it opens the app, then reports an uncaught error the way frame.html does (not marked fatal).
+    await context.route("**/preview/frame.html", (route) =>
+      route.fulfill({
+        contentType: "text/html",
+        body: `<p>Stand-in</p><script>
+          parent.postMessage({ type: "preview-loaded" }, "*");
+          parent.postMessage({ type: "preview-ready" }, "*");
+          setTimeout(() => parent.postMessage({ type: "preview-error", message: "a click handler threw" }, "*"), 300);
+        </script>`,
+      }),
+    );
+    await page.goto("/");
+    await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
+    await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
+    await page.waitForTimeout(1500);
+    await expect(page.getByText("The app hit an error")).toHaveCount(0);
+  },
+);
 
 test("the full-screen page is served with its own tight headers", async ({ request }) => {
   const res = await request.get("/preview/full.html");
@@ -279,5 +434,18 @@ test(
       .toMatch(/frame-src[^\n]*example\.com/i);
     expect(page.frames().some((f) => f.url().startsWith("https://example.com"))).toBe(false);
     expect(reached).toEqual([]);
+  },
+);
+
+test(
+  "the on-page preview shows the finished app, on a phone too",
+  { tag: "@phone" },
+  async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.goto("/");
+    await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
+    await expect(page.getByText("Save the app").first()).toBeVisible({ timeout: 90_000 });
+    const app = page.frameLocator('iframe[src="/preview/frame.html"]');
+    await expect(app.locator("h1, h2").first()).toBeVisible({ timeout: 15_000 });
   },
 );

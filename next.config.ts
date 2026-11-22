@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
         source: "/((?!preview/|a/).*)",
         headers: securityHeaders(process.env.NODE_ENV !== "production"),
       },
-      // The full-screen page (its own tab) and its script; the frame and runner it embeds keep the preview policy.
+      // The full-screen page (its own tab) and its script; the frame it embeds keeps the preview policy (its one script is inline).
       { source: "/preview/full.html", headers: fullscreenHeaders() },
       { source: "/preview/((?!full\\.html).*)", headers: previewHeaders() },
       { source: "/admin", headers: [{ key: "Cache-Control", value: "no-store" }] },
