@@ -72,6 +72,8 @@ Full map and recipes: `docs/ARCHITECTURE.md`. Short version:
 
 Pushes to `main` redeploy automatically through the Vercel GitHub integration (project `foundry-portfolio`). Manual deploy: `npx.cmd vercel@latest deploy --prod --yes`.
 
+Never merge a PR or push to main yourself. Open the PR, give Alex the link, and wait for Alex to merge.
+
 ## Adding a recorded example
 
 1. Add the request to the plan in `lib/eval/plan.ts` (or pass the count to `--requests`); the script records the first N planned requests.
