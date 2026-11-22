@@ -363,7 +363,7 @@ describe("Stage", () => {
       expect(screen.queryByRole("button", { name: "Get a link" })).toBeNull();
     });
 
-    it("makes a link, shows it with how long it lasts, and copies it", async () => {
+    it("makes a link by itself when a real run finishes, shows how long it lasts and how to add it as an app, and copies it", async () => {
       const writeText = vi.fn(async () => {});
       Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
       const fetchMock = mockShare({
@@ -372,14 +372,18 @@ describe("Stage", () => {
       });
       render(<Stage />);
       typeIdea();
-      const getLink = await screen.findByRole("button", { name: "Get a link" });
-      fireEvent.click(getLink);
-      fireEvent.click(getLink); // a second click while it works must not make a second link
+      // no click: the link is made by itself when the run finishes
       const input = (await screen.findByLabelText("Your link")) as HTMLInputElement;
       expect(input.value).toBe("https://site.test/a/abc");
       expect(
-        screen.getByText(/open the app in a browser for 7 days, then it is deleted/),
+        screen.getByText(/works for 30 days after it is last opened, and 60 days at most/),
       ).toBeTruthy();
+      expect(screen.getByText("Make it an app.")).toBeTruthy();
+      expect(screen.getByText(/click the install icon/)).toBeTruthy(); // this test browser is a computer
+      expect(screen.getByText(/not an App Store app/)).toBeTruthy();
+      expect(screen.getByRole("link", { name: "Open it" }).getAttribute("href")).toBe(
+        "https://site.test/a/abc",
+      );
       const post = fetchMock.mock.calls.find(
         ([url, init]) => url === "/api/share" && init?.method === "POST",
       )!;
@@ -414,7 +418,7 @@ describe("Stage", () => {
       });
       render(<Stage />);
       typeIdea();
-      fireEvent.click(await screen.findByRole("button", { name: "Get a link" }));
+      // the link is tried by itself when the run finishes
       expect(
         await screen.findByText(/can't get a link because it asks for a password/),
       ).toBeTruthy();

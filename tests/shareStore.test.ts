@@ -13,7 +13,9 @@ import {
   createShareStore,
   newShareId,
 } from "@/lib/server/shareStore";
-import { SHARE_TTL_SECONDS } from "@/lib/share";
+import { SHARE_IDLE_SECONDS, SHARE_MAX_SECONDS } from "@/lib/share";
+
+const LIMITS = { idleSeconds: 60, maxSeconds: 150 };
 import { fakeUpstash } from "./fixtures/fakeUpstash";
 
 describe("newShareId", () => {
@@ -25,15 +27,29 @@ describe("newShareId", () => {
 });
 
 describe("MemoryShareStore", () => {
-  it("keeps an app until its time is up, then forgets it", async () => {
+  it("keeps an app for the idle time, then forgets it", async () => {
     let now = 1_000_000;
-    const store = new MemoryShareStore(50, () => now);
-    await store.put("a", "<h1>A</h1>", 60);
+    const store = new MemoryShareStore(50, () => now, LIMITS);
+    await store.put("a", "<h1>A</h1>");
     expect(await store.get("a")).toBe("<h1>A</h1>");
     now += 59_000;
-    expect(await store.get("a")).toBe("<h1>A</h1>");
+    expect(await store.peek("a")).toBe("<h1>A</h1>"); // a peek does not start the idle clock again
     now += 1_000;
     expect(await store.get("a")).toBeNull();
+  });
+
+  it("starts the idle clock again on every open, but never lives past the hard cap", async () => {
+    let now = 0;
+    const store = new MemoryShareStore(50, () => now, LIMITS);
+    await store.put("a", "1");
+    now += 50_000;
+    expect(await store.get("a")).toBe("1"); // idle clock now ends at 110 s
+    now += 50_000;
+    expect(await store.get("a")).toBe("1"); // 100 s, ends at min(160, 150) = 150 s
+    now += 49_000;
+    expect(await store.get("a")).toBe("1"); // 149 s
+    now += 1_000;
+    expect(await store.get("a")).toBeNull(); // 150 s: the cap, however often it was opened
   });
 
   it("is not persistent, and says unknown ids are null", async () => {
@@ -44,16 +60,16 @@ describe("MemoryShareStore", () => {
 
   it("drops the oldest app when it is full", async () => {
     const store = new MemoryShareStore(2);
-    await store.put("a", "1", 60);
-    await store.put("b", "2", 60);
-    await store.put("c", "3", 60);
+    await store.put("a", "1");
+    await store.put("b", "2");
+    await store.put("c", "3");
     expect(await store.get("a")).toBeNull();
     expect(await store.get("c")).toBe("3");
   });
 
   it("removes one app and says whether it was there", async () => {
     const store = new MemoryShareStore();
-    await store.put("a", "1", 60);
+    await store.put("a", "1");
     expect(await store.remove("a")).toBe(true);
     expect(await store.remove("a")).toBe(false);
     expect(await store.get("a")).toBeNull();
@@ -61,22 +77,67 @@ describe("MemoryShareStore", () => {
 });
 
 describe("RedisShareStore", () => {
-  it("saves with an expiry, reads back, and removes", async () => {
+  it("saves with the idle expiry and the date it was made (which expires with the cap), reads back, and removes", async () => {
     const fake = fakeUpstash();
-    const store = new RedisShareStore(fake.config);
+    const store = new RedisShareStore(fake.config, () => 5_000);
     expect(store.persistent).toBe(true);
-    await store.put("abc", "<h1>Hi</h1>", SHARE_TTL_SECONDS);
-    expect(fake.calls[0].commands[0]).toEqual([
-      "SET",
-      "foundry:app:abc",
-      "<h1>Hi</h1>",
-      "EX",
-      SHARE_TTL_SECONDS,
+    await store.put("abc", "<h1>Hi</h1>");
+    expect(fake.calls[0].commands).toEqual([
+      ["SET", "foundry:app:abc", "<h1>Hi</h1>", "EX", SHARE_IDLE_SECONDS],
+      ["SET", "foundry:appmade:abc", "5000", "EX", SHARE_MAX_SECONDS],
     ]);
     expect(await store.get("abc")).toBe("<h1>Hi</h1>");
     expect(await store.get("missing")).toBeNull();
     expect(await store.remove("abc")).toBe(true);
     expect(await store.remove("abc")).toBe(false);
+  });
+
+  it("an open is one request that starts the idle clock again, and a peek does not", async () => {
+    const fake = fakeUpstash();
+    let now = 0;
+    const store = new RedisShareStore(fake.config, () => now);
+    await store.put("abc", "x");
+    fake.calls.length = 0;
+    now += 1000;
+    await store.get("abc");
+    expect(fake.calls).toHaveLength(1);
+    expect(fake.calls[0].commands).toEqual([
+      ["GETEX", "foundry:app:abc", "EX", SHARE_IDLE_SECONDS],
+      ["GET", "foundry:appmade:abc"],
+    ]);
+    fake.calls.length = 0;
+    await store.peek("abc");
+    expect(fake.calls[0].commands).toEqual([["GET", "foundry:app:abc"]]);
+  });
+
+  it("never lets an open push the link past the hard cap", async () => {
+    const fake = fakeUpstash();
+    let now = 0;
+    const store = new RedisShareStore(fake.config, () => now);
+    await store.put("abc", "x");
+    now = (SHARE_MAX_SECONDS - 100) * 1000; // 100 seconds before the cap
+    expect(await store.get("abc")).toBe("x");
+    expect(fake.ttls.get("foundry:app:abc")).toBe(100);
+  });
+
+  it("deletes a link opened after the cap", async () => {
+    const fake = fakeUpstash();
+    let now = 0;
+    const store = new RedisShareStore(fake.config, () => now);
+    await store.put("abc", "x");
+    now = (SHARE_MAX_SECONDS + 1) * 1000;
+    expect(await store.get("abc")).toBeNull();
+    expect(fake.data.has("foundry:app:abc")).toBe(false);
+    expect(fake.data.has("foundry:appmade:abc")).toBe(false);
+  });
+
+  it("gives a link made before the cap existed a made-date from its first open", async () => {
+    const fake = fakeUpstash();
+    fake.data.set("foundry:app:old", "legacy"); // no foundry:appmade:old
+    const store = new RedisShareStore(fake.config, () => 9_000);
+    expect(await store.get("old")).toBe("legacy");
+    expect(fake.data.get("foundry:appmade:old")).toBe("9000");
+    expect(fake.ttls.get("foundry:appmade:old")).toBe(SHARE_MAX_SECONDS);
   });
 
   it("lets a database error through, so the caller can say it could not make a link", async () => {
@@ -85,7 +146,7 @@ describe("RedisShareStore", () => {
       token: "t",
       fetchFn: (async () => new Response("no", { status: 500 })) as unknown as typeof fetch,
     };
-    await expect(new RedisShareStore(config).put("a", "x", 60)).rejects.toThrow(/500/);
+    await expect(new RedisShareStore(config).put("a", "x", LIMITS)).rejects.toThrow(/500/);
   });
 });
 

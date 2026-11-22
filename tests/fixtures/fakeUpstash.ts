@@ -2,7 +2,7 @@ import { vi } from "vitest";
 
 /**
  * A tiny fake of Upstash's REST endpoints (/pipeline and /multi-exec) with the commands the share store and
- * brake use: SET (with EX), GET, DEL, INCR, DECR and EXPIRE. `calls` lists each request's url and commands.
+ * brake use: SET (with EX, any order of NX and EX), GET, GETEX, DEL, INCR, DECR and EXPIRE (which replaces the lifetime). `calls` lists each request's url and commands.
  */
 export function fakeUpstash() {
   const data = new Map<string, string | number>();
@@ -15,13 +15,20 @@ export function fakeUpstash() {
       const key = String(args[0]);
       switch (cmd) {
         case "SET": {
-          if (args[2] === "NX" && data.has(key)) return { result: null };
+          const options = args.slice(2).map(String);
+          if (options.includes("NX") && data.has(key)) return { result: null };
           data.set(key, String(args[1]));
-          if (args[2] === "EX") ttls.set(key, Number(args[3]));
+          const ex = options.indexOf("EX");
+          if (ex >= 0) ttls.set(key, Number(options[ex + 1]));
           return { result: "OK" };
         }
         case "GET":
           return { result: data.has(key) ? data.get(key) : null };
+        case "GETEX": {
+          if (!data.has(key)) return { result: null };
+          if (args[1] === "EX") ttls.set(key, Number(args[2]));
+          return { result: data.get(key) };
+        }
         case "DEL": {
           const had = data.delete(key);
           ttls.delete(key);
@@ -34,7 +41,8 @@ export function fakeUpstash() {
           return { result: n };
         }
         case "EXPIRE": {
-          if (!ttls.has(key)) ttls.set(key, Number(args[1]));
+          if (!data.has(key)) return { result: 0 };
+          ttls.set(key, Number(args[1]));
           return { result: 1 };
         }
         default:

@@ -229,7 +229,7 @@ describe("/api/admin/share (take a hosted app link down)", async () => {
   it("removes a saved app and says so, then says there was nothing the second time", async () => {
     const state = serverState();
     state.shares = new MemoryShareStore();
-    await state.shares.put(ID, "<!doctype html><html></html>", 60);
+    await state.shares.put(ID, "<!doctype html><html></html>");
     const url = `https://x.test/a/${ID}`;
     expect(await (await req({ link: url }, asAdmin())).json()).toEqual({ removed: true });
     expect(await state.shares.get(ID)).toBeNull();

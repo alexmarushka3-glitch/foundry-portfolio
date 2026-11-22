@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-/** Takes one hosted app link down: paste the link, press Remove. Links also delete themselves after 7 days. */
+/** Takes one hosted app link down: paste the link, press Remove. Links also delete themselves: 30 days after the last open, and 60 days after they were made at most. */
 export default function LinksPanel() {
   const [link, setLink] = useState("");
   const [busy, setBusy] = useState(false);

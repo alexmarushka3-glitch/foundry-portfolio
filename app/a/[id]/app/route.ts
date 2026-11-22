@@ -1,4 +1,4 @@
-import { withHostedShim } from "@/lib/previewShim";
+import { hostedAppPage } from "@/lib/previewShim";
 import { checkSharedApp } from "@/lib/server/shareCheck";
 import { shareEnabled } from "@/lib/server/env";
 import { appHeaders, gone, off, unavailable } from "@/lib/server/sharePage";
@@ -38,7 +38,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
     await state.shares.remove(id).catch(() => false);
     return gone();
   }
-  return new Response(withHostedShim(html), {
+  return new Response(hostedAppPage(html), {
     headers: {
       ...appHeaders(),
       "Content-Type": "text/html; charset=utf-8",

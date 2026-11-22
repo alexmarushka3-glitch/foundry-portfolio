@@ -37,14 +37,14 @@ export const REALITY: { tone: RealityTone; heading: string; items: string[]; sho
       "No human reviews the apps. Passing the agents' tests doesn't mean an app has no bugs.",
       "Some ideas fail or are refused, such as anything that asks for passwords or payment details. Three examples are a demo, not a success rate.",
       "On this page the app runs in a sealed frame that keeps nothing. The saved file uses your browser's normal storage.",
-      "If you press Get a link, the app file is kept on the server for 7 days and then deleted. The app on that link keeps nothing.",
+      "A real run makes a link to its app by itself. The app file stays on the server 30 days after the link is last opened (60 at most), then it is deleted. What you save in the app stays on your own device.",
     ],
     short: [
       "Apps are one page: no accounts, no internet, no server.",
       "No human reviews them, and tests don't catch every bug.",
       "Some ideas fail or are refused. Three examples are a demo, not a success rate.",
       "Here the app keeps nothing; the saved file remembers your data.",
-      "A shared link lasts 7 days, then the app is deleted.",
+      "A link lasts 30 days after its last open, 60 at most.",
     ],
   },
 ];

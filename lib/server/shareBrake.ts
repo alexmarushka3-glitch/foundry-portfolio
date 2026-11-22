@@ -3,7 +3,7 @@ import { SlidingWindowLimiter } from "./rateLimit";
 import { upstashConfig, upstashTransaction, type UpstashConfig } from "./upstash";
 
 // How often hosted links may be made: a few per address per hour, and a day total for the whole site. The day total
-// is what bounds storage (links last a week), so it is shared through Redis when that is connected.
+// is what bounds storage (links last at most 60 days), so it is shared through Redis when that is connected.
 
 export type ShareLimits = { perHour: number; perDay: number };
 

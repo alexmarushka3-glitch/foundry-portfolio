@@ -4,7 +4,8 @@ import {
   MAX_SHARE_BYTES,
   MAX_SHARE_FILES,
   MAX_SHARE_NAME,
-  SHARE_TTL_SECONDS,
+  SHARE_IDLE_SECONDS,
+  SHARE_MAX_SECONDS,
 } from "@/lib/share";
 import { blockCrossSite } from "@/lib/server/adminAuth";
 import { shareEnabled } from "@/lib/server/env";
@@ -39,7 +40,7 @@ export async function GET() {
 }
 
 /**
- * Keeps a finished app for a week and returns its link. The page sends the app's files and the signature the server
+ * Keeps a finished app (30 days after each open, 60 days at most) and returns its link. The page sends the app's files and the signature the server
  * gave them when the run finished; the server checks it and builds the page itself, so only apps that really came from
  * a Foundry run (or match a shipped recording) can get a link.
  */
@@ -101,11 +102,13 @@ export async function POST(req: Request) {
     if (refused) return json({ error: refused }, 429);
     counted = true;
     const id = newShareId();
-    await state.shares.put(id, html, SHARE_TTL_SECONDS);
+    await state.shares.put(id, html);
     return json({
       id,
       url: `${new URL(req.url).origin}/a/${id}`,
-      expiresAt: new Date(Date.now() + SHARE_TTL_SECONDS * 1000).toISOString(),
+      // When it ends if nobody opens it, and the latest it can last however often it is opened.
+      expiresAt: new Date(Date.now() + SHARE_IDLE_SECONDS * 1000).toISOString(),
+      lastsUntil: new Date(Date.now() + SHARE_MAX_SECONDS * 1000).toISOString(),
     });
   } catch (err) {
     // The link was allowed but could not be saved, so it must not cost the visitor or the site a slot.

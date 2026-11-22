@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { appFileName, appTitle, bundleApp } from "@/lib/bundle";
-import { SHARE_TTL_DAYS } from "@/lib/share";
+import { SHARE_IDLE_DAYS, SHARE_MAX_DAYS } from "@/lib/share";
 
 // The finished app from a real run, as one self-contained .html file. It opens right here in a sandboxed, offline frame
 // (public/preview/), and visitors can save the same file to keep and open later.
@@ -18,6 +18,17 @@ type SaveWindow = Window & {
       close: () => Promise<void>;
     }>;
   }>;
+};
+
+type Device = "ios" | "android" | "desktop";
+
+/** How to put a link on a home screen (or install it), for the device the visitor is on. */
+const ADD_STEPS: Record<Device, string> = {
+  ios: "On iPhone or iPad: open the link in Safari, tap the Share button, then Add to Home Screen.",
+  android:
+    "On Android: open the link in Chrome, tap the ⋮ menu, then Install app (or Add to Home screen).",
+  desktop:
+    "On a computer: open the link in Chrome or Edge, then click the install icon at the right end of the address bar. In Safari on a Mac: File, then Add to Dock.",
 };
 
 /** How long the preview frame gets to show the app before the page says it did not start. */
@@ -42,8 +53,17 @@ export default function AppPreview({
   const [canShare, setCanShare] = useState(false);
   const [sharing, setSharing] = useState(false);
   const [link, setLink] = useState("");
+  const [device, setDevice] = useState<Device>("desktop");
   const frame = useRef<HTMLIFrameElement>(null);
   const fullTab = useRef<Window | null>(null);
+
+  useEffect(() => {
+    const ua = navigator.userAgent;
+    // An iPad asks for the desktop site and says it is a Mac, but it has a touch screen.
+    if (/iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1))
+      setDevice("ios");
+    else if (/Android/.test(ua)) setDevice("android");
+  }, []);
 
   useEffect(() => {
     let alive = true;
@@ -93,6 +113,17 @@ export default function AppPreview({
       if (mine === linkRequest.current) setSharing(false); // a newer request owns the button now
     }
   };
+
+  // A real run gets its link as soon as the app is ready, so it can be put on a home screen without another click.
+  // (A recorded example keeps the button: replays are free and unlimited, and each link uses up the site's daily limit.)
+  const autoFor = useRef("");
+  useEffect(() => {
+    if (!canShare || !sig || autoFor.current === html) return;
+    autoFor.current = html;
+    void getLink();
+    // getLink only reads this render's files and sig, which are what html and sig change with
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canShare, sig, html]);
 
   const copyLink = async () => {
     try {
@@ -245,12 +276,24 @@ export default function AppPreview({
               aria-describedby="app-link-fine"
             />
           </label>
-          <button type="button" className="btn btn-ghost" onClick={copyLink}>
-            Copy link
-          </button>
+          <div className="app-link-buttons">
+            <button type="button" className="btn btn-ghost" onClick={copyLink}>
+              Copy link
+            </button>
+            <a className="btn btn-ghost" href={link} target="_blank" rel="noopener">
+              Open it
+            </a>
+          </div>
           <p className="fine" id="app-link-fine">
-            Anyone with this link can open the app in a browser for {SHARE_TTL_DAYS} days, then it
-            is deleted. On the link the app keeps nothing; save the app to keep your data.
+            Anyone with this link can open the app in a browser. The link works for{" "}
+            {SHARE_IDLE_DAYS} days after it is last opened, and {SHARE_MAX_DAYS} days at most, then
+            the app is deleted from our server. The app keeps its data on your device, usually until
+            you clear your browser data. An app added to the home screen does not share data with
+            the same link opened in the browser.
+          </p>
+          <p className="fine">
+            <strong>Make it an app.</strong> {ADD_STEPS[device]} It opens full screen like an app,
+            but it is a web page, not an App Store app, and it needs an internet connection.
           </p>
         </div>
       )}

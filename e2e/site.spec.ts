@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { hostedAppPage } from "../lib/previewShim";
 import { sharedAppHeaders } from "../lib/securityHeaders";
 
 // Baseline UI checks. Recorded examples only: no test types an idea, so no model is called and nothing costs money.
@@ -296,12 +297,14 @@ test("the full-screen page is served with its own tight headers", async ({ reque
   expect(h["x-frame-options"]).toBe("DENY");
 });
 
-test("Get a link shows the link and how long it lasts (server answers mocked, so nothing is stored)", async ({
+test("Get a link shows the link, how long it lasts and how to add it as an app (server answers mocked, so nothing is stored)", async ({
   page,
 }) => {
   test.setTimeout(120_000);
+  let posts = 0;
   await page.route("**/api/share", async (route) => {
     if (route.request().method() === "POST") {
+      posts++;
       const sent = route.request().postDataJSON() as { files: Record<string, string> };
       expect(Object.keys(sent.files).length).toBeGreaterThan(0); // the files, never page text the client wrote
       await route.fulfill({
@@ -311,9 +314,17 @@ test("Get a link shows the link and how long it lasts (server answers mocked, so
   });
   await page.goto("/");
   await page.getByRole("group", { name: "Examples" }).getByRole("button").nth(1).click();
-  await page.getByRole("button", { name: "Get a link" }).click({ timeout: 90_000 });
+  const button = page.getByRole("button", { name: "Get a link" });
+  await expect(button).toBeVisible({ timeout: 90_000 });
+  // a recorded example is a free replay, so it keeps the button and makes no link until it is pressed
+  expect(posts).toBe(0);
+  await button.click();
   await expect(page.getByLabel("Your link")).toHaveValue("https://example.test/a/abc");
-  await expect(page.getByText(/for 7 days, then it is deleted/)).toBeVisible();
+  await expect(
+    page.getByText(/30 days after it is last opened, and 60 days at most/),
+  ).toBeVisible();
+  await expect(page.getByText("Make it an app.")).toBeVisible();
+  expect(posts).toBe(1);
 });
 
 test("the button is hidden when the server cannot keep links", async ({ page }) => {
@@ -410,6 +421,57 @@ test(
       .toMatch(/frame-src[^\n]*example\.com/i);
     expect(page.frames().some((f) => f.url().startsWith("https://example.com"))).toBe(false);
     expect(reached).toEqual([]);
+  },
+);
+
+const NOTES_APP =
+  '<!doctype html><html><head><title>Counter</title></head><body><p id="n"></p><button id="b">add</button><script>' +
+  'var c = Number(localStorage.getItem("count") || "0"); var n = document.getElementById("n");' +
+  'function show() { n.textContent = "count:" + c; } show();' +
+  'document.getElementById("b").onclick = function () { c++; localStorage.setItem("count", String(c)); show(); };' +
+  "</script></body></html>";
+
+test(
+  "a hosted app keeps its data on this device through the wrapper, and only for its own link",
+  { tag: ["@lock", "@phone"] },
+  async ({ page }) => {
+    // The app page is faked with the real loader and the real sealed headers (this site has no stored link to use
+    // without a database); the wrapper and its bridge script are the real ones. The app is the sealed frame's only
+    // way to keep anything, so a count that survives a reload proves the whole path.
+    const sealed = Object.fromEntries(sharedAppHeaders().map((x) => [x.key, x.value]));
+    const serve = (id: string) =>
+      page.route(`**/a/${id}/app`, (route) =>
+        route.fulfill({
+          status: 200,
+          headers: { ...sealed, "Content-Type": "text/html; charset=utf-8" },
+          body: hostedAppPage(NOTES_APP),
+        }),
+      );
+    const MINE = "M".repeat(22);
+    const OTHER = "O".repeat(22);
+    await serve(MINE);
+    await serve(OTHER);
+
+    await page.goto(`/a/${MINE}`);
+    const app = page.frameLocator("iframe");
+    await expect(app.locator("#n")).toHaveText("count:0", { timeout: 10_000 });
+    await app.locator("#b").click();
+    await app.locator("#b").click();
+    await expect(app.locator("#n")).toHaveText("count:2");
+    await expect(page).toHaveTitle("Counter"); // the window is named after the app
+
+    await page.reload();
+    await expect(app.locator("#n")).toHaveText("count:2", { timeout: 10_000 }); // kept on this device
+
+    // the data sits in the wrapper's storage under this link's own prefix, and nothing else of the site is touched
+    const keys = await page.evaluate(() => Object.keys(localStorage).sort());
+    expect(keys.filter((k) => k.startsWith("foundry:app:"))).toEqual([`foundry:app:${MINE}:count`]);
+
+    // another link has its own, empty, data
+    await page.goto(`/a/${OTHER}`);
+    await expect(page.frameLocator("iframe").locator("#n")).toHaveText("count:0", {
+      timeout: 10_000,
+    });
   },
 );
 

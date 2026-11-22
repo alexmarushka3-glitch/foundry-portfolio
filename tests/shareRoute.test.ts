@@ -2,6 +2,8 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { GET as serveApp } from "@/app/a/[id]/app/route";
 import { GET as serveWrapper } from "@/app/a/[id]/route";
 import { GET as serveOther } from "@/app/a/[[...rest]]/route";
+import { GET as serveManifest } from "@/app/a/[id]/manifest.webmanifest/route";
+import { GET as serveIcon } from "@/app/pwa-icon/[size]/route";
 import { GET as available, POST as create } from "@/app/api/share/route";
 import {
   SHARED_APP_CONTENT_SECURITY_POLICY,
@@ -13,7 +15,7 @@ import { RedisShareStore } from "@/lib/server/shareStore";
 import { bundleApp } from "@/lib/bundle";
 import recordings from "@/lib/liveRecordings.json";
 import { resetServerState, serverState } from "@/lib/server/state";
-import { MAX_SHARE_BYTES, SHARE_TTL_SECONDS } from "@/lib/share";
+import { MAX_SHARE_BYTES, SHARE_IDLE_SECONDS, SHARE_MAX_SECONDS } from "@/lib/share";
 import { fakeUpstash } from "./fixtures/fakeUpstash";
 
 const APP =
@@ -73,7 +75,7 @@ describe("GET /api/share", () => {
 });
 
 describe("POST /api/share", () => {
-  it("keeps the app for 7 days and returns a link on this site", async () => {
+  it("keeps the app 30 days after each open (60 at most) and returns a link on this site", async () => {
     const res = await postApp(APP);
     expect(res.status).toBe(200);
     expect(res.headers.get("cache-control")).toBe("no-store");
@@ -81,9 +83,13 @@ describe("POST /api/share", () => {
     expect(body.url).toBe(`https://foundry.example/a/${body.id}`);
     expect(body.id).toMatch(/^[A-Za-z0-9_-]{22}$/);
     expect(new Date(body.expiresAt).getTime() - Date.now()).toBeGreaterThan(
-      (SHARE_TTL_SECONDS - 60) * 1000,
+      (SHARE_IDLE_SECONDS - 60) * 1000,
     );
-    expect(fake.ttls.get(`foundry:app:${body.id}`)).toBe(SHARE_TTL_SECONDS);
+    expect(new Date(body.lastsUntil).getTime() - Date.now()).toBeGreaterThan(
+      (SHARE_MAX_SECONDS - 60) * 1000,
+    );
+    expect(fake.ttls.get(`foundry:app:${body.id}`)).toBe(SHARE_IDLE_SECONDS);
+    expect(fake.ttls.get(`foundry:appmade:${body.id}`)).toBe(SHARE_MAX_SECONDS);
   });
 
   it("refuses when the database is not connected", async () => {
@@ -287,7 +293,18 @@ describe("GET /a/[id] (the page a link opens)", () => {
     expect(html).toContain(`<iframe src="/a/${id}/app"`);
     expect(html).toContain('sandbox="allow-scripts allow-forms allow-modals"');
     expect(html).not.toContain("allow-same-origin");
-    expect(html).not.toContain("<script"); // only the site's own markup, no code of its own
+    // the only script is the site's own bridge, loaded from the site (never inline, never from anywhere else)
+    expect(html.match(/<script\b[^>]*>/g)).toEqual(['<script src="/app-bridge.js">']);
+  });
+
+  it("carries what a phone or computer needs to add the link as an app", async () => {
+    const id = "B".repeat(22);
+    const html = await (await openWrapper(id)).text();
+    expect(html).toContain(`<link rel="manifest" href="/a/${id}/manifest.webmanifest">`);
+    expect(html).toContain('<link rel="apple-touch-icon" href="/pwa-icon/180">');
+    expect(html).toContain('<meta name="apple-mobile-web-app-capable" content="yes">');
+    expect(html).toContain('<meta name="mobile-web-app-capable" content="yes">');
+    expect(html.indexOf("/app-bridge.js")).toBeLessThan(html.indexOf("<iframe")); // listening before the app asks
   });
 
   it("asks the database nothing, and answers an id that could never be a link with a plain 404", async () => {
@@ -335,8 +352,12 @@ describe("GET /a/[id]/app (the sealed app)", () => {
     expect(res.headers.get("cache-control")).toBe("private, no-store");
     expect(res.headers.get("vary")).toBe("Sec-Fetch-Dest");
     const html = await res.text();
-    expect(html).toContain("<h1>Tip</h1>");
-    expect(html.indexOf("new Map()")).toBeLessThan(html.indexOf("localStorage.setItem"));
+    // a small loader that waits for the app's saved data, with the app inside as a string that cannot close its script
+    expect(html).toContain("<title>Tip calculator</title>");
+    expect(html).toContain("hosted-hello");
+    expect(html).toContain("\\u003ch1>Tip\\u003c/h1>");
+    expect(html).not.toContain("<h1>Tip</h1>");
+    expect(html.match(/<\/script>/g)).toHaveLength(1); // one real script element
   });
 
   it("sends anything that is not a frame to the wrapper, so the lock cannot be skipped", async () => {
@@ -386,5 +407,63 @@ describe("GET /a/[id]/app (the sealed app)", () => {
       fetchFn: (async () => new Response("no", { status: 500 })) as unknown as typeof fetch,
     });
     expect((await open(id)).status).toBe(503);
+  });
+});
+
+describe("GET /a/[id]/manifest.webmanifest", () => {
+  const idOf = async () => (await (await postApp(APP)).json()).id as string;
+  const manifest = (id: string) =>
+    serveManifest(new Request(`https://foundry.example/a/${id}/manifest.webmanifest`), {
+      params: Promise.resolve({ id }),
+    });
+
+  it("names the app after its title and makes the link open as its own window", async () => {
+    const id = await idOf();
+    const res = await manifest(id);
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toContain("application/manifest+json");
+    expect(res.headers.get("cache-control")).toBe("private, no-store");
+    const m = await res.json();
+    expect(m).toMatchObject({
+      id: `/a/${id}`,
+      name: "Tip calculator",
+      short_name: "Tip calculat",
+      start_url: `/a/${id}`,
+      scope: `/a/${id}`,
+      display: "standalone",
+    });
+    expect(m.icons.map((i: { sizes: string }) => i.sizes)).toEqual(["192x192", "512x512"]);
+  });
+
+  it("never starts the link's clock again (only opening the app does)", async () => {
+    const id = await idOf();
+    fake.calls.length = 0;
+    await manifest(id);
+    expect(fake.calls.flatMap((c) => c.commands.map((x) => x[0]))).toEqual(["GET"]);
+  });
+
+  it("is a plain 404 for an unknown, malformed or switched-off link", async () => {
+    expect((await manifest("C".repeat(22))).status).toBe(404);
+    expect((await manifest("short")).status).toBe(404);
+    const id = await idOf();
+    process.env.FOUNDRY_SHARE = "off";
+    expect((await manifest(id)).status).toBe(404);
+  });
+});
+
+describe("GET /pwa-icon/[size]", () => {
+  const icon = (size: string) =>
+    serveIcon(new Request(`https://foundry.example/pwa-icon/${size}`), {
+      params: Promise.resolve({ size }),
+    });
+
+  it("draws the mark at the three sizes the manifest and iOS use, and nothing else", async () => {
+    for (const size of ["180", "192", "512"]) {
+      const res = await icon(size);
+      expect(res.status).toBe(200);
+      expect(res.headers.get("content-type")).toBe("image/png");
+    }
+    for (const size of ["0", "64", "9999", "abc", "192.5"])
+      expect((await icon(size)).status).toBe(404);
   });
 });

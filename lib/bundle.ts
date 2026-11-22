@@ -47,7 +47,22 @@ export function appTitle(html: string): string {
     /<title>([^<]*)<\/title>/i.exec(html)?.[1] ||
     /<h1[^>]*>([^<]*)<\/h1>/i.exec(html)?.[1] ||
     "My app";
-  return raw.replace(/\s+/g, " ").trim() || "My app";
+  return decodeEntities(raw).replace(/\s+/g, " ").trim() || "My app";
+}
+
+/** The few character references a title may carry ("Tip &amp; split"), so a title shows as the person wrote it. */
+function decodeEntities(text: string): string {
+  const named: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'" };
+  return text.replace(
+    /&(?:#(\d{1,6})|#x([0-9a-f]{1,6})|(amp|lt|gt|quot|apos));/gi,
+    (m, dec, hex, name) => {
+      if (name) return named[name.toLowerCase()];
+      const code = dec ? Number(dec) : parseInt(hex, 16);
+      return code > 0 && code <= 0x10ffff && !(code >= 0xd800 && code <= 0xdfff)
+        ? String.fromCodePoint(code)
+        : m;
+    },
+  );
 }
 
 /** A safe file name, for example "tip-calculator.html". */

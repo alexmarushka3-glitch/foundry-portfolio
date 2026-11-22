@@ -1,8 +1,16 @@
 // Hosted app links. Browser and server safe: just the numbers both sides agree on.
 
-/** A link works for 7 days, then the app is deleted. */
-export const SHARE_TTL_DAYS = 7;
-export const SHARE_TTL_SECONDS = SHARE_TTL_DAYS * 24 * 3600;
+/**
+ * A link works for 30 days after the last time it was opened, and never more than 60 days after it was made. An app
+ * added to a home screen opens the link every time, so it keeps working while it is used; the cap keeps storage bounded.
+ */
+export const SHARE_IDLE_DAYS = 30;
+export const SHARE_MAX_DAYS = 60;
+export const SHARE_IDLE_SECONDS = SHARE_IDLE_DAYS * 24 * 3600;
+export const SHARE_MAX_SECONDS = SHARE_MAX_DAYS * 24 * 3600;
+
+/** The most data one hosted app may keep on a visitor's device (keys and values together, in characters). */
+export const HOSTED_STORAGE_MAX = 256 * 1024;
 
 /** The most a link request may carry: an app's files as JSON, where every quote and line break takes two bytes. */
 export const MAX_SHARE_BODY_BYTES = 400 * 1024;
