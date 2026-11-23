@@ -89,6 +89,15 @@ describe("EvalCard", () => {
     expect(screen.getAllByRole("listitem")).toHaveLength(2);
   });
 
+  it("labels the card as an earlier version that ended in pull request drafts, not today's web app builder", () => {
+    const { container } = render(<EvalCard runs={[run()]} />);
+    const text = container.textContent ?? "";
+    expect(screen.getByRole("heading", { name: /earlier version/i })).toBeTruthy();
+    expect(text).toMatch(/earlier version of Foundry/);
+    expect(text).toMatch(/ended in pull request drafts/);
+    expect(text).toMatch(/opens no pull request/);
+  });
+
   it("says runs that did not finish are not counted", () => {
     const { container } = render(<EvalCard runs={[run()]} />);
     expect(container.textContent).toMatch(/did not finish.*not counted/i);
