@@ -11,7 +11,12 @@ export default function EvalCard({ runs }: { runs: EvalRun[] }) {
 
   return (
     <div className="eval-card">
-      <h3>Measured runs</h3>
+      <h3>Measured runs (earlier version)</h3>
+      <p className="eval-earlier">
+        These runs are from an earlier version of Foundry, made in late October 2026. That version
+        worked on a small sample app and ended in pull request drafts. Today&apos;s Foundry builds a
+        web app and opens no pull request, so these numbers do not describe it.
+      </p>
       <p>
         {s.approved} of {s.total} live runs were approved by the pipeline&apos;s checks: the other
         agents, the sample app&apos;s own tests and a real browser test. {s.sentBack}{" "}
