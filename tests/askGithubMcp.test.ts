@@ -30,6 +30,8 @@ describe("ask-github-mcp hook", () => {
     "mcp__github__delete_file",
     "mcp__github__delete_repository",
     "mcp__github__delete_branch", // not a real tool today: proves delete_* is covered
+    "mcp__github__push_files", // can write straight to main
+    "mcp__github__create_or_update_file", // can write straight to main
   ])("asks: %s", (tool) => {
     expect(call(tool).kind).toBe("ask");
   });
@@ -40,7 +42,12 @@ describe("ask-github-mcp hook", () => {
     "mcp__github__list_branches",
     "mcp__github__pull_request_read",
     "mcp__github__merge_pull_requests_list",
+    "mcp__github__push_files_dry_run",
+    "mcp__github__create_or_update_files",
+    "mcp__github__update_pull_request", // left out on purpose
+    "mcp__github__issue_write", // left out on purpose
     "mcp__other__merge_pull_request",
+    "mcp__other__push_files",
   ])("allows: %s", (tool) => {
     expect(call(tool).kind).toBe("allow");
   });
@@ -56,6 +63,17 @@ describe("ask-github-mcp hook", () => {
     expect(v.reason).toMatch(/mcp__github__merge_pull_request/);
     expect(v.reason).toMatch(/o\/r#40/);
     expect(v.reason!.length).toBeLessThan(120);
+  });
+
+  it("says a file write goes straight to a branch, and names the branch", () => {
+    for (const tool of ["mcp__github__push_files", "mcp__github__create_or_update_file"]) {
+      const v = call(tool, { owner: "o", repo: "r", branch: "main", path: "a.md" });
+      expect(v.kind).toBe("ask");
+      expect(v.reason).toMatch(new RegExp(tool));
+      expect(v.reason).toMatch(/writes files/);
+      expect(v.reason).toMatch(/o\/r@main/);
+      expect(v.reason!.length).toBeLessThan(120);
+    }
   });
 
   it("still asks, with a short reason, when the input is missing or odd", () => {
@@ -88,13 +106,15 @@ describe(".claude/settings.json wiring", () => {
     expect(existsSync(HOOK)).toBe(true);
   });
 
-  it("matches the merge and delete tools and nothing else", () => {
+  it("matches the merge, delete and direct-write tools and nothing else", () => {
     const matcher = new RegExp(`^(?:${mcpEntry!.matcher})$`);
     for (const t of [
       "mcp__github__merge_pull_request",
       "mcp__github__delete_file",
       "mcp__github__delete_repository",
       "mcp__github__delete_anything",
+      "mcp__github__push_files",
+      "mcp__github__create_or_update_file",
     ]) {
       expect(matcher.test(t), t).toBe(true);
     }
@@ -102,6 +122,9 @@ describe(".claude/settings.json wiring", () => {
       "mcp__github__get_me",
       "mcp__github__create_pull_request",
       "mcp__github__merge_pull_requests_list",
+      "mcp__github__push_files_dry_run",
+      "mcp__github__update_pull_request",
+      "mcp__github__issue_write",
       "mcp__other__delete_file",
       "Bash",
     ]) {
