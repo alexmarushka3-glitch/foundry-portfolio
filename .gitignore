@@ -23,3 +23,6 @@ skills-lock.json
 # Playwright
 test-results/
 playwright-report/
+
+# Private notes: session history and claims (not for the public repo)
+docs/private/
