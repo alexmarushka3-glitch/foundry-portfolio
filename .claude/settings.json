@@ -18,6 +18,15 @@
             "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/block-protected-files.mjs\""
           }
         ]
+      },
+      {
+        "matcher": "mcp__github__(merge_pull_request|delete_.*|push_files|create_or_update_file)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/ask-github-mcp.mjs\""
+          }
+        ]
       }
     ],
     "Stop": [
