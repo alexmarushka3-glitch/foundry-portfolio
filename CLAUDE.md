@@ -23,6 +23,8 @@ npx.cmd vite-node scripts/run-eval.ts -- --runs 8 --confirm   # real live runs, 
 
 On Windows PowerShell, run `npx.cmd` instead of `npx` (the `npx.ps1` script is blocked by the execution policy).
 
+Run `npm test` before pushing.
+
 ## Layout
 
 File map, data flow and recipes: `docs/ARCHITECTURE.md`. To add a recorded example, use the `add-recorded-example` skill.
@@ -40,6 +42,7 @@ File map, data flow and recipes: `docs/ARCHITECTURE.md`. To add a recorded examp
 - Never hand-edit `recordings-src/live/` events or the archive folders: replay is only honest if it is the real output. Keep each recording as it came out.
 - In a live run the agents work on an in-memory copy of the starter kit; its unit tests and one Playwright browser test (written by the Browser Tester, run in real headless Chromium against the bundled file) run in a Vercel Sandbox from `FOUNDRY_SANDBOX_SNAPSHOT`, network off. The simulation runs no code and builds no app. No human reviews the apps; never say "reviewed", "success rate" or "reliable". Three examples are a demo, not a success rate.
 - The app preview runs in a sealed frame and keeps nothing; the saved file uses the browser's own storage. A hosted link keeps the file 30 days after its last open, 60 days at most, then deletes it. The app on it is sealed (no cookies, no network) and keeps its data only on the visitor's own device (256 KB, that link only). It can be added to a home screen or installed (a web page that opens full screen, not an App Store app; it needs a connection). Say so. Don't promise the apps are bug-free, and never say a hosted app was reviewed, published by Alex, or hosted by him.
+- Never serve agent-written html from any route other than the hosted-link routes, or without their security headers (see `docs/ARCHITECTURE.md`).
 - Runs open no pull request any more. Don't describe the output as a pull request.
 - `/admin-demo` shows made-up data. It must always say so, and never be described as real usage, visitors or spend.
 - Do not commit `.env*` files (only `.env.example`) or `.vercel/`.

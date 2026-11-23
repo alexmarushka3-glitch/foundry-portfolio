@@ -20,7 +20,7 @@ Recorded examples are real live runs kept as they came out. The site replays the
 2. Put `ANTHROPIC_API_KEY` in `.env.local`, the sandbox login in `.env.sandbox.local` and `FOUNDRY_SANDBOX_SNAPSHOT` in `.env.eval.local` (all gitignored; never print them).
 3. Run `npx.cmd vite-node scripts/record-live-runs.ts -- --requests N --confirm`. To re-record an existing example, first move its file out of `recordings-src/live/` and run `npm run recordings:live`: the script skips existing files, and a request that matches a shipped recording is replayed instead of run live (the recorder then refuses it). It writes `recordings-src/live/<slug>.json`. Keep each run as it came out; never edit or cherry-pick events.
 4. Run `npm run recordings:live` to rebuild `lib/liveRecordings.json`, the per-example chunks and `lib/exampleRequests.ts`.
-5. Run `npm test` (the recorder, replay and example-request tests check shape, size, secrets and that the shipped request list matches the recordings), `npm run typecheck`, `npm run build`, then push.
+5. Run `npm test` (the recorder, replay and example-request tests check shape, size, secrets and that the shipped request list matches the recordings), `npm run typecheck`, `npm run build`, then push the branch and open a PR for Alex.
 6. Re-check any numbers in `lib/reality.ts` and `lib/profile.ts` against the new files.
 
 On Windows PowerShell, run `npx.cmd` instead of `npx`.
