@@ -16,8 +16,16 @@
 // A side effect: a commit message or PR body that contains the words "git push" is blocked.
 // Write the message to a file and use `git commit -F <file>` instead.
 //
+// Some gh commands are not blocked but ASK: the user gets a permission prompt with a short
+// reason (exit 0 and a permissionDecision "ask" JSON on stdout): gh pr merge, gh repo delete,
+// and gh api with the DELETE method (-X DELETE, -XDELETE, --method DELETE, --method=DELETE, any
+// case). gh only counts as the command word of a segment (after VAR=value, env, command, time,
+// exec, nohup), so a message that merely mentions "gh pr merge" is not matched. A block always
+// beats an ask when one command contains both.
+//
 // Known limits: this reads the command text only. Scripts (npm run, node -e) can still run
-// git, and aliases already in ~/.gitconfig are not checked.
+// git or gh, aliases already in ~/.gitconfig are not checked, and gh hidden behind a variable
+// or alias is not seen.
 import { execFileSync } from 'node:child_process';
 
 const PROTECTED_BRANCHES = new Set(['main', 'master']);
@@ -159,6 +167,62 @@ function pushProblem(segment, cwd) {
   return null;
 }
 
+// "gh", "gh.exe" or a path to it.
+const isGhWord = (w) => /(^|[\/\\])gh(\.exe)?$/i.test(w);
+// Words that may stand before the command word: VAR=value assignments and simple wrappers.
+const COMMAND_PREFIXES = new Set(['env', 'command', 'time', 'exec', 'nohup']);
+
+// Finds gh as the command word of one segment. Returns its positional words (subcommands, with
+// -R/--repo and its value skipped) and its arguments, or null if the segment is not a gh command.
+function parseGh(segment) {
+  const words = segment
+    .trim()
+    .split(/\s+/)
+    .map((w) => unquote(w).replace(/^[($`{]+/, ''))
+    .filter(Boolean);
+  let at = 0;
+  while (at < words.length && (/^[A-Za-z_]\w*=/.test(words[at]) || COMMAND_PREFIXES.has(words[at]))) {
+    at++;
+  }
+  if (at >= words.length || !isGhWord(words[at])) return null;
+  const args = words.slice(at + 1).map((w) => w.replace(/[\\"']/g, ''));
+  const positional = [];
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '-R' || args[i] === '--repo') i++;
+    else if (!args[i].startsWith('-')) positional.push(args[i]);
+  }
+  return { positional, args };
+}
+
+// HTTP methods given to gh api: -X DELETE, -XDELETE, --method DELETE, --method=DELETE.
+function apiMethods(args) {
+  const methods = [];
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i];
+    if (a === '-X' || a === '--method') methods.push(args[i + 1] ?? '');
+    else if (a.startsWith('--method=')) methods.push(a.slice('--method='.length));
+    else if (/^-X./.test(a)) methods.push(a.slice(2).replace(/^=/, ''));
+  }
+  return methods;
+}
+
+// Returns a short reason if this segment is a gh command that should ask the user first, else null.
+function askProblem(segment) {
+  const gh = parseGh(segment);
+  if (!gh) return null;
+  const [first, second] = gh.positional;
+  if (first === 'pr' && second === 'merge') {
+    return 'gh pr merge merges a pull request; confirm with Alex first';
+  }
+  if (first === 'repo' && second === 'delete') {
+    return 'gh repo delete deletes a repository for good; confirm with Alex first';
+  }
+  if (first === 'api' && apiMethods(gh.args).some((m) => m.toUpperCase() === 'DELETE')) {
+    return 'gh api with DELETE can remove branches, releases or repos; confirm with Alex first';
+  }
+  return null;
+}
+
 let raw = '';
 process.stdin.setEncoding('utf8');
 process.stdin.on('data', (chunk) => (raw += chunk));
@@ -199,6 +263,7 @@ process.stdin.on('end', () => {
   }
 
   // Check each command in a chain (; & | && || newline) on its own.
+  const asks = new Set();
   for (const segment of text.split(/[;&|\n]+/)) {
     let pushWhy = null;
     let destructive = null;
@@ -210,6 +275,25 @@ process.stdin.on('end', () => {
     }
     if (pushWhy) block(command, 'git push', pushWhy);
     if (destructive) block(command, destructive);
+    // gh commands that ask instead of block. A parsing slip here must never block or crash.
+    try {
+      const askWhy = askProblem(segment);
+      if (askWhy) asks.add(askWhy);
+    } catch {
+      // ignore: allow
+    }
+  }
+  // Only reached when nothing was blocked, so a block always beats an ask.
+  if (asks.size > 0) {
+    const decision = {
+      hookSpecificOutput: {
+        hookEventName: 'PreToolUse',
+        permissionDecision: 'ask',
+        permissionDecisionReason: [...asks].join('; '),
+      },
+    };
+    process.stdout.write(JSON.stringify(decision) + '\n', () => process.exit(0));
+    return;
   }
   process.exit(0);
 });
