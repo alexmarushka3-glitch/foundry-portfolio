@@ -37,7 +37,7 @@ File map, data flow and recipes: `docs/ARCHITECTURE.md`. To add a recorded examp
 
 ## Honesty rules
 
-- Wording: call what the visitor gets a "web app" (once per section, then "it"; Nov 21, 2026). Keep "sample app", "taskly-sample" and "no app built" (simulations). Never call it an App Store app; say it is a web page that can be added to a home screen. The diagram box and share picture still say "Your app" and "Describe a small app" on purpose (change them together with the Figma frames and LinkedIn's cached preview).
+- Wording: call what the visitor gets a "web app" (once per section, then "it"; Nov 21, 2026). Keep "sample app", "taskly-sample" and "no app built" (simulations). Never call it an App Store app; say it is a web page that can be added to a home screen. The diagram box and share picture say "Your web app" and "Describe a small web app" (Nov 23, 2026); the Figma frames and LinkedIn's cached preview must match.
 - The page must always say which mode ran. Never present simulated text as model output.
 - Never hand-edit `recordings-src/live/` events or the archive folders: replay is only honest if it is the real output. Keep each recording as it came out.
 - In a live run the agents work on an in-memory copy of the starter kit; its unit tests and one Playwright browser test (written by the Browser Tester, run in real headless Chromium against the bundled file) run in a Vercel Sandbox from `FOUNDRY_SANDBOX_SNAPSHOT`, network off. The simulation runs no code and builds no app. No human reviews the apps; never say "reviewed", "success rate" or "reliable". Three examples are a demo, not a success rate.

@@ -15,7 +15,7 @@ describe("How it works picture", () => {
       const labels = [...svg.querySelectorAll(".hiw-label")].map((t) => t.textContent);
       for (const a of AGENT_LIST) expect(labels).toContain(a.label);
       expect(labels).toContain("Your idea");
-      expect(labels).toContain("Your app");
+      expect(labels).toContain("Your web app");
       expect(svg.querySelectorAll(".node-icon")).toHaveLength(8);
       expect(svg.textContent).toContain("Sent back for another round");
     }

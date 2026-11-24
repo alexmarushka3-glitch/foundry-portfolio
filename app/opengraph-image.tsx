@@ -47,7 +47,7 @@ export default async function OpengraphImage() {
               color: "#1e252b",
             }}
           >
-            <div>Describe a small app.</div>
+            <div>Describe a small web app.</div>
             <div>Eight AI agents build it, test it,</div>
             <div>and hand it to you.</div>
           </div>
