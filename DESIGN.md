@@ -180,7 +180,7 @@ Flat and tonal. There are no shadows. The one blur is the translucent sticky nav
 
 ## Shapes
 
-Rounded rectangles in a short scale: 8px for small controls, 10px for buttons and fields, 12px for panels and the result card, 18px for the stage, and a full pill for chips and the mode badge. Borders are 1px outlines. The logo mark is a rounded square with an F and an amber dot. No sharp-cornered boxes, no pill buttons, and no one-sided accent borders.
+Rounded rectangles in a short scale: 8px for small controls, 10px for buttons and fields, 12px for panels and the result card, 18px for the stage, and a full pill for chips and the mode badge. Borders are 1px outlines. The logo mark is a rounded square holding an octagon cut in two like a mould, with the cast piece in the middle (greys only until the redesign sets the accent). No sharp-cornered boxes, no pill buttons, and no one-sided accent borders.
 
 ## Components
 

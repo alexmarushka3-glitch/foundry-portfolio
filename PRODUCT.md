@@ -30,7 +30,7 @@ Capabilities (Nov 1, 2026): one text box for the idea; eight agents with tools o
 
 Constraints future work must keep (confirmed by Alex):
 - **Accessibility:** meet WCAG AA (contrast, keyboard use, labels, reduced motion).
-- **Brand:** keep the Foundry name and the F logo mark with the amber dot.
+- **Brand:** keep the Foundry name. The logo mark is an octagon (eight agents) cut in two like a mould, with the cast piece (the finished app) in the middle.
 - **Fast and light:** the home page ships about 125 kB of first-load JavaScript; no heavy libraries or video.
 
 Standing project rules, already recorded in CLAUDE.md (not re-confirmed in this interview): the honesty wording rules. Never say "reviewed", "success rate" or "reliable"; say no human reviews the apps; the recorded examples are recordings of real live runs; keep the copy short.
@@ -38,7 +38,7 @@ Standing project rules, already recorded in CLAUDE.md (not re-confirmed in this 
 Undecided: a custom domain; a measured success rate; whether to keep the run log in a database.
 
 ## Brand Commitments
-Name: Foundry. Mark: the F with an amber dot (components/Logo.tsx, app/icon.svg). Written voice is short and plain.
+Name: Foundry. Mark: the split octagon with the cast piece (components/Logo.tsx, app/icon.svg). Written voice is short and plain.
 
 ## Evidence on Hand
 - Three recordings of real live runs of the web app builder (recordings-src/live/), kept as they came out. The older to-do-app recordings are in recordings-src/archive-taskly/.
