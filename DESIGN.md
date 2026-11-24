@@ -126,7 +126,7 @@ The system is flat and tonal. Depth comes from the contrast between the paper pa
 A cool neutral pair, one amber accent, and two status colors that each come in a dark version for the page and a lit version for the console.
 
 ### Primary
-- **Forge Amber** (#f0a23a): the only accent. Primary buttons (Watch it run, Run, See the draft pull request), focus rings on the console, the logo dot, the active agent ring. Text on it is On Amber (#1b1405), 8.7:1. Hover lightens to #f6b55e.
+- **Forge Amber** (#f0a23a): the only accent. Primary buttons (Watch it run, Run, See the draft pull request), focus rings on the console, the active agent ring. Text on it is On Amber (#1b1405), 8.7:1. Hover lightens to #f6b55e.
 
 ### Neutral
 - **Cool Paper** (#eef0f0): the page background.
@@ -216,7 +216,7 @@ A sticky bar over Cool Paper with the logo and name on the left and four text li
 
 ### Do:
 - **Do** keep every text pair at 4.5:1 or better and every control outline at 3:1 or better against what it sits on.
-- **Do** use Forge Amber only for primary actions, focus rings, the logo dot and the working state.
+- **Do** use Forge Amber only for primary actions, focus rings and the working state.
 - **Do** animate only `transform` and `opacity`, keep UI motion under 300ms with an ease-out curve (cubic-bezier(0.23, 1, 0.32, 1)), and switch every animation off under reduced motion.
 - **Do** show state with color, outline or a small scale change, and give every pressable thing a 0.97 press response.
 - **Do** keep the hero's one orchestrated entrance, and give any new motion a reason: an action answered or a task finished.
