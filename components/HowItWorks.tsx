@@ -73,7 +73,15 @@ const wide: Box[] = [
   { id: "e2e", label: "Browser Tester", agent: "e2e", x: 540, y: 86, ...W_NODE },
   { id: "validator", label: "Validator", agent: "validator", x: 540, y: 170, ...W_NODE },
   { id: "release", label: "Release", agent: "release", x: 720, y: 128, ...W_NODE },
-  { id: "app", label: "Your app", sub: "one .html file", x: 900, y: 128, ...W_NODE, tone: "app" },
+  {
+    id: "app",
+    label: "Your web app",
+    sub: "one .html file",
+    x: 900,
+    y: 128,
+    ...W_NODE,
+    tone: "app",
+  },
 ];
 const WIDE_PHASES: [number, string][] = [
   [1, "Read and plan"],
@@ -186,7 +194,7 @@ const narrow: Box[] = [
   { id: "release", label: "Release", agent: "release", x: NX, y: 616, ...N_AGENT },
   {
     id: "app",
-    label: "Your app",
+    label: "Your web app",
     sub: "one .html file",
     x: NX,
     y: 692,
