@@ -29,14 +29,14 @@ export const profile = {
     {
       title: "Build",
       agents: ["backend", "frontend"],
-      text: "Two agents write the code and its unit tests, each one only its own files.",
+      text: "Logic writes the app's logic and its unit tests, and Interface writes the page. Each one writes only its own files.",
     },
     {
       title: "Check",
       agents: ["e2e", "validator", "release"],
-      text: "In a live run, real tests can fail the build and send it back. A Validator agent approves it, and Release writes it up.",
+      text: "In a live run, real tests can fail the build and send it back. A Validator agent checks it against the story and the tests, and Release writes it up.",
     },
-  ] as { title: string; agents: AgentName[]; text: string }[],
+  ] satisfies { title: string; agents: AgentName[]; text: string }[],
   /** The one-line version, used for the page description in search results and link previews. */
   title: "Student at the University of Chicago",
   pitch:

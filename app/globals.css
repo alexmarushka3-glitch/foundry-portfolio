@@ -128,9 +128,8 @@ html {
   scroll-padding-top: 84px;
 }
 body {
+  position: relative;
   margin: 0;
-  overflow-x: hidden; /* older Safari has no clip */
-  overflow-x: clip;
   background: var(--paper);
   color: var(--ink);
   font-family:
@@ -329,8 +328,6 @@ main,
 
 /* ---------- hero ---------- */
 .hero {
-  position: relative;
-  isolation: isolate;
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
   align-items: end;
@@ -338,19 +335,19 @@ main,
   row-gap: 28px;
   padding: 80px 0 56px;
 }
-/* a soft warm and cool glow behind the top of the page, edge to edge, fading out downwards */
+/* a soft warm and cool glow behind the top of the page, edge to edge, fading out downwards.
+   It is sized to the body (the hero itself is not positioned), so it can never be wider than the page. */
 .hero::before {
   content: "";
   position: absolute;
   z-index: -1;
   pointer-events: none;
-  left: 50%;
-  width: 100vw;
-  transform: translateX(-50%);
-  top: -64px;
-  height: 560px;
-  background: radial-gradient(55% 75% at 12% 70%, var(--glow-a) 0%, transparent 70%),
-    radial-gradient(50% 75% at 88% 55%, var(--glow-b) 0%, transparent 70%);
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 620px;
+  background: radial-gradient(55% 75% at 12% 62%, var(--glow-a) 0%, transparent 70%),
+    radial-gradient(50% 75% at 88% 50%, var(--glow-b) 0%, transparent 70%);
   -webkit-mask-image: linear-gradient(to bottom, #000 45%, transparent);
   mask-image: linear-gradient(to bottom, #000 45%, transparent);
 }
@@ -363,15 +360,6 @@ main,
   flex: none;
   width: 48px;
   height: auto;
-}
-/* The page title is the nav's name and this heading, but only the mark shows here: the name is already in the nav. */
-.hero h1 {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
 }
 .hero-tagline {
   margin: 24px 0 0;
@@ -485,6 +473,8 @@ main,
   max-width: 34ch;
 }
 .step-card {
+  margin: 0;
+  list-style: none;
   display: grid;
   gap: 4px;
   padding: 12px;
@@ -493,7 +483,7 @@ main,
   background: color-mix(in srgb, var(--paper) 55%, white 45%);
 }
 html[data-theme="dark"] .step-card {
-  background: color-mix(in srgb, var(--paper) 80%, white 6%);
+  background: color-mix(in srgb, var(--paper) 94%, white 6%);
 }
 .step-row {
   display: flex;

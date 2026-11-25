@@ -40,10 +40,10 @@ export function Steps() {
       <h2 className="sr-only">The eight agents in three steps</h2>
       {profile.steps.map((s) => (
         <article key={s.title} className="step">
-          <div className="step-card" aria-hidden="true">
+          <ul className="step-card" aria-label={`${s.title}: the agents`}>
             {s.agents.map((id) => (
-              <div key={id} className="step-row">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
+              <li key={id} className="step-row">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
                   {ICON_PATHS[id].map((d) => (
                     <path
                       key={d}
@@ -56,9 +56,9 @@ export function Steps() {
                   ))}
                 </svg>
                 <span>{labelOf(id)}</span>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
           <h3>{s.title}</h3>
           <p>{s.text}</p>
         </article>

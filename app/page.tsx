@@ -40,7 +40,7 @@ export default function Home() {
           <div className="hero-main">
             <div className="lockup">
               <Logo className="hero-mark" />
-              <h1>{profile.headline}</h1>
+              <h1 className="sr-only">{profile.headline}</h1>
             </div>
             <p className="hero-tagline">{profile.tagline}</p>
           </div>
