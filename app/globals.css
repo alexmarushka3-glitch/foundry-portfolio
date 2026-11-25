@@ -129,6 +129,7 @@ html {
 }
 body {
   margin: 0;
+  overflow-x: hidden; /* older Safari has no clip */
   overflow-x: clip;
   background: var(--paper);
   color: var(--ink);
@@ -243,7 +244,7 @@ h4 {
   justify-self: end;
 }
 .nav > .nav-resume {
-  margin-right: 64px;
+  margin-right: 64px; /* the 52px theme switch plus a 12px gap */
 }
 .theme-toggle {
   display: inline-flex;
@@ -461,9 +462,6 @@ main,
   border-radius: 6px;
   background: color-mix(in srgb, var(--ink) 8%, transparent);
   color: var(--ink);
-}
-.statement-dim {
-  color: var(--muted);
 }
 
 /* the eight agents in three steps */
@@ -1728,9 +1726,6 @@ html[data-theme="dark"] .step-card {
 }
 
 @media (max-width: 560px) {
-  .hero {
-    padding-top: 44px;
-  }
   .stage {
     padding: 18px;
     border-radius: 14px;
@@ -1779,32 +1774,18 @@ html[data-theme="dark"] .step-card {
   }
 }
 
-/* five links no longer fit beside the name on a phone: put them on their own row, evenly spaced */
+/* phones: the nav is a two-row grid (see the 760px block above); trim the link text on the narrowest */
 @media (max-width: 560px) {
-  .nav {
-    flex-wrap: wrap;
-    gap: 4px 16px;
-    padding-block: 10px;
-  }
-  .brand {
-    white-space: nowrap;
-  }
-  /* brand and Resume share the first row; the section links get the second */
-  .nav-resume {
-    margin-left: auto;
+  .nav > .nav-resume {
     font-size: 0.85rem;
   }
   .nav nav {
-    order: 1;
-    margin-left: 0;
-    width: 100%;
+    justify-self: stretch;
     justify-content: space-between;
     gap: 8px;
     font-size: 0.9rem;
   }
 }
-
-/* very small phones (320px): shave the nav text so all five links stay on one row */
 @media (max-width: 360px) {
   .nav nav {
     gap: 4px;
