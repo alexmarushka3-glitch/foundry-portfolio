@@ -4,7 +4,15 @@
    - theme and utilities only: Tailwind's reset layer is left out, so the page keeps the browser defaults it was built on
    - the utility scan is limited to components/ui (shadcn's folder), so nothing is generated from words in the existing pages
    - shadcn's colours use their own --ui-* names, because shadcn's --muted would collide with this file's --muted
-   Layered rules lose to the unlayered rules below, so the existing CSS always wins. */
+   Layered rules lose to the unlayered rules below, so the existing CSS always wins.
+
+   When adding a shadcn component (npx shadcn add ...):
+   - shadcn may append unprefixed tokens (--background, --muted, --border, ...) to :root; rename them to --ui-* and map
+     them in @theme inline, or the site's own --muted (a text colour) is overwritten
+   - utility classes only generate for files under components/ui; add an @source line for any other folder that uses them
+   - the components expect Tailwind's reset (button borders, base border colour). It is left out so the site looks the same;
+     add it (and the base border colour) when the redesign restyles the existing elements
+   - Tailwind's --ease-out loses to this file's --ease-out, so an ease-out class on a component uses the site's curve */
 @layer theme, base, components, utilities;
 @import "tailwindcss/theme.css" layer(theme);
 @import "tailwindcss/utilities.css" layer(utilities) source(none);
