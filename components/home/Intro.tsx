@@ -10,7 +10,7 @@ export function FactsStrip() {
   return (
     <div className="facts" role="group" aria-label="What a live run includes">
       <p className="facts-label">In a live run</p>
-      <ul>
+      <ul role="list">
         {profile.facts.map((f) => (
           <li key={f}>{f}</li>
         ))}
@@ -37,10 +37,10 @@ export function Statement() {
 export function Steps() {
   return (
     <div className="steps">
-      <h2 className="sr-only">The eight agents in three steps</h2>
+      <h2 className="steps-title">{profile.stepsTitle}</h2>
       {profile.steps.map((s) => (
         <article key={s.title} className="step">
-          <ul className="step-card" aria-label={`${s.title}: the agents`}>
+          <ul className="step-card" role="list" aria-label={`${s.title}: the agents`}>
             {s.agents.map((id) => (
               <li key={id} className="step-row">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">

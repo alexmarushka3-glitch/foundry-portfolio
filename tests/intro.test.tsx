@@ -17,6 +17,7 @@ describe("home intro sections", () => {
     expect(group.textContent).toMatch(/headless Chrome/);
     expect(group.textContent).toMatch(/No human review/);
     expect(group.textContent).not.toMatch(BANNED);
+    expect(group.querySelector("ul")?.getAttribute("role")).toBe("list");
   });
 
   it("picks out the three verbs and scopes the sentence to a live run", () => {
@@ -47,7 +48,7 @@ describe("home intro sections", () => {
     // only the Researcher reads the starter kit; the other two planners write the story and the blueprint
     expect(text).toMatch(/One agent reads the starter kit\. Two turn the idea into a story/);
     expect(text).not.toMatch(/Three agents read/);
-    expect(text).toMatch(/In a live run, real tests can fail the build/);
+    expect(text).toMatch(/Real tests can fail the build and send it back/);
     expect(text).toMatch(/Validator agent checks it against the story and the tests/);
     expect(text).not.toMatch(/approves it/);
     expect(text).not.toMatch(BANNED);
@@ -65,11 +66,14 @@ describe("home intro sections", () => {
     // the agent names are real list items, not hidden; only the decorative icons are hidden
     expect(container.querySelectorAll("ul.step-card > li")).toHaveLength(8);
     expect(container.querySelector(".step-card[aria-hidden]")).toBeNull();
+    // list-style: none drops list semantics in Safari with VoiceOver, so the role is stated
+    for (const ul of container.querySelectorAll("ul.step-card"))
+      expect(ul.getAttribute("role")).toBe("list");
     for (const svg of container.querySelectorAll(".step-row svg"))
       expect(svg.getAttribute("aria-hidden")).toBe("true");
-    expect(container.querySelector("h2.sr-only")?.textContent).toBe(
-      "The eight agents in three steps",
-    );
+    // the visible heading scopes every step to a live run (a simulation builds no app and runs no tests)
+    expect(container.querySelector("h2.steps-title")?.textContent).toBe("What a live run does");
+    expect(container.querySelector("h2.sr-only")).toBeNull();
     expect(container.querySelectorAll(".step p")).toHaveLength(3);
   });
 });

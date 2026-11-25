@@ -19,6 +19,8 @@ export const profile = {
   /** One sentence under the demo. The verbs plans, builds and tests are picked out on the page. "Web app" once, then "it". */
   statement:
     "In a live run, Foundry plans a small web app, builds it, and tests it in a real browser. You can use it on the page or save it as one file.",
+  /** Heading over the three steps. It scopes them to a live run: a simulation builds no app and runs no tests. */
+  stepsTitle: "What a live run does",
   /** The eight agents in three steps, under the statement. Matches `how` and the agent list. */
   steps: [
     {
@@ -34,7 +36,7 @@ export const profile = {
     {
       title: "Check",
       agents: ["e2e", "validator", "release"],
-      text: "In a live run, real tests can fail the build and send it back. A Validator agent checks it against the story and the tests, and Release writes it up.",
+      text: "Real tests can fail the build and send it back. A Validator agent checks it against the story and the tests, and Release writes it up.",
     },
   ] satisfies { title: string; agents: AgentName[]; text: string }[],
   /** The one-line version, used for the page description in search results and link previews. */
