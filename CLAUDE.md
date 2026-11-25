@@ -27,6 +27,8 @@ On Windows PowerShell, run `npx.cmd` instead of `npx` (the `npx.ps1` script is b
 
 Run `npm run typecheck` and `npm test` before pushing. The Stop hook runs the typecheck and `tests/copy.test.ts` only when uncommitted files under `app`, `components`, `lib`, `scripts`, `tests`, `docs` or `public`, or `package.json`, `tsconfig.json`, `next.config.ts` or `vitest.config.ts`, have changed. It does not run the full suite, and it skips committed work, `vercel.json`, `e2e/` and `recordings-src/`.
 
+CI (`.github/workflows/ci.yml`) runs `npm run typecheck`, `npm test` and `npm run format:check` on every pull request and on every push to `main`. Read its result before Alex merges. It does not block Vercel's deploy by itself, so a red check on `main` still goes live unless Alex has made the check required in the GitHub branch rules.
+
 ## Layout
 
 File map, data flow and recipes: `docs/ARCHITECTURE.md`. To add a recorded example, use the `add-recorded-example` skill.
