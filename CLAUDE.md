@@ -6,7 +6,7 @@ Portfolio site built around Foundry, an eight-agent web app builder. Visitors ty
 
 For any change bigger than a small fix: explore first, make a plan and wait for Alex's OK, implement test first, verify with `npm run typecheck` and `npm test`, then commit on a branch and open a PR.
 
-The Superpowers plugin (brainstorm, plan, test first, verify before claiming done) can help with this, but it is off by default; Alex turns it on with `/superpowers on`. It is a dev workflow only: the site never runs it, and the site copy does not claim it.
+The Superpowers plugin (brainstorm, plan, test first, verify before claiming done) can help with this. Alex keeps it off by default on his own machine and turns it on with `/superpowers on`. It is a dev workflow only: the site never runs it, and the site copy does not claim it.
 
 ## Commands
 
@@ -25,7 +25,7 @@ npx.cmd vite-node scripts/run-eval.ts -- --runs 8 --confirm   # real live runs, 
 
 On Windows PowerShell, run `npx.cmd` instead of `npx` (the `npx.ps1` script is blocked by the execution policy).
 
-Run `npm run typecheck` and `npm test` before pushing. The Stop hook runs the typecheck and `tests/copy.test.ts` for you when source files changed, not the full suite.
+Run `npm run typecheck` and `npm test` before pushing. The Stop hook runs the typecheck and `tests/copy.test.ts` only when uncommitted files under `app`, `components`, `lib`, `scripts`, `tests`, `docs` or `public`, or `package.json`, `tsconfig.json`, `next.config.ts` or `vitest.config.ts`, have changed. It does not run the full suite, and it skips committed work, `vercel.json`, `e2e/` and `recordings-src/`.
 
 ## Layout
 
