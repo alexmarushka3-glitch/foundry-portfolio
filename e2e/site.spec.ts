@@ -418,9 +418,10 @@ test(
       route.fulfill({
         status: 200,
         headers: { ...sealed, "Content-Type": "text/html; charset=utf-8" },
-        // The escape attempt is `leave()`, called by the test once the app is on screen (not a timer inside the app: a
-        // timer can fire before a slow machine's first check, and the blocked frame is then replaced by a notice).
-        body: '<!doctype html><title>x</title><h1 id="stayed">Still here</h1><script>window.leave = function () { location.href = "https://example.com/"; };</script>',
+        // The escape attempt is `leave()`, called by the test once the app is on screen. It is not a timer that starts
+        // when the app loads: that can fire before a slow machine's first check, and the blocked frame is then replaced
+        // by a notice. `leave()` itself defers by one tick so the test's call returns before the page navigates.
+        body: '<!doctype html><title>x</title><h1 id="stayed">Still here</h1><script>window.leave = function () { setTimeout(function () { location.href = "https://example.com/"; }, 0); };</script>',
       }),
     );
     const reached: string[] = [];

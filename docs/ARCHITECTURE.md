@@ -57,7 +57,7 @@ public/                  Static files.
   app-bridge.js, app-install.js   Hosted-link wrapper scripts: the per-link storage bridge and the install button or note.
 
 tests/                   Vitest. One file per area; see "Tests" below.
-e2e/                     Playwright browser tests (npm run test:ui, test:ui:browsers).
+e2e/                     Playwright browser tests (npm run test:ui, test:ui:browsers). warmup.ts asks the dev server for each route once before the tests (a cold first compile otherwise eats a test's 5 second checks); it does nothing against BASE_URL.
 recordings-src/live/     The three real recorded live runs (full event streams). archive-taskly/ (the old to-do-app runs) and archive-text-only/ are kept for history, never edited, not shown anywhere.
 scripts/                 record-live-runs.ts, build-live-recordings.mjs, build-snapshot.mjs, build-sandbox-snapshot.mjs, run-eval.ts.
 DESIGN.md, PRODUCT.md    The design system ("The Control Room") and who the site is for. Read both before design work.
