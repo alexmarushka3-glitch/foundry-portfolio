@@ -2,6 +2,12 @@
 
 Portfolio site built around Foundry, an eight-agent web app builder. Visitors type an idea for a small one-page app (or pick a recorded example), watch eight agents plan, build and test it, then use the finished app on the page or save it as one .html file. Live at https://alexmarushka.vercel.app (the old address, https://foundry-portfolio.vercel.app, still works).
 
+## Guardrails
+
+- Never merge a PR or push to main yourself. Open the PR, give Alex the link, and wait for Alex to merge.
+- Do not commit `.env*` files (only `.env.example`) or `.vercel/`.
+- Never serve agent-written html from any route other than the hosted-link routes, or without their security headers (see `docs/ARCHITECTURE.md`).
+
 ## Workflow
 
 For any change bigger than a small fix: explore first, make a plan and wait for Alex's OK, implement test first, verify with `npm run typecheck` and `npm test`, then commit on a branch and open a PR.
@@ -46,13 +52,9 @@ File map, data flow and recipes: `docs/ARCHITECTURE.md`. To add a recorded examp
 - Never hand-edit `recordings-src/live/` events or the archive folders: replay is only honest if it is the real output. Keep each recording as it came out.
 - In a live run the agents work on an in-memory copy of the starter kit; its unit tests and one Playwright browser test (written by the Browser Tester, run in real headless Chromium against the bundled file) run in a Vercel Sandbox from `FOUNDRY_SANDBOX_SNAPSHOT`, network off. The simulation runs no code and builds no app. No human reviews the apps; never say "reviewed", "success rate" or "reliable". Three examples are a demo, not a success rate.
 - The app preview runs in a sealed frame and keeps nothing; the saved file uses the browser's own storage. A hosted link keeps the file 30 days after its last open, 60 days at most, then deletes it. The app on it is sealed (no cookies, no network) and keeps its data only on the visitor's own device (256 KB, that link only). It can be added to a home screen or installed (a web page that opens full screen, not an App Store app; it needs a connection). Say so. Don't promise the apps are bug-free, and never say a hosted app was reviewed, published by Alex, or hosted by him.
-- Never serve agent-written html from any route other than the hosted-link routes, or without their security headers (see `docs/ARCHITECTURE.md`).
 - Runs open no pull request any more. Don't describe the output as a pull request. (Only a daily cron, `app/api/cron/close-stale-prs`, still touches old drafts on taskly-sample; see `docs/ARCHITECTURE.md`.)
 - `/admin-demo` shows made-up data. It must always say so, and never be described as real usage, visitors or spend.
-- Do not commit `.env*` files (only `.env.example`) or `.vercel/`.
 
 ## Deploying
 
 Pushes to `main` redeploy automatically through the Vercel GitHub integration (project `foundry-portfolio`). Manual deploy: `npx.cmd vercel@latest deploy --prod --yes`.
-
-Never merge a PR or push to main yourself. Open the PR, give Alex the link, and wait for Alex to merge.
