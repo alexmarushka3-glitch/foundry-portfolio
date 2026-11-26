@@ -10,7 +10,18 @@
       "Read(**/.env.staging)",
       "Read(**/.env.test)",
       "Read(**/.env.preview)",
-      "Read(**/.vercel/**)"
+      "Read(**/.vercel/**)",
+      "Read(docs/private/**)",
+      "Bash(git push * main)",
+      "Bash(git push * main *)",
+      "Bash(git push *:main)",
+      "Bash(git push * master)",
+      "Bash(git push * master *)",
+      "Bash(git push *:master)",
+      "Bash(git push *--force*)",
+      "Bash(git push -f *)",
+      "Bash(git push * -f)",
+      "Bash(git push * -f *)"
     ]
   },
   "hooks": {
