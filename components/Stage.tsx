@@ -48,7 +48,9 @@ export default function Stage() {
   const [run, setRun] = useState<Run | null>(null);
   const [selected, setSelected] = useState<AgentName | null>(null);
 
-  const narrow = useMediaQuery("(max-width: 900px)");
+  const narrow = useMediaQuery("(max-width: 900px)"); // a phone or small tablet: the stage is one column
+  // Up to 1200px the wide drawing would be scaled below 11px text beside the sidebar, so the tall one is drawn instead.
+  const tall = useMediaQuery("(max-width: 1200px)");
   const liveAvailable = useLiveAvailability();
   const { t, playing, speed, setPlaying, setSpeed, seek } = usePlayback(run?.total ?? 0);
 
@@ -220,7 +222,7 @@ export default function Stage() {
           <div ref={pipelineRef} className="pipeline-wrap" id="demo-drawing">
             <PipelineSvg
               frames={frames}
-              layout={narrow ? "narrow" : "wide"}
+              layout={tall ? "narrow" : "wide"}
               selected={selected}
               onSelect={(a) => setSelected((cur) => (cur === a ? null : a))}
               sentBack={maxRound(views) > 1}
