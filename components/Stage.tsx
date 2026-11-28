@@ -71,6 +71,7 @@ export default function Stage() {
     clearError,
   } = useLiveRun(showFinished);
   const busy = live !== null;
+  const idea = live?.request ?? run?.request ?? "New build"; // named in the window's title bar
 
   const resetView = useCallback(() => {
     setSelected(null);
@@ -180,7 +181,9 @@ export default function Stage() {
           <span className="crumb-sep" aria-hidden="true">
             {" › "}
           </span>
-          <span className="crumb-idea">{live?.request ?? run?.request ?? "New build"}</span>
+          <span className="crumb-idea" title={idea}>
+            {idea}
+          </span>
         </p>
         {modeCopy && (
           <p className={`badge ${mode}`} role="status">
@@ -190,7 +193,7 @@ export default function Stage() {
         )}
       </div>
       <div className="stage-body">
-        <AgentList frames={frames} selected={selected} />
+        <AgentList frames={frames} />
         <div className="stage-main">
           <div className="stage-head">
             <h2 id="stage-title">Build a web app</h2>

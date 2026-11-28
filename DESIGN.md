@@ -96,7 +96,7 @@ components:
     backgroundColor: "{colors.console-iron}"
     textColor: "{colors.console-text}"
     rounded: "{rounded.xl}"
-    padding: "28px"
+    padding: "0"
   panel:
     backgroundColor: "{colors.console-iron-raised}"
     textColor: "{colors.console-text}"
@@ -169,7 +169,7 @@ A cool neutral pair, one amber accent, and two status colors that each come in a
 
 ## Layout
 
-A single column up to 1120px with 16px side gutters, left aligned. Sections sit 56px apart. The dark stage is a full-width block inside that column, with 28px of padding (18px on phones). Inside it the request form is one row on wide screens and a stack on narrow ones; the pipeline drawing is wide above 900px and tall and centered below it, so its labels stay near 17px. Panels flow into an auto-fit grid, 320px minimum. Text blocks stay under about 62 characters. The sticky nav is a thin bar with a blur behind it.
+A single column up to 1120px with 16px side gutters, left aligned. Sections sit 56px apart. The dark stage is a full-width block inside that column, framed as a window: a 1px outline, a soft shadow and a raised title bar (the build's name on the left, the mode badge on the right). Below the bar, wider than 900px, a 232px sidebar lists the eight agents with how far each got and stays under the nav while the page scrolls; the demo itself sits beside it with 28px of padding (18px on phones, where the sidebar is left out). Inside it the request form is one row on wide screens and a stack on narrow ones; the pipeline drawing is wide above 900px and tall and centered below it, so its labels stay near 17px. Panels flow into an auto-fit grid, 320px minimum. Text blocks stay under about 62 characters. The sticky nav is a thin bar with a blur behind it.
 
 ## Elevation & Depth
 

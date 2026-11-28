@@ -95,6 +95,13 @@ export function subtitle(f: AgentFrame): string {
   return f.ms !== undefined ? formatDuration(f.ms) : "done";
 }
 
+/** The same status as a short key, for colouring (the demo window's sidebar), so wording and colour never drift apart. */
+export function agentState(f: AgentFrame): "waiting" | "working" | "sent-back" | "done" {
+  if (f.status === "pending") return "waiting";
+  if (f.status === "active") return "working";
+  return f.passed === false ? "sent-back" : "done";
+}
+
 export default function PipelineSvg({
   frames,
   layout,

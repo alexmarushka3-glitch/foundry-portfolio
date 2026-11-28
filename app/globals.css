@@ -93,6 +93,7 @@
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --measure: 62ch;
   --wrap: 1200px;
+  --nav-h: 64px; /* the sticky nav's height (a two-row nav on phones, see the 760px block) */
   --glow-a: rgb(240 162 58 / 0.22);
   --glow-b: rgb(120 150 190 / 0.2);
 }
@@ -527,6 +528,9 @@ html[data-theme="dark"] .step-card {
   html {
     scroll-padding-top: 108px;
   }
+  :root {
+    --nav-h: 76px;
+  }
   .nav {
     grid-template-columns: 1fr auto;
     grid-template-rows: auto auto;
@@ -675,7 +679,7 @@ html[data-theme="dark"] .stage {
 }
 .agent-list {
   position: sticky;
-  top: 84px; /* under the sticky nav */
+  top: calc(var(--nav-h) + 20px); /* under the sticky nav */
   align-self: start;
   display: flex;
   flex-direction: column;
@@ -704,9 +708,6 @@ html[data-theme="dark"] .stage {
 .agent-state {
   font-size: 0.78rem;
   white-space: nowrap;
-}
-.agent.is-selected {
-  background: color-mix(in srgb, var(--on-iron) 8%, transparent);
 }
 .agent.state-working {
   background: color-mix(in srgb, var(--amber) 12%, transparent);

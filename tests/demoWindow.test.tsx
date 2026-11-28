@@ -3,7 +3,9 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { cleanup, configure, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import AgentList from "@/components/stage/AgentList";
 import Stage from "@/components/Stage";
+import type { AgentFrame } from "@/lib/run";
 import { AGENT_LIST } from "@/lib/agents";
 import { FIXTURE_REQUEST, fixtureRecording } from "./fixtures/liveRecording";
 
@@ -132,5 +134,49 @@ describe("demo window", () => {
     expect(phoneBlock()).toMatch(/\.agent-list \{\s*display: none;/);
     expect(phoneBlock()).toMatch(/\.stage-body \{\s*grid-template-columns: minmax\(0, 1fr\);/);
     expect(css).toMatch(/\.stage-bar \{/);
+  });
+
+  it("words and colours each state from one place: waiting, working, passed, sent back, done", () => {
+    const frame = (agent: AgentFrame["agent"], f: Partial<AgentFrame>): AgentFrame => ({
+      agent,
+      status: "done",
+      round: 1,
+      text: "",
+      ...f,
+    });
+    const { container } = render(
+      <AgentList
+        frames={[
+          frame("researcher", { status: "pending", round: 0 }),
+          frame("story", { status: "active" }),
+          frame("pm", { passed: true }),
+          frame("backend", { passed: false }),
+          frame("frontend", { ms: 4200 }),
+        ]}
+      />,
+    );
+    const li = (name: string) =>
+      [...container.querySelectorAll(".agent-list > li")].find(
+        (x) => x.querySelector(".agent-name")?.textContent === name,
+      )!;
+    const state = (name: string) => [
+      [...li(name).classList].find((c) => c.startsWith("state-")),
+      li(name).querySelector(".agent-state")?.textContent,
+    ];
+    expect(state("Researcher")).toEqual(["state-waiting", "waiting"]);
+    expect(state("Story Writer")).toEqual(["state-working", "working"]);
+    expect(state("Project Manager")).toEqual(["state-done", "passed"]);
+    expect(state("Logic")).toEqual(["state-sent-back", "sent back"]);
+    expect(state("Interface")).toEqual(["state-done", "4.2s"]);
+    // an agent with no frame yet still gets a row, waiting
+    expect(state("Release")).toEqual(["state-waiting", "waiting"]);
+    expect(container.querySelectorAll(".agent-list > li")).toHaveLength(8);
+  });
+
+  it("gives the title bar the full idea as a hover title, in case it is cut off", async () => {
+    const { container } = render(<Stage />);
+    fireEvent.click(screen.getByRole("button", { name: FIXTURE_REQUEST }));
+    await screen.findByText("Replay of a real live run");
+    expect(container.querySelector(".crumb-idea")?.getAttribute("title")).toBe(FIXTURE_REQUEST);
   });
 });
