@@ -1,5 +1,6 @@
 import ContactLinks from "@/components/ContactLinks";
 import DemoLink from "@/components/DemoLink";
+import { FactsStrip, Statement, Steps } from "@/components/home/Intro";
 import HowItWorks from "@/components/HowItWorks";
 import Logo from "@/components/Logo";
 import Stage from "@/components/Stage";
@@ -36,25 +37,34 @@ export default function Home() {
 
       <main id="top">
         <section className="hero">
-          <div className="lockup">
-            <Logo className="hero-mark" />
-            <h1>{profile.headline}</h1>
+          <div className="hero-main">
+            <div className="lockup">
+              <Logo className="hero-mark" />
+              <h1 className="sr-only">{profile.headline}</h1>
+            </div>
+            <p className="hero-tagline">{profile.tagline}</p>
           </div>
-          <p className="hero-tagline">{profile.tagline}</p>
-          <p className="hero-lede">{profile.intro}</p>
-          <div className="hero-actions">
-            <DemoLink className="btn btn-primary">Build a web app</DemoLink>
-            <a className="btn btn-ghost" href="#reality">
-              Scope and limits
-            </a>
+          <div className="hero-side">
+            <p className="hero-lede">{profile.intro}</p>
+            <div className="hero-actions">
+              <DemoLink className="btn btn-primary">Build a web app</DemoLink>
+              <a className="btn btn-ghost" href="#reality">
+                Scope and limits
+              </a>
+            </div>
+            <p className="byline">
+              {profile.name}, Business Economics student at the University of Chicago, class of
+              2029. Recruiting for consulting and tech roles. <ContactLinks label="Email" />
+            </p>
           </div>
-          <p className="byline">
-            {profile.name}, Business Economics student at the University of Chicago, class of 2029.
-            Recruiting for consulting and tech roles. <ContactLinks label="Email" />
-          </p>
         </section>
 
+        <FactsStrip />
+
         <Stage />
+
+        <Statement />
+        <Steps />
 
         <section id="project" className="section" aria-labelledby="project-title">
           <h2 id="project-title">The project in short</h2>

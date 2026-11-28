@@ -1,5 +1,7 @@
 // Single source of truth for the portfolio copy. Edit this file to update the site.
 
+import type { AgentName } from "./types";
+
 export const profile = {
   siteUrl: "https://alexmarushka.vercel.app",
   name: "Alex Marushka",
@@ -12,6 +14,31 @@ export const profile = {
     "Type an idea like “a tip calculator” and watch them plan, write and test it in about a minute. Then use it right on the page, or save it as one file that opens in any browser.",
   /** Who does what, shown as the caption under the pipeline drawing. */
   how: "One agent reads the starter kit, two plan, two build, two check the work (and can send it back), and one writes it up.",
+  /** The strip under the hero. Said as what a live run includes: a simulation runs none of it. */
+  facts: ["Claude agents", "Real unit tests", "A real headless Chrome test", "No human review"],
+  /** One sentence under the demo. The verbs plans, builds and tests are picked out on the page. "Web app" once, then "it". */
+  statement:
+    "In a live run, Foundry plans a small web app, builds it, and tests it in a real browser. You can use it on the page or save it as one file.",
+  /** Heading over the three steps. It scopes them to a live run: a simulation builds no app and runs no tests. */
+  stepsTitle: "What a live run does",
+  /** The eight agents in three steps, under the statement. Matches `how` and the agent list. */
+  steps: [
+    {
+      title: "Plan",
+      agents: ["researcher", "story", "pm"],
+      text: "One agent reads the starter kit. Two turn the idea into a story and a blueprint for the builders.",
+    },
+    {
+      title: "Build",
+      agents: ["backend", "frontend"],
+      text: "Logic writes the app's logic and its unit tests, and Interface writes the page. Each one writes only its own files.",
+    },
+    {
+      title: "Check",
+      agents: ["e2e", "validator", "release"],
+      text: "Real tests can fail the build and send it back. A Validator agent checks it against the story and the tests, and Release writes it up.",
+    },
+  ] satisfies { title: string; agents: AgentName[]; text: string }[],
   /** The one-line version, used for the page description in search results and link previews. */
   title: "Student at the University of Chicago",
   pitch:

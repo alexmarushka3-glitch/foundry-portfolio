@@ -11,6 +11,9 @@ const allCopy = () =>
     profile.tagline,
     profile.intro,
     profile.how,
+    ...profile.facts,
+    profile.statement,
+    ...profile.steps.flatMap((s) => [s.title, s.text]),
     profile.pitch,
     ...profile.about,
     ...profile.lessons.flatMap((l) => [l.title, l.body]),
@@ -57,6 +60,17 @@ describe("page copy", () => {
 
   it("keeps every short line in step with its full line", () => {
     for (const c of REALITY) expect(c.short).toHaveLength(c.items.length);
+  });
+
+  it("says 'web app' once in the statement, then 'it', and scopes it to a live run", () => {
+    expect(profile.statement.match(/web app/gi)).toHaveLength(1);
+    expect(profile.statement).toMatch(/^In a live run,/);
+    // the page picks out each of these three verbs, so each must appear exactly once
+    for (const verb of ["plans", "builds", "tests"])
+      expect(profile.statement.match(new RegExp(String.raw`\b${verb}\b`, "g"))).toHaveLength(1);
+    // the steps sit under a heading that scopes them to a live run
+    expect(profile.stepsTitle).toBe("What a live run does");
+    expect(profile.facts.join(" ")).toMatch(/Real unit tests/);
   });
 
   it("stays short: the intro is two sentences at most", () => {
