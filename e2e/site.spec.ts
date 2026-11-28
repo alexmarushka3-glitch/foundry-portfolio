@@ -24,6 +24,45 @@ test("home page loads with the main sections and no browser errors", async ({ pa
   expect(errors).toEqual([]);
 });
 
+test("the demo drawing's text stays at least 11px wide from 901px up, with the sidebar showing", async ({
+  page,
+}) => {
+  test.setTimeout(120_000); // six page loads, the first on a cold dev server
+  for (const width of [901, 1100, 1200, 1201, 1280, 1600]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/");
+    // the layout is picked after the page hydrates, so wait for the drawing the width should have before measuring
+    await expect(page.locator("#demo-drawing svg.pipeline"), `drawing at ${width}px`).toHaveClass(
+      width <= 1200 ? /pipeline-narrow/ : /^pipeline$/,
+    );
+    const info = await page.evaluate(() => {
+      const svg = document.querySelector<SVGSVGElement>("#demo-drawing svg")!;
+      const scale = svg.getBoundingClientRect().width / svg.viewBox.baseVal.width;
+      const sizes = [...svg.querySelectorAll("text")].map(
+        (t) => parseFloat(getComputedStyle(t).fontSize) * scale,
+      );
+      const list = document.querySelector<HTMLElement>(".agent-list")!;
+      // the sidebar text is nowrap, so too little room shows as text running past its box, not as a second line
+      const overflowing = [
+        ...list.querySelectorAll<HTMLElement>(".agent-name, .agent-state"),
+      ].filter((el) => el.scrollWidth > el.clientWidth);
+      return {
+        tall: svg.classList.contains("pipeline-narrow"),
+        minText: Math.min(...sizes),
+        sidebarShown: getComputedStyle(list).display !== "none",
+        overflowing: overflowing.map((el) => el.textContent),
+        overflow: document.documentElement.scrollWidth > window.innerWidth,
+      };
+    });
+    const at = `at ${width}px`;
+    expect(info.tall, `tall drawing ${at}`).toBe(width <= 1200);
+    expect(info.minText, `smallest drawing text ${at}`).toBeGreaterThanOrEqual(11);
+    expect(info.sidebarShown, `sidebar ${at}`).toBe(true);
+    expect(info.overflowing, `sidebar text that runs past its box ${at}`).toEqual([]);
+    expect(info.overflow, `sideways scroll ${at}`).toBe(false);
+  }
+});
+
 test("a recorded example replays to the end and offers the app", async ({ page }) => {
   test.setTimeout(120_000); // a replay takes about 15 s; a cold dev server compiles first
   const errors = watchErrors(page);

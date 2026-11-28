@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { cleanup, configure, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, configure, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import AgentList from "@/components/stage/AgentList";
 import Stage from "@/components/Stage";
@@ -178,5 +178,76 @@ describe("demo window", () => {
     fireEvent.click(screen.getByRole("button", { name: FIXTURE_REQUEST }));
     await screen.findByText("Replay of a real live run");
     expect(container.querySelector(".crumb-idea")?.getAttribute("title")).toBe(FIXTURE_REQUEST);
+  });
+
+  it("draws the tall layout between 901px and 1200px, where the sidebar leaves the wide drawing too little room", async () => {
+    // matches only the 1200px query: a window wider than a phone, narrower than the wide drawing needs
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn().mockImplementation((query: string) => ({
+        matches: query === "(max-width: 1200px)",
+        media: query,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+      })),
+    );
+    const { container } = render(<Stage />);
+    await waitFor(() => expect(container.querySelector("svg.pipeline-narrow")).toBeTruthy());
+    // it is still the desktop frame: the sidebar stays, and the phone-only strip does not appear
+    expect(container.querySelector(".agent-list")).toBeTruthy();
+    expect(container.querySelector(".now-strip")).toBeNull();
+  });
+
+  it("draws the wide layout above 1200px", () => {
+    const { container } = render(<Stage />); // the default stub matches no query
+    expect(container.querySelector("svg.pipeline")).toBeTruthy();
+    expect(container.querySelector("svg.pipeline-narrow")).toBeNull();
+  });
+
+  it("keeps the phone behaviours on the 900px query: starting a run scrolls the drawing into view on a phone, not at 901-1200px", async () => {
+    const scroll = vi.fn();
+    Element.prototype.scrollIntoView = scroll; // jsdom has none
+    // the drawing is below the fold, so a phone would scroll to it
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue({
+      top: 5000,
+      bottom: 5400,
+      left: 0,
+      right: 0,
+      width: 0,
+      height: 400,
+      x: 0,
+      y: 5000,
+      toJSON: () => ({}),
+    });
+    const media = (matches: (q: string) => boolean) =>
+      vi.stubGlobal(
+        "matchMedia",
+        vi.fn().mockImplementation((query: string) => ({
+          matches: matches(query),
+          media: query,
+          addEventListener: () => {},
+          removeEventListener: () => {},
+        })),
+      );
+    try {
+      media((q) => q === "(max-width: 1200px)"); // 901-1200px
+      let view = render(<Stage />);
+      await waitFor(() => expect(view.container.querySelector("svg.pipeline-narrow")).toBeTruthy());
+      fireEvent.click(screen.getByRole("button", { name: FIXTURE_REQUEST }));
+      await screen.findByText("Replay of a real live run");
+      expect(scroll, "no scrolling at 901-1200px").not.toHaveBeenCalled();
+      cleanup();
+
+      media(() => true); // a phone: every query matches
+      view = render(<Stage />);
+      await waitFor(() => expect(view.container.querySelector("svg.pipeline-narrow")).toBeTruthy());
+      fireEvent.click(screen.getByRole("button", { name: FIXTURE_REQUEST }));
+      await screen.findByText("Replay of a real live run");
+      await waitFor(() => expect(scroll, "a phone scrolls to the drawing").toHaveBeenCalled());
+    } finally {
+      vi.restoreAllMocks();
+      // @ts-expect-error remove the stand-in so other tests see jsdom's own (missing) method
+      delete Element.prototype.scrollIntoView;
+    }
   });
 });
