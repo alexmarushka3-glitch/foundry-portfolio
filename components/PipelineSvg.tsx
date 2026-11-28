@@ -31,7 +31,7 @@ const GEOMETRY: Record<
     },
   },
   narrow: {
-    // 300 wide so the 14px text shows at about 11px on a 320px phone
+    // 300 wide so the 14px text shows at about 11px on a 320px phone; also drawn in windows up to 1200px wide (see Stage.tsx), capped at 360px there and 420px on phones and tablets
     viewBox: "0 0 300 540",
     w: 184,
     h: 58,
@@ -86,12 +86,20 @@ function edgePath(layout: Layout, a: AgentName, b: AgentName): string {
   return `M${p.x} ${y1} C${p.x} ${ym} ${q.x} ${ym} ${q.x} ${y2}`;
 }
 
-function subtitle(f: AgentFrame): string {
+/** What a node says under an agent's name (also used by the demo window's sidebar, so the two never disagree). */
+export function subtitle(f: AgentFrame): string {
   if (f.status === "pending") return "waiting";
   if (f.status === "active") return "working";
   if (f.passed === false) return "sent back";
   if (f.passed === true) return "passed";
   return f.ms !== undefined ? formatDuration(f.ms) : "done";
+}
+
+/** The same status as a short key, for colouring (the demo window's sidebar), so wording and colour never drift apart. */
+export function agentState(f: AgentFrame): "waiting" | "working" | "sent-back" | "done" {
+  if (f.status === "pending") return "waiting";
+  if (f.status === "active") return "working";
+  return f.passed === false ? "sent-back" : "done";
 }
 
 export default function PipelineSvg({

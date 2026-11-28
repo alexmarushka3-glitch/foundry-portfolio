@@ -93,6 +93,7 @@
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --measure: 62ch;
   --wrap: 1200px;
+  --nav-h: 64px; /* the sticky nav's height (a two-row nav on phones, see the 760px block) */
   --glow-a: rgb(240 162 58 / 0.22);
   --glow-b: rgb(120 150 190 / 0.2);
 }
@@ -527,6 +528,9 @@ html[data-theme="dark"] .step-card {
   html {
     scroll-padding-top: 108px;
   }
+  :root {
+    --nav-h: 76px;
+  }
   .nav {
     grid-template-columns: 1fr auto;
     grid-template-rows: auto auto;
@@ -622,12 +626,112 @@ html[data-theme="dark"] .step-card {
   color-scheme: dark;
   background: var(--iron);
   color: var(--on-iron);
+  border: 1px solid var(--iron-line);
   border-radius: 18px;
-  padding: 28px;
   margin: 8px 0 24px;
+  box-shadow: 0 32px 64px -32px rgb(14 22 30 / 0.55);
+}
+html[data-theme="dark"] .stage {
+  box-shadow: 0 32px 64px -32px rgb(0 0 0 / 0.6);
 }
 .stage :focus-visible {
   outline-color: var(--amber);
+}
+/* the window: a title bar, then the eight agents beside the demo itself */
+.stage-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding: 12px 20px;
+  background: var(--iron-2);
+  border-bottom: 1px solid var(--iron-line);
+  border-radius: 17px 17px 0 0;
+}
+.crumb {
+  display: flex;
+  flex: 1 1 12rem;
+  min-width: 0;
+  margin: 0;
+  color: var(--on-iron-muted);
+  font-size: 0.9rem;
+  white-space: pre;
+}
+.crumb-idea {
+  min-width: 0;
+  white-space: nowrap; /* .crumb keeps the separator's spaces with pre; the idea must stay on one line */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--on-iron);
+}
+.stage-bar .badge {
+  flex: none;
+  white-space: nowrap;
+}
+.stage-body {
+  display: grid;
+  grid-template-columns: 188px minmax(0, 1fr);
+}
+.stage-main {
+  min-width: 0;
+  padding: 20px;
+  border-left: 1px solid var(--iron-line);
+}
+.agent-list {
+  position: sticky;
+  top: calc(var(--nav-h) + 20px); /* under the sticky nav */
+  /* in a short window the list scrolls inside itself rather than cutting off the last agents */
+  max-height: calc(100vh - var(--nav-h) - 40px);
+  overflow-y: auto;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 20px 12px;
+  list-style: none;
+}
+.agent {
+  /* the icon beside two short lines: the name, then how far it got (one line each, in the narrow sidebar) */
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  column-gap: 10px;
+  align-items: center;
+  padding: 7px 10px;
+  border-radius: 9px;
+  color: var(--on-iron-muted);
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+.agent svg {
+  grid-row: 1 / span 2;
+}
+.agent-name {
+  grid-column: 2;
+  min-width: 0;
+  color: var(--on-iron);
+  white-space: nowrap;
+}
+.agent-state {
+  grid-column: 2;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+.agent.state-working {
+  background: color-mix(in srgb, var(--amber) 12%, transparent);
+}
+.agent.state-working svg,
+.agent.state-working .agent-state {
+  color: var(--amber);
+}
+.agent.state-done svg,
+.agent.state-done .agent-state {
+  color: var(--verdigris-lit);
+}
+.agent.state-sent-back svg,
+.agent.state-sent-back .agent-state {
+  color: var(--brick-lit);
 }
 .stage-head {
   display: flex;
@@ -796,8 +900,14 @@ html[data-theme="dark"] .step-card {
   margin: 40px auto 0;
   overflow: visible;
 }
+.pipeline-narrow {
+  /* the tall drawing is used in windows up to 1200px wide, not only on phones: 360px keeps it short and not blown up */
+  max-width: 360px;
+}
 @media (max-width: 900px) {
-  .pipeline {
+  /* phones and tablets (one column) keep 420px; named here so the order of the rules above can't decide it */
+  .pipeline,
+  .pipeline-narrow {
     max-width: 420px;
     margin-top: 18px;
   }
@@ -879,7 +989,7 @@ html[data-theme="dark"] .step-card {
 .node-icon.small path {
   stroke-width: 3;
 }
-/* phones: the drawing is scaled down to about 0.8, so the text is set larger to stay near 11px at 320px wide */
+/* the tall drawing: scaled to about 0.8 on a 320px phone (so its text is set larger to stay near 11px) and up to 1.2 in a window up to 1200px wide */
 .pipeline-narrow .node-label {
   font-size: 14.5px;
 }
@@ -1687,11 +1797,19 @@ html[data-theme="dark"] .step-card {
   scroll-margin-top: 48px; /* room for the now-strip, which sticks just above it */
 }
 
-/* On phones and tablets the drawing is tall, so put the text being written above it. */
+/* On phones and tablets (one column) the drawing is tall, so put the text being written above it. Between 901px and 1200px
+   the drawing is tall too, but the stage keeps its desktop frame and this ordering does not apply. */
 @media (max-width: 900px) {
-  .stage {
+  .stage-main {
     display: flex;
     flex-direction: column;
+    border-left: 0;
+  }
+  .stage-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .agent-list {
+    display: none;
   }
   .stage-head {
     order: 0;
@@ -1725,8 +1843,14 @@ html[data-theme="dark"] .step-card {
 
 @media (max-width: 560px) {
   .stage {
-    padding: 18px;
     border-radius: 14px;
+  }
+  .stage-bar {
+    padding: 10px 14px;
+    border-radius: 13px 13px 0 0;
+  }
+  .stage-main {
+    padding: 18px;
   }
   .idea-row {
     flex-direction: column;

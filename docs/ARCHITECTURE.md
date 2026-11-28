@@ -21,8 +21,11 @@ app/                     Next.js routes only: pages and HTTP handlers. Thin; the
 
 components/              React UI.
   Stage.tsx              The live agent view. Owns the state and wires the pieces below together.
-  stage/                 Its parts: IdeaForm, OutputPanel, PlayerControls, AppPreview, and hooks
-                         (usePlayback, useLiveRun, useMediaQuery, useLiveAvailability, useOnceInView).
+  stage/                 Its parts: IdeaForm, OutputPanel, PlayerControls, EvidenceCard, AppPreview, AgentList (the
+                         window's sidebar, read from the same frames as the drawing), and hooks (usePlayback,
+                         useLiveRun, useMediaQuery, useLiveAvailability, useOnceInView).
+  home/Intro.tsx         The sections under the hero: the facts strip, the one-sentence statement and the three steps.
+                         Their copy is in `lib/profile.ts` (facts, statement, stepsTitle, steps).
   PipelineSvg.tsx        Draws the eight-agent pipeline.
   HowItWorks.tsx         The still "How it works" diagram in the case study (see "Reference notes").
   AgentIcon.tsx          The eight 24px agent glyphs used in the pipeline drawing and the diagram.
@@ -151,7 +154,7 @@ Pipeline tests pass `pace: 0` to skip the simulation's delays and `client` to in
 
 **Change an agent's instructions or model:** edit `lib/pipeline/prompts.ts` (and `MODELS` in `config.ts`). Update `lib/agents.ts` only if its on-page description changes.
 
-**Add an agent:** add its name to `AgentName` (`types.ts`), a row to `AGENT_LIST`, a spec in `prompts.ts`, a case in `simulate.ts`, a node and edges in `PipelineSvg.tsx`, and a step in `runPipeline` and `buildLiveReplayRun`. Replay uses the same shared reducer as live runs, so adding an agent means re-recording the recordings.
+**Add an agent:** add its name to `AgentName` (`types.ts`), a row to `AGENT_LIST`, a spec in `prompts.ts`, a case in `simulate.ts`, a node and edges in `PipelineSvg.tsx`, a step in `runPipeline` and `buildLiveReplayRun`, and its place in `profile.steps` (the three steps under the demo; a test checks that every agent appears exactly once). The demo window's sidebar reads `AGENT_LIST`, so it picks the new agent up by itself. Replay uses the same shared reducer as live runs, so adding an agent means re-recording the recordings.
 
 **Add a recorded example:** use the `add-recorded-example` skill (`.claude/skills/add-recorded-example/SKILL.md`).
 
