@@ -62,27 +62,35 @@ describe("app/globals.css and shadcn", () => {
   });
 
   it("animates the scope lines with CSS only, behind @supports and no-preference motion", () => {
-    const start = css.indexOf("@supports (interpolate-size: allow-keywords) {");
-    expect(start, "an @supports block for interpolate-size").toBeGreaterThan(-1);
+    const code = css.replace(/\/\*[\s\S]*?\*\//g, ""); // comments out, so words in them can't change the result
+    const gate = "@supports (interpolate-size: allow-keywords) and selector(::details-content) {";
+    const start = code.indexOf(gate);
+    expect(start, "an @supports block for interpolate-size and ::details-content").toBeGreaterThan(
+      -1,
+    );
     // find the end of that block by counting braces
     let depth = 0;
     let end = start;
-    for (let k = css.indexOf("{", start); k < css.length; k++) {
-      if (css[k] === "{") depth++;
-      if (css[k] === "}" && --depth === 0) {
+    for (let k = code.indexOf("{", start); k < code.length; k++) {
+      if (code[k] === "{") depth++;
+      if (code[k] === "}" && --depth === 0) {
         end = k;
         break;
       }
     }
-    const block = css.slice(start, end + 1);
+    const block = code.slice(start, end + 1);
     expect(block).toMatch(/@media \(prefers-reduced-motion: no-preference\) \{/);
-    expect(block).toMatch(/interpolate-size: allow-keywords/);
-    expect(block).toMatch(/\.reality-col details::details-content \{[^}]*height: 0/);
-    expect(block).toMatch(/transition:[^;]*height[^;]*;/);
-    expect(block).toMatch(/content-visibility[^;]*allow-discrete/);
-    expect(block).toMatch(/details\[open\]::details-content \{[^}]*height: auto/);
-    // nothing outside that block touches ::details-content, so old browsers and reduced motion just open instantly
-    const outside = css.slice(0, start) + css.slice(end + 1);
+    expect(block).toMatch(/\.reality-col details \{[^}]*interpolate-size: allow-keywords;/);
+    const closed = block.match(/\.reality-col details::details-content \{([^}]*)\}/)?.[1] ?? "";
+    expect(closed).toMatch(/height: 0;/);
+    expect(closed).toMatch(/overflow: clip;/);
+    // its own formatting context, so the paragraph's margin can't leak out and make the box jump
+    expect(closed).toMatch(/display: flow-root;/);
+    expect(closed).toMatch(/transition:[^;]*height[^;]*;/);
+    expect(closed).toMatch(/content-visibility[^;]*allow-discrete/);
+    expect(block).toMatch(/details\[open\]::details-content \{[^}]*height: auto;/);
+    // nothing outside that block touches the pseudo-element, so old browsers and reduced motion just open instantly
+    const outside = code.slice(0, start) + code.slice(end + 1);
     expect(outside).not.toContain("::details-content");
   });
 });

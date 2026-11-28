@@ -1600,14 +1600,17 @@ html[data-theme="dark"] .stage {
   color: var(--muted);
 }
 /* A smooth open and close for the scope lines, with CSS only. The browser's own <details> stays: Tab, Enter, Space and
-   find-in-page work as before. Browsers without the details-content pseudo-element or interpolate-size, and visitors who ask for less
-   motion, get the instant open. */
-@supports (interpolate-size: allow-keywords) {
+   find-in-page work as before. The @supports test needs both interpolate-size and the details-content pseudo-element,
+   so other browsers, and visitors who ask for less motion, get the instant open. flow-root gives the animated box its
+   own formatting context: without it the paragraph's margin escapes the box and the next line snaps 4 to 8px when the
+   animation ends. */
+@supports (interpolate-size: allow-keywords) and selector(::details-content) {
   @media (prefers-reduced-motion: no-preference) {
     .reality-col details {
       interpolate-size: allow-keywords;
     }
     .reality-col details::details-content {
+      display: flow-root;
       height: 0;
       overflow: clip;
       transition:

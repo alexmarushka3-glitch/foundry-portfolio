@@ -50,11 +50,22 @@ test("the scope lines open and close from the keyboard, show a focus ring, and o
   page,
 }) => {
   await page.goto("/");
+  const animates = await page.evaluate(
+    () =>
+      CSS.supports("interpolate-size", "allow-keywords") &&
+      CSS.supports("selector(::details-content)"),
+  );
   const item = page.locator("#reality details").first();
   const summary = item.locator("summary");
   const detail = item.locator("p");
   await summary.scrollIntoViewIfNeeded();
   await expect(detail).toBeHidden();
+  if (animates) {
+    // the browser's own hidden state is what lets find-in-page open a closed line; the animation must not replace it
+    expect(
+      await item.evaluate((el) => getComputedStyle(el, "::details-content").contentVisibility),
+    ).toBe("hidden");
+  }
 
   await summary.focus();
   await page.keyboard.press("Tab"); // move on, then back, so the ring comes from the keyboard
@@ -70,12 +81,56 @@ test("the scope lines open and close from the keyboard, show a focus ring, and o
   await expect(item).toHaveJSProperty("open", false);
   await expect(detail).toBeHidden();
 
-  const duration = () =>
-    item.evaluate((el) => getComputedStyle(el, "::details-content").transitionDuration);
+  if (!animates) return; // this browser opens the line instantly, which is the intended fallback
+  const style = (prop: "transitionDuration" | "transitionProperty") =>
+    item.evaluate((el, p) => getComputedStyle(el, "::details-content")[p], prop);
   await page.emulateMedia({ reducedMotion: "no-preference" });
-  expect(await duration()).not.toBe("0s");
+  expect(await style("transitionDuration")).not.toBe("0s");
+  expect(await style("transitionProperty")).toContain("height");
   await page.emulateMedia({ reducedMotion: "reduce" });
-  expect(await duration()).toBe("0s");
+  expect(await style("transitionDuration")).toBe("0s");
+});
+
+test("a scope line opens and closes smoothly, with no snap when the animation ends", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("/");
+  const animates = await page.evaluate(
+    () =>
+      CSS.supports("interpolate-size", "allow-keywords") &&
+      CSS.supports("selector(::details-content)"),
+  );
+  test.skip(!animates, "this browser opens the line instantly");
+  const item = page.locator("#reality details").first();
+  await item.scrollIntoViewIfNeeded();
+  // Follow the next line in the column, frame by frame, through one open and one close.
+  const runs = await item.evaluate(async (el) => {
+    const next = el.closest("li")!.nextElementSibling!;
+    const summary = el.querySelector("summary")!;
+    const top = () => next.getBoundingClientRect().top;
+    const run = async () => {
+      const tops = [top()];
+      summary.click();
+      for (let i = 0; i < 40; i++) {
+        await new Promise((r) => requestAnimationFrame(() => r(null)));
+        tops.push(top());
+      }
+      await new Promise((r) => setTimeout(r, 300));
+      tops.push(top());
+      return tops;
+    };
+    return { open: await run(), close: await run() };
+  });
+  for (const [name, tops] of Object.entries(runs)) {
+    const steps = tops.slice(1).map((t, i) => Math.abs(t - tops[i]));
+    const settled = steps.findIndex((d, i) => i > 3 && d < 1.5); // the eased tail of the animation
+    expect(settled, `${name}: the animation reaches its tail`).toBeGreaterThan(-1);
+    // after the tail, the line must not move again (a snap here is the text margin escaping the box)
+    expect(Math.max(...steps.slice(settled)), `${name}: largest move after the tail`).toBeLessThan(
+      1.5,
+    );
+  }
 });
 
 test("a recorded example replays to the end and offers the app", async ({ page }) => {
