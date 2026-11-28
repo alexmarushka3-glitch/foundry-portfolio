@@ -86,7 +86,8 @@ function edgePath(layout: Layout, a: AgentName, b: AgentName): string {
   return `M${p.x} ${y1} C${p.x} ${ym} ${q.x} ${ym} ${q.x} ${y2}`;
 }
 
-function subtitle(f: AgentFrame): string {
+/** What a node says under an agent's name (also used by the demo window's sidebar, so the two never disagree). */
+export function subtitle(f: AgentFrame): string {
   if (f.status === "pending") return "waiting";
   if (f.status === "active") return "working";
   if (f.passed === false) return "sent back";

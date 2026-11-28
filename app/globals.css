@@ -622,12 +622,106 @@ html[data-theme="dark"] .step-card {
   color-scheme: dark;
   background: var(--iron);
   color: var(--on-iron);
+  border: 1px solid var(--iron-line);
   border-radius: 18px;
-  padding: 28px;
   margin: 8px 0 24px;
+  box-shadow: 0 32px 64px -32px rgb(14 22 30 / 0.55);
+}
+html[data-theme="dark"] .stage {
+  box-shadow: 0 32px 64px -32px rgb(0 0 0 / 0.6);
 }
 .stage :focus-visible {
   outline-color: var(--amber);
+}
+/* the window: a title bar, then the eight agents beside the demo itself */
+.stage-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding: 12px 20px;
+  background: var(--iron-2);
+  border-bottom: 1px solid var(--iron-line);
+  border-radius: 17px 17px 0 0;
+}
+.crumb {
+  display: flex;
+  flex: 1 1 12rem;
+  min-width: 0;
+  margin: 0;
+  color: var(--on-iron-muted);
+  font-size: 0.9rem;
+  white-space: pre;
+}
+.crumb-idea {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--on-iron);
+}
+.stage-bar .badge {
+  flex: none;
+  white-space: nowrap;
+}
+.stage-body {
+  display: grid;
+  grid-template-columns: 232px minmax(0, 1fr);
+}
+.stage-main {
+  min-width: 0;
+  padding: 28px;
+  border-left: 1px solid var(--iron-line);
+}
+.agent-list {
+  position: sticky;
+  top: 84px; /* under the sticky nav */
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 20px 14px;
+  list-style: none;
+}
+.agent {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 9px;
+  color: var(--on-iron-muted);
+  font-size: 0.9rem;
+}
+.agent svg {
+  flex: none;
+}
+.agent-name {
+  flex: 1;
+  min-width: 0;
+  color: var(--on-iron);
+}
+.agent-state {
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+.agent.is-selected {
+  background: color-mix(in srgb, var(--on-iron) 8%, transparent);
+}
+.agent.state-working {
+  background: color-mix(in srgb, var(--amber) 12%, transparent);
+}
+.agent.state-working svg,
+.agent.state-working .agent-state {
+  color: var(--amber);
+}
+.agent.state-done svg,
+.agent.state-done .agent-state {
+  color: var(--verdigris-lit);
+}
+.agent.state-sent-back svg,
+.agent.state-sent-back .agent-state {
+  color: var(--brick-lit);
 }
 .stage-head {
   display: flex;
@@ -1689,9 +1783,16 @@ html[data-theme="dark"] .step-card {
 
 /* On phones and tablets the drawing is tall, so put the text being written above it. */
 @media (max-width: 900px) {
-  .stage {
+  .stage-main {
     display: flex;
     flex-direction: column;
+    border-left: 0;
+  }
+  .stage-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .agent-list {
+    display: none;
   }
   .stage-head {
     order: 0;
@@ -1725,8 +1826,14 @@ html[data-theme="dark"] .step-card {
 
 @media (max-width: 560px) {
   .stage {
-    padding: 18px;
     border-radius: 14px;
+  }
+  .stage-bar {
+    padding: 10px 14px;
+    border-radius: 13px 13px 0 0;
+  }
+  .stage-main {
+    padding: 18px;
   }
   .idea-row {
     flex-direction: column;

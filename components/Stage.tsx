@@ -5,6 +5,7 @@ import IdeaForm from "./stage/IdeaForm";
 import OutputPanel from "./stage/OutputPanel";
 import PlayerControls from "./stage/PlayerControls";
 import EvidenceCard from "./stage/EvidenceCard";
+import AgentList from "./stage/AgentList";
 import AppPreview from "./stage/AppPreview";
 import { howToUse } from "@/lib/howTo";
 import { runEvidence } from "@/lib/evidence";
@@ -173,8 +174,14 @@ export default function Stage() {
 
   return (
     <section ref={sectionRef} className="stage" id="demo" aria-labelledby="stage-title">
-      <div className="stage-head">
-        <h2 id="stage-title">Build a web app</h2>
+      <div className="stage-bar">
+        <p className="crumb">
+          <span>Build</span>
+          <span className="crumb-sep" aria-hidden="true">
+            {" › "}
+          </span>
+          <span className="crumb-idea">{live?.request ?? run?.request ?? "New build"}</span>
+        </p>
         {modeCopy && (
           <p className={`badge ${mode}`} role="status">
             <span className="dot" aria-hidden="true" />
@@ -182,92 +189,100 @@ export default function Stage() {
           </p>
         )}
       </div>
+      <div className="stage-body">
+        <AgentList frames={frames} selected={selected} />
+        <div className="stage-main">
+          <div className="stage-head">
+            <h2 id="stage-title">Build a web app</h2>
+          </div>
 
-      <IdeaForm
-        onSubmit={go}
-        busy={busy}
-        activeExample={run?.request}
-        liveAvailable={liveAvailable}
-      />
+          <IdeaForm
+            onSubmit={go}
+            busy={busy}
+            activeExample={run?.request}
+            liveAvailable={liveAvailable}
+          />
 
-      {narrow && active.length > 0 && (
-        // On a phone the drawing and the panel above it don't fit on one screen; this keeps who is working in view.
-        // It sits between the panel and the drawing, so it only sticks once the panel (which names the same agent) has
-        // scrolled away and never covers the panel's title.
-        // Screen readers already hear it from the live region above, so it is hidden from them.
-        <p className="now-strip" aria-hidden="true">
-          <span className="dot" />
-          {announce}
-        </p>
-      )}
-
-      <div ref={pipelineRef} className="pipeline-wrap" id="demo-drawing">
-        <PipelineSvg
-          frames={frames}
-          layout={narrow ? "narrow" : "wide"}
-          selected={selected}
-          onSelect={(a) => setSelected((cur) => (cur === a ? null : a))}
-          sentBack={maxRound(views) > 1}
-        />
-      </div>
-      <p className="pipeline-note">{profile.how} Select any agent to see its work.</p>
-
-      <p className="sr-only" aria-live="polite">
-        {announce}
-      </p>
-
-      {modeCopy && (
-        <p className="mode-detail">
-          {modeCopy.detail}
-          {reason ? ` ${reason}` : ""}
-        </p>
-      )}
-      {error && (
-        <p className="error" role="alert">
-          {error}
-        </p>
-      )}
-
-      <div className="panels">
-        {focus.length === 0 ? (
-          <p className="empty">
-            Pick an example or describe your own. You can watch the agents work.
-          </p>
-        ) : (
-          focus.map((f) => <OutputPanel key={f.agent} frame={f} />)
-        )}
-      </div>
-      {selected && (
-        <button className="follow" type="button" onClick={() => setSelected(null)}>
-          Follow the action again
-        </button>
-      )}
-
-      <PlayerControls
-        total={run ? run.total : null}
-        t={t}
-        playing={playing}
-        speed={speed}
-        running={busy}
-        onTogglePlay={() => {
-          if (atEnd) seek(0);
-          setPlaying(!playing || atEnd);
-        }}
-        onSpeed={setSpeed}
-        onSeek={(v) => {
-          setPlaying(false);
-          seek(v);
-        }}
-      />
-      {run && atEnd && (
-        <div className="summary">
-          <p>{runSummary(run)}</p>
-          {run.files && run.approved && (
-            <AppPreview files={run.files} sig={run.filesSig} howTo={howToUse(run)} />
+          {narrow && active.length > 0 && (
+            // On a phone the drawing and the panel above it don't fit on one screen; this keeps who is working in view.
+            // It sits between the panel and the drawing, so it only sticks once the panel (which names the same agent) has
+            // scrolled away and never covers the panel's title.
+            // Screen readers already hear it from the live region above, so it is hidden from them.
+            <p className="now-strip" aria-hidden="true">
+              <span className="dot" />
+              {announce}
+            </p>
           )}
-          {evidence && <EvidenceCard evidence={evidence} />}
+
+          <div ref={pipelineRef} className="pipeline-wrap" id="demo-drawing">
+            <PipelineSvg
+              frames={frames}
+              layout={narrow ? "narrow" : "wide"}
+              selected={selected}
+              onSelect={(a) => setSelected((cur) => (cur === a ? null : a))}
+              sentBack={maxRound(views) > 1}
+            />
+          </div>
+          <p className="pipeline-note">{profile.how} Select any agent to see its work.</p>
+
+          <p className="sr-only" aria-live="polite">
+            {announce}
+          </p>
+
+          {modeCopy && (
+            <p className="mode-detail">
+              {modeCopy.detail}
+              {reason ? ` ${reason}` : ""}
+            </p>
+          )}
+          {error && (
+            <p className="error" role="alert">
+              {error}
+            </p>
+          )}
+
+          <div className="panels">
+            {focus.length === 0 ? (
+              <p className="empty">
+                Pick an example or describe your own. You can watch the agents work.
+              </p>
+            ) : (
+              focus.map((f) => <OutputPanel key={f.agent} frame={f} />)
+            )}
+          </div>
+          {selected && (
+            <button className="follow" type="button" onClick={() => setSelected(null)}>
+              Follow the action again
+            </button>
+          )}
+
+          <PlayerControls
+            total={run ? run.total : null}
+            t={t}
+            playing={playing}
+            speed={speed}
+            running={busy}
+            onTogglePlay={() => {
+              if (atEnd) seek(0);
+              setPlaying(!playing || atEnd);
+            }}
+            onSpeed={setSpeed}
+            onSeek={(v) => {
+              setPlaying(false);
+              seek(v);
+            }}
+          />
+          {run && atEnd && (
+            <div className="summary">
+              <p>{runSummary(run)}</p>
+              {run.files && run.approved && (
+                <AppPreview files={run.files} sig={run.filesSig} howTo={howToUse(run)} />
+              )}
+              {evidence && <EvidenceCard evidence={evidence} />}
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </section>
   );
 }
