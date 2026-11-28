@@ -3,6 +3,20 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const css = readFileSync(join(process.cwd(), "app", "globals.css"), "utf8");
+/** The CSS without comments, so words and braces in comments can't change what the tests match. */
+const code = css.replace(/\/\*[\s\S]*?\*\//g, "");
+
+/** The text of the first `@layer base { ... }` block, found by counting braces. */
+function baseLayer() {
+  const start = code.indexOf("@layer base {");
+  expect(start, "an @layer base block").toBeGreaterThan(-1);
+  let depth = 0;
+  for (let k = code.indexOf("{", start); k < code.length; k++) {
+    if (code[k] === "{") depth++;
+    if (code[k] === "}" && --depth === 0) return code.slice(start, k + 1);
+  }
+  throw new Error("unclosed @layer base block");
+}
 
 /** Names shadcn writes when it adds a component (unprefixed). The site keeps them for its own colours or not at all. */
 const SHADCN_UNPREFIXED = [
@@ -52,8 +66,44 @@ describe("app/globals.css and shadcn", () => {
   });
 
   it("puts the link underline back in the base layer, so utilities can still remove it", () => {
-    expect(css).toMatch(/@layer base \{[\s\S]*?\sa \{\s*text-decoration: underline;/);
-    expect(css).not.toMatch(/^a \{[^}]*text-decoration/m);
+    expect(baseLayer()).toMatch(/\sa \{\s*text-decoration: underline;/);
+    expect(code).not.toMatch(/^a \{[^}]*text-decoration/m); // never as an unlayered rule
+  });
+
+  it("puts back the slider margin and a readable placeholder colour that the reset removes", () => {
+    const base = baseLayer();
+    expect(base).toMatch(/input\[type="range"\] \{\s*margin: 2px;/);
+    const placeholder = base.match(/::placeholder \{([^}]*)\}/)?.[1] ?? "";
+    expect(placeholder).toMatch(/color: var\(--muted\);/);
+    expect(placeholder, "no extra transparency: it lowers the contrast").not.toMatch(/opacity/);
+  });
+
+  it("keeps the scope chevron's size, the 404 heading size, and the lesson numbers out of the reader", () => {
+    expect(code).toMatch(/\.reality-col summary::after \{[^}]*box-sizing: content-box;/);
+    const h1 = code.match(/\.section > h1 \{([^}]*)\}/)?.[1] ?? "";
+    expect(h1).toMatch(/font-size: 2em;/);
+    expect(h1, "the h1 never had a margin: the site resets it to 0").not.toMatch(/margin/);
+    // the 404 page's logo sat inline on the text baseline; the reset makes svg a block, which took 7px out of the gap
+    expect(code).toMatch(/\.section > svg \{[^}]*display: inline;[^}]*vertical-align: baseline;/);
+    // a second declaration with empty alt text; browsers that don't know it keep the first
+    expect(code).toMatch(
+      /\.lessons li::before \{\s*content: counter\(lesson, decimal-leading-zero\);\s*content: counter\(lesson, decimal-leading-zero\) \/ "";/,
+    );
+  });
+
+  it("keeps the scope cards' colour accent in forced-colors mode and the tap flash on the lines", () => {
+    expect(code).toMatch(
+      /@media \(forced-colors: active\) \{\s*\.reality-col \{[^}]*border-top: 3px solid CanvasText;/,
+    );
+    expect(code).toMatch(
+      /summary,\s*\[role="button"\],\s*input\[type="range"\] \{[^}]*-webkit-tap-highlight-color/,
+    );
+  });
+
+  it("is described correctly in docs/ARCHITECTURE.md (the reset layer is on)", () => {
+    const doc = readFileSync(join(process.cwd(), "docs", "ARCHITECTURE.md"), "utf8");
+    expect(doc).not.toMatch(/no reset layer/i);
+    expect(doc).toMatch(/preflight|reset/i);
   });
 
   it("sets its own list markers where the reset would remove the browser's", () => {

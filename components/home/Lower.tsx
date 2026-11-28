@@ -4,12 +4,10 @@ import HowItWorks from "@/components/HowItWorks";
 import { profile } from "@/lib/profile";
 import { REALITY } from "@/lib/reality";
 
-const RESUME = profile.links.find((l) => l.label === "Resume")!.href;
-
 /** The project in short: the case rows beside the heading, the diagram, then the decisions as numbered cards. */
 export function ProjectSection() {
   return (
-    <section id="project" className="section project" aria-labelledby="project-title">
+    <section id="project" className="section" aria-labelledby="project-title">
       <div className="project-head">
         <h2 id="project-title">The project in short</h2>
         <dl className="case">
@@ -90,7 +88,7 @@ export function ClosingBand() {
       </div>
       <div className="closing-actions">
         <DemoLink className="btn btn-primary">Build a web app</DemoLink>
-        <a className="btn btn-on-iron" href={RESUME} target="_blank" rel="noreferrer">
+        <a className="btn btn-on-iron" href={profile.resume} target="_blank" rel="noreferrer">
           Resume
         </a>
       </div>

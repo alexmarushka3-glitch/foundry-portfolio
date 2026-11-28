@@ -2,6 +2,8 @@
 
 import type { AgentName } from "./types";
 
+const RESUME = "/Alex-Marushka-Resume.pdf";
+
 export const profile = {
   siteUrl: "https://alexmarushka.vercel.app",
   name: "Alex Marushka",
@@ -48,9 +50,11 @@ export const profile = {
   title: "Student at the University of Chicago",
   pitch:
     "Describe a small web app and eight AI agents build it, test it in a real browser, and hand it to you as one file.",
+  /** The resume PDF in public/. The nav, the closing band and the contact links all point here. */
+  resume: RESUME,
   email: "alex.marushka3@gmail.com",
   links: [
-    { label: "Resume", href: "/Alex-Marushka-Resume.pdf" },
+    { label: "Resume", href: RESUME },
     { label: "GitHub", href: "https://github.com/alexmarushka3-glitch" },
     { label: "LinkedIn", href: "https://www.linkedin.com/in/alex-marushka-4bb1113b9/" },
   ],

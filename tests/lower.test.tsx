@@ -85,7 +85,8 @@ describe("lower home sections", () => {
     ).toBeTruthy();
     expect(band.textContent).toContain(profile.closing.text);
     expect(band.querySelector("a[href='#demo']")).toBeTruthy();
-    expect(band.querySelector("a[href='/Alex-Marushka-Resume.pdf']")).toBeTruthy();
+    expect(band.querySelector(`a[href='${profile.resume}']`)).toBeTruthy();
+    expect(profile.resume).toBe("/Alex-Marushka-Resume.pdf");
     expect(band.textContent).not.toMatch(BANNED);
     expect(webApps(band.textContent ?? "")).toBeLessThanOrEqual(1); // "web app" once per section
   });

@@ -34,7 +34,7 @@ export default function Home() {
           <a href="#reality">Scope</a>
           <a href="#about">About</a>
         </nav>
-        <a className="nav-resume" href="/Alex-Marushka-Resume.pdf" target="_blank" rel="noreferrer">
+        <a className="nav-resume" href={profile.resume} target="_blank" rel="noreferrer">
           Resume
         </a>
         <ThemeToggle />
