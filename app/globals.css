@@ -694,42 +694,50 @@ html[data-theme="dark"] .stage {
 }
 .stage-body {
   display: grid;
-  grid-template-columns: 232px minmax(0, 1fr);
+  grid-template-columns: 188px minmax(0, 1fr);
 }
 .stage-main {
   min-width: 0;
-  padding: 28px;
+  padding: 20px;
   border-left: 1px solid var(--iron-line);
 }
 .agent-list {
   position: sticky;
   top: calc(var(--nav-h) + 20px); /* under the sticky nav */
+  /* in a short window the list scrolls inside itself rather than cutting off the last agents */
+  max-height: calc(100vh - var(--nav-h) - 40px);
+  overflow-y: auto;
   align-self: start;
   display: flex;
   flex-direction: column;
   gap: 2px;
   margin: 0;
-  padding: 20px 14px;
+  padding: 20px 12px;
   list-style: none;
 }
 .agent {
-  display: flex;
+  /* the icon beside two short lines: the name, then how far it got (one line each, in the narrow sidebar) */
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  column-gap: 10px;
   align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
+  padding: 7px 10px;
   border-radius: 9px;
   color: var(--on-iron-muted);
   font-size: 0.9rem;
+  line-height: 1.3;
 }
 .agent svg {
-  flex: none;
+  grid-row: 1 / span 2;
 }
 .agent-name {
-  flex: 1;
+  grid-column: 2;
   min-width: 0;
   color: var(--on-iron);
+  white-space: nowrap;
 }
 .agent-state {
+  grid-column: 2;
   font-size: 0.78rem;
   white-space: nowrap;
 }
@@ -915,6 +923,9 @@ html[data-theme="dark"] .stage {
   margin: 40px auto 0;
   overflow: visible;
 }
+.pipeline-narrow {
+  max-width: 420px; /* the tall drawing is used in windows up to 1200px wide, not only on phones: keep it from being blown up */
+}
 @media (max-width: 900px) {
   .pipeline {
     max-width: 420px;
@@ -998,7 +1009,7 @@ html[data-theme="dark"] .stage {
 .node-icon.small path {
   stroke-width: 3;
 }
-/* phones: the drawing is scaled down to about 0.8, so the text is set larger to stay near 11px at 320px wide */
+/* the tall drawing: scaled to about 0.8 on a 320px phone (so its text is set larger to stay near 11px) and up to 1.4 in a window up to 1200px wide */
 .pipeline-narrow .node-label {
   font-size: 14.5px;
 }
@@ -1919,7 +1930,8 @@ html[data-theme="dark"] .stage {
   scroll-margin-top: 48px; /* room for the now-strip, which sticks just above it */
 }
 
-/* On phones and tablets the drawing is tall, so put the text being written above it. */
+/* On phones and tablets (one column) the drawing is tall, so put the text being written above it. Between 901px and 1200px
+   the drawing is tall too, but the stage keeps its desktop frame and this ordering does not apply. */
 @media (max-width: 900px) {
   .stage-main {
     display: flex;

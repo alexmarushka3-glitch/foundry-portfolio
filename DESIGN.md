@@ -169,7 +169,7 @@ A cool neutral pair, one amber accent, and two status colors that each come in a
 
 ## Layout
 
-A single column up to 1120px with 16px side gutters, left aligned. Sections sit 56px apart. The dark stage is a full-width block inside that column, framed as a window: a 1px outline, a soft shadow and a raised title bar (the build's name on the left, the mode badge on the right). Below the bar, wider than 900px, a 232px sidebar lists the eight agents with how far each got and stays under the nav while the page scrolls; the demo itself sits beside it with 28px of padding (18px on phones, where the sidebar is left out). Inside it the request form is one row on wide screens and a stack on narrow ones; the pipeline drawing is wide above 900px and tall and centered below it, so its labels stay near 17px. Panels flow into an auto-fit grid, 320px minimum. Text blocks stay under about 62 characters. The sticky nav is a thin bar with a blur behind it.
+A single column up to 1200px with 16px side gutters, left aligned. Sections sit 56px apart. The dark stage is a full-width block inside that column, framed as a window: a 1px outline, a soft shadow and a raised title bar (the build's name on the left, the mode badge on the right). Below the bar, wider than 900px, a 188px sidebar lists the eight agents with how far each got (name, then status underneath) and stays under the nav while the page scrolls, scrolling inside itself in a short window; the demo itself sits beside it with 20px of padding (18px on phones, where the sidebar is left out). Inside it the request form is one row on wide screens and a stack on narrow ones; the pipeline drawing is wide above 1200px and tall and centered at 1200px and below (capped at 420px wide), so its labels are never under 11px. Panels flow into an auto-fit grid, 320px minimum. Text blocks stay under about 62 characters. The sticky nav is a thin bar with a blur behind it.
 
 ## Elevation & Depth
 
@@ -200,7 +200,7 @@ Rounded rectangles in a short scale: 8px for small controls, 10px for buttons an
 - **Error:** a Brick Lit message under the form and a Brick Lit outline on the field; the cursor moves to the field.
 
 ### Stage and Panels
-- **Stage:** Console Iron, 18px radius, 28px padding, holds the whole demo.
+- **Stage:** Console Iron, 18px radius, 20px padding (18px on phones), holds the whole demo.
 - **Panels:** Console Iron Raised, 1px Console Divider, 12px radius, 16px padding. The active panel has an amber outline. Agent output sits in a darker mono block inside.
 
 ### Agent nodes (signature component)
