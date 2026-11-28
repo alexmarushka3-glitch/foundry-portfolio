@@ -130,6 +130,7 @@ test("a scope line opens and closes smoothly, with no snap when the animation en
     expect(Math.max(...steps.slice(settled)), `${name}: largest move after the tail`).toBeLessThan(
       1.5,
     );
+  }
 });
 
 test("the demo drawing's text stays at least 11px wide from 901px up, with the sidebar showing", async ({
