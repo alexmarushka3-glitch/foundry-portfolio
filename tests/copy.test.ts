@@ -15,6 +15,8 @@ const allCopy = () =>
     profile.statement,
     ...profile.steps.flatMap((s) => [s.title, s.text]),
     profile.pitch,
+    profile.closing.title,
+    profile.closing.text,
     ...profile.about,
     ...profile.lessons.flatMap((l) => [l.title, l.body]),
     ...profile.caseStudy.flatMap((r) => [r.term, r.text]),

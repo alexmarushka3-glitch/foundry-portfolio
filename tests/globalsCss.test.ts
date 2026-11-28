@@ -39,8 +39,25 @@ describe("app/globals.css and shadcn", () => {
     expect(css).not.toMatch(/--muted:\s*oklch/);
   });
 
-  it("leaves out Tailwind's reset layer until the redesign adopts it", () => {
-    expect(css).not.toContain("tailwindcss/preflight");
+  it("imports Tailwind's reset in the base layer, so the site's own unlayered rules still win", () => {
+    expect(css).toMatch(/@import "tailwindcss\/preflight\.css" layer\(base\);/);
+    expect(css).toMatch(/@layer theme, base, components, utilities;/);
     expect(css).toContain("source(none)");
+  });
+
+  it("sets the base border colour that shadcn components expect, for every element", () => {
+    expect(css).toMatch(
+      /@layer base \{\s*\*,\s*::after,\s*::before \{\s*border-color: var\(--ui-border\);/,
+    );
+  });
+
+  it("puts the link underline back in the base layer, so utilities can still remove it", () => {
+    expect(css).toMatch(/@layer base \{[\s\S]*?\sa \{\s*text-decoration: underline;/);
+    expect(css).not.toMatch(/^a \{[^}]*text-decoration/m);
+  });
+
+  it("sets its own list markers where the reset would remove the browser's", () => {
+    expect(css).toMatch(/\.app-next ol \{[^}]*list-style: decimal/);
+    expect(css).toMatch(/\.eval-more ul \{[^}]*list-style: disc/);
   });
 });

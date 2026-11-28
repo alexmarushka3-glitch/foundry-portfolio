@@ -24,6 +24,28 @@ test("home page loads with the main sections and no browser errors", async ({ pa
   expect(errors).toEqual([]);
 });
 
+test("the closing band ends the page with the demo and resume links, above the footer", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const band = page.locator("section.closing");
+  await band.scrollIntoViewIfNeeded();
+  await expect(band.getByRole("heading", { level: 2, name: "Try it yourself" })).toBeVisible();
+  await expect(band.getByRole("link", { name: "Build a web app" })).toHaveAttribute(
+    "href",
+    "#demo",
+  );
+  await expect(band.getByRole("link", { name: "Resume" })).toHaveAttribute(
+    "href",
+    "/Alex-Marushka-Resume.pdf",
+  );
+  const [bandBox, footerBox] = await Promise.all([
+    band.boundingBox(),
+    page.locator("footer.footer").boundingBox(),
+  ]);
+  expect(bandBox!.y + bandBox!.height).toBeLessThanOrEqual(footerBox!.y);
+});
+
 test("a recorded example replays to the end and offers the app", async ({ page }) => {
   test.setTimeout(120_000); // a replay takes about 15 s; a cold dev server compiles first
   const errors = watchErrors(page);

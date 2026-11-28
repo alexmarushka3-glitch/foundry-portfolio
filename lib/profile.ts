@@ -39,6 +39,11 @@ export const profile = {
       text: "Real tests can fail the build and send it back. A Validator agent checks it against the story and the tests, and Release writes it up.",
     },
   ] satisfies { title: string; agents: AgentName[]; text: string }[],
+  /** The closing band at the bottom of the page. It makes no claim: it only points at the demo and says the page names the mode. */
+  closing: {
+    title: "Try it yourself",
+    text: "Pick a recorded example or describe your own idea. The page always says whether a live run, a replay or a simulation ran.",
+  },
   /** The one-line version, used for the page description in search results and link previews. */
   title: "Student at the University of Chicago",
   pitch:

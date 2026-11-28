@@ -1,23 +1,45 @@
 /* Foundry portfolio. Light page, dark "stage" where the agents run. */
 
-/* Tailwind v4 and shadcn, added without touching how the site looks:
-   - theme and utilities only: Tailwind's reset layer is left out, so the page keeps the browser defaults it was built on
-   - the utility scan is limited to components/ui (shadcn's folder), so nothing is generated from words in the existing pages
+/* Tailwind v4 and shadcn:
+   - theme, Tailwind's reset (preflight) and utilities, each in its own layer; layered rules lose to the unlayered rules
+     below, so the existing CSS still wins wherever it sets a property
+   - the reset only changes what the site's own CSS leaves unset: heading sizes, list bullets, link underlines, images
+     and svg as blocks; check those when adding an unstyled element
+   - the utility scan is limited to components/ui (shadcn's folder), so nothing is generated from words in the pages
    - shadcn's colours use their own --ui-* names, because shadcn's --muted would collide with this file's --muted
-   Layered rules lose to the unlayered rules below, so the existing CSS always wins.
 
    When adding a shadcn component (npx shadcn add ...):
    - shadcn may append unprefixed tokens (--background, --muted, --border, ...) to :root; rename them to --ui-* and map
      them in @theme inline, or the site's own --muted (a text colour) is overwritten
    - utility classes only generate for files under components/ui; add an @source line for any other folder that uses them
-   - the components expect Tailwind's reset (button borders, base border colour). It is left out so the site looks the same;
-     add it (and the base border colour) when the redesign restyles the existing elements
    - Tailwind's --ease-out loses to this file's --ease-out, so an ease-out class on a component uses the site's curve */
 @layer theme, base, components, utilities;
 @import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
 @import "tailwindcss/utilities.css" layer(utilities) source(none);
 @import "tw-animate-css";
 @source "../components/ui";
+
+/* shadcn components draw their borders with the base border colour */
+@layer base {
+  *,
+  ::after,
+  ::before {
+    border-color: var(--ui-border);
+  }
+  /* the reset removes the browser's link underline; this puts it back, in the base layer so utilities can still remove it */
+  a {
+    text-decoration: underline;
+  }
+  /* more of the browser's defaults that the reset removes */
+  input[type="range"] {
+    margin: 2px;
+  }
+  ::placeholder {
+    color: var(--muted);
+    opacity: 0.85;
+  }
+}
 
 /* shadcn's dark variant follows this site's theme switch (data-theme="dark" on <html>), not the system setting. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
@@ -1403,6 +1425,7 @@ html[data-theme="dark"] .stage {
   font-size: 0.95rem;
 }
 .app-next ol {
+  list-style: decimal; /* the reset removes the browser's numbers */
   margin: 0;
   padding-left: 1.25rem;
   display: grid;
@@ -1437,10 +1460,17 @@ html[data-theme="dark"] .stage {
 
 /* ---------- sections ---------- */
 .section {
-  padding: 56px 0 8px;
+  padding: 72px 0 8px;
 }
 .section h2 {
   font-size: clamp(1.5rem, 3vw, 2rem);
+}
+.section > h1 {
+  font-size: 2em; /* the 404 page's heading: the reset made it body size */
+  margin: 0.67em 0;
+}
+.section > .lede + p {
+  margin: 1em 0 0; /* the 404 page's button, which had the browser's paragraph margin */
 }
 .lede {
   max-width: var(--measure);
@@ -1455,8 +1485,10 @@ html[data-theme="dark"] .stage {
   margin-top: 28px;
 }
 .reality-col {
-  border-top: 3px solid var(--line);
-  padding-top: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: inset 0 3px 0 var(--line); /* the coloured top accent; a thick border would taper at the rounded corners */
+  padding: 22px 22px 24px;
 }
 .eval-card {
   margin-top: 28px;
@@ -1484,12 +1516,14 @@ html[data-theme="dark"] .stage {
 }
 .eval-more ul {
   margin: 6px 0 0;
+  padding-left: 1.25rem; /* the reset removes the browser's bullets and indent */
+  list-style: disc;
 }
 .reality-col.working {
-  border-top-color: var(--verdigris);
+  box-shadow: inset 0 3px 0 var(--verdigris);
 }
 .reality-col.limits {
-  border-top-color: var(--brick);
+  box-shadow: inset 0 3px 0 var(--brick);
 }
 .reality-col h3 {
   font-size: 1.1rem;
@@ -1539,6 +1573,7 @@ html[data-theme="dark"] .stage {
 }
 .reality-col summary::after {
   content: "";
+  box-sizing: content-box; /* the reset only sets border-box on elements, not their ::after */
   display: inline-block;
   width: 6px;
   height: 6px;
@@ -1675,27 +1710,56 @@ html[data-theme="dark"] .stage {
   list-style: none;
   padding: 0;
   margin: 20px 0 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  counter-reset: lesson;
 }
 .lessons li {
-  padding: 22px 0;
-  border-top: 1px solid var(--line);
   display: grid;
-  gap: 6px;
-  max-width: 78ch;
+  align-content: start;
+  gap: 8px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  counter-increment: lesson;
+}
+.lessons li::before {
+  content: counter(lesson, decimal-leading-zero);
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 900px) {
+  .lessons {
+    grid-template-columns: 1fr;
+  }
 }
 .lessons h4 {
   font-size: 1.1rem;
 }
 
-/* The project in short: term on the left, text on the right; stacked on phones. */
-.case {
-  margin: 20px 0 0;
+/* The project in short: the heading on the left, the case rows on the right; stacked below 860px. */
+.project-head,
+.about-section {
   display: grid;
-  max-width: 78ch;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr);
+  gap: 24px 56px;
+  align-items: start;
+}
+.project-head {
+  margin-bottom: 48px;
+}
+.about-section {
+  margin-top: 24px;
+}
+.case {
+  margin: 0;
+  display: grid;
 }
 .case > div {
   display: grid;
-  grid-template-columns: 11rem 1fr;
+  grid-template-columns: 9rem 1fr;
   gap: 4px 24px;
   padding: 16px 0;
   border-top: 1px solid var(--line);
@@ -1708,8 +1772,14 @@ html[data-theme="dark"] .stage {
   color: var(--muted);
 }
 .case-sub {
-  margin: 36px 0 0;
+  margin: 56px 0 0;
   font-size: 1.15rem;
+}
+@media (max-width: 860px) {
+  .project-head,
+  .about-section {
+    grid-template-columns: 1fr;
+  }
 }
 @media (max-width: 640px) {
   .case > div {
@@ -1722,7 +1792,6 @@ html[data-theme="dark"] .stage {
 }
 
 .about {
-  margin-top: 16px;
   max-width: var(--measure);
 }
 .about p {
@@ -1737,19 +1806,74 @@ html[data-theme="dark"] .stage {
   margin: -10px 12px -10px 0;
 }
 
+/* the closing band: a dark panel that ends the page, like the demo window */
+.closing {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px 40px;
+  margin-top: 96px;
+  padding: clamp(28px, 5vw, 56px);
+  border-radius: 20px;
+  background: radial-gradient(circle at 100% 0, rgb(240 162 58 / 0.16), transparent 55%),
+    var(--iron);
+  color: var(--on-iron);
+}
+.closing :focus-visible {
+  outline-color: var(--amber); /* verdigris is too dark on iron (same fix as .stage) */
+}
+.closing h2 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+.closing p {
+  max-width: 44ch;
+  margin: 10px 0 0;
+  color: var(--on-iron-muted);
+}
+.closing-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.btn-on-iron {
+  color: var(--on-iron);
+  background: transparent;
+  border-color: var(--field-line);
+}
+@media (hover: hover) and (pointer: fine) {
+  .btn-on-iron:hover {
+    border-color: var(--on-iron);
+  }
+}
+@media (max-width: 560px) {
+  .closing-actions,
+  .closing-actions .btn {
+    width: 100%;
+  }
+}
+
 .footer {
-  margin-top: 56px;
-  padding-top: 20px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px 48px;
+  margin-top: 72px;
+  padding-top: 24px;
   padding-bottom: 48px;
   color: var(--muted);
   font-size: 0.9rem;
   border-top: 1px solid var(--line);
 }
+@media (max-width: 760px) {
+  .footer {
+    grid-template-columns: 1fr;
+  }
+}
 .footer p {
   margin: 0;
 }
 .footer .contact {
-  margin-top: 10px;
+  margin-top: 0;
 }
 .footer .contact a {
   color: var(--ink);
