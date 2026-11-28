@@ -24,6 +24,28 @@ test("home page loads with the main sections and no browser errors", async ({ pa
   expect(errors).toEqual([]);
 });
 
+test("the closing band ends the page with the demo and resume links, above the footer", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const band = page.locator("section.closing");
+  await band.scrollIntoViewIfNeeded();
+  await expect(band.getByRole("heading", { level: 2, name: "Try it yourself" })).toBeVisible();
+  await expect(band.getByRole("link", { name: "Build a web app" })).toHaveAttribute(
+    "href",
+    "#demo",
+  );
+  await expect(band.getByRole("link", { name: "Resume" })).toHaveAttribute(
+    "href",
+    "/Alex-Marushka-Resume.pdf",
+  );
+  const [bandBox, footerBox] = await Promise.all([
+    band.boundingBox(),
+    page.locator("footer.footer").boundingBox(),
+  ]);
+  expect(bandBox!.y + bandBox!.height).toBeLessThanOrEqual(footerBox!.y);
+});
+
 test("from 901px up the demo drawing's text is at least 11px, the tall drawing at most 360px wide, and the sidebar shows", async ({
   page,
 }) => {

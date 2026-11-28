@@ -3,7 +3,7 @@
 import type { MouseEvent, ReactNode } from "react";
 
 /**
- * The hero's "Build a web app" link. On a phone the examples and the idea box fill the first screen of the stage, so
+ * The "Build a web app" link, in the hero and in the closing band. On a phone the examples and the idea box fill the first screen of the stage, so
  * landing on #demo would leave the drawing (and the example that autoplays when it comes into view) below the fold.
  * There it scrolls to the drawing instead. It stays a real link, so Cmd/Ctrl-click and no-JS still go to #demo.
  */

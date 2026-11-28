@@ -1,12 +1,17 @@
 import ContactLinks from "@/components/ContactLinks";
 import DemoLink from "@/components/DemoLink";
 import { FactsStrip, Statement, Steps } from "@/components/home/Intro";
-import HowItWorks from "@/components/HowItWorks";
+import {
+  AboutSection,
+  ClosingBand,
+  ProjectSection,
+  ScopeSection,
+  SiteFooter,
+} from "@/components/home/Lower";
 import Logo from "@/components/Logo";
 import Stage from "@/components/Stage";
 import ThemeToggle from "@/components/ThemeToggle";
 import { profile } from "@/lib/profile";
-import { REALITY } from "@/lib/reality";
 import type { Metadata } from "next";
 
 // The old foundry-portfolio address serves the same page; this names the one search engines should keep.
@@ -29,7 +34,7 @@ export default function Home() {
           <a href="#reality">Scope</a>
           <a href="#about">About</a>
         </nav>
-        <a className="nav-resume" href="/Alex-Marushka-Resume.pdf" target="_blank" rel="noreferrer">
+        <a className="nav-resume" href={profile.resume} target="_blank" rel="noreferrer">
           Resume
         </a>
         <ThemeToggle />
@@ -66,83 +71,13 @@ export default function Home() {
         <Statement />
         <Steps />
 
-        <section id="project" className="section" aria-labelledby="project-title">
-          <h2 id="project-title">The project in short</h2>
-          <dl className="case">
-            {profile.caseStudy.map((row) => (
-              <div key={row.term}>
-                <dt>{row.term}</dt>
-                <dd>{row.text}</dd>
-              </div>
-            ))}
-          </dl>
-          <HowItWorks />
-          <h3 className="case-sub">Decisions that mattered</h3>
-          <ul className="lessons">
-            {profile.lessons.map((l) => (
-              <li key={l.title}>
-                <h4>{l.title}</h4>
-                <p>{l.body}</p>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section id="reality" className="section" aria-labelledby="reality-title">
-          <h2 id="reality-title">Scope and limits</h2>
-          <p className="lede">Select any line for the detail.</p>
-          <div className="reality">
-            {REALITY.map((col) => (
-              <div key={col.heading} className={`reality-col ${col.tone}`}>
-                <h3>{col.heading}</h3>
-                <ul>
-                  {col.items.map((it, i) => (
-                    <li key={it}>
-                      <details>
-                        <summary>{col.short[i]}</summary>
-                        <p>{it}</p>
-                      </details>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section id="about" className="section" aria-labelledby="about-title">
-          <h2 id="about-title">About</h2>
-          <div className="about">
-            {profile.about.map((para) => (
-              <p key={para}>{para}</p>
-            ))}
-          </div>
-          <p className="contact">
-            <ContactLinks />
-          </p>
-        </section>
+        <ProjectSection />
+        <ScopeSection />
+        <AboutSection />
+        <ClosingBand />
       </main>
 
-      <footer className="footer">
-        <p>
-          Built with Claude Code. The agents run on Claude models. Visits are counted with Vercel
-          Web Analytics, without cookies.
-        </p>
-        <p className="contact">
-          <ContactLinks label="Email" />{" "}
-          <a
-            href="https://github.com/alexmarushka3-glitch/foundry-portfolio"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Site code
-          </a>{" "}
-          <a href={profile.figma.href} target="_blank" rel="noreferrer">
-            {profile.figma.label}
-          </a>
-        </p>
-        <p className="contact">{profile.figma.note}</p>
-      </footer>
+      <SiteFooter />
     </>
   );
 }

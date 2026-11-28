@@ -8,7 +8,7 @@ How the code is organised, how a run flows through it, and where to change thing
 app/                     Next.js routes only: pages and HTTP handlers. Thin; they call into lib/.
   page.tsx               The public page.
   layout.tsx, globals.css  The page shell and styles. layout.tsx loads Vercel Web Analytics (/_vercel/insights/script.js, page views only, no cookies) on Vercel builds; it needs Analytics enabled in the Vercel project.
-                           globals.css also loads Tailwind v4 (theme and utilities only, no reset layer, scan limited to components/ui) and the shadcn tokens, named --ui-*. Rules for adding shadcn components are in the comment at the top of globals.css.
+                           globals.css also loads Tailwind v4 (theme, its reset (preflight) in the base layer, and utilities; the scan is limited to components/ui). Because the reset is on, give any unstyled element its own size, margin and list style; the top comment in globals.css says which defaults it removes and the shadcn tokens, named --ui-*. Rules for adding shadcn components are in the comment at the top of globals.css.
   icon.svg, apple-icon.tsx, opengraph-image.tsx   Tab icon (same drawing as components/Logo.tsx), home-screen icon, and the share-preview picture.
   admin/                 The admin dashboard page (server-gated) and its CSS.
   api/run/               GET: is live on? POST: stream a run as NDJSON (see "A run, end to end" and "Reference notes").
