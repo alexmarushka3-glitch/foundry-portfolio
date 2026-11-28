@@ -660,6 +660,7 @@ html[data-theme="dark"] .stage {
 }
 .crumb-idea {
   min-width: 0;
+  white-space: nowrap; /* .crumb keeps the separator's spaces with pre; the idea must stay on one line */
   overflow: hidden;
   text-overflow: ellipsis;
   color: var(--on-iron);

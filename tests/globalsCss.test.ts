@@ -43,4 +43,9 @@ describe("app/globals.css and shadcn", () => {
     expect(css).not.toContain("tailwindcss/preflight");
     expect(css).toContain("source(none)");
   });
+
+  it("keeps the title bar's idea on one line, however it is typed", () => {
+    // .crumb keeps the spaces around its separator with white-space: pre, which the idea would inherit
+    expect(css).toMatch(/\.crumb-idea \{[^}]*white-space: nowrap;/);
+  });
 });
