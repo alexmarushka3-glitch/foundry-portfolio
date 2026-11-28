@@ -12,11 +12,19 @@ Portfolio site built around Foundry, an eight-agent web app builder. Visitors ty
 
 For any change bigger than a small fix: explore first, make a plan and wait for Alex's OK, implement test first, verify with `npm run typecheck` and `npm test`, then commit on a branch and open a PR.
 
-After implementing, run the `qa` subagent on the changed files, then the `code-reviewer` subagent on the full diff including qa's new tests (code-reviewer can't run git: put the diff in a scratchpad file, see `.claude/rules/windows-gotchas.md`), fix what they find, then open the PR. For research-heavy questions (library docs, APIs), use the `research` subagent so the reading stays out of the main conversation.
+After implementing, run the `qa` subagent on the changed files, then the `code-reviewer` subagent on the full diff including qa's new tests (code-reviewer can't run git: write the diff to a scratchpad file first, for example `git diff origin/main...HEAD > <scratchpad>/pr.diff`, see `.claude/rules/windows-gotchas.md`), fix what they find, then open the PR. For research-heavy questions (library docs, APIs), use the `research` subagent so the reading stays out of the main conversation.
 
-If another Claude session may be working in this folder, do not switch branches here: two sessions in one checkout overwrite each other's branch. Instead `git fetch origin`, then `git worktree add -b <branch> --no-track ../Foundry-Portfolio-<branch> origin/main` (forward slashes, so it also works in the Bash tool; a folder next to this repo, never inside it), run `npm install` in it, copy the gitignored local files you need (`.env.local`, `CLAUDE.local.md`, `.claude/settings.local.json`), and start a new Claude session in that folder, so the hooks and the Stop check run there and not here. When the PR is merged: `git worktree remove ../Foundry-Portfolio-<branch>`, then `git branch -d <branch>`.
+The Superpowers plugin (brainstorm, plan, test first, verify before claiming done) can help with this workflow. Alex keeps it off by default on his own machine and turns it on with `/superpowers on`. It is a dev workflow only: the site never runs it, and the site copy does not claim it.
 
-The Superpowers plugin (brainstorm, plan, test first, verify before claiming done) can help with this. Alex keeps it off by default on his own machine and turns it on with `/superpowers on`. It is a dev workflow only: the site never runs it, and the site copy does not claim it.
+### Parallel sessions (git worktrees)
+
+If another Claude session may be working in this folder, do not switch branches here: two sessions in one checkout overwrite each other's branch. Work in a worktree instead, a second folder next to this repo with its own branch:
+
+1. `git fetch origin`
+2. `git worktree add -b <branch> --no-track ../Foundry-Portfolio-<name> origin/main`, where `<name>` is the branch with every `/` replaced by `-` (branch `feat/new-logo` → folder `../Foundry-Portfolio-feat-new-logo`). Forward slashes work in PowerShell and in the Bash tool.
+3. In the new folder run `npm ci` (not `npm install`, so `package-lock.json` stays unchanged), then copy the gitignored local files the task needs from this folder: `.env.local` (live runs), `CLAUDE.local.md` and `.claude/settings.local.json`. Also not there: the gitignored `.claude/skills/*` design skills, `.vercel/`, `.agents/` and `.impeccable/`.
+4. Start a new Claude session in the new folder, so its hooks and the Stop check run there. Only one folder at a time can run `npm run dev` or `npm run test:ui`: both use port 3000.
+5. Push with `git push -u origin <branch>` as usual. After the PR is merged, close that session and its dev server, then from this folder: `git worktree remove ../Foundry-Portfolio-<name>` and `git branch -d <branch>`. If git says the branch is not fully merged, run `git fetch origin` and try `-d` again; never use `-D` (the hook blocks it). If it is still refused, tell Alex the branch name.
 
 ## Compact instructions
 
