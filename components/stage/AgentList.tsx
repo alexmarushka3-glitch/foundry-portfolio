@@ -11,8 +11,9 @@ import type { AgentFrame } from "@/lib/run";
  */
 export default function AgentList({ frames }: { frames: AgentFrame[] }) {
   const byId = new Map(frames.map((f) => [f.agent, f]));
+  // tabIndex -1: in a short window the list scrolls, and browsers make a scrollable box tabbable unless told not to
   return (
-    <ul className="agent-list" aria-hidden="true">
+    <ul className="agent-list" aria-hidden="true" tabIndex={-1}>
       {AGENT_LIST.map((a) => {
         const f: AgentFrame = byId.get(a.id) ?? {
           agent: a.id,

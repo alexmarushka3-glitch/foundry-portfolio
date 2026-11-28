@@ -133,7 +133,7 @@ test("a scope line opens and closes smoothly, with no snap when the animation en
   }
 });
 
-test("the demo drawing's text stays at least 11px wide from 901px up, with the sidebar showing", async ({
+test("from 901px up the demo drawing's text is at least 11px, the tall drawing at most 360px wide, and the sidebar shows", async ({
   page,
 }) => {
   test.setTimeout(120_000); // six page loads, the first on a cold dev server
@@ -158,6 +158,7 @@ test("the demo drawing's text stays at least 11px wide from 901px up, with the s
       return {
         tall: svg.classList.contains("pipeline-narrow"),
         minText: Math.min(...sizes),
+        drawingWidth: svg.getBoundingClientRect().width,
         sidebarShown: getComputedStyle(list).display !== "none",
         overflowing: overflowing.map((el) => el.textContent),
         overflow: document.documentElement.scrollWidth > window.innerWidth,
@@ -166,6 +167,7 @@ test("the demo drawing's text stays at least 11px wide from 901px up, with the s
     const at = `at ${width}px`;
     expect(info.tall, `tall drawing ${at}`).toBe(width <= 1200);
     expect(info.minText, `smallest drawing text ${at}`).toBeGreaterThanOrEqual(11);
+    if (info.tall) expect(info.drawingWidth, `tall drawing width ${at}`).toBeLessThanOrEqual(360);
     expect(info.sidebarShown, `sidebar ${at}`).toBe(true);
     expect(info.overflowing, `sidebar text that runs past its box ${at}`).toEqual([]);
     expect(info.overflow, `sideways scroll ${at}`).toBe(false);
