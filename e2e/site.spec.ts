@@ -46,6 +46,38 @@ test("the closing band ends the page with the demo and resume links, above the f
   expect(bandBox!.y + bandBox!.height).toBeLessThanOrEqual(footerBox!.y);
 });
 
+test("the scope lines open and close from the keyboard, show a focus ring, and only animate when motion is allowed", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const item = page.locator("#reality details").first();
+  const summary = item.locator("summary");
+  const detail = item.locator("p");
+  await summary.scrollIntoViewIfNeeded();
+  await expect(detail).toBeHidden();
+
+  await summary.focus();
+  await page.keyboard.press("Tab"); // move on, then back, so the ring comes from the keyboard
+  await page.keyboard.press("Shift+Tab");
+  await expect(summary).toBeFocused();
+  const ring = await summary.evaluate((el) => getComputedStyle(el).outlineStyle);
+  expect(ring).not.toBe("none");
+
+  await page.keyboard.press("Space");
+  await expect(item).toHaveJSProperty("open", true);
+  await expect(detail).toBeVisible();
+  await page.keyboard.press("Enter");
+  await expect(item).toHaveJSProperty("open", false);
+  await expect(detail).toBeHidden();
+
+  const duration = () =>
+    item.evaluate((el) => getComputedStyle(el, "::details-content").transitionDuration);
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  expect(await duration()).not.toBe("0s");
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  expect(await duration()).toBe("0s");
+});
+
 test("a recorded example replays to the end and offers the app", async ({ page }) => {
   test.setTimeout(120_000); // a replay takes about 15 s; a cold dev server compiles first
   const errors = watchErrors(page);

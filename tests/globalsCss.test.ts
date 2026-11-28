@@ -60,4 +60,29 @@ describe("app/globals.css and shadcn", () => {
     expect(css).toMatch(/\.app-next ol \{[^}]*list-style: decimal/);
     expect(css).toMatch(/\.eval-more ul \{[^}]*list-style: disc/);
   });
+
+  it("animates the scope lines with CSS only, behind @supports and no-preference motion", () => {
+    const start = css.indexOf("@supports (interpolate-size: allow-keywords) {");
+    expect(start, "an @supports block for interpolate-size").toBeGreaterThan(-1);
+    // find the end of that block by counting braces
+    let depth = 0;
+    let end = start;
+    for (let k = css.indexOf("{", start); k < css.length; k++) {
+      if (css[k] === "{") depth++;
+      if (css[k] === "}" && --depth === 0) {
+        end = k;
+        break;
+      }
+    }
+    const block = css.slice(start, end + 1);
+    expect(block).toMatch(/@media \(prefers-reduced-motion: no-preference\) \{/);
+    expect(block).toMatch(/interpolate-size: allow-keywords/);
+    expect(block).toMatch(/\.reality-col details::details-content \{[^}]*height: 0/);
+    expect(block).toMatch(/transition:[^;]*height[^;]*;/);
+    expect(block).toMatch(/content-visibility[^;]*allow-discrete/);
+    expect(block).toMatch(/details\[open\]::details-content \{[^}]*height: auto/);
+    // nothing outside that block touches ::details-content, so old browsers and reduced motion just open instantly
+    const outside = css.slice(0, start) + css.slice(end + 1);
+    expect(outside).not.toContain("::details-content");
+  });
 });
