@@ -71,7 +71,7 @@ export default function Stage() {
     clearError,
   } = useLiveRun(showFinished);
   const busy = live !== null;
-  const idea = live?.request ?? run?.request ?? "New build"; // named in the window's title bar
+  const idea = live?.request || run?.request || "New build"; // named in the window's title bar
 
   const resetView = useCallback(() => {
     setSelected(null);

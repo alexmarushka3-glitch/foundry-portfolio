@@ -60,4 +60,9 @@ describe("app/globals.css and shadcn", () => {
     expect(css).toMatch(/\.app-next ol \{[^}]*list-style: decimal/);
     expect(css).toMatch(/\.eval-more ul \{[^}]*list-style: disc/);
   });
+
+  it("keeps the title bar's idea on one line, however it is typed", () => {
+    // .crumb keeps the spaces around its separator with white-space: pre, which the idea would inherit
+    expect(css).toMatch(/\.crumb-idea \{[^}]*white-space: nowrap;/);
+  });
 });
