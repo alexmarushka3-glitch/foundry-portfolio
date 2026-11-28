@@ -901,10 +901,13 @@ html[data-theme="dark"] .stage {
   overflow: visible;
 }
 .pipeline-narrow {
-  max-width: 420px; /* the tall drawing is used in windows up to 1200px wide, not only on phones: keep it from being blown up */
+  /* the tall drawing is used in windows up to 1200px wide, not only on phones: 360px keeps it short and not blown up */
+  max-width: 360px;
 }
 @media (max-width: 900px) {
-  .pipeline {
+  /* phones and tablets (one column) keep 420px; named here so the order of the rules above can't decide it */
+  .pipeline,
+  .pipeline-narrow {
     max-width: 420px;
     margin-top: 18px;
   }
@@ -986,7 +989,7 @@ html[data-theme="dark"] .stage {
 .node-icon.small path {
   stroke-width: 3;
 }
-/* the tall drawing: scaled to about 0.8 on a 320px phone (so its text is set larger to stay near 11px) and up to 1.4 in a window up to 1200px wide */
+/* the tall drawing: scaled to about 0.8 on a 320px phone (so its text is set larger to stay near 11px) and up to 1.2 in a window up to 1200px wide */
 .pipeline-narrow .node-label {
   font-size: 14.5px;
 }

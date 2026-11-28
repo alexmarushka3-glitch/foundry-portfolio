@@ -79,10 +79,18 @@ describe("app/globals.css and shadcn", () => {
     expect(rule).toMatch(/overflow-y: auto;/);
   });
 
-  it("caps the tall drawing's width outside the phone query too, so it isn't blown up on a laptop", () => {
-    // the 900px query already caps it for phones and tablets; between 901px and 1200px the same cap must hold
+  it("caps the tall drawing at 360px in a laptop-size window, and at 420px on phones and tablets", () => {
     const src = css.replace(/\/\*[\s\S]*?\*\//g, "");
-    const outside = src.replace(/@media[^{]*\{(?:[^{}]|\{[^{}]*\})*\}/g, "");
-    expect(outside).toMatch(/\.pipeline-narrow \{[^}]*max-width: 420px;/);
+    const media = src.match(/@media[^{]*\{(?:[^{}]|\{[^{}]*\})*\}/g) ?? [];
+    const outside = media.reduce((rest, m) => rest.replace(m, ""), src);
+    // everywhere else (901px to 1200px): shorter and less blown up
+    expect(outside).toMatch(/\.pipeline-narrow \{[^}]*max-width: 360px;/);
+    // up to 900px (one column) the cap stays at 420px, named explicitly so the order of the rules can't decide it
+    const capped = media.filter(
+      (m) =>
+        m.startsWith("@media (max-width: 900px)") &&
+        /\.pipeline-narrow[^{]*\{[^}]*max-width: 420px;/.test(m),
+    );
+    expect(capped, "a 900px block that caps .pipeline-narrow at 420px").toHaveLength(1);
   });
 });
