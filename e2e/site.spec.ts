@@ -418,7 +418,10 @@ test(
       route.fulfill({
         status: 200,
         headers: { ...sealed, "Content-Type": "text/html; charset=utf-8" },
-        body: '<!doctype html><title>x</title><h1 id="stayed">Still here</h1><script>setTimeout(function () { location.href = "https://example.com/"; }, 200);</script>',
+        // The escape attempt is `leave()`, called by the test once the app is on screen. It is not a timer that starts
+        // when the app loads: that can fire before a slow machine's first check, and the blocked frame is then replaced
+        // by a notice. `leave()` itself defers by one tick so the test's call returns before the page navigates.
+        body: '<!doctype html><title>x</title><h1 id="stayed">Still here</h1><script>window.leave = function () { setTimeout(function () { location.href = "https://example.com/"; }, 0); };</script>',
       }),
     );
     const reached: string[] = [];
@@ -435,6 +438,10 @@ test(
     });
     await page.goto(`/a/${GONE_ID}`);
     await expect(page.frameLocator("iframe").locator("#stayed")).toBeVisible();
+    // now the app tries to leave: same script-set `location.href`, at a moment the test chooses
+    const appFrame = page.frame({ url: (u) => u.pathname === `/a/${GONE_ID}/app` });
+    expect(appFrame).not.toBeNull();
+    await appFrame!.evaluate(() => (window as unknown as { leave: () => void }).leave());
     await expect
       .poll(
         () => page.evaluate(() => (window as unknown as { __csp: string[] }).__csp.join("\n")),

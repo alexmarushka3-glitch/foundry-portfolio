@@ -10,6 +10,8 @@ const baseURL = process.env.BASE_URL ?? "http://localhost:3000";
 
 export default defineConfig({
   testDir: "./e2e",
+  // asks for each route once before the tests, so the dev server's first-compile wait is not charged to a test
+  globalSetup: "./e2e/warmup.ts",
   timeout: 60_000,
   retries: 0,
   reporter: [["list"]],
