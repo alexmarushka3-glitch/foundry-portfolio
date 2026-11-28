@@ -250,4 +250,12 @@ describe("demo window", () => {
       delete Element.prototype.scrollIntoView;
     }
   });
+
+  it("keeps the scrolling sidebar out of the tab order, so no focusable box sits inside an aria-hidden list", () => {
+    const { container } = render(<AgentList frames={[]} />);
+    const list = container.querySelector(".agent-list")!;
+    expect(list.getAttribute("aria-hidden")).toBe("true");
+    // in a short window the list scrolls, and browsers make scrollable boxes keyboard-focusable unless told not to
+    expect(list.getAttribute("tabindex")).toBe("-1");
+  });
 });

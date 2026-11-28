@@ -31,7 +31,7 @@ const GEOMETRY: Record<
     },
   },
   narrow: {
-    // 300 wide so the 14px text shows at about 11px on a 320px phone; also drawn up to 1200px wide (see Stage.tsx), capped at 420px
+    // 300 wide so the 14px text shows at about 11px on a 320px phone; also drawn in windows up to 1200px wide (see Stage.tsx), capped at 360px there and 420px on phones and tablets
     viewBox: "0 0 300 540",
     w: 184,
     h: 58,
