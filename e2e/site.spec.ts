@@ -46,6 +46,93 @@ test("the closing band ends the page with the demo and resume links, above the f
   expect(bandBox!.y + bandBox!.height).toBeLessThanOrEqual(footerBox!.y);
 });
 
+test("the scope lines open and close from the keyboard, show a focus ring, and only animate when motion is allowed", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const animates = await page.evaluate(
+    () =>
+      CSS.supports("interpolate-size", "allow-keywords") &&
+      CSS.supports("selector(::details-content)"),
+  );
+  const item = page.locator("#reality details").first();
+  const summary = item.locator("summary");
+  const detail = item.locator("p");
+  await summary.scrollIntoViewIfNeeded();
+  await expect(detail).toBeHidden();
+  if (animates) {
+    // the browser's own hidden state is what lets find-in-page open a closed line; the animation must not replace it
+    expect(
+      await item.evaluate((el) => getComputedStyle(el, "::details-content").contentVisibility),
+    ).toBe("hidden");
+  }
+
+  await summary.focus();
+  await page.keyboard.press("Tab"); // move on, then back, so the ring comes from the keyboard
+  await page.keyboard.press("Shift+Tab");
+  await expect(summary).toBeFocused();
+  const ring = await summary.evaluate((el) => getComputedStyle(el).outlineStyle);
+  expect(ring).not.toBe("none");
+
+  await page.keyboard.press("Space");
+  await expect(item).toHaveJSProperty("open", true);
+  await expect(detail).toBeVisible();
+  await page.keyboard.press("Enter");
+  await expect(item).toHaveJSProperty("open", false);
+  await expect(detail).toBeHidden();
+
+  if (!animates) return; // this browser opens the line instantly, which is the intended fallback
+  const style = (prop: "transitionDuration" | "transitionProperty") =>
+    item.evaluate((el, p) => getComputedStyle(el, "::details-content")[p], prop);
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  expect(await style("transitionDuration")).not.toBe("0s");
+  expect(await style("transitionProperty")).toContain("height");
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  expect(await style("transitionDuration")).toBe("0s");
+});
+
+test("a scope line opens and closes smoothly, with no snap when the animation ends", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("/");
+  const animates = await page.evaluate(
+    () =>
+      CSS.supports("interpolate-size", "allow-keywords") &&
+      CSS.supports("selector(::details-content)"),
+  );
+  test.skip(!animates, "this browser opens the line instantly");
+  const item = page.locator("#reality details").first();
+  await item.scrollIntoViewIfNeeded();
+  // Follow the next line in the column, frame by frame, through one open and one close.
+  const runs = await item.evaluate(async (el) => {
+    const next = el.closest("li")!.nextElementSibling!;
+    const summary = el.querySelector("summary")!;
+    const top = () => next.getBoundingClientRect().top;
+    const run = async () => {
+      const tops = [top()];
+      summary.click();
+      for (let i = 0; i < 40; i++) {
+        await new Promise((r) => requestAnimationFrame(() => r(null)));
+        tops.push(top());
+      }
+      await new Promise((r) => setTimeout(r, 300));
+      tops.push(top());
+      return tops;
+    };
+    return { open: await run(), close: await run() };
+  });
+  for (const [name, tops] of Object.entries(runs)) {
+    const steps = tops.slice(1).map((t, i) => Math.abs(t - tops[i]));
+    const settled = steps.findIndex((d, i) => i > 3 && d < 1.5); // the eased tail of the animation
+    expect(settled, `${name}: the animation reaches its tail`).toBeGreaterThan(-1);
+    // after the tail, the line must not move again (a snap here is the text margin escaping the box)
+    expect(Math.max(...steps.slice(settled)), `${name}: largest move after the tail`).toBeLessThan(
+      1.5,
+    );
+  }
+});
+
 test("from 901px up the demo drawing's text is at least 11px, the tall drawing at most 360px wide, and the sidebar shows", async ({
   page,
 }) => {

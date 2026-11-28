@@ -111,6 +111,38 @@ describe("app/globals.css and shadcn", () => {
     expect(css).toMatch(/\.eval-more ul \{[^}]*list-style: disc/);
   });
 
+  it("animates the scope lines with CSS only, behind @supports and no-preference motion", () => {
+    const gate = "@supports (interpolate-size: allow-keywords) and selector(::details-content) {";
+    const start = code.indexOf(gate);
+    expect(start, "an @supports block for interpolate-size and ::details-content").toBeGreaterThan(
+      -1,
+    );
+    // find the end of that block by counting braces
+    let depth = 0;
+    let end = start;
+    for (let k = code.indexOf("{", start); k < code.length; k++) {
+      if (code[k] === "{") depth++;
+      if (code[k] === "}" && --depth === 0) {
+        end = k;
+        break;
+      }
+    }
+    const block = code.slice(start, end + 1);
+    expect(block).toMatch(/@media \(prefers-reduced-motion: no-preference\) \{/);
+    expect(block).toMatch(/\.reality-col details \{[^}]*interpolate-size: allow-keywords;/);
+    const closed = block.match(/\.reality-col details::details-content \{([^}]*)\}/)?.[1] ?? "";
+    expect(closed).toMatch(/height: 0;/);
+    expect(closed).toMatch(/overflow: clip;/);
+    // its own formatting context, so the paragraph's margin can't leak out and make the box jump
+    expect(closed).toMatch(/display: flow-root;/);
+    expect(closed).toMatch(/transition:[^;]*height[^;]*;/);
+    expect(closed).toMatch(/content-visibility[^;]*allow-discrete/);
+    expect(block).toMatch(/details\[open\]::details-content \{[^}]*height: auto;/);
+    // nothing outside that block touches the pseudo-element, so old browsers and reduced motion just open instantly
+    const outside = code.slice(0, start) + code.slice(end + 1);
+    expect(outside).not.toContain("::details-content");
+  });
+
   it("keeps the title bar's idea on one line, however it is typed", () => {
     // .crumb keeps the spaces around its separator with white-space: pre, which the idea would inherit
     expect(css).toMatch(/\.crumb-idea \{[^}]*white-space: nowrap;/);
