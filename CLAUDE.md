@@ -12,7 +12,15 @@ Portfolio site built around Foundry, an eight-agent web app builder. Visitors ty
 
 For any change bigger than a small fix: explore first, make a plan and wait for Alex's OK, implement test first, verify with `npm run typecheck` and `npm test`, then commit on a branch and open a PR.
 
+After implementing, run the `code-reviewer` and `qa` subagents in parallel on the changed files, fix what they find, then open the PR. For research-heavy questions (library docs, APIs), use the `research` subagent so the reading stays out of the main conversation.
+
+If another Claude session may be working in this folder, do not switch branches here: two sessions in one checkout overwrite each other's branch. Instead `git fetch origin`, then `git worktree add -b <branch> --no-track ..\Foundry-Portfolio-<branch> origin/main` (a folder next to this repo), run `npm install` in it, and start a new Claude session in that folder, so the hooks and the Stop check run there and not here. Remove it with `git worktree remove <folder>` when the PR is merged.
+
 The Superpowers plugin (brainstorm, plan, test first, verify before claiming done) can help with this. Alex keeps it off by default on his own machine and turns it on with `/superpowers on`. It is a dev workflow only: the site never runs it, and the site copy does not claim it.
+
+## Compact instructions
+
+When compacting, keep: the current branch and PR number, the files changed so far, the latest typecheck and test results (counts and any failures), open review findings, and what Alex has approved or asked to wait on.
 
 ## Commands
 
