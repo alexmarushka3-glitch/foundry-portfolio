@@ -12,7 +12,23 @@ Portfolio site built around Foundry, an eight-agent web app builder. Visitors ty
 
 For any change bigger than a small fix: explore first, make a plan and wait for Alex's OK, implement test first, verify with `npm run typecheck` and `npm test`, then commit on a branch and open a PR.
 
-The Superpowers plugin (brainstorm, plan, test first, verify before claiming done) can help with this. Alex keeps it off by default on his own machine and turns it on with `/superpowers on`. It is a dev workflow only: the site never runs it, and the site copy does not claim it.
+After implementing, run the `qa` subagent on the changed files, then the `code-reviewer` subagent on the full diff including qa's new tests (code-reviewer can't run git: commit qa's tests first, run `git fetch origin`, then write the diff to a scratchpad file with `git diff --output=<scratchpad>/pr.diff origin/main...HEAD`; `--output` keeps it plain UTF-8, which a PowerShell `>` does not; see `.claude/rules/windows-gotchas.md`), fix what they find, then open the PR. For research-heavy questions (library docs, APIs), use the `research` subagent so the reading stays out of the main conversation.
+
+The Superpowers plugin (brainstorm, plan, test first, verify before claiming done) can help with this workflow. Alex keeps it off by default on his own machine and turns it on with `/superpowers on`. It is a dev workflow only: the site never runs it, and the site copy does not claim it.
+
+### Parallel sessions (git worktrees)
+
+If another Claude session may be working in this folder, do not switch branches here: two sessions in one checkout overwrite each other's branch. Work in a worktree instead, a second folder next to this repo with its own branch:
+
+1. `git fetch origin`
+2. `git worktree add -b <branch> --no-track ../Foundry-Portfolio-<name> origin/main`, where `<name>` is the branch with every `/` replaced by `-` (branch `feat/new-logo` → folder `../Foundry-Portfolio-feat-new-logo`). Forward slashes work in PowerShell and in the Bash tool.
+3. In the new folder run `npm ci` (not `npm install`, so `package-lock.json` stays unchanged), then copy the gitignored local files the task needs from this folder: `.env.local` (live runs), `CLAUDE.local.md` and `.claude/settings.local.json`. Also not there: the gitignored `.claude/skills/*` design skills, `.vercel/`, `.agents/` and `.impeccable/`.
+4. Start a new Claude session in the new folder, so its hooks and the Stop check run there. Only one folder at a time can run `npm run dev` or `npm run test:ui`: both use port 3000, and `test:ui` silently reuses any dev server already on that port, so it would test the other folder's code. Stop the other folder's dev server first.
+5. Push with `git push -u origin <branch>` as usual. After the PR is merged, close that session and its dev server, then from this folder: `git worktree remove ../Foundry-Portfolio-<name>` and `git branch -d <branch>`. If `git worktree remove` refuses (leftover files, or a process still holds the folder), never add `--force`: run `git status` there and tell Alex. If git says the branch is not fully merged, run `git fetch origin` and try `-d` again; never use `-D` (the hook blocks it). A squash-merged branch always needs Alex to delete it: tell him the branch name.
+
+## Compact instructions
+
+When compacting, keep: the current branch and PR number, the files changed so far, the latest typecheck and test results (counts and any failures), open review findings, and what Alex has approved or asked to wait on.
 
 ## Commands
 
