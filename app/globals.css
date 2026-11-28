@@ -35,9 +35,9 @@
   input[type="range"] {
     margin: 2px;
   }
+  /* the reset makes placeholders the text colour; this keeps them readable but quieter */
   ::placeholder {
     color: var(--muted);
-    opacity: 0.85;
   }
 }
 
@@ -177,6 +177,7 @@ a {
 }
 button,
 a,
+summary,
 [role="button"],
 input[type="range"] {
   touch-action: manipulation;
@@ -682,6 +683,7 @@ html[data-theme="dark"] .stage {
 }
 .crumb-idea {
   min-width: 0;
+  white-space: nowrap; /* .crumb keeps the separator's spaces with pre; the idea must stay on one line */
   overflow: hidden;
   text-overflow: ellipsis;
   color: var(--on-iron);
@@ -1465,9 +1467,13 @@ html[data-theme="dark"] .stage {
 .section h2 {
   font-size: clamp(1.5rem, 3vw, 2rem);
 }
+.section > svg {
+  /* the 404 page's logo: the reset made it a block that sits mid-line, taking 7px out of the gap below it */
+  display: inline;
+  vertical-align: baseline;
+}
 .section > h1 {
-  font-size: 2em; /* the 404 page's heading: the reset made it body size */
-  margin: 0.67em 0;
+  font-size: 2em; /* the 404 page's heading: the reset made it body size (its margin is already 0 above) */
 }
 .section > .lede + p {
   margin: 1em 0 0; /* the 404 page's button, which had the browser's paragraph margin */
@@ -1525,6 +1531,12 @@ html[data-theme="dark"] .stage {
 .reality-col.limits {
   box-shadow: inset 0 3px 0 var(--brick);
 }
+/* box-shadow is dropped in forced-colors mode, so the accent becomes a real border there */
+@media (forced-colors: active) {
+  .reality-col {
+    border-top: 3px solid CanvasText;
+  }
+}
 .reality-col h3 {
   font-size: 1.1rem;
 }
@@ -1573,7 +1585,7 @@ html[data-theme="dark"] .stage {
 }
 .reality-col summary::after {
   content: "";
-  box-sizing: content-box; /* the reset only sets border-box on elements, not their ::after */
+  box-sizing: content-box; /* the reset gives pseudo-elements border-box too; the chevron's 6px is its content size */
   display: inline-block;
   width: 6px;
   height: 6px;
@@ -1749,6 +1761,7 @@ html[data-theme="dark"] .stage {
 }
 .lessons li::before {
   content: counter(lesson, decimal-leading-zero);
+  content: counter(lesson, decimal-leading-zero) / ""; /* empty alt text: screen readers skip the number */
   color: var(--muted);
   font-size: 0.85rem;
   font-variant-numeric: tabular-nums;
